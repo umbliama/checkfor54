@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,14 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+
+Route::get('/equip', [EquipmentController::class,'index'])->name('equip.index');
+
+Route::get('/equip/create', [EquipmentController::class,'create'])->middleware(['auth', 'verified'])->name('equip.create');
+
+Route::post('/equip', [EquipmentController::class,'store'])->name( 'equip.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
