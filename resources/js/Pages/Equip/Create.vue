@@ -1,6 +1,8 @@
 <script setup>
 import { reactive, defineProps, useAttrs } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import EquipNav from '@/Components/EquipNav.vue';
 
 const form = reactive({
     'manufactor': null,
@@ -35,129 +37,105 @@ function submit() {
 </script>
 
 <template>
-    <div class="flex h-screen">
-        <div class="m-auto">
-            <form class="w-full max-w-lg" @submit.prevent="submit">
-                <div class="flex flex-wrap -mx-3 mb-6">
-                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-manufactor">
-                            Производитель
-                        </label>
-                        <input name="manufactor" v-model="form.manufactor"
-                            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                            id="grid-manufactor" type="text">
-                        <p class="text-red-500 text-xs italic">Обязательное поле</p>
-                    </div>
-                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-category">
-                            Категория
-                        </label>
-                        <div class="relative">
-                            <select name="category" v-model="form.category_id"
-                                class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                id="grid-category">
-                                <option v-for="category in equipment_categories" :key="category.id"
-                                    :value="category.id"> {{ category.name }}</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+    <AuthenticatedLayout>
+        <EquipNav></EquipNav>
+        <div class="flex h-screen">
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-wrap -mx-3 mb-6">
-                    <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-series">
-                            Серия
-                        </label>
-                        <input v-model="form.series"
-                            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                            id="grid-series" type="text">
-                        <p class="text-red-500 text-xs italic">Обязательное поле</p>
-                    </div>
-                    <div class="w-full md:w-1/2 px-3">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-category">
-                            Дата производства
-                        </label>
-                        <input v-model="form.manufactor_date"
-                            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            id="grid-category" type="text">
-                    </div>
-                </div>
-                <div class="flex flex-wrap -mx-3 mb-2">
-                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-price">
-                            Стоимость
-                        </label>
-                        <input v-model="form.price"
-                            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            id="grid-price" type="text" placeholder="1200000">
-                    </div>
-                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-state">
-                            Состояние
-                        </label>
-                        <div class="relative">
-                            <select v-model="form.status"
-                                class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                id="grid-state">
-                                <option value="new">Новое</option>
-                                <option value="good" >Хорошее</option>
-                                <option value="satisfactory" >Удовлетворитено</option>
-                                <option value="bad" >Плохое</option>
-                                <option value="off" > Списан</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
 
-                            </div>
-                        </div>
+            <div class="flex flex-col p-8 w-full">
+                <h3 class="font-bold text-lg">Добавить новое оборудование:</h3>
+
+                <div class="grid grid-cols-3 gap-6 mb-6 mt-4">
+                    <!-- First row -->
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Категория</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="ВЗД">
                     </div>
-                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-size">
-                            Размерность
-                        </label>
-                        <div class="relative">
-                            <select v-model="form.size_id"
-                                class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                id="grid-size">
-                                <option v-for="size in equipment_sizes" :key="size.id" :value="size.id">
-                                    {{ size.name }}
-                                </option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            </div>
-                        </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Типоразмер</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="172">
                     </div>
-                    <div class="w-full md:w-3/3 px-3 mt-2 mb-6 md:mb-0">
-                        <div class="relative">
-                            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="grid-size">
-                            Примечание
-                        </label>
-                        <input v-model="form.notes"
-                            class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            id="grid-category" type="text">
-                        </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Выбрать склад</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="г. Пермь">
                     </div>
                 </div>
-                <div class="flex text-center flex-wrap m-20">
-                    <div class=" w-full md:w-3/3 px-3 mb-6 md:mb-0">
-                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            type="submit">Создать</button>
+
+                <!-- First Divider -->
+                <hr class="border-t-2 border-dotted border-gray-400 my-6 w-full">
+
+                <!-- Second Divider -->
+                <hr class="border-t-2 border-dotted border-gray-400 my-6 w-full">
+
+                <div class="grid grid-cols-3 gap-6 mb-6">
+                    <!-- Second row -->
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Производитель</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="Сокол">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Серия</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="ДР - 3980">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Заходность</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="7/8">
                     </div>
 
+                    <!-- Third row -->
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Длина</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="4950">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Длина дс.</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="2200">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Статор / Ротор</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="181334001 / 1711025">
+                    </div>
+
+                    <!-- Fourth row -->
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Наработка</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="250">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Наработка дс.</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="250">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Дата изготовления</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="15.03.2023">
+                    </div>
+
+                    <!-- Fifth row -->
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Стоимость</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="1 280 000 Р">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Примечание</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
+                            value="Гистранс">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-gray-700">Состояние</label>
+                        <input type="text" class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 " value="Новое">
+                    </div>
                 </div>
-            </form>
+
+                <div class="col-span-3 flex justify-end">
+                    <button class="bg-my-gray text-side-gray-text font-bold px-6 py-3 ">Сохранить</button>
+
+                </div>
+            </div>
         </div>
-    </div>
+    </AuthenticatedLayout>
 </template>

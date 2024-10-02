@@ -88,6 +88,12 @@ const submit = () => {
                 <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Log in
                 </PrimaryButton>
+
+            </div>
+            <div class="flex mt-5" >
+                <Link :href="route('register')" class="mx-auto flex"  :disabled="form.processing">
+                Зарегистрироваться 
+                </Link>
             </div>
         </form>
     </GuestLayout>
