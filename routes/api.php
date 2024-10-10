@@ -15,7 +15,15 @@ Route::get('/cities', [CityController::class, 'index']);
 
 
 Route::get('/equipment',[EquipmentController::class,'getEquipment']);
-Route::get('/equipment/{categoryId}',[EquipmentController::class,'getEquipmentById']);
+Route::get('/equipment/getCount',[EquipmentController::class,'getEquipmentCount']);
+Route::get('/equipment/repair/getCount',[EquipmentController::class,'getEquipmentRepairCount']);
+Route::get('/equipment/test/getCount',[EquipmentController::class,'getEquipmentTestCount']);
+Route::get('/equipment/categories',[EquipmentController::class,'getEquipmentCategories']);
+Route::get('/equipment/categories/count',[EquipmentController::class,'getEquipmentCategoriesCount']);
+Route::get('/equipment/sizes',[EquipmentController::class,'getEquipmentSizes']);
+Route::get('/equipment/sizes/count',[EquipmentController::class,'getEquipmentSizesCount']);
+Route::get('/equipment/{id}',[EquipmentController::class,'getEquipmentByID']);
+Route::get('/equipment/{categoryId}/{sizeId}', [EquipmentController::class, 'getEquipmentByCategoryAndBySize']);
 
 
 Route::get('/equip/repair',[EquipmentController::class,'getFilteredRepairs']);

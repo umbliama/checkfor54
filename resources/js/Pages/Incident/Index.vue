@@ -36,7 +36,7 @@ const createColumn = () => {
                 <Link :href="route('equip.report')" class="text-lg">Отчет</Link>
               </li>
               <li>
-                <Link :href="route('equip.index')" class="text-lg">Оборудование</Link>
+                <Link :href="route('equip.index')" class="text-lg">Список борудования</Link>
               </li>
               <li>
                 <Link :href="route('equip.repair')" class="text-lg">Ремонт</Link>

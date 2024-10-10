@@ -73,27 +73,27 @@ const updateOpenDropdown = (value) => {
         <nav class="bg-my-gray ">
             <div class="max-w-screen-xl px-4 py-3 mx-auto">
                 <div
-                    class="lg:py-2 sm:py-12 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:overflow-x-auto ">
+                    class="lg:py-2 sm:py-6 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:overflow-x-auto ">
                     <ul
                         class="flex items-center flex-row font-medium mt-0 space-x-8 border-b-2  rtl:space-x-reverse text-sm">
                         <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'all' }" class="flex pb-4 "
                             @click="updateMenuLink('all')">
                             <Link class="text-lg text-black">Все</Link>
-                            <span class="ml-1 rounded-3xl text-sm flex items-center px-3  text-white bg-gray-400 ">
+                            <span class="ml-1 rounded-full text-sm flex items-center px-3  text-white bg-gray-400 ">
                                 {{ contragents_count }}
                             </span>
                         </li>
                         <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'customers' }"
                             class="flex pb-4" @click="updateMenuLink('customers')">
                             <Link class="text-lg text-black">Заказчики</Link>
-                            <span class="ml-1 rounded-3xl text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
+                            <span class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
                                 {{ contragents_customer_count }}
                             </span>
                         </li>
                         <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'suppliers' }"
                             class="flex pb-4" @click="updateMenuLink('suppliers')">
                             <Link class="text-lg text-black">Поставщики</Link>
-                            <span class="ml-1 rounded-3xl text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
+                            <span class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
                                 {{ contragents_supplier_count }}
                             </span>
                         </li>
@@ -196,7 +196,7 @@ const updateOpenDropdown = (value) => {
 
                 <table class="border-2 border-gray w-full mt-5 table-auto">
                     <thead class="border-b-2">
-                        <tr class="py-3">
+                        <tr class="py-3 whitespace-nowrap">
                             <th class="py-4">
                                 <input
                                     class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
@@ -317,7 +317,7 @@ const updateOpenDropdown = (value) => {
                                                     </Link>
                                                     </MenuItem>
                                                     <MenuItem>
-                                                    <Link :href="route('contragents.edit', item.id)"
+                                                    <Link :href="route('contragents.show', item.id)"
                                                         class="flex items-center justify-between"
                                                         :class="['block px-4 py-2 text-sm']">Посмотреть<svg width="12"
                                                         height="12" viewBox="0 0 12 12" fill="none"
@@ -368,7 +368,7 @@ const updateOpenDropdown = (value) => {
 
 
                 <table class="border-2 border-gray w-full mt-5 table-auto">
-                    <thead class="border-b-2">
+                    <thead class="border-b-2 whitespace-nowrap">
                         <tr class="py-3">
                             <th class="py-4">
                                 <input
@@ -490,7 +490,7 @@ const updateOpenDropdown = (value) => {
                                                     </Link>
                                                     </MenuItem>
                                                     <MenuItem>
-                                                    <Link :href="route('contragents.edit', item.id)"
+                                                    <Link :href="route('contragents.show', item.id)"
                                                         class="flex items-center justify-between"
                                                         :class="['block px-4 py-2 text-sm']">Посмотреть<svg width="12"
                                                         height="12" viewBox="0 0 12 12" fill="none"
@@ -662,7 +662,7 @@ const updateOpenDropdown = (value) => {
                                                     </Link>
                                                     </MenuItem>
                                                     <MenuItem>
-                                                    <Link :href="route('contragents.edit', item.id)"
+                                                    <Link :href="route('contragents.show', item.id)"
                                                         class="flex items-center justify-between"
                                                         :class="['block px-4 py-2 text-sm']">Посмотреть<svg width="12"
                                                         height="12" viewBox="0 0 12 12" fill="none"

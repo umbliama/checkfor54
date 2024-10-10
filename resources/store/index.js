@@ -4,6 +4,7 @@ import pagination from "./modules/pagination";
 import equipment from "./modules/equipment";
 import contragent from "./modules/contragent";
 import dashboard from "./modules/dashboard";
+import services from "./modules/services";
 
 
 const store = createStore({
@@ -11,7 +12,8 @@ const store = createStore({
         pagination,
         equipment,
         contragent, 
-        dashboard
+        services,
+        dashboard,
     },
     state: {
         cities: [],

@@ -10,8 +10,9 @@ import { computed, onMounted, ref } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 
 const props = defineProps({
-  contragents:Array,
-  equipmentFormatted: Array,
+    service: Object,
+    equipment:Object,
+    subservices:Object,
 })
 
 
@@ -78,19 +79,19 @@ const modalShown = computed(() => store.getters['services/getModalShown']);
 
 
 const form = reactive({
-  contragent_id: null,
-  shipping_date: null,
-  service_number: null,
-  service_date: null,
+  contragent_id: props.service.contragent_id ?? null,
+  shipping_date: props.service.shipping_date ?? null,
+  service_number: props.service.service_number ?? null,
+  service_date: props.service.service_date ?? null,
   period_start_date: null,
   return_date: null,
   period_end_date: null,
   store: null,
   operating: null,
   return_reason: null,
-  active: null,
+  active: props.service.active ?? null,
   income: null,
-  equipment_id: selectedEquipment,
+  equipment_id: props.service.equipment_id ?? null,
 
 })
 
@@ -132,7 +133,7 @@ function submit() {
                 class=" border-b-2 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
                 <ul class="flex items-center flex-row font-medium mt-0 space-x-8  rtl:space-x-reverse text-sm">
                   <li class="flex  border-b-2  border-selected-blue pb-4 " @click="updateMenuLink('all')">
-                    <Link class="text-lg sm:text-md  text-selected-blue">Новая аренда</Link>
+                    <Link class="text-lg sm:text-md  text-selected-blue">Редактирование аренды</Link>
 
                   </li>
                   <li class="flex pb-4">

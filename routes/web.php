@@ -27,7 +27,10 @@ Route::get('/equip/report', [EquipmentController::class,'report'])->name('equip.
 Route::get('/equip/tests', [EquipmentController::class,'tests'])->name('equip.tests');
 Route::post('/equip/tests', [EquipmentController::class,'storeTest'])->name('equip.storeTest');
 Route::post('/equip/repair', [EquipmentController::class,'storeRepair'])->name( 'equip.storeRepair');
+
+
 Route::get('/equip/price', [EquipmentController::class,'price'])->name('equip.price');
+Route::post('/equip/price', [EquipmentController::class,'storePrice'])->name('equip.storePrice');
 
 
 
@@ -35,15 +38,20 @@ Route::get('/equip/repair', [EquipmentController::class,'repair'])->name('equip.
 Route::get('/equip/repair/create', [EquipmentController::class,'createRepair'])->name('equip.createRepair');
 Route::post('/equip/repair', [EquipmentController::class,'storeRepair'])->name(name: 'equip.storeRepair');
 
+
+
 Route::get('/equip/create', [EquipmentController::class,'create'])->middleware(['auth', 'verified'])->name('equip.create');
+Route::get('/equip/edit/{id}', [EquipmentController::class,'edit'])->middleware(['auth', 'verified'])->name('equip.edit');
+Route::delete('/equip/delete/{id}', [EquipmentController::class,'destroy'])->middleware(['auth', 'verified'])->name('equip.destroy');
 
 Route::post('/equip', [EquipmentController::class,'store'])->name( 'equip.store');
-Route::post('/equip/location', action: [EquipmentController::class,'store'])->name( 'equip.storeLocation');
+Route::post('/equip/location', [EquipmentController::class,'store'])->name( 'equip.storeLocation');
 Route::delete('/equip/location/delete/{id}', action: [EquipmentController::class,'deleteLocation'])->name( 'equip.deleteLocation');
 
 Route::get('/contragents', [ContragentsController::class,'index'])->name('contragents.index');
 Route::get('/contragents/create', [ContragentsController::class,'create'])->name('contragents.create');
 Route::get('/contragents/edit/{id}', [ContragentsController::class,'edit'])->name('contragents.edit');
+Route::get('/contragents/show/{id}', [ContragentsController::class,'show'])->name('contragents.show');
 Route::patch('/contragents/update/{id}', [ContragentsController::class,'update'])->name('contragents.update');
 Route::post('/contragents', [ContragentsController::class,'store'])->name('contragents.store');
 Route::delete( '/contragents/delete/{id}', [ContragentsController::class,'destroy'])->name('contragents.destroy');
@@ -59,7 +67,13 @@ Route::post('/constructor/column/{column}/blocks/reorder', [IncidentController::
 
 
 Route::get('/services', [ServiceController::class,'index'])->name('services.index');
+Route::post('/services', [ServiceController::class,'store'])->name('services.store');
 Route::get('/services/create', [ServiceController::class,'create'])->name('services.create');
+Route::get('/services/edit/{id}', [ServiceController::class,'edit'])->name('services.edit');
+Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+
+
+
 
 Route::get('/sale', [SaleController::class,'index'])->name('sale.index');
 Route::get('/sale/create', [SaleController::class,'create'])->name('sale.create');

@@ -7,16 +7,21 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
+import { SideMenuMenuStates } from '../../constants';
+import store from '../../store';
 
 
+const selectMenu = (menuState) => {
+        store.dispatch('setActiveSidemenuItem', menuState);
+    };
 
 </script>
 
 <template>
     <div class="flex lg:flex-row md:flex-row sm:flex-col">
-        <div class="lg:w-1/5 lg:flex-col md:flex-col sm:flex sm:flex-row sm:w-full">
+        <div class="lg:w-1/5 lg:flex-col bg-my-gray md:flex-col sm:flex sm:flex-row sm:w-full">
             <SideMenu
-                class="bg-white  lg:h-screen lg:flex lg:flex-col md:flex-col sm:flex sm:flex-row sm:h-full sm:w-full sm:items-center" />
+                class="bg-white lg:h-screen lg:flex lg:flex-col md:flex-col sm:flex sm:flex-row lg:justify-start sm:h-full sm:justify-between sm:w-full sm:items-center" />
 
         </div>
         <div class="w-full sm:h-full lg:min-h-screen">
@@ -41,7 +46,7 @@ import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
             <div class="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                 <Link class="flex items-center" :href="route('dashboard')">
 
-                <button type="button"
+                <button type="button" @click="selectMenu(SideMenuMenuStates.DASHBOARD)"
                     class="inline-flex flex-col items-center justify-center px-1 hover:bg-gray-50  group">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -54,7 +59,7 @@ import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
                 </Link>
                 <Link class="flex items-center" :href="route('contragents.index')">
 
-                <button type="button"
+                <button type="button" @click="selectMenu(SideMenuMenuStates.CONTRAGENTS)"
                     class="inline-flex flex-col items-center justify-center px-1 hover:bg-gray-50  group">
                     <svg width="21" height="22" viewBox="0 0 21 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -65,7 +70,8 @@ import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
                     <span class="text-sm text-gray-500 dark:text-gray-400  ">Контр.</span>
                 </button>
                 </Link>
-                <Link class="flex items-center" :href="route('services.index')">
+                <Link @click="selectMenu(SideMenuMenuStates.SERVICES)" class="flex items-center"
+                    :href="route('services.index')">
 
                 <button type="button"
                     class="inline-flex flex-col items-center justify-center px-1 hover:bg-gray-50  group">
@@ -80,7 +86,7 @@ import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
                 </Link>
                 <Link class="flex items-center" :href="route('equip.report')">
 
-                <button type="button"
+                <button type="button" @click="selectMenu(SideMenuMenuStates.EQUIPMENT)"
                     class="inline-flex flex-col items-center justify-center px-1 hover:bg-gray-50  group">
                     <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -119,24 +125,11 @@ import { MenuItem, Menu, MenuButton, MenuItems } from '@headlessui/vue';
                         <MenuItems
                             class="absolute -top-32 z-200 right-0 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                             <div class="py-1">
-                                <MenuItem>
-                                <Link :href="route('services.index')" class="flex items-center justify-between"
-                                    :class="['block px-4 py-2 text-sm']">Услуги
-                                <svg width="14" height="20" viewBox="0 0 14 20" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M5 2V4H9V2H5ZM11 2H12C12.5304 2 13.0391 2.21071 13.4142 2.58579C13.7893 2.96086 14 3.46957 14 4V18C14 18.5304 13.7893 19.0391 13.4142 19.4142C13.0391 19.7893 12.5304 20 12 20H2C1.46957 20 0.960859 19.7893 0.585786 19.4142C0.210714 19.0391 0 18.5304 0 18V4C0 3.46957 0.210714 2.96086 0.585786 2.58579C0.960859 2.21071 1.46957 2 2 2H3C3 1.46957 3.21071 0.960859 3.58579 0.585786C3.96086 0.210714 4.46957 0 5 0L9 0C9.53043 0 10.0391 0.210714 10.4142 0.585786C10.7893 0.960859 11 1.46957 11 2ZM11 4C11 4.53043 10.7893 5.03914 10.4142 5.41421C10.0391 5.78929 9.53043 6 9 6H5C4.46957 6 3.96086 5.78929 3.58579 5.41421C3.21071 5.03914 3 4.53043 3 4H2V18H12V4H11ZM4 8H10C10.2652 8 10.5196 8.10536 10.7071 8.29289C10.8946 8.48043 11 8.73478 11 9C11 9.26522 10.8946 9.51957 10.7071 9.70711C10.5196 9.89464 10.2652 10 10 10H4C3.73478 10 3.48043 9.89464 3.29289 9.70711C3.10536 9.51957 3 9.26522 3 9C3 8.73478 3.10536 8.48043 3.29289 8.29289C3.48043 8.10536 3.73478 8 4 8ZM4 13H10C10.2652 13 10.5196 13.1054 10.7071 13.2929C10.8946 13.4804 11 13.7348 11 14C11 14.2652 10.8946 14.5196 10.7071 14.7071C10.5196 14.8946 10.2652 15 10 15H4C3.73478 15 3.48043 14.8946 3.29289 14.7071C3.10536 14.5196 3 14.2652 3 14C3 13.7348 3.10536 13.4804 3.29289 13.2929C3.48043 13.1054 3.73478 13 4 13Z"
-                                        fill="#21272A" />
-                                </svg>
-
-
-
-                                </Link>
-                                </MenuItem>
 
                                 <MenuItem>
-                                <Link :href="route('contragents.create')" class="flex items-center justify-between"
-                                    :class="['block px-4 py-2 text-sm']">Продажа
+                                <Link :href="route('contragents.create')" @click="selectMenu(SideMenuMenuStates.SALE)"
+                                    class="flex items-center justify-between" :class="['block px-4 py-2 text-sm']">
+                                Продажа
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 1V23" stroke="#21272A" stroke-width="2" stroke-linecap="round"

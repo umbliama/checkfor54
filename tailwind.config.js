@@ -20,6 +20,11 @@ export default {
                 "my-gray": "#F2F4F8",
                 "my-nav-text": "#21272A",
                 "side-gray-text": "#697077",
+                "selected-blue":"#001D6C",
+                "input-gray" : "#F3F3F8",
+                'violet':"#644DED14",
+                'table-gray': "#F9F9FC",
+                'violet-full':"#644DED"
             },
             screens: {
                 sm: "370px",

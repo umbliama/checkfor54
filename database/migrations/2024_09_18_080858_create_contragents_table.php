@@ -43,7 +43,7 @@ return new class extends Migration
             $table->string('contact_person_email')->nullable();
             $table->string('contact_person_notes')->nullable();
             $table->string('contact_person_commentary')->nullable();
-            $table->boolean('status');
+            $table->boolean('status')->nullable();
             $table->string('avatar')->nullable();
         });
     }

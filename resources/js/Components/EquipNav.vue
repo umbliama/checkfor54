@@ -13,6 +13,9 @@ const equipment_categories = computed(() => store.getters['equipment/getEquipmen
 const equipment_sizes_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
 const equipment_categories_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
 const equipment_sizes = computed(() => store.getters['equipment/getEquipmentSizes'])
+const equipment_count = computed(() => store.getters['equipment/getEquipmentCount'])
+const equipment_count_repair = computed(() => store.getters['equipment/getEquipmentRepairCount'])
+const equipment_count_test = computed(() => store.getters['equipment/getEquipmentTestCount'])
 
 
 
@@ -25,10 +28,22 @@ const selectSize = (size) => {
 }
 
 const setMenuItem = (item) => {
+    store.dispatch('equipment/downgradeSizeActive')
+    store.dispatch('equipment/downgradeSeriesActive')
+    store.dispatch('equipment/downgradeCategoryActive')
+
     store.dispatch('equipment/updateMenuItem', item)
 }
 
-
+const getEquipmentCount = () => {
+    store.dispatch('equipment/updateEquipmentCount')
+}
+const getEquipmentRepairCount = () => {
+    store.dispatch('equipment/updateEquipmentRepairCount')
+}
+const getEquipmentTestCount = () => {
+    store.dispatch('equipment/updateEquipmentTestCount')
+}
 
 
 function filterByCategory() {
@@ -45,6 +60,9 @@ function filterByCategory() {
 }
 
 onMounted(() => {
+    getEquipmentCount();
+    getEquipmentRepairCount()
+    getEquipmentTestCount()
     if (selectedCategory.value) {
         filterByCategory();
     }
@@ -57,7 +75,8 @@ onMounted(() => {
     <div class="">
         <nav class="bg-my-gray ">
             <div class="max-w-screen-xl px-4 py-3">
-                <div class="sm:py-12 sm:overflow-x-auto  items-center">
+                <div
+                    class="lg:py-4 sm:py-8 lg:overflow-y-visible lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto sm:overflow-x-auto  items-center">
                     <ul
                         class="flex flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
                         <li @click="setMenuItem(EquipMenuItems.REPORT)"
@@ -66,15 +85,33 @@ onMounted(() => {
                         </li>
                         <li @click="setMenuItem(EquipMenuItems.EQUIPMENT)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.EQUIPMENT }">
-                            <Link :href="route('equip.index')" class="text-lg">Оборудование</Link>
+                            <div class="flex">
+                                <Link :href="route('equip.index')" class="text-lg">Оборудование</Link>
+                                <span
+                                    class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-500 ">
+                                    {{ equipment_count }}
+                                </span>
+                            </div>
                         </li>
                         <li @click="setMenuItem(EquipMenuItems.REPAIR)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.REPAIR }">
-                            <Link :href="route('equip.repair')" class="text-lg">Ремонт</Link>
+                            <div class="flex">
+                                <Link :href="route('equip.repair')" class="text-lg">Ремонт</Link>
+                                <span
+                                    class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-500 ">
+                                    {{ equipment_count_repair }}
+                                </span>
+                            </div>
                         </li>
                         <li @click="setMenuItem(EquipMenuItems.TESTS)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.TESTS }">
-                            <Link :href="route('equip.tests')" class="text-lg">Испытания</Link>
+                            <div class="flex">
+                                <Link :href="route('equip.tests')" class="text-lg">Испытания</Link>
+                                <span
+                                    class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-500 ">
+                                    {{ equipment_count_test }}
+                                </span>
+                            </div>
                         </li>
                         <li @click="setMenuItem(EquipMenuItems.PRICE)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.PRICE }">
@@ -107,8 +144,7 @@ onMounted(() => {
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
                                         <Link :href="route('equip.create')" class="flex items-center justify-around"
-                                            :class="['block px-4 py-2 text-sm']">Добавить
-                                        оборудование <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                            :class="['block px-4 py-2 text-sm']">Добавить оборудование <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M8.74999 2.75003C8.74999 2.33582 8.4142 2.00003 7.99999 2.00003C7.58578 2.00003 7.24999 2.33582 7.24999 2.75003V7.25H2.75C2.33579 7.25 2 7.58578 2 8C2 8.41421 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41421 14 8C14 7.58578 13.6642 7.25 13.25 7.25H8.74999V2.75003Z"

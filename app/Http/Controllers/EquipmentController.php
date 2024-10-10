@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contragents;
 use App\Models\EquipmentCategories;
+use App\Models\EquipmentPrice;
 use App\Models\EquipmentSize;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,18 +19,20 @@ class EquipmentController extends Controller
      */
     public function index(Request $request)
     {
-
         $searchTerm = $request->query('search');
 
+        // Fetch categories, sizes, and locations
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes = EquipmentSize::all();
         $equipment_location = EquipmentLocation::all();
 
-        $categoryId = $request->query('category_id');
+        $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
         $sizeId = $request->query('size_id');
 
+        // Initialize query builder for Equipment
         $query = Equipment::query();
 
+        // Search filtering logic
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {
                 $query->where('manufactor', 'LIKE', "%$searchTerm%")
@@ -40,54 +44,58 @@ class EquipmentController extends Controller
             });
         }
 
-
-
+        // Count the number of equipment per category
         $equipment_categories_counts = [];
-
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
         }
 
+        // Count the number of equipment per size
         $equipment_sizes_counts = [];
-
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
 
-        // Filtering logic
+        // Filtering by category
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
+
+        // Filtering by size if provided
         if ($sizeId) {
             $query->where('size_id', $sizeId);
         }
 
-        // Paginate results
+        // Paginate the results
         $equipment = $query->paginate(10);
 
+
+
+
+        // Render the view with Inertia
         return Inertia::render('Equip/Index', [
             'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'equipment_sizes' => $equipment_sizes,
-            'equipment_location' => $equipment_location
+            'equipment_location' => $equipment_location,
+            'selectedCategory' => $categoryId,
         ]);
-
     }
-
     public function repair(Request $request)
     {
 
         $categoryId = $request->query('category_id');
         $sizeId = $request->query('size_id');
+        $series = $request->query('series');
         $equipment_location = EquipmentLocation::all();
-        $equipment_repairs = EquipmentRepair::all();
 
 
         $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
+        $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
 
         return Inertia::render('Equip/Repair', ['equipmentSeries' => $equipment_series, 'equipment_location' => $equipment_location, 'equipment_repairs' => $equipment_repairs]);
     }
@@ -142,6 +150,7 @@ class EquipmentController extends Controller
         $equipment = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->get();
 
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
+        $equipment_tests = EquipmentTest::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
         // $equipment_repairs = EquipmentRepair::all();
 
         return Inertia::render('Equip/Report', [
@@ -152,11 +161,12 @@ class EquipmentController extends Controller
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'equipment_series' => $equipment_series,
+            'equipment_tests' => $equipment_tests,
             'equipment' => $equipment,
         ]);
     }
 
-    
+
 
 
     public function tests(Request $request)
@@ -188,9 +198,56 @@ class EquipmentController extends Controller
         EquipmentTest::create($request->all());
     }
 
-    public function price()
+    public function price(Request $request)
     {
-        return Inertia::render('Equip/Price');
+        $equipment_categories = EquipmentCategories::all();
+        $equipment_location = EquipmentLocation::all();
+        $equipment_sizes = EquipmentSize::all();
+        $contragents = Contragents::all();
+        $categoryId = $request->query('category_id');
+        $sizeId = $request->query('size_id');
+        $series = $request->query('series');
+
+
+
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+
+        // Count the number of equipment per size
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+
+
+
+
+        $equipment = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->pluck('id');
+
+        return Inertia::render('Equip/Price', ['equipment_categories' => $equipment_categories, 'equipment_sizes' => $equipment_sizes, 'equipment_location' => $equipment_location, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_sizes_counts' => $equipment_sizes_counts, 'contragents' => $contragents]);
+    }
+
+    public function storePrice(Request $request)
+    {
+        $request->validate([
+            'category_id' => "required|int",
+            'size_id' =>  "required|int",
+            'contragent_id' =>  "required|int",
+            'store_date' => "required|date",
+            'notes' => "required|string",
+            'price' => "required|int",
+            'archive' => "required|boolean",
+        ]);
+
+
+
+        EquipmentPrice::create($request->all());
+
+
     }
 
     /**
@@ -201,11 +258,13 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes = EquipmentSize::all();
+        $equipment_location = EquipmentLocation::all();
 
 
         return Inertia::render('Equip/Create', [
             'equipment_categories' => $equipment_categories,
-            'equipment_sizes' => $equipment_sizes
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location
         ]);
 
     }
@@ -237,24 +296,56 @@ class EquipmentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validate common fields
+        $validatedData = $request->validate([
             'manufactor' => 'required|string|max:255',
             'category_id' => 'required|integer',
+            'location_id' => 'required|integer',
             'size_id' => 'required|integer',
             'series' => 'nullable|string',
-            'manufactor_date' => 'nullable|string',
-            'status' => ['required', 'string', 'in:new,good,satisfactory, bad, off'],
+            'manufactor_date' => 'nullable|date',
+            'status' => ['required', 'string', 'in:new,good,satisfactory,bad,off'],
             'notes' => 'nullable|string',
             'price' => 'required|integer',
-            'commentary' => 'nullable|text',
+            'commentary' => 'nullable|string',
+            'length' => 'required|string',
+            'operating' => 'required|string',
+
         ]);
 
-        Equipment::create($request->all());
+
+        switch ($request->input('category_id')) {
+            case 1: // ВЗД
+                $extraData = $request->validate([
+                    'zahodnost' => 'required|string',
+                    'stator_rotor' => 'required|string',
+                    'narabotka_ds' => 'required|string',
+                    'dlina_ds' => 'required|string',
+                ]);
+                $validatedData = array_merge($validatedData, $extraData); // Merge extra data
+                break;
+            case 2:
+                break;
+            case 3: // ФД
+            case 5: // ПК
+            case 4: // ПК
+            case 7:
+                $extraData = $request->validate([
+                    'rezbi' => 'required|string',
+                    'length_rezba' => 'required|string',
+                    'diameter' => 'required|string',
+                ]);
+                $validatedData = array_merge($validatedData, $extraData); // Merge extra data
+                break;
+
+        }
+
+
+        $equipment = Equipment::create($validatedData);
+
 
         return redirect()->route('equip.index')->with('success', 'Оборудование успешно создано.');
-
     }
-
     /**
      * Display the specified resource.
      */
@@ -268,7 +359,8 @@ class EquipmentController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $equipment = Equipment::findOrFail($id);
+        Inertia::render('Equip/Edit', ['equipment' => $equipment]);
     }
 
     /**
@@ -284,6 +376,8 @@ class EquipmentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $equipment_item = Equipment::findOrFail($id);
+
+        $equipment_item->delete();
     }
 }

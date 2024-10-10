@@ -95,7 +95,7 @@
                 </div>
             </form>
 
-            <div class="lg:flex md:flex sm:hidden mt-5">
+            <div class="lg:flex md:flex sm:hidden sm:mt-5">
 
 
                 <div class="mt-5">

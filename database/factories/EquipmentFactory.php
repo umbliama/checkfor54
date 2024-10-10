@@ -27,10 +27,13 @@ class EquipmentFactory extends Factory
             'category_id' => \App\Models\EquipmentCategories::inRandomOrder()->first()->id ?? null,  // Assuming you have categories
             'size_id' => \App\Models\EquipmentSize::inRandomOrder()->first()->id ?? null,  // Assuming you have sizes
             'series' => $this->faker->bothify('##-###-???'),
+            'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id ?? null,
+            'length' => $this->faker->numberBetween(20, 100),
+            'operating' => $this->faker->numberBetween(20, 100),
             'manufactor_date' => $this->faker->date(),
             'status' => $this->faker->randomElement(['new', 'good', 'satisfactory', 'bad', 'off']),
             'notes' => $this->faker->sentence(),
-            'price' => $this->faker->numberBetween(1000, 50000),
+            'price' => $this->faker->numberBetween(4000, 50000),
             'commentary' => $this->faker->paragraph(),
         ];
     }

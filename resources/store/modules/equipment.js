@@ -4,9 +4,9 @@ export default {
     namespaced: true,
     state: () => ({
         equipmentObject: {},
-        categoryActive: 0,
+        categoryActive: 1,
         sizeActive: 0,
-        seriesActive: '',
+        seriesActive: "",
         menuActiveItem: EquipMenuItems.REPORT,
         inputLocationShown: false,
         dropDownIsShown: true,
@@ -15,18 +15,49 @@ export default {
         equipmentCategoriesCounts: null,
         equipmentSizes: null,
         equipmentRepair: null,
-        equipmentTest:null,
-        equipmentReport: null
+        equipmentTest: null,
+        equipmentReport: null,
+        equipmentCount: 0,
+        equipmentRepairCount: 0,
+        equipmentTestCount: 0,
+        priceTabActive: "price",
     }),
     mutations: {
-        setEquipmentTest(state,tests) {
-            state.equipmentTest = tests
+        setPriceTabActive(state, value) {
+            state.priceTabActive = value;
         },
-        setEquipmentRepair(state,repairs) {
-            state.equipmentRepair = repairs
+        setEquipmentTestCount(state, value) {
+            state.equipmentTestCount = value;
         },
-        setEquipmentReport(state,reports) {
-            state.equipmentReport = reports
+        setEquipmentRepairCount(state, value) {
+            state.equipmentRepairCount = value;
+        },
+        setEquipmentCount(state, value) {
+            state.equipmentCount = value;
+        },
+        setEquipmentTest(state, tests) {
+            state.equipmentTest = tests;
+        },
+        clearSizeActive(state) {
+            state.sizeActive = 0;
+        },
+        clearSeriesActive(state) {
+            state.seriesActive = "";
+        },
+        clearCategoryActive(state) {
+            state.categoryActive = 0;
+        },
+        clearEquipmentTest(state) {
+            state.equipmentTest = null;
+        },
+        clearEquipmentRepairs(state) {
+            state.equipmentRepair = null;
+        },
+        setEquipmentRepair(state, repairs) {
+            state.equipmentRepair = repairs;
+        },
+        setEquipmentReport(state, reports) {
+            state.equipmentReport = reports;
         },
         setSeriesId(state, seriesId) {
             state.seriesActive = seriesId;
@@ -60,34 +91,92 @@ export default {
         },
     },
     actions: {
-        async updateEquipmentRepair({commit}, {category_id,size_id,series}) {
+        async updatePriceTabActive({ commit }, value) {
+            commit("setPriceTabActive", value);
+        },
+        async updateEquipmentTestCount({ commit }) {
             try {
-                const response = await fetch(`/api/equip/repair?category_id=${category_id}&size_id=${size_id}&series=${series}`);
+                const response = await fetch(`/api/equipment/test/getCount`);
                 const data = await response.json();
-                commit('setEquipmentRepair', data)
+                commit("setEquipmentRepairCount", data);
             } catch (error) {
                 console.log(error);
             }
-
-        },  
-        async updateEquipmentReport({commit}, {category_id,size_id,series}) {
+        },
+        async updateEquipmentRepairCount({ commit }) {
             try {
-                const response = await fetch(`/api/equip/report?category_id=${category_id}&size_id=${size_id}&series=${series}`);
+                const response = await fetch(`/api/equipment/repair/getCount`);
                 const data = await response.json();
-                commit('setEquipmentReport', data)
+                commit("setEquipmentRepairCount", data);
             } catch (error) {
                 console.log(error);
             }
-
-        },  
-        async updateEquipmentTest({commit}, {category_id,size_id,series}) {
+        },
+        async updateEquipmentCount({ commit }) {
             try {
-                const response = await fetch(`/api/equip/tests?category_id=${category_id}&size_id=${size_id}&series=${series}`);
+                const response = await fetch(`/api/equipment/getCount`);
                 const data = await response.json();
-                commit('setEquipmentTest', data)
+                commit("setEquipmentCount", data);
             } catch (error) {
                 console.log(error);
-            }  
+            }
+        },
+        async downgradeSizeActive({ commit }) {
+            commit("clearSizeActive");
+        },
+        async downgradeSeriesActive({ commit }) {
+            commit("clearSeriesActive");
+        },
+        async downgradeCategoryActive({ commit }) {
+            commit("clearCategoryActive");
+        },
+        async downgradeEquipmentRepairs({ commit }) {
+            commit("clearEquipmentRepairs");
+        },
+        async downgradeEquipmentTests({ commit }) {
+            commit("clearEquipmentTest");
+        },
+        async updateEquipmentRepair(
+            { commit },
+            { category_id, size_id, series }
+        ) {
+            try {
+                const response = await fetch(
+                    `/api/equip/repair?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                );
+                const data = await response.json();
+                commit("setEquipmentRepair", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async updateEquipmentReport(
+            { commit },
+            { category_id, size_id, series }
+        ) {
+            try {
+                const response = await fetch(
+                    `/api/equip/report?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                );
+                const data = await response.json();
+                commit("setEquipmentReport", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async updateEquipmentTest(
+            { commit },
+            { category_id, size_id, series }
+        ) {
+            try {
+                const response = await fetch(
+                    `/api/equip/tests?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                );
+                const data = await response.json();
+                commit("setEquipmentTest", data);
+            } catch (error) {
+                console.log(error);
+            }
         },
         async updateRepairCategoryId({ commit }, categoryId) {
             commit("setRepairCategoryId", categoryId);
@@ -122,6 +211,24 @@ export default {
         async updateSize({ commit }, size) {
             commit("setSizeActive", size);
         },
+        async fetchEquipmentCategories({ commit }) {
+            try {
+                const response = await fetch(`/api/equipment/categories`);
+                const data = await response.json();
+                commit("setEquipmentCategories", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async fetchEquipmentCategoriesCount({ commit }) {
+            try {
+                const response = await fetch(`/api/equipment/categories/count`);
+                const data = await response.json();
+                commit("setEquipmentCategoriesCounts", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async fetchEquipment({ commit }, page = 1) {
             try {
                 const response = await fetch(`/api/equipment?page=${page}`);
@@ -142,6 +249,10 @@ export default {
         },
     },
     getters: {
+        getPriceTabActive: (state) => state.priceTabActive,
+        getEquipmentCount: (state) => state.equipmentCount,
+        getEquipmentRepairCount: (state) => state.equipmentRepairCount,
+        getEquipmentTestCount: (state) => state.equipmentTestCount,
         getCategoryActive: (state) => state.categoryActive,
         getEquipment: (state) => state.equipmentObject,
         getSizeActive: (state) => state.sizeActive,
@@ -156,6 +267,6 @@ export default {
         getSeriesActive: (state) => state.seriesActive,
         getEquipmentRepairs: (state) => state.equipmentRepair,
         getEquipmentTests: (state) => state.equipmentTest,
-        getEquipmentReports: (state) => state.equipmentReport
+        getEquipmentReports: (state) => state.equipmentReport,
     },
 };

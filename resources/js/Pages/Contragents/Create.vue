@@ -135,7 +135,7 @@ function submit() {
         contact_person_email: form.contact_person_email,
         contact_person_notes: form.contact_person_notes,
         contact_person_commentary: form.contact_person_commentary,
-        status: form.status,
+        status: form.status ?? 0,
         avatar: form.avatar,
     })
 }
