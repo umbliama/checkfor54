@@ -18,7 +18,7 @@
 </script>
 
     <template>
-        <div class="p-4">
+        <div class="px-4 py-5 border-r-2">
             <Link href="/">
             <div class="flex items-center">
                 <div class="flex ml-4 flex-col">
@@ -168,7 +168,7 @@
                         </span>
                     </li>
                     </Link>
-                    <Link class="flex items-center" :href="route('dashboard')">
+                    <Link class="flex items-center" :href="route('sale.index')">
 
                     <li class="flex items-center w-full px-4 py-4 text-gray-500 border-b border-white-200  dark:border-white-600"
                         :class="{ 'bg-my-gray': store.getters.activeSidemenuItem === SideMenuMenuStates.SALE }"
@@ -186,7 +186,7 @@
                         </span>
                     </li>
                     </Link>
-                    <Link class="flex items-center" :href="route('dashboard')">
+                    <Link class="flex items-center" :href="route('incident.index')">
 
                     <li class="flex items-center w-full px-4 py-4 text-gray-500 border-b border-white-200  dark:border-white-600"
                         :class="{ 'bg-my-gray': store.getters.activeSidemenuItem === SideMenuMenuStates.INCIDENT }"

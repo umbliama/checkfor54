@@ -15,6 +15,8 @@ export default {
         extend: {
             fontFamily: {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
+                roboto:['Roboto','sans-serif'],
+                robotoBold: ['Roboto-Medium', 'sans-serif']
             },
             colors: {
                 "my-gray": "#F2F4F8",
@@ -24,7 +26,10 @@ export default {
                 "input-gray" : "#F3F3F8",
                 'violet':"#644DED14",
                 'table-gray': "#F9F9FC",
-                'violet-full':"#644DED"
+                'violet-full':"#644DED",
+                'red-warning': "#DA1E28",
+                'gray-inactive':'#687182',
+                'my-black': "#121619"
             },
             screens: {
                 sm: "370px",
@@ -39,7 +44,10 @@ export default {
                 xl: "1280px",
                 // => @media (min-width: 1280px) { ... }
 
-                "2xl": "1536px",
+                "2xl": "1440px",
+                // => @media (min-width: 1536px) { ... }
+
+                "3xl": "1536px",
                 // => @media (min-width: 1536px) { ... }
             },
         },

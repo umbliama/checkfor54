@@ -10,8 +10,19 @@ import { Menu, MenuItems, MenuItem, MenuButton } from '@headlessui/vue'
 
 const selectCategory = (category) => {
     store.dispatch('equipment/updateCategory', category);
+    fetchEquipmentSizesById(category)
+    fetchEquipmentSizes()
+
 };
 
+const fetchEquipmentSizesById = (category) => {
+    store.dispatch('services/fetchEquipmentSizesById',category)
+}
+
+const fetchEquipmentSizes = () => {
+    store.dispatch('services/fetchEquipmentSizesCount')
+}
+ 
 const updateSelectedEquipment = (value) => {
     if (!selectedEquipment.value) {
         // Dispatch action to update selected equipment
@@ -74,8 +85,6 @@ onMounted(() => {
 
     store.dispatch('services/fetchEquipmentCategories')
     store.dispatch('services/fetchEquipmentCategoriesCount')
-    store.dispatch('services/fetchEquipmentSizes')
-    store.dispatch('services/fetchEquipmentSizesCount')
     // store.dispatch('fetchLocations')
     // store.dispatch('equipment/updateEquipmentCategories', props.equipment_categories)
     // store.dispatch('equipment/updateEquipmentSizesCounts', props.equipment_sizes_counts)

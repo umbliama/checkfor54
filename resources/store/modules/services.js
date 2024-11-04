@@ -179,6 +179,15 @@ export default {
                 console.log(error);
             }
         },
+        async fetchEquipmentSizesById({ commit },categoryId) {
+            try {
+                const response = await fetch(`/api/equipment/sizes/${categoryId}`);
+                const data = await response.json();
+                commit("setEquipmentSizes", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async fetchEquipmentP({ commit }, page = 1) {
             try {
                 const response = await fetch(`/api/equipment?page=${page}`);

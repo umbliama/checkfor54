@@ -1,6 +1,7 @@
 const state = {
     currentPage: 1,
-    totalPages: 1
+    totalPages: 1,
+    perPage: 10
   };
   
   const mutations = {
@@ -9,6 +10,9 @@ const state = {
     },
     SET_TOTAL_PAGES(state, totalPages) {
       state.totalPages = totalPages;
+    },
+    SET_PER_PAGE(state, perPage) {
+      state.perPage = perPage
     }
   };
   
@@ -16,12 +20,19 @@ const state = {
     updatePagination({ commit }, { currentPage, totalPages }) {
       commit('SET_CURRENT_PAGE', currentPage);
       commit('SET_TOTAL_PAGES', totalPages);
+    },
+    updateCurrentPage({commit}, currentPage) {
+      commit('SET_CURRENT_PAGE', currentPage)
+    },
+    updatePerPage({commit}, perPage) {
+      commit('SET_PER_PAGE', perPage)
     }
   };
   
   const getters = {
     currentPage: state => state.currentPage,
-    totalPages: state => state.totalPages
+    totalPages: state => state.totalPages,
+    perPage: state => state.perPage
   };
   
   export default {

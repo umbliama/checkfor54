@@ -173,8 +173,8 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
 
                 <div class="flex w-3/5 sm:w-full sm:px-4 lg:ml-6 flex-col mt-5">
                     <div class="flex sm:justify-between">
-                        <h2 class="font-semibold text-xl ml-4  mb-4">Контрагент</h2>
-                        <select class="border-r-0 border-l-0 border-t-0 bg-my-gray  text-side-gray-text lg:hidden md:hidden ml-4  mb-4 " @change="navigateToRoute($event)" name="" id="">
+                        <h2 class="font-roboto font-semibold text-xl ml-4  mb-4">Контрагент</h2>
+                        <select class="font-roboto border-r-0 border-l-0 border-t-0 bg-my-gray  text-side-gray-text  lg:hidden md:hidden ml-4  mb-4 " @change="navigateToRoute($event)" name="" id="">
                             <option selected value="">Просмотр</option>
                             <option :value="route('contragents.edit', contragent.id)"> Редактировать</option>
                             <option :value="route('contragents.create')">Добавить</option>
@@ -190,8 +190,8 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     <!-- Avatar and Upload/Delete Buttons -->
                                     <div class="flex items-center space-x-6">
                                         <!-- Avatar -->
-                                        <img v-if="contragent.avatar" class="sm:max-w-100 sm:rounded-3xl"
-                                            :src="contragent.avatar" alt="">
+                                        <img v-if="contragent.avatar" class="lg:max-w-20 lg:rounded-full sm:max-w-100 sm:rounded-3xl"
+                                            :src="'/'+contragent.avatar" alt="">
                                         <span v-else><svg width="96" height="96" viewBox="0 0 96 96" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <rect width="96" height="96" rx="48" fill="#F2F4F8" />
@@ -204,7 +204,7 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
 
                                         <!-- Upload/Delete Buttons -->
                                         <div class="lg:flex md:flex sm:hidden flex flex-col">
-                                            <Link class="border-black border-2 px-6 py-2"
+                                            <Link class="font-roboto border-black border-2 px-6 py-2"
                                                 :href="route('contragents.edit', contragent.id)">Редактировать
                                             </Link>
                                         </div>
@@ -218,61 +218,61 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                                 </Link>
                                             </div>
                                             <div class="flex">
-                                                <p>Наименование: {{ contragent.name }}</p>
+                                                <p class="font-roboto" >Наименование: {{ contragent.name }}</p>
                                             </div>
                                             <div class="flex">
-                                                <p>ИНН: {{ contragent.inn }}</p>
+                                                <p class="font-roboto" >ИНН: {{ contragent.inn }}</p>
                                             </div>
                                             <div class="flex">
-                                                <p>КПП: {{ contragent.kpp }}</p>
+                                                <p class="font-roboto" >КПП: {{ contragent.kpp }}</p>
                                             </div>
                                             <div class="flex">
-                                                <p>ОГРН: {{ contragent.ogrn }}</p>
+                                                <p class="font-roboto" >ОГРН: {{ contragent.ogrn }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="bg-white mt-5 py-2 px-4 flex">
-                                    <p class="font-bold" v-if="contragent.customer == 1">Заказчик</p>
-                                    <p class="font-bold" v-if="contragent.supplier == 1">Поставщик</p>
-                                    <p class="font-bold" v-if="contragent.active == 1">Активный</p>
+                                <div class="bg-white mt-5 gap-4 py-2 px-4 flex">
+                                    <p class="font-robotoBold font-bold" v-if="contragent.customer == 1">Заказчик</p>
+                                    <p class="font-robotoBold font-bold" v-if="contragent.supplier == 1">Поставщик</p>
+                                    <p class="font-robotoBold font-bold" v-if="contragent.status == 1">Активный</p>
                                 </div>
 
                                 <div class="bg-white mt-5 py-2 px-4 flex">
-                                    <p class=""><span class="text-gray-400">Причина:</span> {{ contragent.reason }}</p>
+                                    <p class="font-roboto"><span class="text-gray-400">Причина:</span> {{ contragent.reason }}</p>
                                 </div>
 
                                 <!-- Bank information -->
                                 <div class="bg-white mt-3 p-3">
-                                    <h3 class="font-semibold text-lg mb-4">Информация о компании:</h3>
+                                    <h3 class="font-robotoBold font-semibold text-lg mb-4">Информация о компании:</h3>
 
                                     <div class="flex flex-col gap-4">
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Страна регистрации:</span> {{
+                                            <p class="font-roboto"><span class="text-gray-400"> Страна регистрации:</span> {{
                                                 translateCountry(contragent.country) }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Организационно-правовая
+                                            <p class="font-roboto"><span class="text-gray-400"> Организационно-правовая
                                                     форма:</span>
                                                 {{ contragent.agentTypeLegal }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Полное наименование:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> Полное наименование:</span>
                                                 {{ contragent.fullname }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Примечание:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> Примечание:</span>
                                                 {{ contragent.notes }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Входит в группу:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> Входит в группу:</span>
                                                 {{ contragent.group }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Комментарий:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Комментарий:</span>
                                                 {{ contragent.commentary }}</p>
                                         </div>
 
@@ -280,37 +280,37 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     </div>
                                 </div>
                                 <div class="bg-white mt-3 p-3">
-                                    <h3 class="font-semibold text-lg mb-4">Банковские реквизиты:</h3>
+                                    <h3 class="font-robotoBold font-bold text-lg mb-4">Банковские реквизиты:</h3>
 
                                     <div class="flex flex-col gap-4">
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Наименование банка:</span> {{
+                                            <p class="font-roboto"><span class="text-gray-400"> Наименование банка:</span> {{
                                                 contragent.bankname }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> БИК:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> БИК:</span>
                                                 {{ contragent.bank_bik }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Корреспондентский счёт:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> Корреспондентский счёт:</span>
                                                 {{ contragent.bank_ca }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> Расчётный счёт:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> Расчётный счёт:</span>
                                                 {{ contragent.bank_rs }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400"> ИНН:</span>
+                                            <p class="font-roboto"><span class="text-gray-400"> ИНН:</span>
                                                 {{ contragent.bank_inn }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">КПП:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">КПП:</span>
                                                 {{ contragent.bank_kpp }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Комментарий:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Комментарий:</span>
                                                 {{ contragent.bank_commnetary }}</p>
                                         </div>
 
@@ -318,47 +318,47 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     </div>
                                 </div>
                                 <div class="bg-white mt-3 p-3">
-                                    <h3 class="font-semibold text-lg mb-4">Контакты:</h3>
+                                    <h3 class="font-robotoBold font-bold text-lg mb-4">Контакты:</h3>
 
                                     <div class="flex flex-col gap-4">
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Адрес:</span> {{
+                                            <p class="font-roboto"><span class="text-gray-400">Адрес:</span> {{
                                                 contragent.address }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Сайт:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Сайт:</span>
                                                 {{ contragent.site }}</p>
 
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Телефон компании:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Телефон компании:</span>
                                                 {{ contragent.phone }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Эл. почта компании:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Эл. почта компании:</span>
                                                 {{ contragent.email }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Контактное лицо:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Контактное лицо:</span>
                                                 {{ contragent.contact_person }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Телефон:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Телефон:</span>
                                                 {{ contragent.contact_person_phone }}</p>
                                         </div>
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Эл.почта:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Эл.почта:</span>
                                                 {{ contragent.contact_person_email }}</p>
                                         </div>
 
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Примечание:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Примечание:</span>
                                                 {{ contragent.contact_person_notes }}</p>
                                         </div>
 
                                         <div class="flex">
-                                            <p class=""><span class="text-gray-400">Комментарий:</span>
+                                            <p class="font-roboto"><span class="text-gray-400">Комментарий:</span>
                                                 {{ contragent.contact_person_commentary }}</p>
                                         </div>
 

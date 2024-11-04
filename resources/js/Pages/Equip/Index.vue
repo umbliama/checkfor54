@@ -2,14 +2,65 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import store from '../../../store/index';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref, toRaw } from 'vue';
 import Pagination from '@/Components/Pagination.vue';
 import EquipStatus from '@/Components/EquipStatus.vue';
 import EquipNav from '@/Components/EquipNav.vue';
 
 
 import { Menu, MenuItems, MenuItem, MenuButton } from '@headlessui/vue'
+const locationId = computed(() => store.getters['equipment/getLocationActive']);
+const inputHyperlinkShown = computed(() => store.getters['equipment/getInputHyperLinkShown']);
+const selectedId = computed(() => store.getters['equipment/getSelectedID']);
+const sortOrder = computed(() => store.getters['equipment/getSortOrder']);
+const sortBy = computed(() => store.getters['equipment/getSortBy']);
+const updateSortBy = (value) => store.dispatch("equipment/updateSortBy", value)
+const updateSortOrder = (value) => store.dispatch("equipment/updateSortOrder", value)
+const filterShown = computed(() => store.getters['equipment/getFilterShown'])
+const updateFilterShown = () => store.dispatch("equipment/updateFilterShown")
 
+const setLocation = (location) => {
+    store.dispatch('equipment/updateLocationActive', location)
+    updateUrl()
+
+}
+
+const toggleSortBy = (column) => {
+    if (sortBy.value === column) {
+        updateSortOrder(sortOrder.value === 'asc' ? 'desc' : 'asc');
+    } else {
+        updateSortBy(column);
+        updateSortOrder('asc');
+    }
+};
+
+
+const toggleInputLocationShown = (value, itemId) => {
+    store.dispatch('equipment/updateSelectedId', itemId)
+    store.dispatch('equipment/updateInputHyperLinkShown', value)
+}
+const sumLocs = () => {
+    const sumValues = obj => Object.values(obj).reduce((a, b) => a + b, 0);
+    return sumValues(toRaw(props.location_counts))
+}
+
+const sortedEquipment = computed(() => {
+    // Clone the array to avoid mutating the original array
+    return props.equipment.data.slice().sort((a, b) => {
+        let result = 0;
+        // Determine which property to sort by (e.g., 'name' or 'status')
+        if (sortBy.value === 'series') {
+            result = a.series.localeCompare(b.series);
+        }
+
+        // Apply sort order (ascending or descending)
+        if (sortOrder.value === 'desc') {
+            result = result * -1;
+        }
+
+        return result;
+    });
+});
 
 
 const props = defineProps({
@@ -18,10 +69,20 @@ const props = defineProps({
     equipment_categories_counts: Array,
     equipment_sizes_counts: Array,
     equipment_sizes: Array,
-    equipment_location: Array
+    equipment_location: Array,
+    location_counts: Array
 
 })
 
+const form = reactive({
+    'hyperlink': null
+})
+
+function submitHyperlink(id, data) {
+    router.post(`/equipment/${id}/hyperlink`, {
+        'hyperlink': data
+    })
+}
 
 const selectCategory = (category) => {
     store.dispatch('equipment/updateCategory', category);
@@ -33,8 +94,8 @@ const selectSize = (size) => {
 };
 
 const updateUrl = () => {
-    if (selectedCategory.value || selectedSize.value) {
-        router.get(route('equip.index', { category_id: selectedCategory.value, size_id: selectedSize.value }));
+    if (selectedCategory.value || selectedSize.value || locationId.value) {
+        router.get(route('equip.index', { category_id: selectedCategory.value, size_id: selectedSize.value, location_id: locationId.value }));
     }
 };
 
@@ -58,7 +119,9 @@ const toggleInputLocation = (value) => {
     store.dispatch('equipment/updateInputLocationShown', value);
 };
 
-
+const openHyperLink = (link) => {
+    router.visit(link)
+}
 
 
 
@@ -67,11 +130,11 @@ const lastPage = ref(props.equipment.last_page || 1);
 
 
 
-
 // Fetch initial data on component mount
 onMounted(() => {
 
     const { current_page, total } = props.equipment;
+
 
     // Dispatch the pagination state to Vuex store
     store.dispatch('pagination/updatePagination', {
@@ -98,7 +161,7 @@ onMounted(() => {
 
         <EquipNav></EquipNav>
         <div class="container sm:pb-20 mt-5 md:mx-auto sm:mx-auto ">
-            <nav class="bg-my-gray">
+            <nav class="m-5 rounded-xl bg-my-gray">
                 <div class="max-w-screen-xl sm:rounded-2xl py-2 px-4 ">
                     <div class="mt-6 flex items-center">
                         <ul
@@ -118,8 +181,8 @@ onMounted(() => {
                     </div>
                     <div class="mt-6 flex items-center">
                         <ul
-                            class="flex flex-row sm:overflow-x-auto font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
-                            <li class="text-my-nav-text text-lg sm:py-2 w-full"
+                            class="flex lg:py-2 flex-row sm:overflow-x-auto font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
+                            <li class="text-my-nav-text text-lg  sm:py-2 w-full"
                                 :class="{ 'border-b-2 border-blue-600': selectedSize === item.id }"
                                 @click="selectSize(item.id)" v-for="item in equipment_sizes" :key="item.id">
                                 <Link class="flex justify-around">
@@ -136,12 +199,27 @@ onMounted(() => {
             </nav>
 
 
-            <div class="sm:hidden lg:flex md:flex border-b-2  items-center mt-5 space-x-6">
-                <div class="border-b-2 border-blue-900 flex items-center space-x-2">
+            <div class="lg:m-5 sm:hidden lg:flex md:flex border-b-2  items-center mt-5 space-x-6">
+                <div @click="setLocation(0)" :class="{ 'border-b-2 border-blue-900': locationId === 0 }"
+                    class=" flex items-center space-x-2">
                     <span class="text-blue-900 font-bold">Все</span>
+                    <span
+                        class="ml-1 h-[30px] font-roboto rounded-full text-sm flex items-center px-2 text-white bg-side-gray-text {{ strlen($contragents_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                        {{ sumLocs() }}
+                    </span>
                 </div>
 
-                <div v-for="location in store.getters.cities" class="text-gray-800">{{ location.name }}</div>
+                <div v-for="location in store.getters.cities" @click="setLocation(location.id)"
+                    :class="{ 'border-b-2 border-blue-500': locationId === location.id }" class="flex text-gray-800">{{
+                        location.name }}
+                    <span
+                        class="ml-1 h-[30px] font-roboto rounded-full text-sm flex items-center px-2 text-white bg-side-gray-text {{ strlen($contragents_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                        {{ location_counts[location.id
+
+                        ] }}
+                    </span>
+                </div>
+
             </div>
 
             <div
@@ -173,17 +251,17 @@ onMounted(() => {
                     </svg>
 
                 </div>
-                <button class="flex  border-2 bg-white py-4 items-center  px-10">
+                <button class="flex  border-2 bg-white gap-4 py-4 items-center  px-10">
                     <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M2.58007 2L9.06207 10.101C9.34581 10.4558 9.50029 10.8967 9.50007 11.351V18L11.5001 16.5V11.35C11.5001 10.896 11.6545 10.4556 11.9381 10.101L18.4201 2H2.58107H2.58007ZM2.58007 0H18.4201C18.7969 4.70007e-05 19.166 0.106524 19.4849 0.307166C19.8038 0.507808 20.0595 0.794454 20.2227 1.13409C20.3858 1.47372 20.4497 1.85253 20.4069 2.22687C20.3642 2.60122 20.2166 2.95588 19.9811 3.25L13.5001 11.35V16.5C13.5001 16.8105 13.4278 17.1167 13.2889 17.3944C13.1501 17.6721 12.9485 17.9137 12.7001 18.1L10.7001 19.6C10.4029 19.8229 10.0496 19.9586 9.67968 19.9919C9.30976 20.0253 8.93786 19.955 8.60565 19.7889C8.27343 19.6227 7.99404 19.3674 7.79877 19.0515C7.6035 18.7355 7.50007 18.3714 7.50007 18V11.35L1.01907 3.25C0.783588 2.95588 0.635973 2.60122 0.593233 2.22687C0.550493 1.85253 0.614365 1.47372 0.777494 1.13409C0.940622 0.794454 1.19637 0.507808 1.51528 0.307166C1.83419 0.106524 2.2033 4.70007e-05 2.58007 0V0Z"
                             fill="#697077" />
                     </svg>
 
-                    Фильтры</button>
+                    <span>Фильтры</span></button>
             </div>
 
-            <div class="flex lg:flex md:flex sm:hidden items-baseline">
+            <div class="flex lg:m-5 lg:flex md:flex sm:hidden items-baseline">
                 <form action="" method="GET" class="max-w-md mt-4">
                     <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">поис</label>
                     <div class="relative">
@@ -198,33 +276,66 @@ onMounted(() => {
                             class="block w-full p-1 py-2 ps-10 text-sm text-gray-900 border-b-2 border-gray-200 rounded-lg  bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Поиск">
                     </div>
-                </form> <button class="flex ml-6 border-2 items-center rounded-lg px-6"><svg width="13" height="9"
-                        viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="2.60474" cy="6.50366" r="2" fill="white" stroke="#415476" />
-                        <line x1="4.10474" y1="6.50366" x2="12.1047" y2="6.50366" stroke="#415476" />
-                        <circle cx="9.89476" cy="2.8417" r="2" transform="rotate(-177.996 9.89476 2.8417)" fill="white"
-                            stroke="#415476" />
-                        <line x1="8.10474" y1="2.50366" x2="0.104735" y2="2.50366" stroke="#415476" />
-                    </svg>
-                    Фильтры</button>
+                </form>
+                <div class="relative">
+                    <button @click="updateFilterShown" class="flex ml-6 gap-2 border-2 items-center rounded-lg px-6"><svg width="13" height="9"
+                            viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="2.60474" cy="6.50366" r="2" fill="white" stroke="#415476" />
+                            <line x1="4.10474" y1="6.50366" x2="12.1047" y2="6.50366" stroke="#415476" />
+                            <circle cx="9.89476" cy="2.8417" r="2" transform="rotate(-177.996 9.89476 2.8417)"
+                                fill="white" stroke="#415476" />
+                            <line x1="8.10474" y1="2.50366" x2="0.104735" y2="2.50366" stroke="#415476" />
+                        </svg>
+                        Фильтры</button>
+
+                    <div v-if="filterShown" class="fixed mt-3 z-10 flex p-4 rounded-xl bg-my-gray">
+                        <ul class="flex flex-col gap-3">
+                            <li class="flex gap-3 items-center"><span>Фильтр 1</span><input
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:border-my-black"
+                                    type="checkbox" name="" id=""></li>
+                            <li class="flex gap-3 items-center"><span>Фильтр 2</span><input
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:border-my-black"
+                                    type="checkbox" name="" id=""></li>
+                            <li class="flex gap-3 items-center"><span>Фильтр 3</span><input
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:border-my-black"
+                                    type="checkbox" name="" id=""></li>
+                            <li class="flex gap-3 items-center"><span>Фильтр 4</span><input
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:border-my-black"
+                                    type="checkbox" name="" id=""></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div v-if="selectedCategory == 1"
-                class="lg:overflow-y-visible sm:pb-28 lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto pb-30">
-                <table class="w-full mt-5 table-auto">
+            <div v-if="selectedCategory == 1" class="lg:overflow-x-auto sm:pb-28 sm:overflow-y-auto pb-30">
+                <table class="w-full bg-table-gray m-5 table-auto">
                     <thead>
                         <tr class="">
-                            <th class="sm:text-sm">Производитель</th>
-                            <th class="sm:text-sm">Cерия</th>
-                            <th class="sm:text-sm">Заходность</th>
-                            <th class="sm:text-sm">Длина</th>
-                            <th class="sm:text-sm">Статор Ротор</th>
-                            <th class="sm:text-sm">Наработка</th>
-                            <th class="sm:text-sm">Наработка дс.</th>
-                            <th class="sm:text-sm">Дата изготовления</th>
-                            <th class="sm:text-sm">Стоимость</th>
-                            <th class="sm:text-sm">Примечание</th>
-                            <th class="sm:text-sm">Состояние</th>
+                            <th class="text-left p-2 sm:text-sm">Производитель</th>
+                            <th class="text-left flex gap-2 items-center px-2 py-5 sm:text-sm"
+                                :class="{ 'bg-violet border-t-2 border-violet-full': sortBy === 'series' }"
+                                @click="toggleSortBy('series')">Cерия <svg width="28" height="28" viewBox="0 0 28 28"
+                                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
+                                    <path d="M8.26783 12.1904L10.6249 9.83325L12.9821 12.1904" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M10.6249 9.83329L10.6249 18.0832" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.5653 16.5594L17.2082 18.9165L14.8511 16.5594" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M17.2082 10.6667L17.2082 18.9166" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </th>
+                            <th class="text-left p-2 sm:text-sm">Заходность</th>
+                            <th class="text-left p-2 sm:text-sm">Длина</th>
+                            <th class="text-left p-2 sm:text-sm">Статор Ротор</th>
+                            <th class="text-left p-2 sm:text-sm">Наработка</th>
+                            <th class="text-left p-2 sm:text-sm">Наработка дс.</th>
+                            <th class="text-left p-2 sm:text-sm">Дата изготовления</th>
+                            <th class="text-left p-2 sm:text-sm">Стоимость</th>
+                            <th class="text-left p-2 sm:text-sm">Примечание</th>
+                            <th class="text-left p-2 sm:text-sm">Состояние</th>
                             <th class="flex justify-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -245,41 +356,63 @@ onMounted(() => {
                     </thead>
                     <tbody>
                         <tr v-if="equipment.data" class="whitespace-nowrap" :key="item.id"
-                            v-for="item in equipment.data">
+                            v-for="item in sortedEquipment">
                             <td class="text-center border border-slate-200 p-2">
-                                <div class="flex justify-start ">
-                                    <svg width="20" height="20" viewBox="0 0 14 14" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M10.9999 7.66706V11.667C10.9999 12.0206 10.8594 12.3598 10.6094 12.6098C10.3594 12.8599 10.0202 13.0003 9.6666 13.0003H2.33332C1.9797 13.0003 1.64057 12.8599 1.39052 12.6098C1.14047 12.3598 1 12.0206 1 11.667V4.33375C1 3.98013 1.14047 3.641 1.39052 3.39095C1.64057 3.1409 1.9797 3.00043 2.33332 3.00043H6.33329"
-                                            stroke="#808192" stroke-width="1.2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path d="M9 1H13V4.99997" stroke="#808192" stroke-width="1.2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M5.66663 8.33328L12.9999 1" stroke="#808192" stroke-width="1.2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
+                                <div class="flex relative justify-start ">
+                                    <div @click="toggleInputLocationShown(true, item.id)" v-if="!item.hyperlink">
+                                        <svg width="20" height="20" viewBox="0 0 14 14" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M10.9999 7.66706V11.667C10.9999 12.0206 10.8594 12.3598 10.6094 12.6098C10.3594 12.8599 10.0202 13.0003 9.6666 13.0003H2.33332C1.9797 13.0003 1.64057 12.8599 1.39052 12.6098C1.14047 12.3598 1 12.0206 1 11.667V4.33375C1 3.98013 1.14047 3.641 1.39052 3.39095C1.64057 3.1409 1.9797 3.00043 2.33332 3.00043H6.33329"
+                                                stroke="#808192" stroke-width="1.2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M9 1H13V4.99997" stroke="#808192" stroke-width="1.2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M5.66663 8.33328L12.9999 1" stroke="#808192" stroke-width="1.2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </div>
+                                    <div @click="openHyperLink(item.hyperlink)" v-else>
+                                        <svg width="20" height="20" viewBox="0 0 14 14" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M10.9999 7.66706V11.667C10.9999 12.0206 10.8594 12.3598 10.6094 12.6098C10.3594 12.8599 10.0202 13.0003 9.6666 13.0003H2.33332C1.9797 13.0003 1.64057 12.8599 1.39052 12.6098C1.14047 12.3598 1 12.0206 1 11.667V4.33375C1 3.98013 1.14047 3.641 1.39052 3.39095C1.64057 3.1409 1.9797 3.00043 2.33332 3.00043H6.33329"
+                                                stroke="#644DED" stroke-width="1.2" stroke-linecap="round"
+                                                stroke-linejoin="round" />
+                                            <path d="M9 1H13V4.99997" stroke="#644DED" stroke-width="1.2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M5.66663 8.33328L12.9999 1" stroke="#644DED" stroke-width="1.2"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+
+                                    </div>
+
                                     <div class="ml-4">
                                         {{ item.manufactor }}
                                     </div>
+                                    <div class="absolute top-0 left-0 p-2 border border-gray-300 bg-white"
+                                        v-if="selectedId === item.id">
+                                        <input type="text" v-model="form.hyperlink" @blur="toggleInputLocationShown" />
+                                        <button @click="submitHyperlink(item.id, form.hyperlink)">go</button>
+                                    </div>
+
                                 </div>
                             </td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.series }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.zahodnost }}</td>
-
-                            <td class="text-center border border-slate-200 p-2">{{ item.length }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.stator_rotor }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.operating }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.narabotka_ds }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.manufactor_date }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.price }}</td>
-                            <td class="text-center border border-slate-200 p-2">{{ item.notes }}</td>
-
-                            <td class="text-center border border-slate-200 p-2">
+                            <td class="text-left border border-slate-200 p-2"
+                                :class="{ 'bg-violet': sortBy === 'series' }">{{ item.series }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.zahodnost }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.length }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.stator_rotor }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.operating }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.narabotka_ds }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.manufactor_date }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.price }}</td>
+                            <td class="text-left border border-slate-200 p-2">{{ item.notes }}</td>
+                            <td class="text-left border border-slate-200 p-2">
                                 <EquipStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
 
                             </td>
-                            <td class="text-center border flex items-center justify-between border-slate-200 p-2">
+                            <td class="text-left border flex items-center justify-between border-slate-200 p-2">
                                 <div class="mr-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -384,7 +517,7 @@ onMounted(() => {
             </div>
             <div v-if="selectedCategory == 2"
                 class="lg:overflow-y-visible sm:pb-28 lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto pb-30">
-                <table class="w-full mt-5 table-auto">
+                <table class="w-full m-5 table-auto">
                     <thead>
                         <tr class="">
                             <th class="sm:text-sm">Производитель</th>
@@ -550,7 +683,7 @@ onMounted(() => {
             </div>
             <div v-if="selectedCategory == 3 || selectedCategory == 4 || selectedCategory == 5 || selectedCategory == 7"
                 class="sm:overflow-x-auto lg:overflow-y-visible sm:pb-28 lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto pb-30">
-                <table class="w-full mt-5 table-auto">
+                <table class="w-full m-5 table-auto">
                     <thead>
                         <tr class="">
                             <th class="sm:text-sm">Производитель</th>
@@ -712,7 +845,7 @@ onMounted(() => {
                     </tbody>
                 </table>
             </div>
-            <pagination class="mt-5" :links="equipment.links" />
+            <pagination class="lg:m-5" :links="equipment.links" />
 
 
         </div>

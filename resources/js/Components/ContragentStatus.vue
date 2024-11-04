@@ -1,5 +1,5 @@
 <template>
-    <div v-if="status == 0" class="flex items-center bg-gray-200 rounded-full px-2 text-center justify-evenly">
+    <div v-if="status == 0" class="flex items-center bg-gray-200 rounded-full px-2 text-center justify-center max-w-[155px]">
       <span  class="relative mr-2 flex h-2 w-2">
         <span 
           class="relative inline-flex rounded-full h-2 w-2"
@@ -8,7 +8,7 @@
       </span>
       <p>{{ elipsedText }}</p>
     </div>
-    <div v-else class="flex items-center max-w-[90px] bg-gray-200 rounded-full text-center justify-evenly">
+    <div v-else class="flex items-center max-w-[100px] bg-gray-200 rounded-full text-center justify-evenly">
       <p>{{ elipsedText }}</p>
     </div>
   </template>

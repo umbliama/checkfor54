@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Link } from '@inertiajs/vue3';
 
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { computed, ref, watchEffect } from 'vue';
+import { computed, onMounted, ref, toRaw, watchEffect } from 'vue';
 import store from '../../../store/';
 import ContragentStatus from '@/Components/ContragentStatus.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -30,14 +30,46 @@ const translateStatus = (status) => {
     }
 
 }
+const sortOrder = computed(() => store.getters['contragent/getSortOrder']);
+const sortBy = computed(() => store.getters['contragent/getSortBy']);
+const updateSortBy = (value) => store.dispatch("contragent/updateSortBy", value)
+const updateSortOrder = (value) => store.dispatch("contragent/updateSortOrder", value)
+const sortedContragets = computed(() => {
+    // Clone the array to avoid mutating the original array
+    return props.contragents.data.slice().sort((a, b) => {
+        let result = 0;
+
+        // Determine which property to sort by (e.g., 'name' or 'status')
+        if (sortBy.value === 'name') {
+            result = a.name.localeCompare(b.name);
+        } else if (sortBy.value === 'status') {
+            result = a.status - b.status; // Assuming 'status' is a number
+        }
+
+        // Apply sort order (ascending or descending)
+        if (sortOrder.value === 'desc') {
+            result = result * -1;
+        }
+
+        return result;
+    });
+});
 
 
-
+const toggleSortBy = (column) => {
+    if (sortBy.value === column) {
+        updateSortOrder(sortOrder.value === 'asc' ? 'desc' : 'asc');
+    } else {
+        updateSortBy(column);
+        updateSortOrder('asc');
+    }
+};
 const selectAll = ref(false);
 const selectedItems = ref([]);
 
 // Toggle the select all functionality
 const toggleSelectAll = () => {
+
     if (selectAll.value) {
         selectedItems.value = props.contragents.data.map((item) => item.id);  // Access directly without `.value`
     } else {
@@ -53,6 +85,10 @@ watchEffect(() => {
         selectAll.value = false;
     }
 });
+const currentPage = ref(props.contragents.current_page || 1);
+const lastPage = ref(props.contragents.last_page || 1);
+
+
 
 
 const getActiveMenuLink = computed(() => store.getters['contragent/getActiveMenuLink']);
@@ -65,84 +101,117 @@ const getOpenDropdown = computed(() => store.getters['contragent/getOpenDropdown
 const updateOpenDropdown = (value) => {
     store.dispatch('contragent/updateOpenDropdown', value)
 }
+onMounted(() => {
+    const { current_page, total } = props.contragents;
+
+    // Dispatch the pagination state to Vuex store
+    store.dispatch('pagination/updatePagination', {
+        currentPage: current_page,
+        totalPages: total,
+    });
+    currentPage.value = props.contragents.current_page;
+    lastPage.value = props.contragents.last_page;
+})
 
 </script>
 
 <template>
     <AuthenticatedLayout class="bg-my-gray">
         <nav class="bg-my-gray ">
-            <div class="max-w-screen-xl px-4 py-3 mx-auto">
+            <div class=" px-4 py-3 ">
                 <div
-                    class="lg:py-2 sm:py-6 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:overflow-x-auto ">
+                    class="lg:py-2 sm:py-6 flex items-center 3xl:justify-between 2xl:justify-between lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:overflow-x-auto ">
                     <ul
-                        class="flex items-center flex-row font-medium mt-0 space-x-8 border-b-2  rtl:space-x-reverse text-sm">
-                        <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'all' }" class="flex pb-4 "
-                            @click="updateMenuLink('all')">
-                            <Link class="text-lg text-black">Все</Link>
-                            <span class="ml-1 rounded-full text-sm flex items-center px-3  text-white bg-gray-400 ">
-                                {{ contragents_count }}
-                            </span>
-                        </li>
-                        <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'customers' }"
-                            class="flex pb-4" @click="updateMenuLink('customers')">
-                            <Link class="text-lg text-black">Заказчики</Link>
-                            <span class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
-                                {{ contragents_customer_count }}
-                            </span>
-                        </li>
-                        <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'suppliers' }"
-                            class="flex pb-4" @click="updateMenuLink('suppliers')">
-                            <Link class="text-lg text-black">Поставщики</Link>
-                            <span class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-400 ">
-                                {{ contragents_supplier_count }}
-                            </span>
-                        </li>
-                        <li class="flex pb-4">
-                            <Link class="text-lg text-side-gray-text">Admin</Link>
-                        </li>
-                        <li class="flex pb-4">
-                            <Menu as="div" class="relative inline-block text-left">
-                                <div class="sm:overflow-x-visible">
-                                    <MenuButton
-                                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
-                                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M2.33337 4C1.80294 4 1.29423 3.78929 0.91916 3.41421C0.544088 3.03914 0.333374 2.53043 0.333374 2C0.333374 1.46957 0.544088 0.960859 0.91916 0.585786C1.29423 0.210714 1.80294 0 2.33337 0C2.86381 0 3.37251 0.210714 3.74759 0.585786C4.12266 0.960859 4.33337 1.46957 4.33337 2C4.33337 2.53043 4.12266 3.03914 3.74759 3.41421C3.37251 3.78929 2.86381 4 2.33337 4ZM11.6667 4C11.1363 4 10.6276 3.78929 10.2525 3.41421C9.87742 3.03914 9.66671 2.53043 9.66671 2C9.66671 1.46957 9.87742 0.960859 10.2525 0.585786C10.6276 0.210714 11.1363 0 11.6667 0C12.1971 0 12.7058 0.210714 13.0809 0.585786C13.456 0.960859 13.6667 1.46957 13.6667 2C13.6667 2.53043 13.456 3.03914 13.0809 3.41421C12.7058 3.78929 12.1971 4 11.6667 4ZM7.00004 4C6.46961 4 5.9609 3.78929 5.58583 3.41421C5.21075 3.03914 5.00004 2.53043 5.00004 2C5.00004 1.46957 5.21075 0.960859 5.58583 0.585786C5.9609 0.210714 6.46961 0 7.00004 0C7.53047 0 8.03918 0.210714 8.41426 0.585786C8.78933 0.960859 9.00004 1.46957 9.00004 2C9.00004 2.53043 8.78933 3.03914 8.41426 3.41421C8.03918 3.78929 7.53047 4 7.00004 4Z"
-                                                fill="#697077" />
-                                        </svg>
-
-                                    </MenuButton>
-                                </div>
-
-                                <transition enter-active-class="transition ease-out duration-100"
-                                    enter-from-class="transform opacity-0 scale-95"
-                                    enter-to-class="transform opacity-100 scale-100"
-                                    leave-active-class="transition ease-in duration-75"
-                                    leave-from-class="transform opacity-100 scale-100"
-                                    leave-to-class="transform opacity-0 scale-95">
-                                    <MenuItems
-                                        class="absolute top-6 z-200 right-2  w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <div class="py-1">
-                                            <MenuItem>
-                                            <Link :href="route('contragents.create')"
-                                                class="flex items-center justify-around"
-                                                :class="['block px-4 py-2 text-sm']">Создать контрагента
-                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                        class="flex w-full  font-roboto items-center flex-row font-medium mt-0 space-x-8 border-b-2  rtl:space-x-reverse text-sm">
+                            <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'all' }"
+                                class="flex pb-2 " @click="updateMenuLink('all')">
+                                <Link class="text-lg text-black">Все</Link>
+                                <span
+                                    class="ml-1 h-[30px] font-roboto rounded-full text-sm flex items-center px-2 text-white bg-side-gray-text {{ strlen($contragents_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                                    {{ contragents_count }}
+                                </span>
+                            </li>
+                            <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'customers' }"
+                                class="flex pb-2" @click="updateMenuLink('customers')">
+                                <Link class="text-lg text-black">Заказчики</Link>
+                                <span
+                                    class="ml-1 h-[30px] font-roboto rounded-full text-sm flex items-center px-2 text-white bg-side-gray-text {{ strlen($contragents_customer_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                                    {{ contragents_customer_count + 200 }}
+                                </span>
+                            </li>
+                            <li :class="{ 'border-b-2  border-blue-600': getActiveMenuLink == 'suppliers' }"
+                                class="flex pb-2" @click="updateMenuLink('suppliers')">
+                                <Link class="text-lg text-black">Поставщики</Link>
+                                <span
+                                    class="ml-1 h-[30px] font-roboto rounded-full text-sm flex items-center px-2 text-white bg-side-gray-text {{ strlen($contragents_supplier_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                                    {{ contragents_supplier_count + 10 }}
+                                </span>
+                            </li>
+                            <li class="flex pb-2">
+                                <Link class="text-lg text-side-gray-text">Admin</Link>
+                            </li>
+                            <li class="flex pb-2">
+                                <Menu as="div" class="relative inline-block text-left">
+                                    <div class="sm:overflow-x-visible">
+                                        <MenuButton
+                                            class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
                                                 <path
-                                                    d="M8.74999 2.75004C8.74999 2.33582 8.4142 2.00004 7.99999 2.00004C7.58578 2.00004 7.24999 2.33582 7.24999 2.75004V7.25H2.75C2.33579 7.25 2 7.58579 2 8C2 8.41422 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41422 14 8C14 7.58579 13.6642 7.25 13.25 7.25H8.74999V2.75004Z"
-                                                    fill="#464F60" />
+                                                    d="M5 13C5.26522 13 5.51957 12.8946 5.70711 12.7071C5.89464 12.5196 6 12.2652 6 12C6 11.7348 5.89464 11.4804 5.70711 11.2929C5.51957 11.1054 5.26522 11 5 11C4.73478 11 4.48043 11.1054 4.29289 11.2929C4.10536 11.4804 4 11.7348 4 12C4 12.2652 4.10536 12.5196 4.29289 12.7071C4.48043 12.8946 4.73478 13 5 13ZM5 15C4.20435 15 3.44129 14.6839 2.87868 14.1213C2.31607 13.5587 2 12.7956 2 12C2 11.2044 2.31607 10.4413 2.87868 9.87868C3.44129 9.31607 4.20435 9 5 9C5.79565 9 6.55871 9.31607 7.12132 9.87868C7.68393 10.4413 8 11.2044 8 12C8 12.7956 7.68393 13.5587 7.12132 14.1213C6.55871 14.6839 5.79565 15 5 15ZM19 15C18.2044 15 17.4413 14.6839 16.8787 14.1213C16.3161 13.5587 16 12.7956 16 12C16 11.2044 16.3161 10.4413 16.8787 9.87868C17.4413 9.31607 18.2044 9 19 9C19.7956 9 20.5587 9.31607 21.1213 9.87868C21.6839 10.4413 22 11.2044 22 12C22 12.7956 21.6839 13.5587 21.1213 14.1213C20.5587 14.6839 19.7956 15 19 15ZM19 13C19.2652 13 19.5196 12.8946 19.7071 12.7071C19.8946 12.5196 20 12.2652 20 12C20 11.7348 19.8946 11.4804 19.7071 11.2929C19.5196 11.1054 19.2652 11 19 11C18.7348 11 18.4804 11.1054 18.2929 11.2929C18.1054 11.4804 18 11.7348 18 12C18 12.2652 18.1054 12.5196 18.2929 12.7071C18.4804 12.8946 18.7348 13 19 13ZM12 15C11.2044 15 10.4413 14.6839 9.87868 14.1213C9.31607 13.5587 9 12.7956 9 12C9 11.2044 9.31607 10.4413 9.87868 9.87868C10.4413 9.31607 11.2044 9 12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12C15 12.7956 14.6839 13.5587 14.1213 14.1213C13.5587 14.6839 12.7956 15 12 15ZM12 13C12.2652 13 12.5196 12.8946 12.7071 12.7071C12.8946 12.5196 13 12.2652 13 12C13 11.7348 12.8946 11.4804 12.7071 11.2929C12.5196 11.1054 12.2652 11 12 11C11.7348 11 11.4804 11.1054 11.2929 11.2929C11.1054 11.4804 11 11.7348 11 12C11 12.2652 11.1054 12.5196 11.2929 12.7071C11.4804 12.8946 11.7348 13 12 13Z"
+                                                    fill="#697077" />
                                             </svg>
 
+                                        </MenuButton>
+                                    </div>
 
-                                            </Link>
-                                            </MenuItem>
+                                    <transition enter-active-class="transition ease-out duration-100"
+                                        enter-from-class="transform opacity-0 scale-95"
+                                        enter-to-class="transform opacity-100 scale-100"
+                                        leave-active-class="transition ease-in duration-75"
+                                        leave-from-class="transform opacity-100 scale-100"
+                                        leave-to-class="transform opacity-0 scale-95">
+                                        <MenuItems
+                                            class="absolute top-6 z-200 right-2  w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                            <div class="py-1">
+                                                <MenuItem>
+                                                <Link :href="route('contragents.create')"
+                                                    class="flex items-center justify-around"
+                                                    :class="['block px-4 py-2 text-sm']">Создать контрагента
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M8.74999 2.75004C8.74999 2.33582 8.4142 2.00004 7.99999 2.00004C7.58578 2.00004 7.24999 2.33582 7.24999 2.75004V7.25H2.75C2.33579 7.25 2 7.58579 2 8C2 8.41422 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41422 14 8C14 7.58579 13.6642 7.25 13.25 7.25H8.74999V2.75004Z"
+                                                        fill="#464F60" />
+                                                </svg>
 
-                                        </div>
-                                    </MenuItems>
-                                </transition>
-                            </Menu>
+
+                                                </Link>
+                                                </MenuItem>
+
+                                            </div>
+                                        </MenuItems>
+                                    </transition>
+                                </Menu>
+
+                            </li>
+
+                        <li class="!ml-auto">
+                            <form method="GET"
+                                class="lg:block md:block sm:hidden sm:p-4 lg:py-2 sm:py-6 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:overflow-x-auto">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                        </svg>
+                                    </div>
+                                    <input type="search" name="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 
+              border-b-2 border-gray-200  border-t-0 
+              border-l-0 border-r-0 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Поиск">
+                                </div>
+                            </form>
 
                         </li>
 
@@ -150,20 +219,6 @@ const updateOpenDropdown = (value) => {
                     </ul>
 
 
-                    <form method="GET" class="lg:block md:block sm:hidden sm:p-4 max-w-md mx-auto">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </div>
-                            <input type="search" name="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 
-              border-b-2 border-gray-200  border-t-0 
-              border-l-0 border-r-0 bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Поиск">
-                        </div>
-                    </form>
 
 
                 </div>
@@ -172,7 +227,7 @@ const updateOpenDropdown = (value) => {
         </nav>
 
 
-        <form method="GET" class="lg:hidden md:hidden sm:p-4 max-w-md mx-auto">
+        <form method="GET" class="lg:hidden md:hidden sm:p-4">
             <div class="relative">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
@@ -199,46 +254,68 @@ const updateOpenDropdown = (value) => {
                         <tr class="py-3 whitespace-nowrap">
                             <th class="py-4">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:border-my-black"
                                     type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
                             </th>
                             <th class="py-4 lg:text-md md:text-md sm:font-regular sm:text-left sm:text-sm">
-                                <p>Наименование</p>
+                                <div class="flex gap-2" @click="toggleSortBy('name')">
+                                    <p class="font-robotoBold font-semibold">Наименование
+                                    </p>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        :class="sortBy === 'name' && sortOrder === 'asc' ? 'rotate-180' : ''">
+                                        <path
+                                            d="M8.16663 12L12.1666 8M8.16663 3.66666V12V3.66666ZM8.16663 12L4.16663 8L8.16663 12Z"
+                                            stroke="#21272A" stroke-width="1.5" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Контактное лицо</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:table-cell sm:text-xs">
+                                <p class="text-left font-robotoBold font-semibold">Контактное лицо</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Телефон</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:table-cell sm:text-xs">
+                                <p class="text-left font-robotoBold font-semibold">Телефон</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Эл. Почта</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:table-cell sm:text-xs">
+                                <p class="text-left font-robotoBold font-semibold">Эл. Почта</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Примечание</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:table-cell sm:text-xs">
+                                <p class="text-left font-robotoBold font-semibold">Примечание</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Статус</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:table-cell sm:text-xs">
+                                <div class="flex justify-start gap-2" @click="toggleSortBy('status')">
+                                    <p class="font-robotoBold text-left font-semibold">Статус
+                                    </p>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        :class="sortBy === 'status' && sortOrder === 'asc' ? 'rotate-180' : ''">
+                                        <path
+                                            d="M8.16663 12L12.1666 8M8.16663 3.66666V12V3.66666ZM8.16663 12L4.16663 8L8.16663 12Z"
+                                            stroke="#21272A" stroke-width="1.5" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
                             </th>
                             <th class="p-4 lg:table-cell md:table-cell sm:hidden">
                             </th>
                         </tr>
                     </thead>
-                    <tbody class=" bg-white">
+                    <tbody class="bg-white">
                         <tr :class="{ 'bg-gray-200': selectedItems.includes(item.id) }" :key="item.id"
-                            class=" sm:border-b-2" v-for="item in contragents.data">
-                            <td 
-                            :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
-                            class="text-center p-2">
+                            class=" sm:border-b-2" v-for="item in sortedContragets">
+                            <td :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
+                                class="text-center p-2">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-my-black"
                                     type="checkbox" v-model="selectedItems" :value="item.id" />
                             </td>
                             <td class="text-center  p-2">
-                                <div class="flex lg:justify-around md:justify-around sm:justify-start ">
+                                <div
+                                    class="flex lg:justify-start  md:justify-start lg:gap-6  md:gap-6  sm:justify-start ">
                                     <div class="mr-1 sm:mr-2 sm:flex sm:justify-center sm:items-center">
 
-                                        <img v-if="item.avatar" class="sm:max-w-10 sm:rounded-3xl" :src="item.avatar"
+                                        <img v-if="item.avatar" class="sm:max-w-10 sm:rounded-full" :src="item.avatar"
                                             alt="">
                                         <span v-else><svg width="40" height="40" viewBox="0 0 40 40" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -250,28 +327,33 @@ const updateOpenDropdown = (value) => {
                                         </span>
                                     </div>
                                     <div class="flex flex-col justify-start ">
-                                        <span class="text-black-700 font-bold flex justify-start items-start"> {{
-                                            item.name }}</span>
                                         <span
-                                            class="flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
+                                            class="font-robotoBold text-black-700 font-bold flex justify-start items-start">
+                                            {{
+                                                item.name }}</span>
+                                        <span
+                                            class="font-roboto flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
                                             {{ item.inn
                                             }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.contact_person ?
-                                item.contact_person : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="text-left font-roboto  lg:table-cell md:table-cell   p-2">{{
+                                item.contact_person ?
+                                    item.contact_person : 'Не задано' }}</td>
+                            <td class="text-left font-roboto  lg:table-cell md:table-cell   p-2">{{
                                 item.contact_person_phone ? item.contact_person_phone : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="text-left font-roboto  lg:table-cell md:table-cell   p-2">{{
                                 item.email ? item.email : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.notes }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden whitespace-nowrap p-2">
+                            <td class="text-left font-roboto  lg:table-cell md:table-cell   p-2">{{ item.notes
+                                }}</td>
+                            <td
+                                class="font-roboto text-center lg:table-cell md:table-cell  whitespace-nowrap ">
                                 <ContragentStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                             </td>
 
                             <td
-                                class="text-center lg:table-cell md:table-cell sm:hidden  flex items-center justify-between  p-6">
+                                class="font-roboto text-center lg:table-cell md:table-cell   flex items-center justify-between  p-6">
 
                                 <div>
 
@@ -359,7 +441,9 @@ const updateOpenDropdown = (value) => {
                 </table>
             </div>
 
-        <pagination class="mt-5" :links="contragents.links" />
+            <pagination :current-page="contragents.current_page" :total-pages="contragents.last_page" class="mt-5"
+                :links="contragents.links" :next-page-url="contragents.next_page_url"
+                :prev-page-url="contragents.prev_page_url" />
 
         </div>
         <div v-if="getActiveMenuLink == 'customers'" class="p-4">
@@ -372,39 +456,39 @@ const updateOpenDropdown = (value) => {
                         <tr class="py-3">
                             <th class="py-4">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  dark:bg-gray-700 dark:border-my-black"
                                     type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
                             </th>
                             <th class="py-4 lg:text-md md:text-md sm:font-regular sm:text-left sm:text-sm">
-                                <p>Наименование</p>
+                                <p class="text-left font-robotoBold">Наименование</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Контактное лицо</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell  sm:text-xs">
+                                <p class="text-left font-robotoBold">Контактное лицо</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Телефон</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell  sm:text-xs">
+                                <p class="text-left font-robotoBold">Телефон</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Эл. Почта</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell  sm:text-xs">
+                                <p class="text-left font-robotoBold">Эл. Почта</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Примечание</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell  sm:text-xs">
+                                <p class="text-left font-robotoBold">Примечание</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Статус</p>
+                            <th
+                                class="py-4 lg:te justify-centerxt-md md:text-md lg:table-cell md:table-cell  sm:text-xs">
+                                <p class="text-left font-robotoBold">Статус</p>
                             </th>
-                            <th class="p-4 lg:table-cell md:table-cell sm:hidden">
+                            <th class="p-4 lg:table-cell md:table-cell ">
                             </th>
                         </tr>
                     </thead>
                     <tbody class=" bg-white">
                         <tr :class="{ 'bg-gray-200': selectedItems.includes(item.id) }" :key="item.id"
                             class=" sm:border-b-2" v-for="item in contragents_customers.data">
-                            <td 
-                            :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
-                            class="text-center p-2">
+                            <td :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
+                                class="text-center p-2">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-my-black"
                                     type="checkbox" v-model="selectedItems" :value="item.id" />
                             </td>
                             <td class="text-center  p-2">
@@ -423,28 +507,32 @@ const updateOpenDropdown = (value) => {
                                         </span>
                                     </div>
                                     <div class="flex flex-col justify-start ">
-                                        <span class="text-black-700 font-bold flex justify-start items-start"> {{
-                                            item.name }}</span>
                                         <span
-                                            class="flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
+                                            class="text-left font-robotoBold text-black-700 font-bold flex justify-start items-start">
+                                            {{
+                                                item.name }}</span>
+                                        <span
+                                            class="font-roboto flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
                                             {{ item.inn
                                             }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.contact_person ?
-                                item.contact_person : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="font-roboto text-left lg:table-cell md:table-cell   ">{{
+                                item.contact_person ?
+                                    item.contact_person : 'Не задано' }}</td>
+                            <td class="font-roboto text-left lg:table-cell md:table-cell   ">{{
                                 item.contact_person_phone ? item.contact_person_phone : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="font-roboto text-left lg:table-cell md:table-cell   ">{{
                                 item.email ? item.email : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.notes }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden whitespace-nowrap p-2">
+                            <td class="font-roboto text-left lg:table-cell md:table-cell   ">{{ item.notes
+                                }}</td>
+                            <td class="font-roboto text-left lg:table-cell md:table-cell  whitespace-nowrap ">
                                 <ContragentStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                             </td>
 
                             <td
-                                class="text-center lg:table-cell md:table-cell sm:hidden  flex items-center justify-between  p-6">
+                                class="text-center font-roboto lg:table-cell md:table-cell   flex items-center justify-between  p-6">
 
                                 <div>
 
@@ -531,7 +619,9 @@ const updateOpenDropdown = (value) => {
                     </tbody>
                 </table>
             </div>
-            <pagination class="mt-5" :links="contragents_customers.links" />
+            <pagination :total-pages="contragents_customers.last_page" class="mt-5" :links="contragents_customers.links"
+                :next-page-url="contragents_customers.next_page_url"
+                :prev-page-url="contragents_customers.prev_page_url" />
 
         </div>
         <div v-if="getActiveMenuLink == 'suppliers'" class="p-4">
@@ -544,39 +634,39 @@ const updateOpenDropdown = (value) => {
                         <tr class="py-3">
                             <th class="py-4">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  focus:ring-2 dark:bg-gray-700 dark:border-my-blacks"
                                     type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
                             </th>
                             <th class="py-4 lg:text-md md:text-md sm:font-regular sm:text-left sm:text-sm">
-                                <p>Наименование</p>
+                                <p class="text-left font-robotoBold">Наименование</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Контактное лицо</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:whitespace-nowrap  sm:text-xs">
+                                <p class="text-left font-robotoBold">Контактное лицо</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Телефон</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:whitespace-nowrap  sm:text-xs">
+                                <p class="text-left font-robotoBold">Телефон</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Эл. Почта</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:whitespace-nowrap  sm:text-xs">
+                                <p class="text-left font-robotoBold">Эл. Почта</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Примечание</p>
+                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:whitespace-nowrap  sm:text-xs">
+                                <p class="text-left font-robotoBold">Примечание</p>
                             </th>
-                            <th class="py-4 lg:text-md md:text-md lg:table-cell md:table-cell sm:hidden sm:text-xs">
-                                <p>Статус</p>
+                            <th
+                                class="py-4 lg:te justify-centerxt-md md:text-md lg:table-cell md:table-cell sm:whitespace-nowrap  sm:text-xs">
+                                <p class="text-left font-robotoBold">Статус</p>
                             </th>
-                            <th class="p-4 lg:table-cell md:table-cell sm:hidden">
+                            <th class="p-4 lg:table-cell md:table-cell sm:whitespace-nowrap ">
                             </th>
                         </tr>
                     </thead>
                     <tbody class=" bg-white">
                         <tr :class="{ 'bg-gray-200': selectedItems.includes(item.id) }" :key="item.id"
                             class=" sm:border-b-2" v-for="item in contragents_suppliers.data">
-                            <td 
-                            :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
-                            class="text-center p-2">
+                            <td :class="{ 'border-l-4 border-side-gray-text': selectedItems.includes(item.id) }"
+                                class="text-center p-2">
                                 <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 border-gray-300 rounded focus:ring-side-gray-text dark:focus:ring-side-gray-text dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    class="w-5 h-5 text-side-gray-text bg-gray-100 border-my-black  focus:ring-2 dark:bg-gray-700 dark:border-my-black"
                                     type="checkbox" v-model="selectedItems" :value="item.id" />
                             </td>
                             <td class="text-center  p-2">
@@ -595,28 +685,32 @@ const updateOpenDropdown = (value) => {
                                         </span>
                                     </div>
                                     <div class="flex flex-col justify-start ">
-                                        <span class="text-black-700 font-bold flex justify-start items-start"> {{
-                                            item.name }}</span>
                                         <span
-                                            class="flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
+                                            class="font-robotoBold text-black-700 font-bold flex justify-start items-start">
+                                            {{
+                                                item.name }}</span>
+                                        <span
+                                            class="font-roboto flex text-sm text-gray-500 justify-start items-start sm:text-xs">ИНН
                                             {{ item.inn
                                             }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.contact_person ?
-                                item.contact_person : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="font-roboto text-left lg:table-cell md:table-cell sm:whitespace-nowrap ">{{
+                                item.contact_person ?
+                                    item.contact_person : 'Не задано' }}</td>
+                            <td class="font-roboto text-left lg:table-cell md:table-cell sm:whitespace-nowrap ">{{
                                 item.contact_person_phone ? item.contact_person_phone : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{
+                            <td class="font-roboto text-left lg:table-cell md:table-cell sm:whitespace-nowrap ">{{
                                 item.email ? item.email : 'Не задано' }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden  p-2">{{ item.notes }}</td>
-                            <td class="text-center lg:table-cell md:table-cell sm:hidden whitespace-nowrap p-2">
+                            <td class="font-roboto text-left lg:table-cell md:table-cell sm:whitespace-nowrap ">{{ item.notes
+                                }}</td>
+                            <td class="font-roboto text-left lg:table-cell md:table-cell sm:whitespace-nowrap whitespace-nowrap">
                                 <ContragentStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                             </td>
 
                             <td
-                                class="text-center lg:table-cell md:table-cell sm:hidden  flex items-center justify-between  p-6">
+                                class="font-roboto text-center lg:table-cell md:table-cell sm:whitespace-nowrap  flex items-center justify-between  p-6">
 
                                 <div>
 
@@ -703,7 +797,9 @@ const updateOpenDropdown = (value) => {
                     </tbody>
                 </table>
             </div>
-            <pagination class="mt-5" :links="contragents_suppliers.links" />
+            <pagination :total-pages="contragents_suppliers.last_page" class="mt-5" :links="contragents_suppliers.links"
+                :next-page-url="contragents_suppliers.next_page_url"
+                :prev-page-url="contragents_suppliers.prev_page_url" />
 
         </div>
 

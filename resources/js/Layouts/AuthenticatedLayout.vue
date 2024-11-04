@@ -18,24 +18,14 @@ const selectMenu = (menuState) => {
 </script>
 
 <template>
-    <div class="flex lg:flex-row md:flex-row sm:flex-col">
-        <div class="lg:w-1/5 lg:flex-col bg-my-gray md:flex-col sm:flex sm:flex-row sm:w-full">
+    <div class="  flex lg:flex-row md:flex-row sm:flex-col">
+        <div class="lg:w-64 lg:flex-col bg-my-gray md:flex-col sm:flex sm:flex-row sm:w-full">
             <SideMenu
-                class="bg-white lg:h-screen lg:flex lg:flex-col md:flex-col sm:flex sm:flex-row lg:justify-start sm:h-full sm:justify-between sm:w-full sm:items-center" />
+                class="lg:w-64 bg-white lg:h-screen lg:flex lg:flex-col md:flex-col sm:flex sm:flex-row lg:justify-start sm:h-full sm:justify-start sm:w-full sm:w-full sm:items-center" />
 
         </div>
         <div class="w-full sm:h-full lg:min-h-screen">
-            <nav class="bg-white border-b border-gray-100">
-
-            </nav>
-
-            <header class="bg-white shadow" v-if="$slots.header">
-                <div class="flex max-w-7xl mx-auto bg-my-gray py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header" />
-                </div>
-            </header>
-
-            <main>
+            <main class="md:w-full 3xl:w-full 2xl:w-[1184px]">
                 <slot />
             </main>
         </div>

@@ -95,6 +95,7 @@ class EquipmentController extends Controller
             ];
         }
 
+
         return response()->json($equipment_categories_counts);
 
 
@@ -109,6 +110,15 @@ class EquipmentController extends Controller
 
         return response()->json($equipment_sizes);
 
+    }
+
+
+    public function getEquipmentSizesByCategoryId($categoryId)
+    {
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+
+
+        return response()->json($equipment_sizes);
     }
     public function getEquipmentCount()
     {
@@ -130,9 +140,27 @@ class EquipmentController extends Controller
     }
     public function getEquipmentSizesCount()
     {
+        dd('123');
 
         $equipment_sizes = EquipmentSize::all();
 
+        $equipment_sizes_counts = [];
+
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+
+        return response()->json($equipment_sizes_counts);
+
+
+    }
+    public function getEquipmentSizesCountById()
+    {
+
+        $equipment_sizes = EquipmentSize::where('category_id', 1);
+
+        dd($equipment_sizes);
         $equipment_sizes_counts = [];
 
         foreach ($equipment_sizes as $size) {

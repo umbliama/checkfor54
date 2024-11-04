@@ -23,14 +23,14 @@ class EquipmentController extends Controller
 
         // Fetch categories, sizes, and locations
         $equipment_categories = EquipmentCategories::all();
-        $equipment_sizes = EquipmentSize::all();
         $equipment_location = EquipmentLocation::all();
 
         $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
         $sizeId = $request->query('size_id');
-
-        // Initialize query builder for Equipment
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $query = Equipment::query();
+        $perPage = $request->query('perPage');
+        $locationId = $request->query('location_id');
 
         // Search filtering logic
         if ($searchTerm) {
@@ -58,8 +58,14 @@ class EquipmentController extends Controller
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
 
+        $location_counts = [];
+        foreach ($equipment_location as $location) {
+            $locationIdCount = $location->id;
+            $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
+        }
+
         // Filtering by category
-        if ($categoryId) {
+    if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
 
@@ -68,9 +74,14 @@ class EquipmentController extends Controller
             $query->where('size_id', $sizeId);
         }
 
-        // Paginate the results
-        $equipment = $query->paginate(10);
+        if ($locationId > 0) {
+            $query->where('location_id', $locationId);
+        }
 
+        
+
+        // Paginate the results
+        $equipment = $query->paginate($perPage);
 
 
 
@@ -83,21 +94,68 @@ class EquipmentController extends Controller
             'equipment_sizes' => $equipment_sizes,
             'equipment_location' => $equipment_location,
             'selectedCategory' => $categoryId,
+            'location_counts' => $location_counts
         ]);
     }
+    public function storeHyperLink(Request $request, $id)
+    {
+        // Validate the hyperlink input
+        $request->validate([
+            'hyperlink' => 'required|string'
+        ]);
+    
+        // Find the equipment by its id
+        $equipment = Equipment::find($id);
+    
+        // Check if equipment exists
+        if (!$equipment) {
+            return response()->json(['error' => 'Equipment not found'], 404);
+        }
+    
+        // Update the hyperlink field
+        $equipment->hyperlink = $request->input('hyperlink');
+        $equipment->save();
+    
+        return redirect()->route('equip.index')->with('success', 'Ссылка успешно добавлена.');
+
+    }
+    
     public function repair(Request $request)
     {
 
-        $categoryId = $request->query('category_id');
         $sizeId = $request->query('size_id');
         $series = $request->query('series');
         $equipment_location = EquipmentLocation::all();
+        $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+        $equipment_categories = EquipmentCategories::all();
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+
+        // Count the number of equipment per size
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+
 
 
         $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
 
-        return Inertia::render('Equip/Repair', ['equipmentSeries' => $equipment_series, 'equipment_location' => $equipment_location, 'equipment_repairs' => $equipment_repairs]);
+        return Inertia::render('Equip/Repair', [
+            'equipmentSeries' => $equipment_series,
+            'equipment_location' => $equipment_location,
+            'equipment_repairs' => $equipment_repairs,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_categories' => $equipment_categories,
+            'equipment_sizes_counts' => $equipment_sizes_counts
+        ]);
     }
     public function createRepair()
     {
@@ -118,17 +176,24 @@ class EquipmentController extends Controller
 
         EquipmentRepair::create($request->all());
     }
+    public function destroyRepair($id) 
+    {
+        $repair = EquipmentRepair::findOrFail($id);
+
+        $repair->delete();
+    }
 
 
     public function report(Request $request)
     {
         $equipment_location = EquipmentLocation::all();
         $equipment_categories = EquipmentCategories::all();
-        $equipment_sizes = EquipmentSize::all();
-        $categoryId = $request->query('category_id');
+        $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $series = $request->query('series');
 
+
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
 
 
 
@@ -153,6 +218,7 @@ class EquipmentController extends Controller
         $equipment_tests = EquipmentTest::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
         // $equipment_repairs = EquipmentRepair::all();
 
+
         return Inertia::render('Equip/Report', [
             'equipment_repairs' => $equipment_repairs,
             'equipment_location' => $equipment_location,
@@ -171,16 +237,41 @@ class EquipmentController extends Controller
 
     public function tests(Request $request)
     {
-
-        $categoryId = $request->query('category_id');
+        $equipment_categories = EquipmentCategories::all();
         $sizeId = $request->query('size_id');
         $equipment_location = EquipmentLocation::all();
         $equipment_tests = EquipmentTest::all();
 
+        $categoryId = $request->query('category_id', 1);
+
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+
+
+        $equipment_categories_counts = [];
+
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+        $equipment_sizes_counts = [];
+
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
 
         $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
 
-        return Inertia::render('Equip/Tests', ['equipmentSeries' => $equipment_series, 'equipment_location' => $equipment_location, 'equipment_tests' => $equipment_tests]);
+        return Inertia::render('Equip/Tests', 
+        [
+            'equipmentSeries' => $equipment_series,
+            'equipment_location' => $equipment_location,
+            'equipment_tests' => $equipment_tests,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_sizes_counts' => $equipment_sizes_counts,
+            'equipment_categories' => $equipment_categories,
+            'equipment_sizes' => $equipment_sizes
+        ]);
     }
 
     public function storeTest(Request $request)
@@ -202,12 +293,14 @@ class EquipmentController extends Controller
     {
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-        $equipment_sizes = EquipmentSize::all();
         $contragents = Contragents::all();
-        $categoryId = $request->query('category_id');
         $sizeId = $request->query('size_id');
-        $series = $request->query('series');
+        $series = $request->query(key: 'series');
 
+
+        $categoryId = $request->query('category_id', 1);
+
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
 
 
         $equipment_categories_counts = [];
@@ -216,7 +309,6 @@ class EquipmentController extends Controller
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
         }
 
-        // Count the number of equipment per size
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
@@ -226,7 +318,6 @@ class EquipmentController extends Controller
 
 
 
-        $equipment = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->pluck('id');
 
         return Inertia::render('Equip/Price', ['equipment_categories' => $equipment_categories, 'equipment_sizes' => $equipment_sizes, 'equipment_location' => $equipment_location, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_sizes_counts' => $equipment_sizes_counts, 'contragents' => $contragents]);
     }
@@ -235,8 +326,8 @@ class EquipmentController extends Controller
     {
         $request->validate([
             'category_id' => "required|int",
-            'size_id' =>  "required|int",
-            'contragent_id' =>  "required|int",
+            'size_id' => "required|int",
+            'contragent_id' => "required|int",
             'store_date' => "required|date",
             'notes' => "required|string",
             'price' => "required|int",
@@ -253,7 +344,7 @@ class EquipmentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
 
         $equipment_categories = EquipmentCategories::all();
@@ -261,10 +352,28 @@ class EquipmentController extends Controller
         $equipment_location = EquipmentLocation::all();
 
 
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+
+        // Count the number of equipment per size
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+        $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
+        $sizeId = $request->query('size_id');
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+
         return Inertia::render('Equip/Create', [
             'equipment_categories' => $equipment_categories,
             'equipment_sizes' => $equipment_sizes,
-            'equipment_location' => $equipment_location
+            'equipment_location' => $equipment_location,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_sizes_counts' => $equipment_sizes_counts
         ]);
 
     }

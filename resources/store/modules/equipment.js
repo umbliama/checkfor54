@@ -8,6 +8,7 @@ export default {
         sizeActive: 0,
         seriesActive: "",
         menuActiveItem: EquipMenuItems.REPORT,
+        locationActive: 0,
         inputLocationShown: false,
         dropDownIsShown: true,
         equipmentCategories: null,
@@ -21,8 +22,39 @@ export default {
         equipmentRepairCount: 0,
         equipmentTestCount: 0,
         priceTabActive: "price",
+        locationModal: false,
+        errors: {},
+        inputHyperLinkShown: false,
+        selectedId: null,
+        sortBy: "",
+        sortOrder: "asc",
+        filterShown:false
     }),
     mutations: {
+        setFilterShown:(state) => {
+            state.filterShown = !state.filterShown
+        },
+        setSortBy: (state, value) => {
+            state.sortBy = value;
+        },
+        setSortOrder: (state, value) => {
+            state.sortOrder = value;
+        },
+        setSelectedId(state, value) {
+            state.selectedId = value;
+        },
+        toggleInputHyperLinkShown(state) {
+            state.inputHyperLinkShown = !state.inputHyperLinkShown;
+        },
+        setErrors(state, value) {
+            state.errors = value;
+        },
+        setLocationModal(state, value) {
+            state.locationModal = value;
+        },
+        setLocationActive(state, value) {
+            state.locationActive = value;
+        },
         setPriceTabActive(state, value) {
             state.priceTabActive = value;
         },
@@ -91,6 +123,31 @@ export default {
         },
     },
     actions: {
+        updateFilterShown({commit}){
+            commit('setFilterShown')
+        },
+        updateSortBy({commit}, payload) {
+            commit('setSortBy',payload)
+        },
+        updateSortOrder({commit}, payload) {
+            commit("setSortOrder", payload)
+        },
+
+        async updateSelectedId({ commit }, value) {
+            commit("setSelectedId", value);
+        },
+        async updateInputHyperLinkShown({ commit }, value) {
+            commit("toggleInputHyperLinkShown", value);
+        },
+        async updateErrors({ commit }, value) {
+            commit("setErrors", value);
+        },
+        async updateLocationModal({ commit }, value) {
+            commit("setLocationModal", value);
+        },
+        async updateLocationActive({ commit }, value) {
+            commit("setLocationActive", value);
+        },
         async updatePriceTabActive({ commit }, value) {
             commit("setPriceTabActive", value);
         },
@@ -98,7 +155,7 @@ export default {
             try {
                 const response = await fetch(`/api/equipment/test/getCount`);
                 const data = await response.json();
-                commit("setEquipmentRepairCount", data);
+                commit("setEquipmentTestCount", data);
             } catch (error) {
                 console.log(error);
             }
@@ -249,6 +306,14 @@ export default {
         },
     },
     getters: {
+        getFilterShown: state => state.filterShown,
+        getSortOrder: state => state.sortOrder,
+        getSortBy: state => state.sortBy,
+        getSelectedID: (state) => state.selectedId,
+        getInputHyperLinkShown: (state) => state.inputHyperLinkShown,
+        getErrors: (state) => state.errors,
+        getLocationModal: (state) => state.locationModal,
+        getLocationActive: (state) => state.locationActive,
         getPriceTabActive: (state) => state.priceTabActive,
         getEquipmentCount: (state) => state.equipmentCount,
         getEquipmentRepairCount: (state) => state.equipmentRepairCount,

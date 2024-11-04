@@ -2,6 +2,8 @@ export default {
     namespaced: true,
     state: () => ({
         createdContragentID: null,
+        sortBy:"",
+        sortOrder:'asc',
         formData: {
             agentTypeLegal: "",
             country: "",
@@ -39,6 +41,15 @@ export default {
         openDropdown:false
     }),
     mutations: {
+        setSortBy: (state, value) => {
+            state.sortBy = value
+        },
+        setSortOrder:(state, value) => {
+        state.sortOrder = value  
+        },
+        setAvatar: (state,value) => {
+            state.formData.avatar = value
+        },
         setOpenDropdown:(state,value) => {
             state.openDropdown = value
         },
@@ -56,6 +67,15 @@ export default {
         },
     },
     actions: {
+        updateSortBy({commit}, payload) {
+            commit('setSortBy',payload)
+        },
+        updateSortOrder({commit}, payload) {
+            commit("setSortOrder", payload)
+        },
+        updateAvatar({commit}, payload) {
+            commit('setAvatar', payload)
+        },  
         updateOpenDropdown({commit}, payload) {
             commit('setOpenDropdown',payload)
         },
@@ -73,6 +93,9 @@ export default {
         },
     },
     getters: {
+        getSortOrder: state => state.sortOrder,
+        getSortBy: state => state.sortBy,
+        getAvatar: state => state.formData.avatar,
         getActiveMenuLink: (state) => state.activeMenuLink,
         getOpenDropdown: (state) => state.openDropdown,
         getActiveTab: (state) => state.activeTab,

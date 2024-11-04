@@ -96,7 +96,7 @@ const form = reactive({
 
 function submit() {
   const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
-    return sub.subequipment_id && sub.shipping_date && sub.period_start_date;  // Add conditions for required fields
+    return sub.subequipment_id && sub.shipping_date && sub.period_start_date && sub.commentary;  // Add conditions for required fields
   });
   console.log(selectedSubEquipmentArray)
   router.post('/services', {
@@ -125,7 +125,7 @@ function submit() {
 
       <div class="flex">
         <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
-        <div class="flex-1 p-4 sm:w-full">
+        <div class="flex-1 sm:w-full">
           <nav class="">
             <div class=" sm:w-full lg:max-w-screen-xl px-4  mx-auto">
               <div

@@ -33,19 +33,16 @@ const createColumn = () => {
             <ul
               class="flex flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
               <li>
-                <Link :href="route('equip.report')" class="text-lg">Отчет</Link>
+                <Link :href="route('equip.report')" class="text-lg">Задачи</Link>
               </li>
               <li>
-                <Link :href="route('equip.index')" class="text-lg">Список борудования</Link>
+                <Link :href="route('equip.index')" class="text-lg">Рекламация</Link>
               </li>
               <li>
-                <Link :href="route('equip.repair')" class="text-lg">Ремонт</Link>
+                <Link :href="route('equip.repair')" class="text-lg">История</Link>
               </li>
               <li>
-                <Link :href="route('equip.tests')" class="text-lg">Испытания</Link>
-              </li>
-              <li>
-                <Link :href="route('equip.price')" class="text-lg">Стоимость</Link>
+                <Link :href="route('equip.tests')" class="text-lg text-side-gray-text">Admin</Link>
               </li>
               <Link @click="toggleDropdown">
 
@@ -90,7 +87,7 @@ const createColumn = () => {
       </nav>
       <!-- Cards Layout -->
       <div class="grid grid-cols-3 mt-3 gap-4">
-        <div v-for="column in columns" class="bg-white border-2 border-my-gray-500 shadow rounded p-4">
+        <div v-for="column in columns" class="bg-white border-8 border-my-gray-500  rounded p-4">
           <div class="flex items-center justify-between">
             <h3>Хронология</h3>
             <Link @click="toggleDropdown">

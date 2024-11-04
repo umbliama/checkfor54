@@ -36,7 +36,7 @@ return new class extends Migration
             $table->string('rezbi')->nullable();
             $table->string('length_rezba')->nullable();
             $table->string('diameter')->nullable();
-            
+            $table->string('hyperlink')->nullable();
         }); 
     }
 

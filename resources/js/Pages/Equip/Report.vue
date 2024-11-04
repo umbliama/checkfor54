@@ -66,6 +66,13 @@ const updateReportTable = (selectedCategory, selectedSize, seriesActive) => {
     })
 }
 
+const getLocationName = (id) => {
+    const location = props.equipment_location.find(loc => loc.id === id);
+    return location ? location.name : 'Location not found';
+
+}
+
+
 const updateTestsTable = (selectedCategory, selectedSize, seriesActive) => {
     store.dispatch('equipment/updateEquipmentTest', {
         category_id: selectedCategory,
@@ -92,8 +99,6 @@ const selectedCategory = computed(() => store.getters['equipment/getCategoryActi
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
 const equipment_categories = computed(() => store.getters['equipment/getEquipmentCategories'])
-const equipment_sizes_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
-const equipment_categories_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
 const equipment_sizes = computed(() => store.getters['equipment/getEquipmentSizes'])
 
 
@@ -119,10 +124,10 @@ onMounted(() => {
     <AuthenticatedLayout>
         <EquipNav></EquipNav>
 
-        <div class="container mt-5 sm:mx-auto md:mx-auto">
-            <nav class="bg-my-gray rounded-xl ">
+        <div class="container mt-5 lg:p-5 sm:mx-auto md:mx-auto">
+            <nav class="lg:p-5 bg-my-gray rounded-xl ">
                 <div class="max-w-screen-xl py-2 px-4 ">
-                    <div class="mt-6 flex items-center">
+                    <div class=" flex items-center">
                         <ul
                             class="flex overflow-x-auto flex-row border-b-2 font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
                             <li class="text-my-nav-text text-md w-full"
@@ -374,7 +379,7 @@ onMounted(() => {
                                 <tbody>
                                     <tr v-for="repair in repairs" :key="repair.id">
                                         <td class="border px-4 py-2">{{ repair.repair_date }}</td>
-                                        <td class="border px-4 py-2">{{ repair.location_id }}</td>
+                                        <td class="border px-4 py-2">{{ getLocationName(repair.location_id) }}</td>
                                         <td class="border px-4 py-2">{{ repair.description }}</td>
                                         <td class="border px-4 py-2">{{ repair.expense }}</td>
                                         <td class="border px-4 py-2 flex justify-center items-center">
@@ -420,7 +425,7 @@ onMounted(() => {
                                 <tbody>
                                     <tr v-for="test in tests" :key="test.id">
                                         <td class="border px-4 py-2">{{ test.test_date }}</td>
-                                        <td class="border px-4 py-2">{{ test.location_id }}</td>
+                                        <td class="border px-4 py-2">{{ getLocationName(test.location_id) }}</td>
                                         <td class="border px-4 py-2">{{ test.description }}</td>
                                         <td class="border px-4 py-2">{{ test.expense }}</td>
                                         <td class="border px-4 py-2 flex justify-center text-center items-center">
@@ -612,7 +617,7 @@ onMounted(() => {
                                 <tbody>
                                     <tr v-for="repair in repairs" :key="repair.id">
                                         <td class="border px-4 py-2">{{ repair.repair_date }}</td>
-                                        <td class="border px-4 py-2">{{ repair.location_id }}</td>
+                                        <td class="border px-4 py-2">{{ getLocationName(repair.location_id) }}</td>
                                         <td class="border px-4 py-2">{{ repair.description }}</td>
                                         <td class="border px-4 py-2">{{ repair.expense }}</td>
                                         <td class="border px-4 py-2 flex justify-center items-center">
@@ -658,7 +663,7 @@ onMounted(() => {
                                 <tbody>
                                     <tr v-for="test in tests" :key="test.id">
                                         <td class="border px-4 py-2">{{ test.test_date }}</td>
-                                        <td class="border px-4 py-2">{{ test.location_id }}</td>
+                                        <td class="border px-4 py-2">{{ getLocationName(test.location_id) }}</td>
                                         <td class="border px-4 py-2">{{ test.description }}</td>
                                         <td class="border px-4 py-2">{{ test.expense }}</td>
                                         <td class="border px-4 py-2 flex justify-center text-center items-center">

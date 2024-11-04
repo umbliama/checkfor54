@@ -1,60 +1,65 @@
 <template>
-    <div v-if="visible"
-      class="fixed top-0 left-0 w-full bg-gray-500 text-white p-4 shadow-lg transform transition-transform translate-y-0"
-      role="alert">
-      <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <span class="font-bold">Уведомление:</span>
-        <ul class="ml-2">
-          <li>{{ message }}</li>
-        </ul>
-        <button @click="closeAlert" class="ml-auto bg-transparent text-white font-bold px-2 focus:outline-none">
-          ✕
-        </button>
-      </div>
+  <div v-if="visible" class="border-l-4 border-gray-500 w-full bg-white text-white p-4  transform transition-transform translate-y-0"
+    role="alert">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <ul class="ml-2 flex">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M10.4862 16.7299C10.355 16.7302 10.2249 16.7045 10.1036 16.6544C9.98229 16.6043 9.87205 16.5307 9.77923 16.4379L5.53723 12.1949C5.44166 12.1027 5.3654 11.9924 5.31291 11.8705C5.26041 11.7485 5.23274 11.6173 5.23149 11.4845C5.23024 11.3517 5.25545 11.22 5.30565 11.0971C5.35584 10.9742 5.43001 10.8625 5.52384 10.7685C5.61766 10.6746 5.72926 10.6002 5.85212 10.5499C5.97498 10.4995 6.10664 10.4741 6.23942 10.4752C6.3722 10.4762 6.50344 10.5037 6.62548 10.556C6.74752 10.6083 6.85792 10.6845 6.95023 10.7799L10.4852 14.3149L16.8502 7.95189C17.0377 7.76425 17.2921 7.65879 17.5574 7.65869C17.8226 7.6586 18.0771 7.76389 18.2647 7.95139C18.4524 8.1389 18.5578 8.39327 18.5579 8.65854C18.558 8.92381 18.4527 9.17825 18.2652 9.36589L11.1932 16.4379C11.1004 16.5307 10.9902 16.6043 10.8688 16.6544C10.7475 16.7045 10.6175 16.7302 10.4862 16.7299Z"
+            fill="#697077" />
+        </svg>
+
+        <span class="ml-5 text-black font-bold">Успешно сохранено.</span>
+        <li class="ml-3 text-black">{{ message }}</li>
+      </ul>
+      <button @click="closeAlert" class="ml-auto bg-transparent text-white font-bold px-2 focus:outline-none">
+        ✕
+      </button>
     </div>
-  </template>
-  
-  <script>
-  import { ref, onMounted } from 'vue';
-  
-  export default {
-    props: {
-      message: {
-        type: String,
-        required: true,
-      },
-      autoClose: {
-        type: Boolean,
-        default: true,
-      },
-      closeAfter: {
-        type: Number,
-        default: 5000, // default is 5 seconds
-      },
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+
+export default {
+  props: {
+    message: {
+      type: String,
+      required: true,
     },
-    setup(props) {
-      const visible = ref(true);
-  
-      const closeAlert = () => {
-        visible.value = false;
-      };
-  
-      onMounted(() => {
-        if (props.autoClose) {
-          setTimeout(() => {
-            closeAlert();
-          }, props.closeAfter);
-        }
-      });
-  
-      return {
-        visible,
-        closeAlert,
-      };
+    autoClose: {
+      type: Boolean,
+      default: false,
     },
-  };
-  </script>
-  
-  <style scoped>
-  /* Add any additional styles if needed */
-  </style>
+    closeAfter: {
+      type: Number,
+      default: 5000, // default is 5 seconds
+    },
+  },
+  setup(props) {
+    const visible = ref(true);
+
+    const closeAlert = () => {
+      visible.value = false;
+    };
+
+    onMounted(() => {
+      if (props.autoClose) {
+        setTimeout(() => {
+          closeAlert();
+        }, props.closeAfter);
+      }
+    });
+
+    return {
+      visible,
+      closeAlert,
+    };
+  },
+};
+</script>
+
+<style scoped>
+/* Add any additional styles if needed */
+</style>

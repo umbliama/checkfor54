@@ -23,7 +23,7 @@ class IncidentController extends Controller
     {
         $position = Column::max('position') + 1;
         $column = Column::create(['position' => $position]);
-        return response()->json($column);
+        return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
     // Delete a column along with its blocks

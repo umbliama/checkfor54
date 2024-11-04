@@ -63,6 +63,7 @@ onMounted(() => {
     getEquipmentCount();
     getEquipmentRepairCount()
     getEquipmentTestCount()
+
     if (selectedCategory.value) {
         filterByCategory();
     }
@@ -81,7 +82,9 @@ onMounted(() => {
                         class="flex flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
                         <li @click="setMenuItem(EquipMenuItems.REPORT)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.REPORT }">
-                            <Link :href="route('equip.report')" class="text-lg">Отчет</Link>
+                            <div class="flex">
+                                <Link :href="route('equip.report')" class="text-lg">Отчет</Link>
+                            </div>
                         </li>
                         <li @click="setMenuItem(EquipMenuItems.EQUIPMENT)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.EQUIPMENT }">
@@ -144,7 +147,8 @@ onMounted(() => {
                                     <div class="py-1">
                                         <MenuItem v-slot="{ active }">
                                         <Link :href="route('equip.create')" class="flex items-center justify-around"
-                                            :class="['block px-4 py-2 text-sm']">Добавить оборудование <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                            :class="['block px-4 py-2 text-sm']">Добавить оборудование <svg width="16"
+                                            height="16" viewBox="0 0 16 16" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
                                                 d="M8.74999 2.75003C8.74999 2.33582 8.4142 2.00003 7.99999 2.00003C7.58578 2.00003 7.24999 2.33582 7.24999 2.75003V7.25H2.75C2.33579 7.25 2 7.58578 2 8C2 8.41421 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41421 14 8C14 7.58578 13.6642 7.25 13.25 7.25H8.74999V2.75003Z"

@@ -27,6 +27,7 @@ Route::get('/equip/report', [EquipmentController::class,'report'])->name('equip.
 Route::get('/equip/tests', [EquipmentController::class,'tests'])->name('equip.tests');
 Route::post('/equip/tests', [EquipmentController::class,'storeTest'])->name('equip.storeTest');
 Route::post('/equip/repair', [EquipmentController::class,'storeRepair'])->name( 'equip.storeRepair');
+Route::delete('/equip/repair/delete/{id}', [EquipmentController::class,'destroyRepair'])->name( 'equip.destroyRepair');
 
 
 Route::get('/equip/price', [EquipmentController::class,'price'])->name('equip.price');
@@ -45,8 +46,9 @@ Route::get('/equip/edit/{id}', [EquipmentController::class,'edit'])->middleware(
 Route::delete('/equip/delete/{id}', [EquipmentController::class,'destroy'])->middleware(['auth', 'verified'])->name('equip.destroy');
 
 Route::post('/equip', [EquipmentController::class,'store'])->name( 'equip.store');
-Route::post('/equip/location', [EquipmentController::class,'store'])->name( 'equip.storeLocation');
+Route::post('/equip/location', [EquipmentController::class,'storeLocation'])->name( 'equip.storeLocation');
 Route::delete('/equip/location/delete/{id}', action: [EquipmentController::class,'deleteLocation'])->name( 'equip.deleteLocation');
+Route::post('/equipment/{id}/hyperlink', [EquipmentController::class, 'storeHyperLink']);
 
 Route::get('/contragents', [ContragentsController::class,'index'])->name('contragents.index');
 Route::get('/contragents/create', [ContragentsController::class,'create'])->name('contragents.create');
@@ -72,6 +74,7 @@ Route::get('/services/create', [ServiceController::class,'create'])->name('servi
 Route::get('/services/edit/{id}', [ServiceController::class,'edit'])->name('services.edit');
 Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
 
+Route::get('/incident', [IncidentController::class,'index'])->name('incident.index');
 
 
 

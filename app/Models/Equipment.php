@@ -42,7 +42,8 @@ class Equipment extends Model
         'notes',
         'size_id',
         'price',
-        'commentary'
+        'commentary',
+        'hyperlink'
     ];
 
     public function category()

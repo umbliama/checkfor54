@@ -20,9 +20,7 @@ const props = defineProps({
 <template>
 
     <AuthenticatedLayout>
-        <template #header>
-
-            <nav class="bg-white-50 bg-my-gray sm:overflow-x-auto">
+        <nav class="bg-white-50 bg-my-gray pt-5 sm:overflow-x-auto">
                 <div class=" sm:overflow-x-auto flex items-center px-4 py-3 mx-auto">
                     <div class="flex items-center sm:overflow-x-auto ">
                         <ul
@@ -30,7 +28,7 @@ const props = defineProps({
                             <li @click="updateActive('rent')">
                                 <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline"
                                     aria-current="page">В
-                                    аренде</a>
+                                    аренде</a>  
                             </li>
                             <li>
                                 <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline">Свободно</a>
@@ -46,13 +44,10 @@ const props = defineProps({
                 </div>
             </nav>
 
-
-
-        </template>
-        <div class="bg-my-gray">
+        <div class="bg-my-gray grid p-4 gap-4 lg:grid-cols-6">
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
-                    <span class="text-my-gray-300">Всего заказчиков</span>
+                <div class="bg-white py-2 px-3 sm:w-full">
+                    <span class="text-my-gray-300 truncate">Всего заказчиков</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">104</h4>
                         <span class="bg-my-gray px-5 items-center justify-center my-auto rounded-2xl">-2 </span>
@@ -60,8 +55,8 @@ const props = defineProps({
                 </div>
             </div>
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
-                    <span class="text-my-gray-300">Новых заказчиков</span>
+                <div class="bg-white py-2 px-3 sm:w-full">
+                    <span class="text-my-gray-300 truncate">Новых заказчиков</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">16</h4>
                         <span class="bg-my-gray px-5 items-center justify-center my-auto rounded-2xl">-2 </span>
@@ -69,8 +64,8 @@ const props = defineProps({
                 </div>
             </div>
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
-                    <span class="text-my-gray-300">Активных заказчиков</span>
+                <div class="bg-white py-2 px-3 sm:w-full">
+                    <span class="text-my-gray-300 truncate">Активных заказчиков</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">104</h4>
                         <span class="bg-my-gray px-5 items-center justify-center my-auto rounded-2xl">-2 </span>
@@ -78,8 +73,8 @@ const props = defineProps({
                 </div>
             </div>
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
-                    <span class="text-my-gray-300">Всего заказчиков</span>
+                <div class="bg-white py-2 px-3 sm:w-full">
+                    <span class="text-my-gray-300 truncate">Всего заказчиков</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">104</h4>
                         <span class="bg-my-gray px-5 items-center justify-center my-auto rounded-2xl">-2 </span>
@@ -87,7 +82,7 @@ const props = defineProps({
                 </div>
             </div>
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
+                <div class="bg-white py-2 px-3 sm:w-full">
                     <span class="text-my-gray-300">В аренде</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">104</h4>
@@ -96,7 +91,7 @@ const props = defineProps({
                 </div>
             </div>
             <div class="flex py-2 ">
-                <div class="bg-white p-5 sm:w-full">
+                <div class="bg-white py-2 px-3 sm:w-full">
                     <span class="text-my-gray-300">На складе</span>
                     <div class="flex justify-between">
                         <h4 class="text-2xl font-bold">104</h4>

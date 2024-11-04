@@ -11,6 +11,7 @@ class ContragentsController extends Controller
     public function index(Request $request)
     {
         $searchTerm = $request->query('search');
+        $perPage = $request->query('perPage', 10);
 
         $query = Contragents::query();
 
@@ -21,14 +22,13 @@ class ContragentsController extends Controller
             });
         }
 
-        // Paginate the results, specifying the number of items per page (e.g., 10)
-        $contragents = $query->paginate(10); // Adjust the number per page
+        
 
-        // Paginate customers and suppliers separately
-        $contragents_customers = Contragents::where("customer", 1)->paginate(5); // Adjust the number per page
-        $contragents_suppliers = Contragents::where("supplier", 1)->paginate(5); // Adjust the number per page
+        $contragents = $query->paginate($perPage); 
 
-        // Get the counts for statistics (these do not need to be paginated)
+        $contragents_customers = Contragents::where("customer", 1)->paginate($perPage); 
+        $contragents_suppliers = Contragents::where("supplier", 1)->paginate($perPage); 
+
         $contragents_count = Contragents::count();
         $contragents_customer_count = Contragents::where("customer", 1)->count();
         $contragents_supplier_count = Contragents::where("supplier", 1)->count();
@@ -55,14 +55,14 @@ class ContragentsController extends Controller
             'agentTypeLegal' => 'required',
             'country' => 'required',
             'name' => 'required',
-            'fullname' => 'required',
+            'fullname' => 'nullable',
             'inn' => 'required',
-            'kpp' => 'required',
-            'ogrn' => 'required',
-            'reason' => 'required',
-            'notes' => 'required',
-            'commentary' => 'required',
-            'group' => 'required',
+            'kpp' => 'nullable',
+            'ogrn' => 'nullable',
+            'reason' => 'nullable',
+            'notes' => 'nullable',
+            'commentary' => 'nullable',
+            'group' => 'nullable',
             'bankname' => 'nullable',
             'bank_bik' => 'nullable',
             'bank_inn' => 'nullable',
@@ -101,7 +101,7 @@ class ContragentsController extends Controller
 
         $contragent = Contragents::create($requestData);
         return redirect()->route('contragents.edit', parameters: $contragent->id)
-            ->with('success', 'Contragent created successfully!');
+            ->with('success', 'Профиль компании сохранен.');
     }
 
 
@@ -116,17 +116,17 @@ class ContragentsController extends Controller
         $contragent = Contragents::findOrFail($id);
 
         $validated = $request->validate([
-            'agentTypeLegal' => 'required',
-            'country' => 'required',
-            'name' => 'required',
-            'fullname' => 'required',
-            'inn' => 'required',
-            'kpp' => 'required',
-            'ogrn' => 'required',
-            'reason' => 'required',
-            'notes' => 'required',
-            'commentary' => 'required',
-            'group' => 'required',
+            'agentTypeLegal' => 'nullable',
+            'country' => 'nullable',
+            'name' => 'nullable',
+            'fullname' => 'nullable',
+            'inn' => 'nullable',
+            'kpp' => 'nullable',
+            'ogrn' => 'nullable',
+            'reason' => 'nullable',
+            'notes' => 'nullable ',
+            'commentary' => 'nullable',
+            'group' => 'nullable ',
             'bankname' => 'nullable',
             'bank_bik' => 'nullable',
             'bank_inn' => 'nullable',
@@ -148,6 +148,18 @@ class ContragentsController extends Controller
             'status' => 'nullable',
             'avatar' => 'nullable',
         ]);
+        if ($request->hasFile('avatar')) {
+            // Handle avatar upload
+            $avatar = $request->file('avatar');
+            $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+            $avatar->move(public_path('avatars'), $avatarName);
+    
+            // Add avatar path to the validated array
+            $validated['avatar'] = 'avatars/' . $avatarName;
+        }
+    
+
+
         // Fetch the client by ID and update it
         $contragent->update($validated);
 
