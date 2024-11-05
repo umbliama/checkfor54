@@ -294,34 +294,65 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
-        $sizeId = $request->query('size_id');
-        $series = $request->query(key: 'series');
-
-
+        $prices = EquipmentPrice::all();
+    
         $categoryId = $request->query('category_id', 1);
-
+        $sizeId = $request->query('size_id');
+        $series = $request->query('series');
+    
+        // Retrieve equipment sizes for the given category
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
-
-
+    
+        // Count equipment by categories
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
-            $categoryIDForCount = $category->id;
-            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts[$category->id] = Equipment::where('category_id', $category->id)->count();
         }
-
+    
+        // Count equipment by sizes
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
-            $sizeIDForCount = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+            $equipment_sizes_counts[$size->id] = Equipment::where('size_id', $size->id)->count();
         }
-
-
-
-
-
-        return Inertia::render('Equip/Price', ['equipment_categories' => $equipment_categories, 'equipment_sizes' => $equipment_sizes, 'equipment_location' => $equipment_location, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_sizes_counts' => $equipment_sizes_counts, 'contragents' => $contragents]);
+    
+        // Fetch equipment with category and size names
+        $equipment = Equipment::with(['category', 'size'])
+            ->where('category_id', $categoryId)
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->when($series, function ($query, $series) {
+                return $query->where('series', $series);
+            })
+            ->get();
+    
+        // Prepare the data to include category and size names
+        $equipmentData = $equipment->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at,
+                'category' => $item->category->name ?? null,
+                'size' => $item->size->name ?? null,
+                'contragent_id' => $item->contragent_id,
+                'store_date' => $item->store_date,
+                'notes' => $item->notes,
+                'price' => $item->price,
+                'archive' => $item->archive,
+            ];
+        });
+    
+        return Inertia::render('Equip/Price', [
+            'equipment_categories' => $equipment_categories,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_sizes_counts' => $equipment_sizes_counts,
+            'contragents' => $contragents,
+            'prices' => $prices,
+        ]);
     }
-
+    
     public function storePrice(Request $request)
     {
         $request->validate([
