@@ -28,9 +28,16 @@ export default {
         selectedId: null,
         sortBy: "",
         sortOrder: "asc",
-        filterShown:false
+        filterShown:false,
+        priceRowsCount:0
     }),
     mutations: {
+        incPriceRowsCount:(state) => {
+            state.priceRowsCount += 1
+        },
+        decPriceRowsCount:(state) => {
+            state.priceRowsCount -= 1
+        },
         setFilterShown:(state) => {
             state.filterShown = !state.filterShown
         },
@@ -123,6 +130,13 @@ export default {
         },
     },
     actions: {
+        updatePriceRowsCountInc({commit}) {
+            commit('incPriceRowsCount')
+        },
+        updatePriceRowsCountDec({commit}) {
+            commit('decPriceRowsCount')
+        },
+
         updateFilterShown({commit}){
             commit('setFilterShown')
         },
@@ -306,6 +320,7 @@ export default {
         },
     },
     getters: {
+        getPriceRowsCount: state => state.priceRowsCount,
         getFilterShown: state => state.filterShown,
         getSortOrder: state => state.sortOrder,
         getSortBy: state => state.sortBy,

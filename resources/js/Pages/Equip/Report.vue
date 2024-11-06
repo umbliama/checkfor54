@@ -216,7 +216,7 @@ onMounted(() => {
                                         <th class="py-3 px-2 border text-center sm:text-sm">Наработка</th>
                                         <th class="py-3 px-2 border text-center sm:text-sm">Дата изготовления</th>
                                         <th class="py-3 px-2 border text-center sm:text-sm">Стоимость</th>
-                                        <th class="py-3 px-2 border text-center sm:text-sm">Примечание</th>
+                                        <th class="py-3 px-2 border text-center sm:text-sm text-ellipsis overflow-hidden">Примечание</th>
                                         <th class="py-3 px-2 border text-center sm:text-sm">Состояние</th>
                                         <th class="flex justify-center border  items-center pt-2 pb-7 pr-2"><svg
                                                 width="30" height="30" viewBox="0 0 24 24" fill="none"
@@ -265,7 +265,7 @@ onMounted(() => {
                                         <td class="text-center border border-slate-200 p-2">{{ item.manufactor_date }}
                                         </td>
                                         <td class="text-center border border-slate-200 p-2">{{ item.price }}</td>
-                                        <td class="text-center border border-slate-200 p-2">{{ item.notes }}</td>
+                                        <td class="text-center border border-slate-200 p-2 overflow-hidden text-ellipsis whitespace-nowrap">{{ item.notes }}</td>
                                         <td class="text-center border border-slate-200 p-2">
                                             <EquipStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                                         </td>
@@ -280,60 +280,7 @@ onMounted(() => {
                                                         d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
                                                         fill="#21272A" />
                                                 </svg></div>
-                                            <div class="ml-2">
-
-
-                                                <Menu as="div" class="relative inline-block text-left">
-                                                    <div class="sm:overflow-x-visible">
-                                                        <MenuButton
-                                                            class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
-                                                            <svg width="4" height="16" viewBox="0 0 4 16" fill="none"
-                                                                xmlns="http://www.w3.org/2000/svg">
-                                                                <path
-                                                                    d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2Z"
-                                                                    fill="#687182" />
-                                                                <path
-                                                                    d="M3.5 8C3.5 8.82843 2.82843 9.5 2 9.5C1.17157 9.5 0.5 8.82843 0.5 8C0.5 7.17157 1.17157 6.5 2 6.5C2.82843 6.5 3.5 7.17157 3.5 8Z"
-                                                                    fill="#687182" />
-                                                                <path
-                                                                    d="M3.5 14C3.5 14.8284 2.82843 15.5 2 15.5C1.17157 15.5 0.5 14.8284 0.5 14C0.5 13.1716 1.17157 12.5 2 12.5C2.82843 12.5 3.5 13.1716 3.5 14Z"
-                                                                    fill="#687182" />
-                                                            </svg>
-                                                        </MenuButton>
-                                                    </div>
-
-                                                    <transition enter-active-class="transition ease-out duration-100"
-                                                        enter-from-class="transform opacity-0 scale-95"
-                                                        enter-to-class="transform opacity-100 scale-100"
-                                                        leave-active-class="transition ease-in duration-75"
-                                                        leave-from-class="transform opacity-100 scale-100"
-                                                        leave-to-class="transform opacity-0 scale-95">
-                                                        <MenuItems
-                                                            class="absolute top-6 z-200 right-2  w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                            <div class="py-1">
-                                                                <MenuItem>
-                                                                <Link :href="route('contragents.create')"
-                                                                    class="flex items-center justify-around"
-                                                                    :class="['block px-4 py-2 text-sm']">Создать
-                                                                контрагента
-                                                                <svg width="16" height="16" viewBox="0 0 16 16"
-                                                                    fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <path
-                                                                        d="M8.74999 2.75004C8.74999 2.33582 8.4142 2.00004 7.99999 2.00004C7.58578 2.00004 7.24999 2.33582 7.24999 2.75004V7.25H2.75C2.33579 7.25 2 7.58579 2 8C2 8.41422 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41422 14 8C14 7.58579 13.6642 7.25 13.25 7.25H8.74999V2.75004Z"
-                                                                        fill="#464F60" />
-                                                                </svg>
-
-
-                                                                </Link>
-                                                                </MenuItem>
-
-                                                            </div>
-                                                        </MenuItems>
-                                                    </transition>
-                                                </Menu>
-
-                                            </div>
-
+                                 
 
                                         </td>
                                     </tr>
@@ -503,7 +450,7 @@ onMounted(() => {
                                         <td class="text-center border border-slate-200 p-2">{{ item.manufactor_date }}
                                         </td>
                                         <td class="text-center border border-slate-200 p-2">{{ item.price }}</td>
-                                        <td class="text-center border border-slate-200 p-2">{{ item.notes }}</td>
+                                        <td class="text-center border border-slate-200 p-2 overflow-hidden text-ellipsis whitespace-nowrap">{{ item.notes }}</td>
                                         <td class="text-center border border-slate-200 p-2">
                                             <EquipStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                                         </td>

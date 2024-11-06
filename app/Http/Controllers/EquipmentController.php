@@ -294,7 +294,7 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
-        $prices = EquipmentPrice::all();
+        $prices = EquipmentPrice::with(['category', 'size'])->get();
     
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
@@ -326,21 +326,7 @@ class EquipmentController extends Controller
             })
             ->get();
     
-        // Prepare the data to include category and size names
-        $equipmentData = $equipment->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'category' => $item->category->name ?? null,
-                'size' => $item->size->name ?? null,
-                'contragent_id' => $item->contragent_id,
-                'store_date' => $item->store_date,
-                'notes' => $item->notes,
-                'price' => $item->price,
-                'archive' => $item->archive,
-            ];
-        });
+
     
         return Inertia::render('Equip/Price', [
             'equipment_categories' => $equipment_categories,

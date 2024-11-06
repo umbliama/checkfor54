@@ -4,13 +4,18 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import store from '../../../store';
 
 
-import { computed, reactive } from 'vue';
+import { computed, reactive, toRaw } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const seriesActive = computed(() => store.getters['equipment/getSeriesActive']);
 const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
 const getTabActive = computed(() => store.getters['equipment/getPriceTabActive']);
+const getPriceRowsCount = computed(() => store.getters['equipment/getPriceRowsCount']);
+
+
+const incRows = () => store.dispatch('equipment/updatePriceRowsCountInc')
+const decRows = () => store.dispatch('equipment/updatePriceRowsCountDec')
 
 
 const selectCategory = (category) => {
@@ -24,6 +29,8 @@ const updateActiveTab = (tab) => {
 
 const selectSize = (sizeId) => {
     store.dispatch('equipment/updateSize', sizeId)
+    
+
     updateUrl();
 }
 
@@ -32,6 +39,7 @@ const setSeriesId = (seriesId) => {
     if (selectedCategory.value && selectedSize.value && seriesActive.value) {
         console.log(selectedSize.value, seriesActive.value)
         updateUrl()
+
         updateRepairTable(selectedCategory.value, selectedSize.value, seriesActive.value);
     }
 }
@@ -58,17 +66,22 @@ const props = defineProps({
     equipment_sizes: Array,
     equipment_location: Array,
     contragents: Array,
-    prices: Array
+    prices: Array,
+    equipmentData: Array
 })
 const setCategoryId = (categoryId) => {
     store.dispatch('equipment/updateCategory', categoryId)
-
     updateUrl();
 }
 
 const setSizeId = (sizeId) => {
     store.dispatch('equipment/updateSize', sizeId)
     updateUrl();
+}
+
+const findEquipmentByCategoryAndSize = (categoryId, sizeId) => {
+    const rawData = toRaw(props.equipmentData)
+    return rawData.filter((a) => console.log(a.category == categoryId && a.size == sizeId))
 }
 
 
@@ -233,7 +246,7 @@ function submit() {
         <div class="col-span-1 flex items-center">
             <!-- SVG icon here -->
         </div>
-        <div class="col-span-1 text-left">{{ price.equipment }}</div>
+        <div class="col-span-1 text-left">{{ price.category.name }} {{ price.size.name }}</div>
         <div class="col-span-1 text-left text-gray-500">{{ price.store_date }}</div>
         <div class="col-span-1 text-left text-gray-500">{{ price.notes }}</div>
         <div class="col-span-1 text-left font-semibold">{{ price.price }}</div>

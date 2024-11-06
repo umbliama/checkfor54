@@ -19,4 +19,17 @@ class EquipmentPrice extends Model
         'price',
         'archive'
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(EquipmentCategories::class, 'category_id');
+    }
+
+    /**
+     * Get the size associated with this price.
+     */
+    public function size()
+    {
+        return $this->belongsTo(EquipmentSize::class, 'size_id');
+    }
 }
