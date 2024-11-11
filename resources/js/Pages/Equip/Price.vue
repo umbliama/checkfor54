@@ -6,6 +6,19 @@ import store from '../../../store';
 
 import { computed, reactive, toRaw } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+
+
+const props = defineProps({
+    equipment: Object,
+    equipment_categories: Array,
+    equipment_categories_counts: Array,
+    equipment_sizes_counts: Array,
+    equipment_sizes: Array,
+    equipment_location: Array,
+    contragents: Array,
+    prices: Array,
+    equipmentData: Array
+})
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const seriesActive = computed(() => store.getters['equipment/getSeriesActive']);
@@ -17,7 +30,19 @@ const getPriceRowsCount = computed(() => store.getters['equipment/getPriceRowsCo
 const incRows = () => store.dispatch('equipment/updatePriceRowsCountInc')
 const decRows = () => store.dispatch('equipment/updatePriceRowsCountDec')
 
+const sortOrder = computed(() => store.getters['equipment/getSortOrder']);
+const sortBy = computed(() => store.getters['equipment/getSortBy']);
 
+const updateSortBy = (value) => store.dispatch("equipment/updateSortBy", value)
+const updateSortOrder = (value) => store.dispatch("equipment/updateSortOrder", value)
+const toggleSortBy = (column) => {
+    if (sortBy.value === column) {
+        updateSortOrder(sortOrder.value === 'asc' ? 'desc' : 'asc');
+    } else {
+        updateSortBy(column);
+        updateSortOrder('asc');
+    }
+};
 const selectCategory = (category) => {
     store.dispatch('equipment/updateCategory', category);
     updateUrl()
@@ -29,7 +54,7 @@ const updateActiveTab = (tab) => {
 
 const selectSize = (sizeId) => {
     store.dispatch('equipment/updateSize', sizeId)
-    
+
 
     updateUrl();
 }
@@ -58,17 +83,6 @@ const updateUrl = () => {
 };
 
 
-const props = defineProps({
-    equipment: Object,
-    equipment_categories: Array,
-    equipment_categories_counts: Array,
-    equipment_sizes_counts: Array,
-    equipment_sizes: Array,
-    equipment_location: Array,
-    contragents: Array,
-    prices: Array,
-    equipmentData: Array
-})
 const setCategoryId = (categoryId) => {
     store.dispatch('equipment/updateCategory', categoryId)
     updateUrl();
@@ -84,7 +98,23 @@ const findEquipmentByCategoryAndSize = (categoryId, sizeId) => {
     return rawData.filter((a) => console.log(a.category == categoryId && a.size == sizeId))
 }
 
+const sortedPrices = computed(() => {
+    // Clone the array to avoid mutating the original array
+    return props.prices.slice().sort((a, b) => {
+        let result = 0;
+        // Determine which property to sort by (e.g., 'name' or 'status')
+        if (sortBy.value === 'date') {
+            result = a.store_date.localeCompare(b.store_date);
+        }
 
+        // Apply sort order (ascending or descending)
+        if (sortOrder.value === 'desc') {
+            result = result * -1;
+        }
+
+        return result;
+    });
+}); 
 
 
 
@@ -208,9 +238,9 @@ function submit() {
             </div>
 
             <div v-if="getTabActive == 'price'" class="p-4 overflow-x-auto whitespace-nowrap">
-                <div class="grid grid-cols-[auto,1fr,1fr,1fr,auto,auto] gap-4 p-4 bg-white shadow-md rounded-lg">
+                <div class="grid bg-table-gray grid-cols-[auto,1fr,1fr,1fr,auto,auto]">
                     <!-- Header Row -->
-                    <div class="col-span-1 flex items-center">
+                    <div @click="incRows" class="col-span-1 flex items-center">
                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
                                 d="M14.9444 8.69444C14.9444 8.31091 14.6335 8 14.25 8C13.8665 8 13.5556 8.31091 13.5556 8.69444V13.5556H8.69444C8.31091 13.5556 8 13.8665 8 14.25C8 14.6335 8.31091 14.9444 8.69444 14.9444H13.5556V19.8056C13.5556 20.1891 13.8665 20.5 14.25 20.5C14.6335 20.5 14.9444 20.1891 14.9444 19.8056V14.9444H19.8056C20.1891 14.9444 20.5 14.6335 20.5 14.25C20.5 13.8665 20.1891 13.5556 19.8056 13.5556H14.9444V8.69444Z"
@@ -218,11 +248,11 @@ function submit() {
                         </svg>
 
                     </div>
-                    <div class="col-span-1 text-left">Оборудование</div>
-                    <div class="col-span-1 text-left text-gray-500">Дата</div>
-                    <div class="col-span-1 text-left text-gray-500">Примечание</div>
-                    <div class="col-span-1 text-left font-semibold">Цена хранения</div>
-                    <div class="col-span-1 flex items-center justify-start space-x-2">
+                    <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left">Оборудование</div>
+                    <div @click="toggleSortBy('date')" :class="{ 'bg-violet border-t-2 border-violet-full': sortBy === 'date' }" class="col-span-1 text-table-heading font-robotoBold font-semibold p-4     text-left text-gray-500">Дата</div>
+                    <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left text-gray-500">Примечание</div>
+                    <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left font-semibold">Цена хранения</div>
+                    <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 flex items-center justify-start space-x-2">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
                                 d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
@@ -240,21 +270,57 @@ function submit() {
 
 
                     </div>
+                    <div class="col-span-1 p-4 flex items-center">
+
+                    </div>
+
+                        <div v-if="getPriceRowsCount > 0" class="col-span-1 text-left"><select v-model="form.contragent_id">
+                                <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}
+                                </option>
+                            </select></div>
+                        <div v-if="getPriceRowsCount > 0"  class="col-span-1 text-left text-gray-500 "><input v-model="form.store_date" type="date">
+                        </div>
+                        <div v-if="getPriceRowsCount > 0" class="col-span-1 text-left text-gray-500"><input v-model="form.notes" type="text"></div>
+                        <div v-if="getPriceRowsCount > 0" class="col-span-1 text-left font-semibold"><input v-model="form.price" type="text"></div>
+                        <div v-if="getPriceRowsCount > 0"  class="col-span-1 flex items-center justify-start space-x-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                    fill="#21272A" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                    fill="#21272A" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                    fill="#21272A" />
+                                <path
+                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                    fill="#21272A" />
+                            </svg>
+
+
+                        </div>
+
 
                     <!-- Data Rows -->
-                    <template v-for="(price, index) in prices" :key="index">
-        <div class="col-span-1 flex items-center">
-            <!-- SVG icon here -->
-        </div>
-        <div class="col-span-1 text-left">{{ price.category.name }} {{ price.size.name }}</div>
-        <div class="col-span-1 text-left text-gray-500">{{ price.store_date }}</div>
-        <div class="col-span-1 text-left text-gray-500">{{ price.notes }}</div>
-        <div class="col-span-1 text-left font-semibold">{{ price.price }}</div>
-        <div class="col-span-1 flex items-center justify-start space-x-2">
-            <!-- Action buttons here -->
-        </div>
-    </template>
-                    
+                    <template v-for="(price, index) in sortedPrices" :key="index">
+  
+                        <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left">{{ price.contragent.name }}</div>
+                        <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500 p-4" :class="{ 'bg-violet': sortBy === 'date' }">{{ price.store_date }}</div>
+                        <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500">{{ price.notes }}</div>
+                        <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left font-semibold">{{ price.price }}</div>
+                        <div class="col-span-1 text-table-heading font-robotoBold p-4 flex items-center justify-start space-x-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M4.65802 7.03958C4.91232 6.71262 5.38353 6.65372 5.71049 6.90802L12 11.7999L18.2896 6.90802C18.6165 6.65372 19.0877 6.71262 19.342 7.03958C19.5964 7.36654 19.5375 7.83775 19.2105 8.09205L12.4605 13.342C12.1897 13.5527 11.8104 13.5527 11.5396 13.342L4.78958 8.09205C4.46262 7.83775 4.40372 7.36654 4.65802 7.03958Z" fill="#21272A"/>
+</svg>
+                        </div>
+                        <div class="col-span-1 flex items-center">
+                            <!-- SVG icon here -->
+                        </div>
+                    </template>
+
 
                     <!-- Repeat similar structure for each row -->
                 </div>

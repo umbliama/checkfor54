@@ -43,4 +43,11 @@ class Contragents extends Model
         'avatar',
 
     ];
+
+
+    public function size()
+    {
+        return $this->belongsTo(EquipmentSize::class, 'size_id');
+    }
+
 }

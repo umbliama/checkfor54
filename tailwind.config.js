@@ -29,7 +29,8 @@ export default {
                 'violet-full':"#644DED",
                 'red-warning': "#DA1E28",
                 'gray-inactive':'#687182',
-                'my-black': "#121619"
+                'my-black': "#121619",
+                'table-heading':'#484964'
             },
             screens: {
                 sm: "370px",

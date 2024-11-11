@@ -294,7 +294,7 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
-        $prices = EquipmentPrice::with(['category', 'size'])->get();
+        $prices = EquipmentPrice::with(['category', 'size','contragent'])->get();
     
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');

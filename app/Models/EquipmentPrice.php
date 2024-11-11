@@ -32,4 +32,9 @@ class EquipmentPrice extends Model
     {
         return $this->belongsTo(EquipmentSize::class, 'size_id');
     }
+
+    public function contragent()
+    {
+        return $this->belongsTo(Contragents::class, 'contragent_id');
+    }
 }
