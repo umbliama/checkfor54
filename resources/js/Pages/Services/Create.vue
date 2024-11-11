@@ -127,9 +127,9 @@ function submit() {
         <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
         <div class="flex-1 sm:w-full">
           <nav class="">
-            <div class=" sm:w-full lg:max-w-screen-xl px-4  mx-auto">
+            <div class=" sm:w-full px-4">
               <div
-                class=" border-b-2 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
+                class=" border-b-2 w-full flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
                 <ul class="flex items-center flex-row font-medium mt-0 space-x-8  rtl:space-x-reverse text-sm">
                   <li class="flex  border-b-2  border-selected-blue pb-4 " @click="updateMenuLink('all')">
                     <Link class="text-lg sm:text-md  text-selected-blue">Новая аренда</Link>
@@ -186,9 +186,9 @@ function submit() {
           </nav>
 
 
-          <div class="lg:block md:hidden sm:hidden grid grid-cols-2 gap-6 flex mt-4">
+          <div class="lg:block md:hidden sm:hidden grid grid-cols-2 gap-6 flex mt-4 px-4">
             <div class="flex whitespace-nowrap  justify-between items-center overflow-x-auto ">
-              <div class="flex items-center flex-2 mx-3">
+              <div class="flex items-center flex-2 ">
                 <label class="items-center mr-2" for="rent_num">Номер аренды:</label>
 
                 <!-- SVG Icon -->
@@ -198,7 +198,7 @@ function submit() {
 
                 <div class="flex ml-2 items-center">
                   <label class="" for="rent_date">от</label>
-                  <div class="flex mx-3">
+                  <div class="flex">
                     <!-- SVG Icon -->
                   </div>
                   <input v-model="form.service_date" id="rent_date" class="w-full  bg-input-gray border-none rounded-lg"
@@ -222,7 +222,7 @@ function submit() {
 
             <div class="flex justify-between">
               <div
-                class="flex flex-1 max-w-[600px] mt-2 flex-grow whitespace-nowrap items-center overflow-x-auto  px-4 py-2">
+                class="flex flex-1 max-w-[600px] mt-2 flex-grow whitespace-nowrap items-center overflow-x-auto   py-2">
                 <label class="" for="rent_customer">Заказчик</label>
 
                 <select v-model="form.contragent_id"  id="rent_customer" class="border-none bg-input-gray  rounded-lg ml-12 w-full">
@@ -266,7 +266,7 @@ function submit() {
 
             <div class="flex whitespace-nowrap items-center overflow-x-auto bg-my-gray px-4 py-2">
               <label class="w-56 border-b-2 border-gray-200 pb-3" for="rent_customer">Заказчик</label>
-              <div class="flex mx-3">
+              <div class="flex">
                 <!-- SVG Icon -->
               </div>
               <select v-model="form.contragent_id" id="rent_customer" class="w-full">
@@ -541,7 +541,10 @@ function submit() {
 
           </div>
 
-          <button @click="submit">Сохранить</button>
+          <div class="flex justify-end p-4 ">
+          <button class="flex text-center bg-my-gray    justify-end  py-3 px-10 bg-gray-300" @click="submit">Сохранить</button>
+
+          </div>
         </div>
 
       </div>

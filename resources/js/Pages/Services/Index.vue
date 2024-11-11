@@ -103,7 +103,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 <template>
   <AuthenticatedLayout>
 
-    <div class="flex-1 2xl:w-[1184px] md:w-full sm:w-full">
+    <div class="flex-1  sm:w-full">
       <div class="">
         <nav class="bg-my-gray ">
           <div class="max-w-screen-xl px-4 py-3">

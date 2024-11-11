@@ -87,41 +87,32 @@ class ServiceController extends Controller
 
 
 
-            // Map through subservices and attach equipment info based on subequipment_id
             $service->subservices = $service->subservices->map(function ($subservice) {
-
                 if ($subservice->subequipment_id) {
-                    // Fetch equipment info and eager load its category and size
-                    $subservice->equipment_info = Equipment::with(['category', 'size'])
-                        ->find($subservice->subequipment_id);
-
+                    $subservice->equipment_info = Equipment::with(['category', 'size'])->find($subservice->subequipment_id);
                 } else {
-                    $subservice->equipment_info = null; // No equipment info if subequipment_id is not present
+                    $subservice->equipment_info = null;
                 }
-
-
                 return $subservice;
             });
 
-            // Attach equipment info to the service itself
             $service->equipment_info = $service->equipment;
 
             if ($service->equipment) {
-                // Attach category_name and size_name for service's equipment
                 $service->equipment_info->category_name = $service->equipment->category->name ?? null;
                 $service->equipment_info->size_name = $service->equipment->size->name ?? null;
             } else {
-                // Set equipment_info to null if there's no equipment in the service
                 $service->equipment_info = null;
             }
 
             return $service;
         });
 
-        // Retrieve contragent names
+        
+
+
         $contragents_names = Contragents::pluck('name', 'id');
 
-        // Render the view with the transformed data
         return Inertia::render('Services/Index', [
             'services' => $services,
             'contragents_names' => $contragents_names,

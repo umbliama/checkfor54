@@ -98,7 +98,8 @@ onMounted(() => {
 
 <template>
 
-    <div class="max-w-full py-4 px-10">
+    <div class=" max-w-full py-4 px-10">
+        <div @click="showModal(false)" class="absolute t-0 l-0">X</div>
         <nav class="bg-my-gray">
             <div class=" sm:rounded-2xl py-2 px-4 ">
                 <div class="mt-6 flex items-center">
