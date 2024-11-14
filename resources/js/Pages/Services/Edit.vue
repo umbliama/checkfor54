@@ -133,7 +133,7 @@ function submit() {
                 class=" border-b-2 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
                 <ul class="flex items-center flex-row font-medium mt-0 space-x-8  rtl:space-x-reverse text-sm">
                   <li class="flex  border-b-2  border-selected-blue pb-4 " @click="updateMenuLink('all')">
-                    <Link class="text-lg sm:text-md  text-selected-blue">Редактирование аренды</Link>
+                    <Link class="text-lg sm:text-md  text-selected-blue">Редактор аренды</Link>
 
                   </li>
                   <li class="flex pb-4">
@@ -350,15 +350,15 @@ function submit() {
                   </td>
                   <td>
                     <!-- Show a button or link to trigger the modal to select equipment -->
-                    <button v-if="!selectedEquipmentService" @click="showModal(true)"
+                    <button v-if="!equipment" @click="showModal(true)"
                       class=" text-side-gray-text px-4 py-2 rounded">
                       Нажмите чтобы выбрать оборудование
                     </button>
 
                     <!-- When equipment is selected, display the details and pass the id to v-model -->
                     <div v-else class="p-4 bg-my-gray border whitespace-nowrap flex">
-                      <p> {{ selectedEquipmentService.category.name }} {{ selectedEquipmentService.size.name }} {{
-                        selectedEquipmentService.series }}</p>
+                      <p> {{ equipment.category.name }} {{ equipment.size.name }} {{
+                        equipment.series }}</p>
                       <!-- Hidden input to hold the selected equipment id for the form -->
                       <input type="hidden" v-model="form.equipment_id">
                     </div>

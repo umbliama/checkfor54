@@ -132,7 +132,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     <Link :href="route('equip.tests')" class="text-lg">Admin</Link>
                   </div>
                 </li>
-                <Link @click="toggleDropdown">
+                <Link>
 
                 <Menu as="div" class="relative inline-block text-left">
                   <div>
@@ -383,17 +383,71 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     d="M4.65799 7.03952C4.91229 6.71256 5.3835 6.65366 5.71046 6.90796L12 11.7998L18.2895 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5963 7.36648 19.5374 7.83769 19.2105 8.09199L12.4605 13.342C12.1896 13.5526 11.8104 13.5526 11.5395 13.342L4.78955 8.09199C4.46259 7.83769 4.40369 7.36648 4.65799 7.03952Z"
                     fill="#21272A" />
                 </svg>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="no  ne" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                    fill="#687182" />
-                  <path
-                    d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                    fill="#687182" />
-                  <path
-                    d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                    fill="#687182" />
-                </svg>
+                <Menu as="div" class="relative inline-block text-left">
+                                        <div class="sm:overflow-x-visible">
+                                            <MenuButton
+                                                class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                                                <svg width="4" height="16" viewBox="0 0 4 16" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M3.5 8C3.5 8.82843 2.82843 9.5 2 9.5C1.17157 9.5 0.5 8.82843 0.5 8C0.5 7.17157 1.17157 6.5 2 6.5C2.82843 6.5 3.5 7.17157 3.5 8Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M3.5 14C3.5 14.8284 2.82843 15.5 2 15.5C1.17157 15.5 0.5 14.8284 0.5 14C0.5 13.1716 1.17157 12.5 2 12.5C2.82843 12.5 3.5 13.1716 3.5 14Z"
+                                                        fill="#687182" />
+                                                </svg>
+                                            </MenuButton>
+                                        </div>
+
+                                        <transition enter-active-class="transition ease-out duration-100"
+                                            enter-from-class="transform opacity-0 scale-95"
+                                            enter-to-class="transform opacity-100 scale-100"
+                                            leave-active-class="transition ease-in duration-75"
+                                            leave-from-class="transform opacity-100 scale-100"
+                                            leave-to-class="transform opacity-0 scale-95">
+                                            <MenuItems
+                                                class="absolute top-6 z-200 right-2 justify-between w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                <div class="py-1">
+
+
+                                                  
+                                                  <MenuItem>
+                                                    <Link method="get" :href="route('services.edit', service.id)"
+                                                        class="flex items-center justify-around"
+                                                        :class="['block px-4 py-2 text-sm']">Редактировать
+                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.0981 3.10827C10.6795 3.52693 10.4702 3.73626 10.2506 3.77677C10.0309 3.81728 9.88682 3.67315 9.59856 3.3849L8.61511 2.40144C8.32686 2.11319 8.18273 1.96906 8.22324 1.74946C8.26375 1.52985 8.47308 1.32052 8.89174 0.901864L9.11838 0.675215C9.53704 0.25656 9.74637 0.0472318 9.96598 0.00672082C10.1856 -0.0337902 10.3297 0.110336 10.618 0.398589L11.6014 1.38204C11.8897 1.6703 12.0338 1.81442 11.9933 2.03403C11.9528 2.25364 11.7434 2.46297 11.3248 2.88162L11.0981 3.10827Z" fill="#464F60"/>
+<path d="M0.954058 11.9107C0.454198 12.0029 0.204269 12.049 0.077628 11.9224C-0.0490128 11.7957 -0.00290857 11.5458 0.0893002 11.0459L0.311753 9.84003C0.35173 9.62332 0.371719 9.51497 0.43005 9.41009C0.488381 9.30521 0.579134 9.21446 0.76064 9.03295L6.31438 3.47921C6.73303 3.06056 6.94236 2.85123 7.16197 2.81072C7.38158 2.77021 7.5257 2.91433 7.81396 3.20259L8.79741 4.18604C9.08566 4.4743 9.22979 4.61842 9.18928 4.83803C9.14877 5.05764 8.93944 5.26697 8.52078 5.68562L2.96705 11.2394C2.78554 11.4209 2.69479 11.5116 2.58991 11.5699C2.48503 11.6283 2.37668 11.6483 2.15997 11.6882L0.954058 11.9107Z" fill="#464F60"/>
+</svg>
+
+
+
+                                                    </Link>
+                                                    </MenuItem>
+
+                                                    <MenuItem>
+                                                    <Link method="delete" :href="route('services.destroy', service.id)"
+                                                        class="flex items-center justify-around"
+                                                        :class="['block px-4 py-2 text-sm']">Удалить
+                                                    <svg width="12" height="14" viewBox="0 0 12 14" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                            d="M2.75 2.75V3.25H0.75C0.335786 3.25 0 3.58579 0 4C0 4.41421 0.335786 4.75 0.75 4.75H1.51389L1.89504 11.6109C1.95392 12.6708 2.8305 13.5 3.89196 13.5H8.10802C9.16948 13.5 10.0461 12.6708 10.1049 11.6109L10.4861 4.75H11.25C11.6642 4.75 12 4.41421 12 4C12 3.58579 11.6642 3.25 11.25 3.25H9.25V2.75C9.25 1.50736 8.24264 0.5 7 0.5H5C3.75736 0.5 2.75 1.50736 2.75 2.75ZM5 2C4.58579 2 4.25 2.33579 4.25 2.75V3.25H7.75V2.75C7.75 2.33579 7.41421 2 7 2H5ZM5.25 6.75C5.25 6.33579 4.91421 6 4.5 6C4.08579 6 3.75 6.33579 3.75 6.75V11.25C3.75 11.6642 4.08579 12 4.5 12C4.91421 12 5.25 11.6642 5.25 11.25V6.75ZM8.25 6.75C8.25 6.33579 7.91421 6 7.5 6C7.08579 6 6.75 6.33579 6.75 6.75V11.25C6.75 11.6642 7.08579 12 7.5 12C7.91421 12 8.25 11.6642 8.25 11.25V6.75Z"
+                                                            fill="#DC4067" />
+                                                    </svg>
+
+
+
+                                                    </Link>
+                                                    </MenuItem>
+
+                                                </div>
+                                            </MenuItems>
+                                        </transition>
+                                    </Menu>
 
               </div>
             </div>
@@ -451,17 +505,71 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     d="M4.65799 7.03952C4.91229 6.71256 5.3835 6.65366 5.71046 6.90796L12 11.7998L18.2895 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5963 7.36648 19.5374 7.83769 19.2105 8.09199L12.4605 13.342C12.1896 13.5526 11.8104 13.5526 11.5395 13.342L4.78955 8.09199C4.46259 7.83769 4.40369 7.36648 4.65799 7.03952Z"
                     fill="#21272A" />
                 </svg>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                    fill="#687182" />
-                  <path
-                    d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                    fill="#687182" />
-                  <path
-                    d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                    fill="#687182" />
-                </svg>
+                <Menu as="div" class="relative inline-block text-left">
+                                        <div class="sm:overflow-x-visible">
+                                            <MenuButton
+                                                class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                                                <svg width="4" height="16" viewBox="0 0 4 16" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M3.5 8C3.5 8.82843 2.82843 9.5 2 9.5C1.17157 9.5 0.5 8.82843 0.5 8C0.5 7.17157 1.17157 6.5 2 6.5C2.82843 6.5 3.5 7.17157 3.5 8Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M3.5 14C3.5 14.8284 2.82843 15.5 2 15.5C1.17157 15.5 0.5 14.8284 0.5 14C0.5 13.1716 1.17157 12.5 2 12.5C2.82843 12.5 3.5 13.1716 3.5 14Z"
+                                                        fill="#687182" />
+                                                </svg>
+                                            </MenuButton>
+                                        </div>
+
+                                        <transition enter-active-class="transition ease-out duration-100"
+                                            enter-from-class="transform opacity-0 scale-95"
+                                            enter-to-class="transform opacity-100 scale-100"
+                                            leave-active-class="transition ease-in duration-75"
+                                            leave-from-class="transform opacity-100 scale-100"
+                                            leave-to-class="transform opacity-0 scale-95">
+                                            <MenuItems
+                                                class="absolute top-6 z-200 right-2 justify-between w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                <div class="py-1">
+
+
+                                                  
+                                                  <MenuItem>
+                                                    <Link method="delete" :href="route('services.edit', service.id)"
+                                                        class="flex items-center justify-around"
+                                                        :class="['block px-4 py-2 text-sm']">Редактировать
+                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.0981 3.10827C10.6795 3.52693 10.4702 3.73626 10.2506 3.77677C10.0309 3.81728 9.88682 3.67315 9.59856 3.3849L8.61511 2.40144C8.32686 2.11319 8.18273 1.96906 8.22324 1.74946C8.26375 1.52985 8.47308 1.32052 8.89174 0.901864L9.11838 0.675215C9.53704 0.25656 9.74637 0.0472318 9.96598 0.00672082C10.1856 -0.0337902 10.3297 0.110336 10.618 0.398589L11.6014 1.38204C11.8897 1.6703 12.0338 1.81442 11.9933 2.03403C11.9528 2.25364 11.7434 2.46297 11.3248 2.88162L11.0981 3.10827Z" fill="#464F60"/>
+<path d="M0.954058 11.9107C0.454198 12.0029 0.204269 12.049 0.077628 11.9224C-0.0490128 11.7957 -0.00290857 11.5458 0.0893002 11.0459L0.311753 9.84003C0.35173 9.62332 0.371719 9.51497 0.43005 9.41009C0.488381 9.30521 0.579134 9.21446 0.76064 9.03295L6.31438 3.47921C6.73303 3.06056 6.94236 2.85123 7.16197 2.81072C7.38158 2.77021 7.5257 2.91433 7.81396 3.20259L8.79741 4.18604C9.08566 4.4743 9.22979 4.61842 9.18928 4.83803C9.14877 5.05764 8.93944 5.26697 8.52078 5.68562L2.96705 11.2394C2.78554 11.4209 2.69479 11.5116 2.58991 11.5699C2.48503 11.6283 2.37668 11.6483 2.15997 11.6882L0.954058 11.9107Z" fill="#464F60"/>
+</svg>
+
+
+
+                                                    </Link>
+                                                    </MenuItem>
+
+                                                    <MenuItem>
+                                                    <Link method="delete" :href="route('services.destroy', service.id)"
+                                                        class="flex items-center justify-around"
+                                                        :class="['block px-4 py-2 text-sm']">Удалить
+                                                    <svg width="12" height="14" viewBox="0 0 12 14" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                            d="M2.75 2.75V3.25H0.75C0.335786 3.25 0 3.58579 0 4C0 4.41421 0.335786 4.75 0.75 4.75H1.51389L1.89504 11.6109C1.95392 12.6708 2.8305 13.5 3.89196 13.5H8.10802C9.16948 13.5 10.0461 12.6708 10.1049 11.6109L10.4861 4.75H11.25C11.6642 4.75 12 4.41421 12 4C12 3.58579 11.6642 3.25 11.25 3.25H9.25V2.75C9.25 1.50736 8.24264 0.5 7 0.5H5C3.75736 0.5 2.75 1.50736 2.75 2.75ZM5 2C4.58579 2 4.25 2.33579 4.25 2.75V3.25H7.75V2.75C7.75 2.33579 7.41421 2 7 2H5ZM5.25 6.75C5.25 6.33579 4.91421 6 4.5 6C4.08579 6 3.75 6.33579 3.75 6.75V11.25C3.75 11.6642 4.08579 12 4.5 12C4.91421 12 5.25 11.6642 5.25 11.25V6.75ZM8.25 6.75C8.25 6.33579 7.91421 6 7.5 6C7.08579 6 6.75 6.33579 6.75 6.75V11.25C6.75 11.6642 7.08579 12 7.5 12C7.91421 12 8.25 11.6642 8.25 11.25V6.75Z"
+                                                            fill="#DC4067" />
+                                                    </svg>
+
+
+
+                                                    </Link>
+                                                    </MenuItem>
+
+                                                </div>
+                                            </MenuItems>
+                                        </transition>
+                                    </Menu>
               </div>
             </div>
             <div v-if="showSubservices[index]" class="mt-2">

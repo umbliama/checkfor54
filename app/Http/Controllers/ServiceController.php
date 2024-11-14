@@ -197,7 +197,16 @@ class ServiceController extends Controller
     public function edit($id)
     {   
         $service = Service::findOrFail($id);
-        $equipment = Equipment::where('id','=', $service->equipment_id)->get();
+        $equipment = Equipment::where('id', $service->equipment_id)
+        ->with(['category', 'size'])
+        ->first();
+    
+        if ($equipment) {
+            $equipment->equipment_info = '123';
+            $equipment->category_name = $equipment->category ? $equipment->category->name : null; 
+            $equipment->size_name = $equipment->size ? $equipment->size->name : null; 
+        }
+    
         $subservices = ServiceSub::where('service_id','=', $service->id)->get();
 
         return Inertia::render('Services/Edit',['service' => $service, 'equipment' => $equipment,'subservices' => $subservices]);
@@ -280,6 +289,15 @@ class ServiceController extends Controller
         }
 
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $service = Service::findOrFail($id);
+        $subservice = ServiceSub::where('service_id', $id);
+
+        $service->delete();
+        $subservice->delete();
     }
 
 }

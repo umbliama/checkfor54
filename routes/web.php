@@ -73,7 +73,7 @@ Route::post('/services', [ServiceController::class,'store'])->name('services.sto
 Route::get('/services/create', [ServiceController::class,'create'])->name('services.create');
 Route::get('/services/edit/{id}', [ServiceController::class,'edit'])->name('services.edit');
 Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
-
+Route::delete('/services/delete/{id}', [ServiceController::class,'destroy'])->name('services.destroy');
 Route::get('/incident', [IncidentController::class,'index'])->name('incident.index');
 
 
