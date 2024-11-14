@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Inertia\Inertia;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -11,7 +12,9 @@ class SaleController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Sale/Index');
+        $sales = Sale::paginate(10);
+
+        return Inertia::render('Sale/Index',['sales' => $sales]);
     }
 
     /**

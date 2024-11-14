@@ -8,7 +8,7 @@ import { computed, onMounted, ref, toRaw } from 'vue';
 import store from '../../../store/index';
 
 const props = defineProps({
-  services: Object,
+  sales: Object,
   contragents_names: Array,
   contragents: Array,
   count_services_active: Number,
@@ -28,9 +28,8 @@ const selectActive = (value) => {
 }
 
 const filterDatesActive = () => {
-  const raw = toRaw(props.services.data)
+  const raw = toRaw(props.sales.data)
 
-  console.log(raw)
   return raw.filter(service => {
     const serviceDate = new Date(service.service_date);
 
@@ -45,7 +44,7 @@ const filterDatesActive = () => {
   })
 }
 const filterDatesInActive = () => {
-  const raw = toRaw(props.services.data)
+  const raw = toRaw(props.sales.data)
 
   return raw.filter(service => {
     const serviceDate = new Date(service.service_date);
