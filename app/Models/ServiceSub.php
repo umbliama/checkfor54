@@ -31,11 +31,12 @@ class ServiceSub extends Model
         return $this->belongsTo(Service::class, 'service_id', 'id');
     }
 
-    // Subservice has one equipment
     public function equipment()
     {
-        return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); // Adjust foreign key if needed
+        return $this->belongsTo(Equipment::class, 'subequipment_id', 'id'); 
     }
+
+   
 
     use HasFactory;
 }

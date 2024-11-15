@@ -97,10 +97,9 @@ const form = reactive({
 
 function submit() {
   const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
-    return sub.subequipment_id && sub.shipping_date && sub.period_start_date;  // Add conditions for required fields
+    return sub.subequipment_id && sub.shipping_date && sub.period_start_date;  
   });
-  console.log(selectedSubEquipmentArray)
-  router.post('/services', {
+  router.put(`/services/${props.service.id}`, {
     equipment_id: form.equipment_id,
     contragent_id: form.contragent_id,
     shipping_date: form.shipping_date,
@@ -115,6 +114,10 @@ function submit() {
     active: form.active,
     income: form.income,
     subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment))
+  },{
+    onError: (error) => {
+      console.log(error)
+    }
   })
 }
 
@@ -311,7 +314,10 @@ function submit() {
                   <th class="p-4">Оборудование</th>
                   <th class="p-4">Дата отгрузки</th>
                   <th class="p-4">Начало периода</th>
-                  <th class="p-4">Комментарий</th>
+                  <th class="p-4">Хранение</th>
+                  <th class="p-4">Наработка</th>
+                  <th class="p-4">Окончание периода</th>
+                  <th class="p-4">Дата возврата</th>
                   <th class="p-4">
                     <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -367,7 +373,22 @@ function submit() {
                   <td><input v-model="form.shipping_date" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input v-model="form.period_start_date"type="date"
+                  <td><input v-model="form.period_start_date" type="date"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.store" type="number"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.operating" type="number"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.period_end_date"type="date"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.return_date"type="date"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input type="text"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td><input type="text"
@@ -429,8 +450,21 @@ function submit() {
                   <td><input @change="updateByKey(index,'subequipment_id',item.id)" @input="updateByKey(index, 'shipping_date', $event.target.value)" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
+                  
                   <td><input @input="updateByKey(index, 'period_start_date', $event.target.value)"
                       v-model="item.period_start_date" type="date"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.store" type="number"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.operating" type="number"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.period_end_date"type="date"
+                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  </td>
+                  <td><input v-model="form.return_date"type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td><input @input="updateByKey(index, 'commentary', $event.target.value)" v-model="item.commentary"
@@ -538,7 +572,6 @@ function submit() {
 
               </div>
             </div>
-
 
           </div>
 

@@ -5,6 +5,7 @@ use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\Service;
 use App\Models\ServiceSub;
+use App\Models\EquipmentPrice;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\ServiceModel;
@@ -149,8 +150,8 @@ class ServiceController extends Controller
             'period_start_date' => 'required|date',
             'return_date' => 'nullable|date',
             'period_end_date' => 'nullable|date',
-            'store' => 'nullable|string',
-            'operating' => 'nullable|string',
+            'store' => 'nullable|numeric',
+            'operating' => 'nullable|numeric',
             'return_reason' => 'nullable',
             'active' => 'required|boolean',
             'income' => 'nullable|int',
@@ -202,7 +203,6 @@ class ServiceController extends Controller
         ->first();
     
         if ($equipment) {
-            $equipment->equipment_info = '123';
             $equipment->category_name = $equipment->category ? $equipment->category->name : null; 
             $equipment->size_name = $equipment->size ? $equipment->size->name : null; 
         }
@@ -214,18 +214,30 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
+
+        $equipment_id = $request->get('equipment_id');
+        $category = Equipment::where('id',$equipment_id)->value('category_id');
+        $size = Equipment::where('id', $equipment_id)->value('size_id');
+        $price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->value('price');
+
+
+        $operating = $request->get('operating', 0);
+        $store = $request->get('store', 0);
+        $income = ($operating * $price) + ($store * $price);
+
+
         // Validate the request data
         $request->validate([
-            'equipment_id' => 'required|int',
-            'contragent_id' => 'required|int',
-            'shipping_date' => 'required|date',
-            'service_number' => "required|string",
-            'service_date' => "required|date",
-            'period_start_date' => 'required|date',
+            'equipment_id' => 'nullable|int',
+            'contragent_id' => 'nullable|int',
+            'shipping_date' => 'nullable|date',
+            'service_number' => "nullable|string",
+            'service_date' => "nullable|date",
+            'period_start_date' => 'nullable|date',
             'return_date' => 'nullable|date',
             'period_end_date' => 'nullable|date',
-            'store' => 'nullable|string',
-            'operating' => 'nullable|string',
+            'store' => 'nullable|numeric',
+            'operating' => 'nullable|numeric',
             'return_reason' => 'nullable',
             'active' => 'required|boolean',
             'income' => 'nullable|int',
@@ -239,21 +251,23 @@ class ServiceController extends Controller
         ]);
 
         // Update the main service record
-        $service->update($request->only([
-            'equipment_id',
-            'contragent_id',
-            'shipping_date',
-            'service_number',
-            'service_date',
-            'period_start_date',
-            'return_date',
-            'period_end_date',
-            'store',
-            'operating',
-            'return_reason',
-            'active',
-            'income'
-        ]));
+        $service->update(array_merge(
+            $request->only([
+                'equipment_id',
+                'contragent_id',
+                'shipping_date',
+                'service_number',
+                'service_date',
+                'period_start_date',
+                'return_date',
+                'period_end_date',
+                'store',
+                'operating',
+                'return_reason',
+                'active'
+            ]),
+            ['income' => $income]
+        ));
 
         // Update or create sub-equipment records
         if ($request->has('subEquipment')) {
