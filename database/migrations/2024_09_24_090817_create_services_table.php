@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('commentary')->nullable();
             $table->enum('return_reason',['project','rejected'])->nullable();
             $table->boolean('active');
-            $table->integer('income')->nullable();
+            $table->float('income')->nullable();
         });
 
 

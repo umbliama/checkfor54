@@ -13,6 +13,7 @@ const props = defineProps({
     service: Object,
     equipment:Object,
     subservices:Object,
+    contragents:Array
 })
 
 
@@ -73,7 +74,39 @@ watch(subEquipmentArray, async (newValue, oldValue) => {
   }
 }, { deep: true });
 
+let dateResult = ref(0)
 
+
+
+const calculateResult = () => {
+      const { period_start_date, period_end_date, operating } = form;
+
+      // Проверка на валидность дат
+      if (!period_start_date || !period_end_date) {
+        dateResult = 0;
+        return;
+      }
+
+      // Преобразование дат в объекты
+      const startDate = new Date(period_start_date);
+      const endDate = new Date(period_end_date);
+
+      // Проверка на корректность дат
+      if (isNaN(startDate) || isNaN(endDate)) {
+        dateResult = 0;
+        return;
+      }
+
+      // Вычисление разницы между датами в днях
+      const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+      console.log(diffInDays)
+
+      // Вычисление результата по формуле
+      dateResult = diffInDays + 1 - operating / 24;
+
+      form.store = dateResult
+}
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
 
@@ -108,7 +141,7 @@ function submit() {
     period_start_date: form.period_start_date,
     return_date: form.return_date,
     period_end_date: form.period_end_date,
-    store: form.store,
+    store: form.store ?? dateResult,
     operating: form.operating,
     return_reason: form.return_reason,
     active: form.active,
@@ -373,16 +406,16 @@ function submit() {
                   <td><input v-model="form.shipping_date" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input v-model="form.period_start_date" type="date"
+                  <td><input v-model="form.period_start_date" @input="calculateResult" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input v-model="form.store" type="number"
+                  <td><input v-model="form.store"  type="number"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td><input v-model="form.operating" type="number"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input v-model="form.period_end_date"type="date"
+                  <td><input v-model="form.period_end_date" @input="calculateResult" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td><input v-model="form.return_date"type="date"

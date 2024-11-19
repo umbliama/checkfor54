@@ -201,6 +201,7 @@ class ServiceController extends Controller
         $equipment = Equipment::where('id', $service->equipment_id)
         ->with(['category', 'size'])
         ->first();
+        $contragents = Contragents::all();
     
         if ($equipment) {
             $equipment->category_name = $equipment->category ? $equipment->category->name : null; 
@@ -209,7 +210,7 @@ class ServiceController extends Controller
     
         $subservices = ServiceSub::where('service_id','=', $service->id)->get();
 
-        return Inertia::render('Services/Edit',['service' => $service, 'equipment' => $equipment,'subservices' => $subservices]);
+        return Inertia::render('Services/Edit',['service' => $service, 'equipment' => $equipment,'subservices' => $subservices,'contragents'=>$contragents]);
     }
 
     public function update(Request $request, Service $service)
@@ -218,12 +219,13 @@ class ServiceController extends Controller
         $equipment_id = $request->get('equipment_id');
         $category = Equipment::where('id',$equipment_id)->value('category_id');
         $size = Equipment::where('id', $equipment_id)->value('size_id');
-        $price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->value('price');
+        $store_price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->where('archive', false)->value('store_price');
+        $operation_price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->where('archive', false)->value('operation_price');
 
 
         $operating = $request->get('operating', 0);
         $store = $request->get('store', 0);
-        $income = ($operating * $price) + ($store * $price);
+        $income = ($operating * $operation_price) + ($store * $store_price);
 
 
         // Validate the request data
