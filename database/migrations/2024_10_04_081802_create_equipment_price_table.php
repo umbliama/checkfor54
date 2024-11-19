@@ -22,7 +22,8 @@ return new class extends Migration
             $table->foreign('contragent_id')->references('id')->on('contragents');
             $table->date('store_date');
             $table->string('notes');
-            $table->string('price');
+            $table->float('store_price');
+            $table->float('operation_price');
             $table->boolean('archive');
         });
     }

@@ -16,7 +16,8 @@ class EquipmentPrice extends Model
         'title',
         'store_date',
         'notes',
-        'price',
+        'store_price',
+        'operation_price',
         'archive'
     ];
 

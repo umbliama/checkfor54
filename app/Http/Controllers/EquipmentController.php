@@ -341,19 +341,24 @@ class EquipmentController extends Controller
     
     public function storePrice(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'category_id' => "required|int",
             'size_id' => "required|int",
             'contragent_id' => "required|int",
             'store_date' => "required|date",
             'notes' => "required|string",
-            'price' => "required|int",
+            'store_price' => "required|int",
+            'operation_price' => "required|int",
             'archive' => "required|boolean",
         ]);
 
+        EquipmentPrice::where('category_id', $validatedData['category_id'])
+            ->where('size_id', $validatedData['size_id'])
+            ->where('archive', false) 
+            ->update(['archive' => true]);
 
 
-        EquipmentPrice::create($request->all());
+        EquipmentPrice::create(array_merge($validatedData,['archive' => false]));
 
 
     }
