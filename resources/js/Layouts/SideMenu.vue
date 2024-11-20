@@ -36,6 +36,7 @@
 
             <div class="flex items-center justify-center">
                 <span class="inline-flex rounded-md">
+                    <Link href="/profile">
                     <button type="button"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,6 +50,7 @@
 
 
                     </button>
+                    </Link>
                 </span>
                 <span class="inline-flex rounded-md">
                     <button type="button"

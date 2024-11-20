@@ -100,12 +100,12 @@ const calculateResult = () => {
       // Вычисление разницы между датами в днях
       const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-      console.log(diffInDays)
 
       // Вычисление результата по формуле
-      dateResult = diffInDays + 1 - operating / 24;
+      dateResult = (diffInDays) + 1 - (operating / 24);
 
-      form.store = dateResult
+      console.log(dateResult)
+      form.store = diffInDays.toFixed(2)
 }
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
