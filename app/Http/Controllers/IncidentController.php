@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 use App\Models\Block;
 use App\Models\Column;
+use App\Models\Notification;
+use App\Models\User;
 use Inertia\Inertia;
 
 use Illuminate\Http\Request;
@@ -15,7 +17,8 @@ class IncidentController extends Controller
     public function index()
     {
         $columns = Column::with('blocks')->orderBy('position')->get();
-        return Inertia::render('Incident/Index', ['columns' => $columns]);
+
+        return Inertia::render('Incident/Index', ['columns' => $columns, ]);
     }
 
     // Create a new column
@@ -23,6 +26,13 @@ class IncidentController extends Controller
     {
         $position = Column::max('position') + 1;
         $column = Column::create(['position' => $position]);
+        foreach (User::all() as $user){
+            Notification::create([
+                'type' => 'Создана новая колонка',
+                'data' => ['position'=>$position],
+                'user_id' => $user->id
+            ]);
+        }
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 

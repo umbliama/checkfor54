@@ -6,7 +6,8 @@ import axios from 'axios';
 
 
 defineProps({
-  columns: Array
+  columns: Array, 
+  blocks: Array
 })
 
 
@@ -15,6 +16,9 @@ const createColumn = () => {
 }
 
 
+const createBlock = (columnId,type) => {
+  router.post(`/constructor/column/${columnId}/block`,{type:`${type}`})
+}
 </script>
 
 <template>
@@ -110,26 +114,71 @@ const createColumn = () => {
                 leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
                 leave-to-class="transform opacity-0 scale-95">
                 <MenuItems
-                  class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div class="py-1">
-                    <MenuItem v-slot="{ active }">
-                    <Link 
-                      class="flex items-center justify-around">Добавить блок
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M8.74999 2.75003C8.74999 2.33582 8.4142 2.00003 7.99999 2.00003C7.58578 2.00003 7.24999 2.33582 7.24999 2.75003V7.25H2.75C2.33579 7.25 2 7.58578 2 8C2 8.41421 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41421 14 8C14 7.58578 13.6642 7.25 13.25 7.25H8.74999V2.75003Z"
-                        fill="#464F60" />
-                    </svg>
-                    </Link>
-                    </MenuItem>
-                  </div>
-                </MenuItems>
+  class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+  <div class="py-1 px-2">
+    <!-- Heading -->
+    <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Добавить блок</h3>
+    <!-- List of Links -->
+    <ul class="px-2 py-1 space-y-1">
+      <li>
+        <Link method="POST" @click="createBlock(column.id,'customer')" :href="route('constructor.createBlock', column.id,'customer')">
+          Заказчик
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id,'equipment')" :href="route('constructor.createBlock', column.id,'equipment')">
+          Оборудование
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id,'commentary')" :href="route('constructor.createBlock', column.id,'commentary')">
+          Комментарий
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id,'media')" :href="route('constructor.createBlock', column.id,'media')">
+          Медиа
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id,'files')" :href="route('constructor.createBlock', column.id,'files')">
+          Файлы
+        </Link>
+      </li>
+    </ul>
+    <div class="border-b-2 "></div>
+    <ul class="px-2 py-1 space-y-1">
+      <li>
+        <Link method="POST" @click="createBlock(column.id)" :href="route('constructor.createBlock', column.id)">
+          Добавить разрыв
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id)" :href="route('constructor.createBlock', column.id)">
+          Удалить разрыв
+        </Link>
+      </li>
+      <li>
+        <Link method="POST" @click="createBlock(column.id)" :href="route('constructor.createBlock', column.id)">
+          Удалить блок
+        </Link>
+      </li>
+    </ul>
+  </div>
+</MenuItems>
               </transition>
             </Menu>
             </Link>
 
 
           </div>
+          <div class="mt-4">
+      <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
+        <p><strong>Type:</strong> {{ block.type }}</p>
+        <p><strong>Content:</strong> {{ block.content }}</p>
+      </div>
+    </div>
+
         </div>
 
 
