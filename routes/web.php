@@ -63,7 +63,7 @@ Route::get('/contragents/{id}', [ContragentsController::class,'show'])->name('co
 Route::get('/constructor', [IncidentController::class, 'index']);
 Route::post('/constructor/column', [IncidentController::class, 'createColumn'])->name('constructor.columnCreate');
 Route::delete('/constructor/column/{column}', [IncidentController::class, 'deleteColumn']);
-Route::post('/constructor/column/{column}/block', [IncidentController::class, 'createBlock']);
+Route::post('/constructor/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
 Route::delete('/constructor/block/{block}', [IncidentController::class, 'deleteBlock']);
 Route::post('/constructor/columns/reorder', [IncidentController::class, 'reorderColumns']);
 Route::post('/constructor/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks']);
