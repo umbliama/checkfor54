@@ -225,7 +225,12 @@ class ServiceController extends Controller
 
         $operating = $request->get('operating', 0);
         $store = $request->get('store', 0);
-        $income = ($operating * $operation_price) + 1 - ($store * $store_price);
+
+        if ($operating == 0) {
+            $income = $store * $store_price;
+        }else {
+            $income = ($operating * $operation_price) + ($store * $store_price);
+        }
 
 
         // Validate the request data

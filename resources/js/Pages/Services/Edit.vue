@@ -96,16 +96,21 @@ const calculateResult = () => {
         dateResult = 0;
         return;
       }
-
-      // Вычисление разницы между датами в днях
       const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+      
+      if (operating === 0) {
+        dateResult = diffInDays + 1
+        console.log(diffInDays) 
+      }else {
+        dateResult = (diffInDays) + 1 - (operating / 24);
+        console.log(dateResult) 
+
+      }
+
+      console.log(operating)
 
 
-      // Вычисление результата по формуле
-      dateResult = (diffInDays) + 1 - (operating / 24);
-
-      console.log(dateResult)
-      form.store = diffInDays.toFixed(2)
+      form.store = dateResult.toFixed(2)
 }
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
@@ -120,7 +125,7 @@ const form = reactive({
   return_date: null,
   period_end_date: null,
   store: null,
-  operating: null,
+  operating: 0,
   return_reason: null,
   active: props.service.active ?? null,
   income: null,
