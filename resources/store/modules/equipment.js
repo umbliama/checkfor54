@@ -29,7 +29,8 @@ export default {
         sortBy: "",
         sortOrder: "asc",
         filterShown:false,
-        priceRowsCount:0
+        priceRowsCount:0,
+        
     }),
     mutations: {
         incPriceRowsCount:(state) => {

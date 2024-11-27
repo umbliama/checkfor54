@@ -5,6 +5,9 @@ use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\Service;
 use App\Models\ServiceSub;
+use App\Models\Column;
+use App\Models\User;
+use App\Models\Notification;
 use App\Models\EquipmentPrice;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -211,6 +214,37 @@ class ServiceController extends Controller
         $subservices = ServiceSub::where('service_id','=', $service->id)->get();
 
         return Inertia::render('Services/Edit',['service' => $service, 'equipment' => $equipment,'subservices' => $subservices,'contragents'=>$contragents]);
+    }
+
+    public function createIncident($id)
+    {
+        $service = Service::findOrFail($id);
+        $equipment = Equipment::findOrFail($service->equipment_id);
+        $contragent_id = Contragents::findOrFail($service->contragent_id);
+        $position = Column::max('position') + 1;
+        $column = Column::create(['position' => $position]);
+        foreach (User::all() as $user){
+            Notification::create([
+                'type' => 'Создан новый инцидент',
+                'data' => ['position'=>$position],
+                'user_id' => $user->id
+            ]);
+        }
+    
+        $position = $column->blocks()->max('position') + 1;
+    
+        $block = $column->blocks()->create([
+            'type' => 'customer',
+            'contragent_id' => $contragent_id,
+            'position' => $position
+        ]);
+
+        $block_subequipment = $block->subequipment()->create([
+            'block_id' => $block->id,
+            'subequipment_id' => $service->subequipment_id
+        ]);
+
+        return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
     public function update(Request $request, Service $service)

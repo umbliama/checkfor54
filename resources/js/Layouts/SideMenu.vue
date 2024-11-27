@@ -4,16 +4,28 @@
     import { usePage } from '@inertiajs/vue3'
     import { SideMenuMenuStates } from '../../constants';
     import store from '../../store';
-    import { computed } from 'vue';
+    import { computed, ref, toRaw } from 'vue';
 
     const page = usePage()
 
+
     const user = computed(() => page.props.auth.user)
 
+    const notifications = computed(() => store.getters['notifications/getNotifications'])
+    const notificationsLength = computed(() => store.getters['notifications/getNotificationsLength'])
 
     const selectMenu = (menuState) => {
         store.dispatch('setActiveSidemenuItem', menuState);
     };
+    const checkNewNotifications = (userId) => {
+        store.dispatch('notifications/checkNewNotifications',userId)
+    }
+
+
+    setInterval(() => {
+        checkNewNotifications(toRaw(user.value.id))
+    }, 3000);
+
 
 </script>
 
@@ -67,14 +79,23 @@
                     </button>
                 </span>
                 <span class="inline-flex rounded-md">
-                    <button type="button"
-                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                        <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M13.666 11.782L13 11.186V6C13 4.93913 12.5786 3.92172 11.8284 3.17157C11.0783 2.42143 10.0609 2 9 2C7.93914 2 6.92172 2.42143 6.17158 3.17157C5.42143 3.92172 5.00001 4.93913 5.00001 6V11.186L4.33401 11.782C3.36755 12.6445 2.65987 13.7586 2.29001 15H15.71C15.3401 13.7586 14.6325 12.6445 13.666 11.782ZM12 17C12 17.7956 11.6839 18.5587 11.1213 19.1213C10.5587 19.6839 9.79565 20 9 20C8.20436 20 7.44129 19.6839 6.87868 19.1213C6.31608 18.5587 6.00001 17.7956 6.00001 17H5.17321e-06C-0.0013543 15.7335 0.265243 14.4811 0.782286 13.325C1.29933 12.1689 2.05512 11.1353 3.00001 10.292V6C3.00001 4.4087 3.63215 2.88258 4.75736 1.75736C5.88258 0.632141 7.40871 0 9 0C10.5913 0 12.1174 0.632141 13.2426 1.75736C14.3679 2.88258 15 4.4087 15 6V10.292C15.9449 11.1353 16.7007 12.1689 17.2177 13.325C17.7348 14.4811 18.0014 15.7335 18 17H12ZM9 18C9.26522 18 9.51958 17.8946 9.70711 17.7071C9.89465 17.5196 10 17.2652 10 17H8C8 17.2652 8.10536 17.5196 8.2929 17.7071C8.48043 17.8946 8.73479 18 9 18Z"
-                                fill="#001D6C" />
-                        </svg>
-                    </button>
+                    <div class="relative">
+                        <span v-if="notificationsLength > 0"
+                            class="absolute ml-5 w-[20px] h-[20px] bg-red-500 text-white flex justify-center items-center rounded-full">{{
+                                notificationsLength }}</span>
+                        <Link :href="route('notification.index')">
+                            <button type="button"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <svg width="18" height="20" viewBox="0 0 18 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M13.666 11.782L13 11.186V6C13 4.93913 12.5786 3.92172 11.8284 3.17157C11.0783 2.42143 10.0609 2 9 2C7.93914 2 6.92172 2.42143 6.17158 3.17157C5.42143 3.92172 5.00001 4.93913 5.00001 6V11.186L4.33401 11.782C3.36755 12.6445 2.65987 13.7586 2.29001 15H15.71C15.3401 13.7586 14.6325 12.6445 13.666 11.782ZM12 17C12 17.7956 11.6839 18.5587 11.1213 19.1213C10.5587 19.6839 9.79565 20 9 20C8.20436 20 7.44129 19.6839 6.87868 19.1213C6.31608 18.5587 6.00001 17.7956 6.00001 17H5.17321e-06C-0.0013543 15.7335 0.265243 14.4811 0.782286 13.325C1.29933 12.1689 2.05512 11.1353 3.00001 10.292V6C3.00001 4.4087 3.63215 2.88258 4.75736 1.75736C5.88258 0.632141 7.40871 0 9 0C10.5913 0 12.1174 0.632141 13.2426 1.75736C14.3679 2.88258 15 4.4087 15 6V10.292C15.9449 11.1353 16.7007 12.1689 17.2177 13.325C17.7348 14.4811 18.0014 15.7335 18 17H12ZM9 18C9.26522 18 9.51958 17.8946 9.70711 17.7071C9.89465 17.5196 10 17.2652 10 17H8C8 17.2652 8.10536 17.5196 8.2929 17.7071C8.48043 17.8946 8.73479 18 9 18Z"
+                                    fill="#001D6C" />
+                            </svg>
+                        </button>
+                        </Link>
+                    </div>
+
                 </span>
             </div>
 

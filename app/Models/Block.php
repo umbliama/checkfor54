@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\BlockSubequipment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
@@ -12,7 +13,7 @@ class Block extends Model
     protected $fillable = ['column_id', 'type', 'content', 'position'];
 
     protected $casts = [
-        'content' => 'array', 
+        'content' => 'array',
     ];
 
     // Block types
@@ -26,7 +27,7 @@ class Block extends Model
     // Get block type label
     public function getTypeLabelAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             'Equipment' => 'Equipment Block',
             'Customer' => 'Customer Block',
             'Commentary' => 'Commentary Block',
@@ -35,5 +36,11 @@ class Block extends Model
             default => 'Unknown Block'
         };
     }
+
+    public function subequipment()
+    {
+        return $this->belongsToMany(BlockSubequipment::class, 'block_subequipment');
+    }
+
 
 }

@@ -14,10 +14,17 @@ return new class extends Migration
         Schema::create('blocks', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('column_id')->constrained()->onDelete('cascade'); // Reference to the column
-            $table->string('type'); // Type of block (e.g., "comments", "media", "files", etc.)
-            $table->text('content')->nullable(); // Block content (depends on the type)
-            $table->integer('position'); // For ordering blocks within a column
+            $table->foreignId('column_id')->constrained()->onDelete('cascade'); 
+            $table->string('type');
+            $table->foreignId('contragent_id')->constrained();
+            $table->text('commentary')->nullable(); 
+            $table->integer('position');
+        });
+        Schema::create('block_subequipment', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('block_id')->constrained()->onDelete('cascade'); // Block reference
+            $table->foreignId('subequipment_id')->constrained('subequipment')->onDelete('cascade'); // Sub-equipment reference
+            $table->timestamps();
         });
     }
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\ContragentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ServiceController;
@@ -62,9 +63,9 @@ Route::get('/contragents/{id}', [ContragentsController::class,'show'])->name('co
 
 Route::get('/constructor', [IncidentController::class, 'index']);
 Route::post('/constructor/column', [IncidentController::class, 'createColumn'])->name('constructor.columnCreate');
-Route::delete('/constructor/column/{column}', [IncidentController::class, 'deleteColumn']);
+Route::delete('/constructor/column/{column}', [IncidentController::class, 'deleteColumn'])->name('constructor.deleteColumn');
 Route::post('/constructor/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
-Route::delete('/constructor/block/{block}', [IncidentController::class, 'deleteBlock']);
+Route::delete('/constructor/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
 Route::post('/constructor/columns/reorder', [IncidentController::class, 'reorderColumns']);
 Route::post('/constructor/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks']);
 
@@ -75,8 +76,10 @@ Route::get('/services/create', [ServiceController::class,'create'])->name('servi
 Route::get('/services/edit/{id}', [ServiceController::class,'edit'])->name('services.edit');
 Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
 Route::delete('/services/delete/{id}', [ServiceController::class,'destroy'])->name('services.destroy');
+Route::post('/services/createIncident/{id}', [ServiceController::class,'createIncident'])->name('services.createIncident');
 Route::get('/incident', [IncidentController::class,'index'])->name('incident.index');
 
+Route::get('/notifications', [NotificationController::class,'index'])->name('notification.index');
 
 
 Route::get('/sale', [SaleController::class,'index'])->name('sale.index');

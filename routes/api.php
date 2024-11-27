@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\EquipmentController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -33,15 +34,8 @@ Route::get('/equip/report',[EquipmentController::class,'getFilteredReports']);
 Route::get('/equip/tests',[EquipmentController::class,'getFilteredTests']);
 
 
-Route::get('/notifications', function () {
-    $user = Auth::user();
-    dd($user);
-    if (!$user) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
+Route::get('/getNotificationsByUserId/{id}',[NotificationController::class,'getNotificationsByUserId']);
 
-    return $user->notifications;
-});
 
 Route::middleware('auth:sanctum')->get('/check-auth', function () {
     return response()->json(['user' => auth()->user()]);

@@ -4,16 +4,29 @@ import SideMenu from '@/Layouts/SideMenu.vue';
 import Equipment from '@/Pages/Equip/Index.vue'
 import { usePage } from '@inertiajs/vue3';
 import store from '../../store';
-import { ref, watch } from 'vue';
+import { computed, onMounted, ref, toRaw, watch } from 'vue';
 
+
+const page = usePage()
+
+const user = computed(() => page.props.auth.user)
+
+const checkNewNotifications = () => {
+    store.dispatch('notifications/checkNewNotifications')
+}
 const updateActive = (tab) => {
     store.dispatch('dashboard/updateActiveTab', tab);
 }
+
+
 
 const props = defineProps({
     categories: Array
 })
 
+onMounted(() => {
+    checkNewNotifications(toRaw(user.value.id))
+})
 
 </script>
 

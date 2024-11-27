@@ -5,6 +5,8 @@ import equipment from "./modules/equipment";
 import contragent from "./modules/contragent";
 import dashboard from "./modules/dashboard";
 import services from "./modules/services";
+import notifications from "./modules/notifications";
+
 
 
 const store = createStore({
@@ -14,6 +16,7 @@ const store = createStore({
         contragent, 
         services,
         dashboard,
+        notifications
     },
     state: {
         cities: [],

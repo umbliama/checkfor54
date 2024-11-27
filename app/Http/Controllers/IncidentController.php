@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Block;
 use App\Models\Column;
 use App\Models\Notification;
+use App\Models\Contragents;
 use App\Models\User;
 use Inertia\Inertia;
 
@@ -17,11 +18,11 @@ class IncidentController extends Controller
     public function index()
     {
         $columns = Column::with('blocks')->orderBy('position')->get();
+        $contragents = Contragents::all();
 
-        return Inertia::render('Incident/Index', ['columns' => $columns, ]);
+        return Inertia::render('Incident/Index', ['columns' => $columns, 'contragents' => $contragents]);
     }
 
-    // Create a new column
     public function createColumn()
     {
         $position = Column::max('position') + 1;
@@ -36,14 +37,12 @@ class IncidentController extends Controller
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
-    // Delete a column along with its blocks
     public function deleteColumn(Column $column)
     {
         $column->delete();
-        return response()->json(['message' => 'Column deleted']);
+        return redirect()->route('incident.index')->with('success', 'Column deleted successfully.');
     }
 
-    // Create a new block within a column
     public function createBlock(Request $request, Column $column)
     {
         $type = $request->input('type');
@@ -57,8 +56,10 @@ class IncidentController extends Controller
             'position' => $position
         ]);
     
-        return response()->json($block);
+        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
     }
+
+
 
     protected function prepareBlockContent($type, Request $request)
 {
@@ -95,14 +96,12 @@ class IncidentController extends Controller
 }
 
 
-    // Delete a block
     public function deleteBlock(Block $block)
     {
         $block->delete();
         return response()->json(['message' => 'Block deleted']);
     }
 
-    // Reorder columns
     public function reorderColumns(Request $request)
     {
         $columns = $request->input('columns');
@@ -112,7 +111,6 @@ class IncidentController extends Controller
         return response()->json(['message' => 'Columns reordered']);
     }
 
-    // Reorder blocks within a column
     public function reorderBlocks(Request $request, Column $column)
     {
         $blocks = $request->input('blocks');
