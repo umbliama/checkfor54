@@ -17,8 +17,12 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $columns = Column::with('blocks')->orderBy('position')->get();
+        $columns = Column::with('blocks.equipment.category','blocks.equipment.size')
+        ->orderBy('position')
+        ->paginate(10);
         $contragents = Contragents::all();
+
+
 
         return Inertia::render('Incident/Index', ['columns' => $columns, 'contragents' => $contragents]);
     }

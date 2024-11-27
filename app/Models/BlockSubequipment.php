@@ -7,6 +7,8 @@ use App\Models\Block;
 
 class BlockSubequipment extends Model
 {
+
+    protected $table = 'block_subequipment';
     protected $fillable = ['block_id', 'subequipment_id'];
 
 

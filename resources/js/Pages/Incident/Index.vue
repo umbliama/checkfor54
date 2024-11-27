@@ -92,7 +92,7 @@ const createBlock = (columnId, type) => {
       </nav>
       <!-- Cards Layout -->
       <div class="grid grid-cols-3 mt-3 gap-4">
-        <div v-for="column in columns" class="bg-white border-8 border-my-gray-500  rounded p-4">
+        <div v-for="column in columns.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
           <div class="flex items-center justify-between">
             <h3>Хронология</h3>
             <Link @click="toggleDropdown">
@@ -171,12 +171,7 @@ const createBlock = (columnId, type) => {
           <div class="mt-4">
             <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
               <div v-if="block.type == 'customer'">
-                <div>                <p>Заказчик</p>
-                <select name="" id="">
-                  <option v-for="contragent in contragents" :value="contragent.id" :key="contragent.id" >
-                    {{ contragent.name }}
-                  </option>
-                </select></div>
+                <div><p>Заказчик</p> {{ block.equipment.category.name }} {{ block.equipment.size.name}} {{ block.equipment.series }}</div>
                 <Link @click="toggleDropdown">
 
 <Menu as="div" class="relative inline-block text-left">
