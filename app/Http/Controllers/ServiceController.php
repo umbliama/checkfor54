@@ -219,8 +219,8 @@ class ServiceController extends Controller
     public function createIncident($id)
     {
         $service = Service::findOrFail($id);
-        $equipment = Equipment::findOrFail($service->equipment_id);
-        $contragent_id = Contragents::findOrFail($service->contragent_id);
+        $equipment = Equipment::findOrFail($service->equipment_id)->value('id');
+        $contragent_id = Contragents::findOrFail($service->contragent_id)->value('id');
         $position = Column::max('position') + 1;
         $column = Column::create(['position' => $position]);
         foreach (User::all() as $user){
@@ -236,13 +236,16 @@ class ServiceController extends Controller
         $block = $column->blocks()->create([
             'type' => 'customer',
             'contragent_id' => $contragent_id,
+            'equipment_id' => $equipment,
             'position' => $position
         ]);
-
-        $block_subequipment = $block->subequipment()->create([
-            'block_id' => $block->id,
-            'subequipment_id' => $service->subequipment_id
-        ]);
+        if ($service->subequiment_id !== null) {
+            $block_subequipment = $block->subequipment()->create([
+                'block_id' => $block->id,
+                'subequipment_id' => $service->subequipment_id
+            ]);
+        }
+        
 
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
@@ -263,6 +266,9 @@ class ServiceController extends Controller
         if ($operating == 0) {
             $income = $store * $store_price;
         }else {
+            $days = ceil($operating / 24);
+
+        
             $income = ($operating * $operation_price) + ($store * $store_price);
         }
 
