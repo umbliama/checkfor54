@@ -33,7 +33,8 @@ export default {
                 'table-heading':'#484964',
 
 
-                'danger': '#DA1E28'
+                'danger': '#DA1E28',
+                'text'  : '#21272A'
             },
             screens: {
                 sm: "370px",
@@ -57,8 +58,8 @@ export default {
         },
     },
 
-    plugins: [
+    /*plugins: [
         forms,
         require('flowbite/plugin')
-    ],
+    ],*/
 };
