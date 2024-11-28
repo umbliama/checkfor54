@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Block extends Model
 {
-    protected $fillable = ['column_id', 'type', 'content', 'position','contragent_id','equipment_id'];
+    protected $fillable = ['column_id', 'type', 'commentary', 'position','contragent_id','equipment_id'];
 
     protected $casts = [
         'content' => 'array',
@@ -45,6 +45,11 @@ class Block extends Model
     public function equipment():BelongsTo
     {
         return $this->belongsTo(Equipment::class,'equipment_id');
+    }
+
+    public function contragent(): BelongsTo
+    {
+        return $this->belongsTo(Contragents::class,'contragent_id');
     }
 
 

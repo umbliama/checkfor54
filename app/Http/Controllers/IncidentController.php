@@ -17,7 +17,7 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $columns = Column::with('blocks.equipment.category','blocks.equipment.size')
+        $columns = Column::with('blocks.equipment.category','blocks.equipment.size','blocks.contragent')
         ->orderBy('position')
         ->paginate(10);
         $contragents = Contragents::all();
@@ -47,65 +47,81 @@ class IncidentController extends Controller
         return redirect()->route('incident.index')->with('success', 'Column deleted successfully.');
     }
 
-    public function createBlock(Request $request, Column $column)
-    {
-        $type = $request->input('type');
-        $content = $this->prepareBlockContent($type, $request);
-    
-        $position = $column->blocks()->max('position') + 1;
-    
-        $block = $column->blocks()->create([
-            'type' => $type,
-            'content' => $content,
-            'position' => $position
-        ]);
-    
-        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
-    }
+        public function createBlock(Request $request, Column $column)
+        {
+            $type = $request->input('type');
+            $content = $this->prepareBlockContent($type, $request);
+        
+            $position = $column->blocks()->max('position') + 1;
+        
+            $block = $column->blocks()->create(array_merge([
+                'type' => $type,
+                'position' => $position,
+            ], $content),
+        
+        );
+
+        
+            return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
+        }
 
 
 
     protected function prepareBlockContent($type, Request $request)
-{
-    switch ($type) {
-        case 'Equipment':
-            return [
-                'equipment_id' => $request->input('equipment_id'),
-                'name' => $request->input('name'),
-                'status' => $request->input('status')
-            ];
-        case 'Customer':
-            return [
-                'customer_id' => $request->input('customer_id'),
-                'name' => $request->input('name'),
-                'contact' => $request->input('contact')
-            ];
-        case 'Commentary':
-            return [
-                'text' => $request->input('text')
-            ];
-        case 'Media':
-            return [
-                'media_url' => $request->input('media_url'),
-                'caption' => $request->input('caption')
-            ];
-        case 'Files':
-            return [
-                'file_name' => $request->input('file_name'),
-                'file_path' => $request->input('file_path')
-            ];
-        default:
-            return [];
+    {
+        switch ($type) {
+            case 'Equipment':
+                return [
+                    'equipment_id' => $request->input('equipment_id'),
+                    'name' => $request->input('name'),
+                    'status' => $request->input('status')
+                ];
+            case 'Customer':
+                return [
+                    'customer_id' => $request->input('customer_id'),
+                    'name' => $request->input('name'),
+                    'contact' => $request->input('contact')
+                ];
+            case 'commentary':
+                return [
+                    'contragent_id' => $request->input('contragent_id', null),
+                    'equipment_id' => $request->input('equipment_id', null),
+                    'commentary' => $request->input('text'),            
+                ];
+            case 'media':
+                return [
+                    'media_url' => $request->input('media_url'),
+                    'caption' => $request->input('caption')
+                ];
+            case 'files':
+                return [
+                    'file_name' => $request->input('file_name'),
+                    'file_path' => $request->input('file_path')
+                ];
+            default:
+                return [];
+        }
     }
-}
 
 
     public function deleteBlock(Block $block)
     {
         $block->delete();
-        return response()->json(['message' => 'Block deleted']);
+        return redirect()->route('incident.index')->with('success', 'Block deleted successfully.');
     }
 
+    public function saveBlockInfo(Request $request, Block $block)
+    {
+        $type = $block->type;
+
+    
+        $data = $this->prepareBlockContent($type, $request);
+
+        $block->update($data);
+    
+        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
+    }
+    
     public function reorderColumns(Request $request)
     {
         $columns = $request->input('columns');

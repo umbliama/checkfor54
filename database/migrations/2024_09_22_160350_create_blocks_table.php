@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('blocks', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('column_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('column_id')->constrained()->onDelete('cascade');
             $table->string('type');
-            $table->foreignId('contragent_id')->constrained();
-            $table->foreignId('equipment_id')->constrained();
-            $table->text('commentary')->nullable(); 
+            $table->foreignId('contragent_id')->nullable()->constrained()->nullOnDelete(); 
+            $table->foreignId('equipment_id')->nullable()->constrained()->nullOnDelete(); 
+            $table->text('commentary')->nullable();
             $table->integer('position');
         });
         Schema::create('block_subequipment', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('block_id')->constrained()->onDelete('cascade'); // Block reference
-            $table->foreignId('subequipment_id')->constrained('block_subequipment')->onDelete('cascade'); // Sub-equipment reference
+            $table->foreignId('block_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('subequipment_id')->constrained('block_subequipment')->onDelete('cascade'); 
             $table->timestamps();
         });
     }

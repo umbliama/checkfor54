@@ -61,14 +61,19 @@ Route::post('/contragents', [ContragentsController::class,'store'])->name('contr
 Route::delete( '/contragents/delete/{id}', [ContragentsController::class,'destroy'])->name('contragents.destroy');
 Route::get('/contragents/{id}', [ContragentsController::class,'show'])->name('contragents.show');
 
-Route::get('/constructor', [IncidentController::class, 'index']);
-Route::post('/constructor/column', [IncidentController::class, 'createColumn'])->name('constructor.columnCreate');
-Route::delete('/constructor/column/{column}', [IncidentController::class, 'deleteColumn'])->name('constructor.deleteColumn');
-Route::post('/constructor/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
-Route::delete('/constructor/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
-Route::post('/constructor/columns/reorder', [IncidentController::class, 'reorderColumns']);
-Route::post('/constructor/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks']);
-
+Route::prefix('/constructor')->group(function () {
+    Route::get('/', [IncidentController::class, 'index'])->name('constructor.index');
+    
+    Route::post('/column', [IncidentController::class, 'createColumn'])->name('constructor.columnCreate');
+    Route::delete('/column/{column}', [IncidentController::class, 'deleteColumn'])->name('constructor.deleteColumn');
+    Route::post('/columns/reorder', [IncidentController::class, 'reorderColumns'])->name('constructor.reorderColumns');
+    
+    Route::post('/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
+    Route::delete('/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
+    Route::post('/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks'])->name('constructor.reorderBlocks');
+    
+    Route::post('/block/{block}/save', [IncidentController::class, 'saveBlockInfo'])->name('constructor.saveBlock');
+});
 
 Route::get('/services', [ServiceController::class,'index'])->name('services.index');
 Route::post('/services', [ServiceController::class,'store'])->name('services.store');
