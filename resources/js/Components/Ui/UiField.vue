@@ -32,7 +32,7 @@ const stateClasses = computed(() => {
         <input
             v-model="value"
             class="
-                w-full h-12 bg-inherit
+                w-full h-12 bg-inherit outline-0
             "
             type="text"
             v-bind="inpAttrs"

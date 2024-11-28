@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input, button {
+input, button, input:focus, input:focus-visible {
     outline: none;
-    /*border: none;*/
 }
