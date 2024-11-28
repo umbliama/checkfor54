@@ -52,7 +52,6 @@ class IncidentController extends Controller
             $type = $request->input('type');
             $content = $this->prepareBlockContent($type, $request);
             
-            dd($request);
         
             $position = $column->blocks()->max('position') + 1;
         
@@ -91,7 +90,10 @@ class IncidentController extends Controller
                     'commentary' => $request->input('text'),            
                 ];
             case 'mediafiles':
-                return $this->handleMediaUpload($request);
+                return [
+                    'media_file' => $request->file('file'),
+                    'caption' => $request->input('caption', '')
+                ];
             case 'files':
                 return [
                     'file_name' => $request->input('file_name'),
@@ -103,24 +105,24 @@ class IncidentController extends Controller
     }
 
 
-    protected function handleMediaUpload(Request $request)
+    protected function handleFileUpload(Request $request, $folder)
     {
         $request->validate([
-            'media_file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov|max:20480', 
+            'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:20480',
             'caption' => 'nullable|string|max:255',
         ]);
-
-        if ($request->hasFile('media_file')) {
-            $filePath = $request->file('media_file')->store('media', 'public');
+    
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store($folder, 'public');
             return [
-                'media_url' => $filePath,
+                'file_path' => $filePath,
                 'caption' => $request->input('caption', ''),
             ];
         }
-
+    
         return [];
     }
-
+    
 
     public function deleteBlock(Block $block)
     {
