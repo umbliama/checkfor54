@@ -51,6 +51,8 @@ class IncidentController extends Controller
         {
             $type = $request->input('type');
             $content = $this->prepareBlockContent($type, $request);
+            
+            dd($request);
         
             $position = $column->blocks()->max('position') + 1;
         
@@ -88,11 +90,8 @@ class IncidentController extends Controller
                     'equipment_id' => $request->input('equipment_id', null),
                     'commentary' => $request->input('text'),            
                 ];
-            case 'media':
-                return [
-                    'media_url' => $request->input('media_url'),
-                    'caption' => $request->input('caption')
-                ];
+            case 'mediafiles':
+                return $this->handleMediaUpload($request);
             case 'files':
                 return [
                     'file_name' => $request->input('file_name'),
@@ -101,6 +100,25 @@ class IncidentController extends Controller
             default:
                 return [];
         }
+    }
+
+
+    protected function handleMediaUpload(Request $request)
+    {
+        $request->validate([
+            'media_file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov|max:20480', 
+            'caption' => 'nullable|string|max:255',
+        ]);
+
+        if ($request->hasFile('media_file')) {
+            $filePath = $request->file('media_file')->store('media', 'public');
+            return [
+                'media_url' => $filePath,
+                'caption' => $request->input('caption', ''),
+            ];
+        }
+
+        return [];
     }
 
 

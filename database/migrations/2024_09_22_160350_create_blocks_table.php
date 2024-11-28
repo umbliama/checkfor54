@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('type');
             $table->foreignId('contragent_id')->nullable()->constrained()->nullOnDelete(); 
             $table->foreignId('equipment_id')->nullable()->constrained()->nullOnDelete(); 
+            $table->string('media_url')->nullable();
+            $table->string('caption')->nullable();
             $table->text('commentary')->nullable();
             $table->integer('position');
         });
