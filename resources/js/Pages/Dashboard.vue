@@ -41,7 +41,7 @@ onMounted(() => {
                             <li @click="updateActive('rent')">
                                 <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline"
                                     aria-current="page">В
-                                    аренде</a>  
+                                    аренде</a>
                             </li>
                             <li>
                                 <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline">Свободно</a>
