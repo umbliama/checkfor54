@@ -23,6 +23,7 @@
         "@inertiajs/inertia-vue3": "^0.6.0",
         "apexcharts": "^3.54.0",
         "flowbite": "^2.5.2",
+        "radix-vue": "^1.9.10",
         "vue-router": "^4.4.4",
         "vue3-apexcharts": "^1.6.0",
         "vuex": "^4.1.0"

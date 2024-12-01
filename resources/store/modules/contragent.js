@@ -2,7 +2,7 @@ export default {
     namespaced: true,
     state: () => ({
         createdContragentID: null,
-        sortBy:"",
+        sortBy:"name",
         sortOrder:'asc',
         formData: {
             agentTypeLegal: "",
@@ -45,7 +45,7 @@ export default {
             state.sortBy = value
         },
         setSortOrder:(state, value) => {
-        state.sortOrder = value  
+        state.sortOrder = value
         },
         setAvatar: (state,value) => {
             state.formData.avatar = value
@@ -75,7 +75,7 @@ export default {
         },
         updateAvatar({commit}, payload) {
             commit('setAvatar', payload)
-        },  
+        },
         updateOpenDropdown({commit}, payload) {
             commit('setOpenDropdown',payload)
         },
