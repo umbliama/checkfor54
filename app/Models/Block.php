@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Block extends Model
 {
-    protected $fillable = ['column_id', 'type', 'commentary', 'position','contragent_id','equipment_id'];
+    protected $fillable = ['column_id', 'type', 'commentary', 'media_url', 'position','contragent_id','equipment_id'];
 
     protected $casts = [
         'content' => 'array',

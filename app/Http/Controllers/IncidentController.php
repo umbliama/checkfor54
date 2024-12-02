@@ -17,9 +17,9 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $columns = Column::with('blocks.equipment.category','blocks.equipment.size','blocks.contragent')
-        ->orderBy('position')
-        ->paginate(10);
+        $columns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')
+            ->paginate(10);
         $contragents = Contragents::all();
 
 
@@ -31,10 +31,10 @@ class IncidentController extends Controller
     {
         $position = Column::max('position') + 1;
         $column = Column::create(['position' => $position]);
-        foreach (User::all() as $user){
+        foreach (User::all() as $user) {
             Notification::create([
                 'type' => 'Создана новая колонка',
-                'data' => ['position'=>$position],
+                'data' => ['position' => $position],
                 'user_id' => $user->id
             ]);
         }
@@ -47,52 +47,65 @@ class IncidentController extends Controller
         return redirect()->route('incident.index')->with('success', 'Column deleted successfully.');
     }
 
-        public function createBlock(Request $request, Column $column)
-        {
-            $type = $request->input('type');
-            $content = $this->prepareBlockContent($type, $request);
-            
-        
-            $position = $column->blocks()->max('position') + 1;
-        
-            $block = $column->blocks()->create(array_merge([
+    public function createBlock(Request $request, Column $column)
+    {
+        $type = $request->input('type');
+        $content = $this->prepareBlockContent($type, $request);
+
+        $position = $column->blocks()->max('position') + 1;
+
+
+        $block = $column->blocks()->create(
+            array_merge([
                 'type' => $type,
                 'position' => $position,
             ], $content),
-        
+
         );
 
-        
-            return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
-        }
+
+        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
+    }
 
 
 
     protected function prepareBlockContent($type, Request $request)
     {
         switch ($type) {
-            case 'Equipment':
+            case 'equipment':
                 return [
                     'equipment_id' => $request->input('equipment_id'),
                     'name' => $request->input('name'),
                     'status' => $request->input('status')
                 ];
-            case 'Customer':
+            case 'customer':
                 return [
-                    'customer_id' => $request->input('customer_id'),
-                    'name' => $request->input('name'),
-                    'contact' => $request->input('contact')
+                    'contragent_id' => $request->input('contragent_id'),
                 ];
             case 'commentary':
                 return [
                     'contragent_id' => $request->input('contragent_id', null),
                     'equipment_id' => $request->input('equipment_id', null),
-                    'commentary' => $request->input('text'),            
+                    'commentary' => $request->input('text'),
                 ];
             case 'mediafiles':
+                if ($request->hasFile('media_file')) {
+                    // Handle media file upload
+                    $mediaFile = $request->file('media_file');
+                    $fileName = time() . '.' . $mediaFile->getClientOriginalExtension();
+                    $mediaFile->move(public_path('media_files'), $fileName);
+
+                    // Return media URL and caption
+                    return [
+                        'media_url' => 'media_files/' . $fileName,
+                        'caption' => $request->input('caption', ''),
+                    ];
+                }
+
+                // If no file is uploaded
                 return [
-                    'media_file' => $request->file('file'),
-                    'caption' => $request->input('caption', '')
+                    'media_url' => null,
+                    'caption' => $request->input('caption', ''),
                 ];
             case 'files':
                 return [
@@ -111,7 +124,7 @@ class IncidentController extends Controller
             'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:20480',
             'caption' => 'nullable|string|max:255',
         ]);
-    
+
         if ($request->hasFile('file')) {
             $filePath = $request->file('file')->store($folder, 'public');
             return [
@@ -119,10 +132,10 @@ class IncidentController extends Controller
                 'caption' => $request->input('caption', ''),
             ];
         }
-    
+
         return [];
     }
-    
+
 
     public function deleteBlock(Block $block)
     {
@@ -134,14 +147,14 @@ class IncidentController extends Controller
     {
         $type = $block->type;
 
-    
+
         $data = $this->prepareBlockContent($type, $request);
 
         $block->update($data);
-    
+
         return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
     }
-    
+
     public function reorderColumns(Request $request)
     {
         $columns = $request->input('columns');
