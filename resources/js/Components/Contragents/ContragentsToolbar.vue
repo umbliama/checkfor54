@@ -2,7 +2,7 @@
 import store from '../../../store/';
 import { computed } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -11,6 +11,11 @@ import {
   DropdownMenuTrigger,
 } from 'radix-vue'
 import UiField from "@/Components/Ui/UiField.vue";
+const page = usePage()
+
+
+const user = computed(() => page.props.auth.user)
+
 
 const $props = defineProps({
     contragentsCount: Number,
@@ -63,7 +68,7 @@ const updateMenuLink = (link) => {
                         {{ $props.contragentsSupplierCount }}
                     </span>
                 </li>
-                <li class="border-b-2 border-transparent py-3 cursor-pointer text-[#A2A9B0]">Admin</li>
+                <li v-if="user.isAdmin" class="border-b-2 border-transparent py-3 cursor-pointer text-[#A2A9B0]"> <a :href="route('admin.index')" >Admin</a> </li>
                 <li>
                     <DropdownMenuRoot>
                         <DropdownMenuTrigger

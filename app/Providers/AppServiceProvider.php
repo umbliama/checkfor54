@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             // Always share the authenticated user
             'user' => function () {
-                return Auth::user() ? Auth::user()->only('id', 'name', 'email') : null;
+                return Auth::user() ? Auth::user()->only('id', 'name', 'email', 'isAdmin') : null;
             },
             // You can also share flash messages or errors
             'flash' => function () {

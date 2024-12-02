@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import store from '../../../store/index';
@@ -15,6 +15,12 @@ const props = defineProps({
   count_services_inactive: Number,
   formatted_data_months: Object
 })
+
+const page = usePage()
+
+const user = computed(() => page.props.auth.user)
+
+
 
 const minusYear = () => {
   store.dispatch('services/updateDecSelectedYear')
