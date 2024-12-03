@@ -88,30 +88,46 @@ class IncidentController extends Controller
                     'equipment_id' => $request->input('equipment_id', null),
                     'commentary' => $request->input('text'),
                 ];
-            case 'mediafiles':
-                if ($request->hasFile('media_file')) {
-                    // Handle media file upload
-                    $mediaFile = $request->file('media_file');
-                    $fileName = time() . '.' . $mediaFile->getClientOriginalExtension();
-                    $mediaFile->move(public_path('media_files'), $fileName);
-
-                    // Return media URL and caption
+                case 'mediafiles':
+                    if ($request->hasFile('media_file')) {
+                        $uploadedFiles = $request->file('media_file');
+                        $mediaUrls = [];
+                
+                        foreach ($uploadedFiles as $mediaFile) {
+                            $fileName = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
+                            $mediaFile->move(public_path('media_files'), $fileName);
+                            $mediaUrls[] = 'media_files/' . $fileName;
+                        }
+                
+                        return [
+                            'media_url' => $mediaUrls, 
+                        ];
+                    }
+                
                     return [
-                        'media_url' => 'media_files/' . $fileName,
-                        'caption' => $request->input('caption', ''),
+                        'media_url' => [],
                     ];
-                }
-
-                // If no file is uploaded
-                return [
-                    'media_url' => null,
-                    'caption' => $request->input('caption', ''),
-                ];
-            case 'files':
-                return [
-                    'file_name' => $request->input('file_name'),
-                    'file_path' => $request->input('file_path')
-                ];
+                                
+                    case 'files':
+                        if ($request->hasFile('files')) {
+                            $uploadedFiles = $request->file('files');
+                            $fileUrls = [];
+                    
+                            foreach ($uploadedFiles as $file) {
+                                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                                $file->move(public_path('files'), $fileName);
+                                $fileUrls[] = 'files/' . $fileName;
+                            }
+                    
+                            return [
+                                'file_url' => $fileUrls, 
+                            ];
+                        }
+                    
+                        return [
+                            'file_url' => [],
+                        ];
+                                    
             default:
                 return [];
         }
@@ -146,15 +162,17 @@ class IncidentController extends Controller
     public function saveBlockInfo(Request $request, Block $block)
     {
         $type = $block->type;
-
-
+    
         $data = $this->prepareBlockContent($type, $request);
-
-        $block->update($data);
-
+    
+        $block->update([
+            'media_url' => $data['media_url'] ?? $block->media_url, 
+            'file_url' => $data['file_url'] ?? $block->file_url,    
+            'commentary' => $request->input('text', $block->commentary), 
+        ]);
+    
         return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
     }
-
     public function reorderColumns(Request $request)
     {
         $columns = $request->input('columns');
