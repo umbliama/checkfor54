@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Column extends Model
 {
-    protected $fillable = ['name', 'position'];
+    protected $fillable = ['name', 'position', 'isArchive'];
 
     // Each column has many blocks
     public function blocks(): HasMany

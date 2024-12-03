@@ -27,6 +27,18 @@ class IncidentController extends Controller
         return Inertia::render('Incident/Index', ['columns' => $columns, 'contragents' => $contragents]);
     }
 
+    public function history()
+    {
+        $columns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')->where('isArchive',1)
+            ->paginate(10);
+        $contragents = Contragents::all();
+
+
+
+        return Inertia::render('Incident/History', ['archivedColumns' => $columns, 'contragents' => $contragents]);
+    }
+
     public function createColumn()
     {
         $position = Column::max('position') + 1;
@@ -39,6 +51,15 @@ class IncidentController extends Controller
             ]);
         }
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
+    }
+
+    public function archiveColumn(Column $column)
+    {
+        $column->isArchive = 1;
+
+        $column->save();
+
+        return redirect()->back()->with('success', 'Column archived successfully.');
     }
 
     public function deleteColumn(Column $column)

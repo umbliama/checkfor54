@@ -1,4 +1,5 @@
 <script setup>
+
 import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
@@ -7,6 +8,10 @@ import { computed, reactive, ref } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 import store from '../../../store/index';
 
+const props = defineProps({
+    archivedColumns:Object
+})
+
 
 const page = usePage()
 
@@ -14,65 +19,8 @@ const user = computed(() => page.props.auth.user)
 
 
 
-const modalShown = computed(() => store.getters['services/getModalShown']);
-
-const props = defineProps({
-  columns: Array,
-  blocks: Array,
-  contragents: Array
-})
-
-
-const showModal = (value) => {
-  store.dispatch('services/updateModalShown', value)
-}
-
-
-const form = reactive({
-  mediaFile: null,
-  mediaCaption:null,
-  chosenAgent: null,
-  equipmentCategory:null,
-  equipmentSeries:null,
-  equipmentSize:null,
-  files:null
-})
-
-const createColumn = () => {
-  axios.post('const')
-}
-
-
-const createBlock = (columnId, type) => {
-  router.post(`/constructor/column/${columnId}/block`, { type })
-}
-
-
-
-const handleMediaFileUpload = (event) => {
-  const files = event.target.files;
-  form.mediaFile = Array.from(files)
-
-};
-const handleFileUpload = (event) => {
-  const files = event.target.files;
-  form.files = Array.from(files)
-
-};
-
-
-const saveBlock = async (blockId, blockData) => {
-  console.log(blockData)
-  try {
-    const response = await router.post(`constructor/block/${blockId}/save`, blockData);
-    console.log(response);
-  } catch (error) {
-    console.error('Error saving block:', error);
-  }
-}
-
 </script>
-
+    
 <template>
   <div class="flex">
     <!-- Sidebar placeholder -->
@@ -143,7 +91,7 @@ const saveBlock = async (blockId, blockData) => {
       </nav>
       <!-- Cards Layout -->
       <div class="grid grid-cols-3 mt-3 gap-4">
-        <div v-for="column in columns.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
+        <div v-for="column in archivedColumns.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
           <div class="flex items-center justify-between">
             <h3>Хронология</h3>
             <Link @click="toggleDropdown">

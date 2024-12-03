@@ -68,6 +68,7 @@ Route::prefix('/constructor')->group(function () {
     Route::post('/column', [IncidentController::class, 'createColumn'])->name('constructor.columnCreate');
     Route::delete('/column/{column}', [IncidentController::class, 'deleteColumn'])->name('constructor.deleteColumn');
     Route::post('/columns/reorder', [IncidentController::class, 'reorderColumns'])->name('constructor.reorderColumns');
+    Route::put('/columns/{column}', [IncidentController::class,'archiveColumn'])->name('constructor.archiveColumn');
     
     Route::post('/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
     Route::delete('/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
@@ -84,6 +85,7 @@ Route::put('/services/{service}', [ServiceController::class, 'update'])->name('s
 Route::delete('/services/delete/{id}', [ServiceController::class,'destroy'])->name('services.destroy');
 Route::post('/services/createIncident/{id}', [ServiceController::class,'createIncident'])->name('services.createIncident');
 Route::get('/incident', [IncidentController::class,'index'])->name('incident.index');
+Route::get('/incident/history', [IncidentController::class,'history'])->name('incident.history');
 
 Route::get('/notifications', [NotificationController::class,'index'])->name('notification.index');
 
