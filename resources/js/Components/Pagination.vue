@@ -96,7 +96,6 @@ defineExpose({ resetPage });
                 <SelectRoot v-model="perPageValue">
                     <SelectTrigger
                         class="inline-flex items-center"
-                        aria-label="Customise options"
                     >
                         <SelectValue />
 
