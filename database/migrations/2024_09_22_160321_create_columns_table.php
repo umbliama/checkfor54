@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('columns', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('name')->nullable(); // Name of the column (optional)
-            $table->integer('position'); // For ordering columns
+            $table->string('name')->nullable(); 
+            $table->integer('position'); 
+            $table->boolean('isArchive')->default(0);
+            $table->enum('type', ['adv','tasks']);
         });
     }
 
