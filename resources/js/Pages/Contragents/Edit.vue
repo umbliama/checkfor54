@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, defineProps, useAttrs } from 'vue'
+import { reactive, defineProps, useAttrs, ref, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import SideMenu from '@/Layouts/SideMenu.vue';
 import { Switch } from '@headlessui/vue';
@@ -8,6 +8,9 @@ import store from '../../../store';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import FormSuccess from '@/Components/FormSuccess.vue';
 import FormError from '@/Components/FormError.vue';
+// import contragent from 'resources/store/modules/contragent';
+import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
+import ContragentsCreateOrEditForm from '@/Components/Contragents/ContragentsCreateOrEditForm.vue';
 
 const updateContrAgentID = (id) => {
     store.dispatch('contragent/updateCreatedContragentID', id)
@@ -15,13 +18,24 @@ const updateContrAgentID = (id) => {
 
 const page = usePage()
 
+const mobile_nav_items = [
+    { title: 'Просмотр', value: 'show'  },
+    { title: 'Профиль' , value: 'profile'  },
+    { title: 'Банк'    , value: 'bank'     },
+    { title: 'Контакты', value: 'contacts' }
+];
+
+const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
+
+const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item=>item.value===getActiveTab.value) } : { ...mobile_nav_items[0] });
 
 const success = computed(() => page.props.flash.success)
 
 
 const props = defineProps({
     contragent: Object
-})
+});
+
 const form = reactive({
     agentTypeLegal: props.contragent.agentTypeLegal || null,
     country: props.contragent.country || null,
@@ -54,8 +68,16 @@ const form = reactive({
     contact_person_commentary: props.contragent.contact_person_commentary || null,
     status: !!props.contragent.status,
     avatar: null
-})
+});
 
+watch(contragent_navigation, new_val => {
+    if (new_val.value === 'show') {
+        router.visit(route('contragents.show', props.contragent.id));
+        return;
+    }
+    
+    setTab(new_val.value);
+});
 
 
 function updateForm() {
@@ -145,17 +167,26 @@ function onFileChange(event) {
 const setTab = (tab) => {
     store.dispatch('contragent/updateActiveTab', tab);
 }
-
-const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
 </script>
 
 
 <template>
-    <AuthenticatedLayout>
-        <div class="">
+    <AuthenticatedLayout bg="gray">
+        <div class="p-4 lg:p-6">
+            <div class="flex items-center justify-between pb-6">
+                <h2 class="font-semibold text-2xl">Редактировать контрагента</h2>
+                <UiFieldSelect
+                    v-model="contragent_navigation"
+                    :items="mobile_nav_items"
+                    class="min-w-44 ml-3 lg:hidden"
+                />
+            </div>
 
+            <ContragentsCreateOrEditForm :contragent="props.contragent" />
+        </div>
+        
+        <!-- <div class="">
             <div class="flex sm:flex-col bg-my-gray">
-                <!-- Insert your sidebar component here -->
                 <div class="flex flex-col mt-5">
                     <div class="sm:flex sm:justify-between sm:p-4">
                         <h2 class="lg:block md:block sm:hidden font-semibold text-xl ml-4  mb-4">Добавить контрагента
@@ -224,19 +255,12 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                             </div>
                         </div>
 
-                        <!-- Main Form -->
                         <div class="lg:w-3/4 sm:w-full sm:p-4 sm:pb-20 shadow-lg">
-                            <!-- Logo upload section -->
                             <div class="flex flex-col">
-
                                 <div class="flex flex-col bg-white w-full">
                                     <h3 class="text-xl font-bold font-roboto p-4">Логотип</h3>
-
                                     <div class="flex items-start space-x-8 p-6 bg-white w-full">
-
-                                        <!-- Avatar and Upload/Delete Buttons -->
                                         <div class="flex items-center space-x-6">
-                                            <!-- Avatar -->
                                             <div v-if="contragent.avatar" class="">
                                                 <img class="max-w-[80px] rounded-full" :src="'/'+contragent.avatar" alt="">
 
@@ -252,7 +276,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
 
                                             </div>
 
-                                            <!-- Upload/Delete Buttons -->
                                             <div class="flex flex-col">
                                                 <label class="font-robotoBold font-bold border-2 border-black px-8 py-3"
                                                     for="files">Загрузить</label>
@@ -264,10 +287,8 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                             </div>
                                         </div>
 
-                                        <!-- Divider -->
                                         <div class="lg:block md:block sm:hidden border-l border-gray-300 h-20"></div>
 
-                                        <!-- Requirements Text -->
                                         <div class="lg:block md:block sm:hidden text-lg text-gray-700">
                                             <p class="font-roboto" >Требования к изображению:</p>
                                             <ul class="list-disc ml-5">
@@ -278,7 +299,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     </div>
                                 </div>
 
-                                <!-- Bank information -->
                                 <div v-if="getActiveTab == 'profile'" class="bg-white mt-3 p-3">
                                     <h3 class="font-bold font-robotoBold text-lg mb-4">Информация о компании:</h3>
 
@@ -295,7 +315,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                                 <option value="PAO">ПАО</option>
                                                 <option value="individual">Физ.лицо</option>
                                             </select>
-                                            <!-- <p v-if="errors.agentTypeLegal" class="text-red-500 text-sm mt-1">{{ errors.agentTypeLegal }}</p> -->
 
                                         </div>
                                         <div class="lg:col-span-1 sm:col-span-2">
@@ -402,7 +421,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     <h3 class="font-bold font-robotoBold text-lg mb-4">Контакты</h3>
 
                                     <div class="grid grid-cols-3 gap-4">
-                                        <!-- 1 колонка, растягивается на 3 колонки -->
                                         <div class="col-span-3 sm:col-span-4">
                                             <label class="block font-roboto text-gray-700">Адрес*</label>
                                             <input @blur="updateForm" v-model="form.address" type="text"
@@ -410,7 +428,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                                 placeholder="Отделение Банка № 1234 ПАО Жулики">
                                         </div>
 
-                                        <!-- 3 колонки -->
                                         <div class="sm:col-span-4">
                                             <label class="block font-roboto text-gray-700">Сайт *</label>
                                             <input @blur="updateForm" v-model="form.site"
@@ -430,7 +447,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
 
 
                                     <div class="grid grid-cols-4 gap-4">
-                                        <!-- 2 колонки -->
                                         <div class="sm:col-span-4 col-span-2">
                                             <label class="block font-roboto text-gray-700">Контактное лицо</label>
                                             <input @blur="updateForm" v-model="form.contact_person" type="text"
@@ -442,7 +458,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                                 class="w-full mt-2 p-2 border rounded" placeholder="1234567890">
                                         </div>
 
-                                        <!-- 2 колонки -->
                                         <div class="col-span-2 sm:col-span-4">
                                             <label class="block font-roboto text-gray-700">Эл.почта</label>
                                             <input @blur="updateForm" v-model="form.contact_person_email" type="text"
@@ -454,7 +469,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                                 class="w-full mt-2 p-2 border rounded" placeholder="Примечание">
                                         </div>
 
-                                        <!-- 2 колонки -->
                                         <div class="col-span-4">
                                             <label class="block font-roboto text-gray-700">Комментарий</label>
                                             <textarea @blur="updateForm" v-model="form.contact_person_commentary"
@@ -495,7 +509,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                                     placeholder="Заключен договор поставки оборудования"></textarea>
                             </div>
 
-                            <!-- Save button -->
                             <div class="mt-6 flex justify-end">
                                 <button @click="submit"
                                     class="bg-blue-500 font-roboto text-white px-6 py-2 rounded-md">Сохранить</button>
@@ -510,6 +523,6 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
             </div>
 
 
-        </div>
+        </div> -->
     </AuthenticatedLayout>
 </template>

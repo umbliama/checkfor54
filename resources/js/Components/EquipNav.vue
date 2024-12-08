@@ -77,9 +77,9 @@ onMounted(() => {
         <nav class="bg-my-gray ">
             <div class="max-w-screen-xl px-4 py-3">
                 <div
-                    class="lg:py-4 sm:py-8 lg:overflow-y-visible lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto sm:overflow-x-auto  items-center">
+                    class="lg:py-4 sm:py-8 lg:overflow-y-visible lg:overflow-x-visible sm:overflow-y-auto sm:overflow-x-auto  items-center">
                     <ul
-                        class="flex flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
+                        class="flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
                         <li @click="setMenuItem(EquipMenuItems.REPORT)"
                             :class="{ 'border-b-2 border-blue-600 text-blue-600': menuActive === EquipMenuItems.REPORT }">
                             <div class="flex">

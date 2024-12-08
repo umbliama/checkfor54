@@ -6,6 +6,11 @@ input, button, input:focus, input:focus-visible {
     outline: none;
 }
 
+.content-block {
+  background-color: #fff;
+  border: 1px solid #DDE1E6;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

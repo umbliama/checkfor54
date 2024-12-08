@@ -154,7 +154,7 @@ const updateMenuLink = (link) => {
             </ul>
 
             <form class="w-full mt-6 lg:w-[280px] lg:mt-0">
-                <ui-field class="w-full bg-white" :inp-attrs="{ placeholder: 'Поиск' }">
+                <UiField class="w-full" :inp-attrs="{ placeholder: 'Поиск', class: 'bg-white' }">
                     <template #prepend>
                         <button type="submit">
                             <svg class="w-4 h-4" aria-hidden="true"
@@ -164,7 +164,7 @@ const updateMenuLink = (link) => {
                             </svg>
                         </button>
                     </template>
-                </ui-field>
+                </UiField>
             </form>
         </div>
 <!--                <form

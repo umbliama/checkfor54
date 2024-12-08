@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible"
-    class="fixed top-0 left-0 w-full bg-red-500 text-white p-4 shadow-lg transform transition-transform translate-y-0"
+    class="fixed top-0 left-0 w-full bg-red-500 text-white p-4 shadow-lg transform transition-transform translate-y-0 z-20"
     role="alert">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <span class="font-bold">Ошибка:</span>

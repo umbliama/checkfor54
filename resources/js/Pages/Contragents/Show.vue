@@ -16,10 +16,13 @@ const props = defineProps({
 });
 
 const mobile_nav_items = [
-    { title: 'Просмотр'     , value: route('contragents.show', props.contragent.id) },
-    { title: 'Редактировать', value: route('contragents.edit', props.contragent.id) },
-    { title: 'Добавить'     , value: route('contragents.create') }
+    { title: 'Просмотр', value: route('contragents.show', props.contragent.id), tab_name: null       },
+    { title: 'Профиль' , value: route('contragents.edit', props.contragent.id), tab_name: 'profile'  },
+    { title: 'Банк'    , value: route('contragents.edit', props.contragent.id), tab_name: 'bank'     },
+    { title: 'Контакты', value: route('contragents.edit', props.contragent.id), tab_name: 'contacts' }
 ];
+
+const getActiveTab = computed(() => store.getters["contragent/getActiveTab"]);
 
 const contragent_navigation = ref({ ...mobile_nav_items[0] });
 
@@ -58,10 +61,9 @@ const form = reactive({
     avatar: props.contragent.avatar || null,
 });
 
-const getActiveTab = computed(() => store.getters["contragent/getActiveTab"]);
-
 watch(contragent_navigation, new_val => {
     router.visit(new_val.value);
+    if (new_val.tab_name) setTab(new_val.tab_name);
 });
 
 const navigateToRoute = (event) => {
@@ -173,10 +175,11 @@ const setTab = (tab) => { store.dispatch("contragent/updateActiveTab", tab); };
                 <UiFieldSelect
                     v-model="contragent_navigation"
                     :items="mobile_nav_items"
+                    class="min-w-44 ml-3 lg:hidden"
                 />
             </div>
             <div class="space-y-4">
-                <div class="flex items-start p-4 border border-[#DDE1E6] bg-white lg:items-center lg:p-6">
+                <div class="flex items-start p-4 lg:items-center lg:p-6 content-block">
                     <UiUserAvatar :image="contragent.avatar" :size="{ pc: '96px', mob: '80px' }" />
 
                     <div class="grow flex flex-col items-start justify-between ml-4 lg:flex-row lg:items-center lg:ml-6">
@@ -198,7 +201,7 @@ const setTab = (tab) => { store.dispatch("contragent/updateActiveTab", tab); };
 
                 <div
                     v-if="contragent.customer == 1 || contragent.supplier == 1 || contragent.status == 1"
-                    class="flex space-x-4 py-2 px-4 text-sm border border-[#DDE1E6] bg-white"
+                    class="flex space-x-4 py-2 px-4 text-sm content-block"
                 >
                     <p
                         v-if="contragent.customer == 1"
@@ -220,12 +223,12 @@ const setTab = (tab) => { store.dispatch("contragent/updateActiveTab", tab); };
                     </p>
                 </div>
 
-                <div v-if="contragent.reason" class="py-2 px-4 text-sm border border-[#DDE1E6] bg-white ">
+                <div v-if="contragent.reason" class="py-2 px-4 text-sm content-block">
                     <span class="text-gray-400">Причина:</span>
                     {{ contragent.reason }}
                 </div>
 
-                <div class="p-3 text-sm border border-[#DDE1E6] bg-white">
+                <div class="p-3 text-sm content-block">
                     <h3 class="font-bold text-lg">Информация о компании:</h3>
 
                     <div class="mt-6 space-y-4">
@@ -255,7 +258,7 @@ const setTab = (tab) => { store.dispatch("contragent/updateActiveTab", tab); };
                         </div>
                     </div>
                 </div>
-                <div class="p-3 text-sm border border-[#DDE1E6] bg-white">
+                <div class="p-3 text-sm content-block">
                     <h3 class="font-bold text-lg">Банковские реквизиты:</h3>
 
                     <div class="mt-6 space-y-4">
@@ -289,7 +292,7 @@ const setTab = (tab) => { store.dispatch("contragent/updateActiveTab", tab); };
                         </div>
                     </div>
                 </div>
-                <div class="p-3 text-sm border border-[#DDE1E6] bg-white">
+                <div class="p-3 text-sm content-block">
                     <h3 class="font-bold text-lg">
                         Контакты:
                     </h3>
