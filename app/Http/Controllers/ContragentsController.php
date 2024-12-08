@@ -137,7 +137,9 @@ class ContragentsController extends Controller
     public function edit($id)
     {
         $contragent = Contragents::findOrFail($id);
-        return Inertia::render('Contragents/Edit', ['contragent' => $contragent]);
+        $countries = Contragents::getCountryMapping();
+        $legalStatuses = Contragents::getLegalMapping();
+        return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries ]);
     }
 
     public function update(Request $request, $id)
