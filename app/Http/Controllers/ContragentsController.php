@@ -72,8 +72,9 @@ class ContragentsController extends Controller
     public function create()
     {
         $countries = Contragents::getCountryMapping();
+        $legalStatuses = Contragents::getLegalMapping();
 
-        return Inertia::render('Contragents/Create',['countries' => $countries]);
+        return Inertia::render('Contragents/Create',['countries' => $countries, 'legalStatuses' => $legalStatuses]);
     }
 
 
