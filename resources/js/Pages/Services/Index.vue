@@ -613,8 +613,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
               <div class="" v-if="service.subservices.length > 0">
                 <div v-for="subservice in service.subservices" :key="subservice.id"
                   class="grid whitespace-nowrap grid-cols-11 gap-52 bg-gray-50 py-2 rounded-md">
-                  <div>{{ service.equipment_info.category.name }} {{ service.equipment_info.size.name }} {{
-                    service.equipment_info.series }}</div>
+                  <div>{{ subservice.equipment.category.name }} {{ subservice.equipment.size.name }} {{
+                    subservice.equipment.series }}</div>
                   <div>{{ service.shipping_date ?? "Не задано" }}</div>
                   <div>{{ service.commentary ?? "Не задано" }}</div>
                   <div>{{ service.income ?? "Не задано" }}</div>

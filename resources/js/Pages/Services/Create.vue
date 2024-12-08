@@ -96,9 +96,9 @@ const form = reactive({
 
 function submit() {
   const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
-    return sub.subequipment_id && sub.shipping_date && sub.period_start_date && sub.commentary;  // Add conditions for required fields
+    return sub.subequipment_id && sub.shipping_date && sub.period_start_date && sub.commentary;  
   });
-  console.log(selectedSubEquipmentArray)
+  console.log(cleanedSubEquipment)
   router.post('/services', {
     equipment_id: form.equipment_id,
     contragent_id: form.contragent_id,
