@@ -59,8 +59,8 @@ const mobile_nav_items = [
 const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item=>item.value===getActiveTab.value) } : { ...mobile_nav_items[0] });
 
 const form = reactive({
-    agentTypeLegal: { ...legal_status_list.value.find(l=>l.value===props.contragent?.agentTypeLegal) } || null,
-    country: { ...country_list.value.find(l=>l.value===props.contragent?.country) } || null,
+    agentTypeLegal: { ...(legal_status_list.value.find(l=>l.value===props.contragent?.agentTypeLegal) || legal_status_list?.value[0]) },
+    country: { ...(country_list.value.find(l=>l.value===props.contragent?.country) || country_list?.value[0]) },
     name: props.contragent?.name || null,
     fullname: props.contragent?.fullname || null,
     inn: props.contragent?.inn || null,
