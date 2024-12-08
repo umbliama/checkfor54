@@ -68,7 +68,8 @@ const form = reactive({
 
 const props = defineProps({
     equipment_categories: Array,
-    equipment_sizes: Array
+    equipment_sizes: Array,
+    legalStatuses: Object
 });
 
 watch(contragent_navigation, new_val => {
