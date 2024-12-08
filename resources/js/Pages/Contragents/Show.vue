@@ -15,6 +15,7 @@ const updateContrAgentID = (id) => {
 
 const props = defineProps({
     contragent: Object,
+    legalStatuses: Object
 });
 
 const mobile_nav_items = [
