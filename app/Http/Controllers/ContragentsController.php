@@ -32,7 +32,6 @@ class ContragentsController extends Controller
         $contragents_customer_count = Contragents::where('customer', 1)->count();
         $contragents_supplier_count = Contragents::where('supplier', 1)->count();
 
-        // Format the country attribute for each contragent
         $contragents->getCollection()->transform(function ($contragent) {
             return $contragent->append('formatted_country');
         });
@@ -189,7 +188,8 @@ class ContragentsController extends Controller
     public function show($id)
     {
         $contragent = Contragents::findOrFail($id);
-        
+        $contragent->append('formatted_country');
+
         $countries = Contragents::getCountryMapping();
 
         return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries]);
