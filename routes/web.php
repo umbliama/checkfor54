@@ -92,6 +92,7 @@ Route::get('/notifications', [NotificationController::class,'index'])->name('not
 
 Route::get('/sale', [SaleController::class,'index'])->name('sale.index');
 Route::get('/sale/create', [SaleController::class,'create'])->name('sale.create');
+Route::post('/sales', [SaleController::class,'store'])->name('sale.store');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

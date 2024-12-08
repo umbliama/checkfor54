@@ -15,4 +15,14 @@ class SaleSub extends Model
         'commentary',
         'price'
     ];
+
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class, 'id', 'sale_number');
+    }
+
+    public function equipment()
+    {
+    return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); 
+    }
 }

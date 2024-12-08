@@ -46,6 +46,17 @@ const updateByKey = (index, field, value) => {
 const showModal = (value) => {
   store.dispatch('services/updateModalShown', value)
 }
+const form = reactive({
+  contragent_id: null,
+  shipping_date: null,
+  sale_number: null,
+  sale_date: null,
+  commentary: null,
+  status: null,
+  price: null,
+  equipment_id: selectedEquipment,
+})
+
 
 watch(selectedEquipment, async (newValue, oldValue) => {
   if (newValue) {
@@ -76,43 +87,20 @@ watch(subEquipmentArray, async (newValue, oldValue) => {
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
 
-
-const form = reactive({
-  contragent_id: null,
-  shipping_date: null,
-  service_number: null,
-  service_date: null,
-  period_start_date: null,
-  return_date: null,
-  period_end_date: null,
-  store: null,
-  operating: null,
-  return_reason: null,
-  active: null,
-  income: null,
-  equipment_id: selectedEquipment,
-
-})
-
 function submit() {
   const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
-    return sub.subequipment_id && sub.shipping_date && sub.period_start_date && sub.commentary;  // Add conditions for required fields
+    return sub.subequipment_id && sub.shipping_date && sub.price && sub.commentary 
   });
-  console.log(selectedSubEquipmentArray)
-  router.post('/services', {
+  console.log(cleanedSubEquipment)
+  router.post('/sales', {
     equipment_id: form.equipment_id,
     contragent_id: form.contragent_id,
     shipping_date: form.shipping_date,
-    service_number: form.service_number,
-    service_date: form.service_date,
-    period_start_date: form.period_start_date,
-    return_date: form.return_date,
-    period_end_date: form.period_end_date,
-    store: form.store,
-    operating: form.operating,
-    return_reason: form.return_reason,
-    active: form.active,
-    income: form.income,
+    sale_number:form.sale_number,
+    sale_date:form.sale_date,
+    commentary:form.commentary,
+    status:form.status,
+    price: form.price,
     subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment))
   })
 }
@@ -192,7 +180,7 @@ function submit() {
                 <label class="items-center mr-2" for="rent_num">Номер продажи:</label>
 
                 <!-- SVG Icon -->
-                <input v-model="form.service_number" id="rent_num"
+                <input v-model="form.sale_number" id="rent_num"
                   class="w-full bg-input-gray rounded-lg border-none border-gray-200" placeholder="№" type="text">
 
 
@@ -201,21 +189,25 @@ function submit() {
                   <div class="flex mx-3">
                     <!-- SVG Icon -->
                   </div>
-                  <input v-model="form.service_date" id="rent_date" class="w-full  bg-input-gray border-none rounded-lg"
+                  <input v-model="form.sale_date" id="rent_date" class="w-full  bg-input-gray border-none rounded-lg"
                     type="date" placeholder="Дата">
                 </div>
               </div>
 
 
               <div class="flex items-center flex-4">
-                <label class="" for="rent_status">Статус</label>
+                <label class="" for="status">Статус</label>
                 <div class="flex mx-3">
                   <!-- SVG Icon -->
                 </div>
-                <select v-model="form.active" id="rent_status" class="w-full bg-input-gray  rounded-lg border-none">
+                <select v-model="form.status" id="status" class="w-full bg-input-gray  rounded-lg border-none">
                   <option value="">Выберите</option>
-                  <option value="0">Не активна</option>
-                  <option value="1">Активна</option>
+                  <option value="credit">Кредит</option>
+                  <option value="full">Полная</option>
+                  <option value="pred">Предоплата</option>
+                  
+
+
                 </select>
               </div>
             </div>
@@ -235,10 +227,14 @@ function submit() {
                 <div class="flex mx-3">
                   <!-- SVG Icon -->
                 </div>
-                <select v-model="form.active" id="rent_status" class="w-full bg-input-gray  rounded-lg border-none">
+                <select v-model="form.status" id="status" class="w-full bg-input-gray  rounded-lg border-none">
                   <option value="">Выберите</option>
-                  <option value="0">Не активна</option>
-                  <option value="1">Активна</option>
+                  <option value="credit">Кредит</option>
+                  <option value="full">Полная</option>
+                  <option value="pred">Предоплата</option>
+                  
+
+
                 </select>
               </div>
             </div>
@@ -251,7 +247,7 @@ function submit() {
               <div class="flex mx-3">
                 <!-- SVG Icon -->
               </div>
-              <input v-model="form.service_number" id="rent_num" class="w-full border-r-0 border-t-0 border-l-0 border-b-2 border-gray-200"
+              <input v-model="form.sale_number" id="rent_num" class="w-full border-r-0 border-t-0 border-l-0 border-b-2 border-gray-200"
                 placeholder="№" type="text">
             </div>
 
@@ -260,7 +256,7 @@ function submit() {
               <div class="flex mx-3">
                 <!-- SVG Icon -->
               </div>
-              <input v-model="form.service_date" id="rent_date" class="w-full border-r-0 border-t-0 border-l-0 border-b-2 border-gray-200"
+              <input v-model="form.sale_date" id="rent_date" class="w-full border-r-0 border-t-0 border-l-0 border-b-2 border-gray-200"
                 type="date" placeholder="Дата">
             </div>
 
@@ -279,11 +275,15 @@ function submit() {
               <div class="flex mx-3">
                 <!-- SVG Icon -->
               </div>
-              <select v-model="form.active" id="rent_status" class="w-full">
-                <option value="">Выберите</option>
-                <option value="0">Не активна</option>
-                <option value="1">Активна</option>
-              </select>
+              <select v-model="form.status" id="status" class="w-full bg-input-gray  rounded-lg border-none">
+                  <option value="">Выберите</option>
+                  <option value="credit">Кредит</option>
+                  <option value="full">Полная</option>
+                  <option value="pred">Предоплата</option>
+                  
+
+
+                </select>
             </div>
           </div>
 
@@ -366,11 +366,14 @@ function submit() {
                   <td><input v-model="form.shipping_date" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input v-model="form.period_start_date"type="date"
+
+                  <td><input type="text" v-model="form.commentary"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input type="text"
-                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
+                  <td>
+                    <input
+                    class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none"
+                    type="text" v-model="form.price">
                   </td>
                   <td>
                     <div class="flex items-center justify-around">
@@ -428,11 +431,11 @@ function submit() {
                   <td><input @change="updateByKey(index,'subequipment_id',item.id)" @input="updateByKey(index, 'shipping_date', $event.target.value)" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input @input="updateByKey(index, 'period_start_date', $event.target.value)"
-                      v-model="item.period_start_date" type="date"
+                  <td><input @input="updateByKey(index, 'commentary', $event.target.value)" v-model="item.commentary"
+                      type="text"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input @input="updateByKey(index, 'commentary', $event.target.value)" v-model="item.commentary"
+                  <td><input @input="updateByKey(index, 'price', $event.target.value)" v-model="item.price"
                       type="text"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
@@ -539,7 +542,9 @@ function submit() {
             </div>
 
 
-          </div>
+          </div>  
+
+          <p>Итого </p>
 
           <button @click="submit">Сохранить</button>
         </div>
