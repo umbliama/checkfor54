@@ -7,7 +7,7 @@ import store from '../../store';
 import { computed, ref, toRaw } from 'vue';
 import UiBtn from "@/Components/Ui/UiBtn.vue";
 import UiField from "@/Components/Ui/UiField.vue";
-import UiUserBadge from "@/Components/Ui/UiUserBadge.vue";
+import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
 
 const page = usePage();
 

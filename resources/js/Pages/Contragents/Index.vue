@@ -15,7 +15,7 @@ import store from '../../../store/';
 import ContragentStatus from '@/Components/ContragentStatus.vue';
 import Pagination from '@/Components/Pagination.vue';
 import ContragentsToolbar from "@/Components/Contragents/ContragentsToolbar.vue";
-import UiUserBadge from "@/Components/Ui/UiUserBadge.vue";
+import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
 
 
 
