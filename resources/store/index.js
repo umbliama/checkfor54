@@ -6,6 +6,7 @@ import contragent from "./modules/contragent";
 import dashboard from "./modules/dashboard";
 import services from "./modules/services";
 import notifications from "./modules/notifications";
+import incident from "./modules/incident";
 
 
 
@@ -16,7 +17,8 @@ const store = createStore({
         contragent, 
         services,
         dashboard,
-        notifications
+        notifications,
+        incident
     },
     state: {
         cities: [],

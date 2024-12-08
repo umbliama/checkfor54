@@ -3,52 +3,28 @@ import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, toRaw } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 import store from '../../../store/index';
-
 
 
 const page = usePage()
 
 const user = computed(() => page.props.auth.user)
-const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
-const selectedEquipmentService = computed(() => store.getters['services/getSelectedEquipmentService']);
-const subEquipment = computed(() => store.getters['services/getSubEquipment']);
-const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
 
-watch(selectedEquipment, async (newValue, oldValue) => {
-  if (newValue) {
-    try {
-      const response = await fetch(`/api/equipment/${newValue}`);
-      const data = await response.json();
-      store.dispatch('services/updateSelectedEquipmentService', data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-});
-
-watch(subEquipmentArray, async (newValue, oldValue) => {
-  if (newValue.length) {
-    const lastValue = newValue[newValue.length - 1];
-    try {
-      const response = await fetch(`/api/equipment/${lastValue}`);
-      const data = await response.json();
-      store.dispatch('services/updateSubEquipment', data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-}, { deep: true });
 
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
+const getMenuActiveItem = computed(() => store.getters['incident/getActiveMenuItem']);
 
 const props = defineProps({
-  columns: Array,
+  tasksColumns: Object,
+  advColumns: Object,
+  tasksColumnsArchived: Object,
+  advColumnsArchived: Object,
   blocks: Array,
-  contragents: Array
+  contragents: Array,
+  employees: Array
 })
 
 
@@ -56,16 +32,26 @@ const showModal = (value) => {
   store.dispatch('services/updateModalShown', value)
 }
 
+const updateActiveMenuItem = (value) => {
+  store.dispatch('incident/updateActiveMenuItem', value)
+}
+
+
 
 const form = reactive({
   mediaFile: null,
-  mediaCaption:null,
+  mediaCaption: null,
   chosenAgent: null,
-  equipmentCategory:null,
-  equipmentSeries:null,
-  equipmentSize:null,
-  files:null
+  equipmentCategory: null,
+  equipmentSeries: null,
+  equipmentSize: null,
+  employee_id:null
 })
+
+const findEmployeeById = (employee_id) => {
+  const raw = toRaw(props.employees)
+  return raw.find(employee => employee.id == employee_id)
+}
 
 const createColumn = () => {
   axios.post('const')
@@ -77,16 +63,8 @@ const createBlock = (columnId, type) => {
 }
 
 
-
-const handleMediaFileUpload = (event) => {
-  const files = event.target.files;
-  form.mediaFile = Array.from(files)
-
-};
 const handleFileUpload = (event) => {
-  const files = event.target.files;
-  form.files = Array.from(files)
-
+  form.media_file = Array.from(event.target.files);
 };
 
 
@@ -117,17 +95,12 @@ const saveBlock = async (blockId, blockData) => {
           <div class="p-6  items-center">
             <ul
               class="flex flex border-b-2 items-center flex-row font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
+              <li @click="updateActiveMenuItem('tasks')" class="text-lg">Задачи</li>
+              <li @click="updateActiveMenuItem('adv')" class="text-lg"> Рекламация </li>
+              <li @click="updateActiveMenuItem('history')" class="text-lg"> История </li>
+
               <li>
-                <Link :href="route('equip.report')" class="text-lg">Задачи</Link>
-              </li>
-              <li>
-                <Link :href="route('equip.index')" class="text-lg">Рекламация</Link>
-              </li>
-              <li>
-                <Link :href="route('equip.repair')" class="text-lg">История</Link>
-              </li>
-              <li>
-                <Link v-if="user.isAdmin":href="route('equip.tests')" class="text-lg text-side-gray-text">Admin</Link>
+                <Link v-if="user.isAdmin" :href="route('equip.tests')" class="text-lg text-side-gray-text">Admin</Link>
               </li>
               <Link @click="toggleDropdown">
 
@@ -152,7 +125,8 @@ const saveBlock = async (blockId, blockData) => {
                     class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
-                      <Link method="POST" @click="createColumn" :href="route('constructor.columnCreate')"
+                      <Link method="POST" @click="createColumn"
+                        :href="route('constructor.columnCreate', { type: getMenuActiveItem })"
                         class="flex items-center justify-around" :class="['block px-4 py-2 text-sm']">Добавить столбец
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -172,7 +146,363 @@ const saveBlock = async (blockId, blockData) => {
       </nav>
       <!-- Cards Layout -->
       <div class="grid grid-cols-3 mt-3 gap-4">
-        <div v-for="column in columns.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
+        <div v-if="getMenuActiveItem == 'tasks'" v-for="column in tasksColumns.data"
+          class="bg-white border-8 border-my-gray-500  rounded p-4">
+          <div class="flex items-center justify-between">
+            <h3>Хронология</h3>
+            <Link @click="toggleDropdown">
+
+            <Menu as="div" class="relative inline-block text-left">
+              <div>
+                <MenuButton
+                  class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                  <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                      fill="#697077" />
+                  </svg>
+
+                </MenuButton>
+              </div>
+
+              <transition enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95">
+                <MenuItems
+                  class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div class="py-1 px-2">
+                    <!-- Heading -->
+                    <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Добавить блок</h3>
+                    <!-- List of Links -->
+                    <ul class="px-2 py-1 space-y-1">
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'customer')"
+                          :href="route('constructor.createBlock', column.id, 'customer')">
+                        Заказчик
+                        </Link>
+                      </li>
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'employee')"
+                          :href="route('constructor.createBlock', column.id, 'employee')">
+                        Сотрудник
+                        </Link>
+                      </li>§
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'equipment')"
+                          :href="route('constructor.createBlock', column.id, 'equipment')">
+                        Оборудование
+                        </Link>
+                      </li>
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'commentary')"
+                          :href="route('constructor.createBlock', column.id, 'commentary')">
+                        Комментарий
+                        </Link>
+                      </li>
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'mediafiles')"
+                          :href="route('constructor.createBlock', column.id, 'mediafiles')">
+                        Медиа
+                        </Link>
+                      </li>
+                      <li>
+                        <Link method="POST" @click="createBlock(column.id, 'files')"
+                          :href="route('constructor.createBlock', column.id, 'files')">
+                        Файлы
+                        </Link>
+                      </li>
+                    </ul>
+                    <div class="border-b-2 "></div>
+                    <ul class="px-2 py-1 space-y-1">
+                      <li>
+                        <Link method="PUT" :href="route('constructor.archiveColumn', column.id)">
+                        Архивировать колонку
+                        </Link>
+                      </li>
+                      <li>
+                        <Link method="DELETE" :href="route('constructor.deleteColumn', column.id)">
+                        Удалить колонку
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </MenuItems>
+              </transition>
+            </Menu>
+            </Link>
+
+
+          </div>
+          <div class="mt-4">
+            <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
+              <div v-if="block.type == 'employee'">
+                <p>Сотрудник</p>
+                <select v-if="!block.employee_id"v-model="form.employee_id">
+                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{ employee.name }} </option>
+                </select>
+                <p v-else>{{findEmployeeById(block.employee_id).name findEmployeeById(block.employee_id).name}}</p>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { employee_id: form.employee_id });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'customer'">
+                <p>Заказчик</p>
+
+                <select v-if="block.contragent == null" v-model="form.chosenAgent" name="" id="">
+                  <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+                </select>
+                <p v-else>{{ block.contragent.name }}</p>
+                <div v-if="block.contragent && block.equipment"> {{ block.contragent.name }} {{
+                  block.equipment.category.name }} {{ block.equipment.size.name }} {{ block.equipment.series }}</div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { contragent_id: form.chosenAgent });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'commentary'">
+                <div>
+                  <textarea name="commentary" v-model="block.commentary" id=""></textarea>
+                </div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { text: block.commentary });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'mediafiles'">
+                <div>
+                  <input type="file" name="media_file[]" multiple @change="handleFileUpload" />
+
+                  <img v-for="item in block.media_url" :src="item" alt="">
+
+                </div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { media_file: form.media_file });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'equipment'">
+                <div>
+                  <button v-if="!selectedEquipmentService" @click="showModal(true)"
+                    class=" text-side-gray-text px-4 py-2 rounded">
+                    Нажмите чтобы выбрать оборудование
+                  </button>
+                  <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
+                  </ServiceModal>
+
+                </div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div v-if="getMenuActiveItem == 'adv'" v-for="column in advColumns.data"
+          class="bg-white border-8 border-my-gray-500  rounded p-4">
           <div class="flex items-center justify-between">
             <h3>Хронология</h3>
             <Link @click="toggleDropdown">
@@ -236,7 +566,7 @@ const saveBlock = async (blockId, blockData) => {
                     <ul class="px-2 py-1 space-y-1">
                       <li>
                         <Link method="PUT" :href="route('constructor.archiveColumn', column.id)">
-                        В архив
+                        Архивировать колонку
                         </Link>
                       </li>
                       <li>
@@ -259,10 +589,11 @@ const saveBlock = async (blockId, blockData) => {
                 <p>Заказчик</p>
 
                 <select v-if="block.contragent == null" v-model="form.chosenAgent" name="" id="">
-                    <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+                  <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
                 </select>
                 <p v-else>{{ block.contragent.name }}</p>
-                <div v-if="block.contragent && block.equipment"> {{ block.contragent.name}} {{ block.equipment.category.name }} {{ block.equipment.size.name}} {{ block.equipment.series }}</div>
+                <div v-if="block.contragent && block.equipment"> {{ block.contragent.name }} {{
+                  block.equipment.category.name }} {{ block.equipment.size.name }} {{ block.equipment.series }}</div>
                 <Link @click="toggleDropdown">
 
                 <Menu as="div" class="relative inline-block text-left">
@@ -280,18 +611,18 @@ const saveBlock = async (blockId, blockData) => {
 
                   <transition enter-active-class="transition ease-out duration-100"
                     enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                    leave-to-class="transform opacity-0 scale-95">
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                     <MenuItems
                       class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div class="py-1 px-2">
                         <!-- Heading -->
                         <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
-                      
+
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { contragent_id: form.chosenAgent});" >
+                            <Link @click="saveBlock(block.id, { contragent_id: form.chosenAgent });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -329,18 +660,18 @@ const saveBlock = async (blockId, blockData) => {
 
                   <transition enter-active-class="transition ease-out duration-100"
                     enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                    leave-to-class="transform opacity-0 scale-95">
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                     <MenuItems
                       class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div class="py-1 px-2">
                         <!-- Heading -->
                         <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
-                      
+
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { text: block.commentary});" >
+                            <Link @click="saveBlock(block.id, { text: block.commentary });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -359,10 +690,10 @@ const saveBlock = async (blockId, blockData) => {
               </div>
               <div v-if="block.type == 'mediafiles'">
                 <div>
-                  <input type="file" multiple @change="handleMediaFileUpload" />
+                  <input type="file" @change="handleFileUpload" />
                   <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
-                  <img v-for="url in block.media_url" :src="url" alt="">
-                  
+                  <img :src="block.media_url" alt="">
+
                 </div>
                 <Link @click="toggleDropdown">
 
@@ -381,18 +712,18 @@ const saveBlock = async (blockId, blockData) => {
 
                   <transition enter-active-class="transition ease-out duration-100"
                     enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                    leave-to-class="transform opacity-0 scale-95">
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                     <MenuItems
                       class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div class="py-1 px-2">
                         <!-- Heading -->
                         <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
-                      
+
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile});" >
+                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -412,25 +743,11 @@ const saveBlock = async (blockId, blockData) => {
               <div v-if="block.type == 'equipment'">
                 <div>
                   <button v-if="!selectedEquipmentService" @click="showModal(true)"
-                      class=" text-side-gray-text px-4 py-2 rounded">
-                      Нажмите чтобы выбрать оборудование
-                    </button>
-
-                    <div v-else class="p-4 bg-my-gray border whitespace-nowrap flex">
-                      <p> {{ selectedEquipmentService.category.name }} {{ selectedEquipmentService.size.name }} {{
-                        selectedEquipmentService.series }}</p>
-                      <!-- Hidden input to hold the selected equipment id for the form -->
-                      <input type="hidden" v-model="form.equipment_id">
-                    </div>
-                    <div class="p-4 bg-my-gray border border-l-2 border-violet-full flex flex-col border-t-0 border-r-0 border-b-0 whitespace-nowrap flex">
-                      <p v-for="item in subEquipment"> {{ item.category.name }}  {{ item.size.name }} {{ item.series }}</p>
-
-                    </div>
-                    <button v-if="!subSelectedEquipment" @click="showModal(true)"
-                      class=" text-side-gray-text px-4 py-2 rounded">
-                      Нажмите чтобы выбрать доп.оборудование
-                    </button>
-                    <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
+                    class=" text-side-gray-text px-4 py-2 rounded">
+                    Нажмите чтобы выбрать оборудование
+                  </button>
+                  <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
+                  </ServiceModal>
 
                 </div>
                 <Link @click="toggleDropdown">
@@ -450,68 +767,18 @@ const saveBlock = async (blockId, blockData) => {
 
                   <transition enter-active-class="transition ease-out duration-100"
                     enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                    leave-to-class="transform opacity-0 scale-95">
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                     <MenuItems
                       class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div class="py-1 px-2">
                         <!-- Heading -->
                         <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
-                      
+
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile});" >
-                            Сохранить блок
-                            </Link>
-                          </li>
-                          <li>
-                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
-                            Удалить блок
-                            </Link>
-                          </li>
-                        </ul>
-                      </div>
-                    </MenuItems>
-                  </transition>
-                </Menu>
-                </Link>
-
-              </div>
-              <div v-if="block.type == 'files'">
-                <div>
-                  <input type="file" multiple  @change="handleFileUpload" />
-                  <a v-for="file in block.file_url"  :href="file" download>Скачать</a>
-                </div>
-                <Link @click="toggleDropdown">
-
-                <Menu as="div" class="relative inline-block text-left">
-                  <div>
-                    <MenuButton
-                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
-                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
-                          fill="#697077" />
-                      </svg>
-
-                    </MenuButton>
-                  </div>
-
-                  <transition enter-active-class="transition ease-out duration-100"
-                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                    leave-to-class="transform opacity-0 scale-95">
-                    <MenuItems
-                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <div class="py-1 px-2">
-                        <!-- Heading -->
-                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
-                      
-                        <div class="border-b-2 "></div>
-                        <ul class="px-2 py-1 space-y-1">
-                          <li>
-                            <Link @click="saveBlock(block.id, { files: form.files});" >
+                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -532,6 +799,597 @@ const saveBlock = async (blockId, blockData) => {
           </div>
 
         </div>
+        <div v-if="getMenuActiveItem == 'history' || getMenuActiveItem == 'history_tasks' || getMenuActiveItem == 'history_adv' ">
+          <ul>
+            <li @click="updateActiveMenuItem('history_tasks')">Задачи</li>
+            <li @click="updateActiveMenuItem('history_adv')">Рекламация</li>
+          </ul>
+          <div v-if="getMenuActiveItem == 'history_tasks'" v-for="column in tasksColumnsArchived.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
+            <div class="flex items-center justify-between">
+              <h3>Хронология</h3>
+              <Link @click="toggleDropdown">
+
+              <Menu as="div" class="relative inline-block text-left">
+                <div>
+                  <MenuButton
+                    class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                    <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                        fill="#697077" />
+                    </svg>
+
+                  </MenuButton>
+                </div>
+
+                <transition enter-active-class="transition ease-out duration-100"
+                  enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                  leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+                  leave-to-class="transform opacity-0 scale-95">
+                  <MenuItems
+                    class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div class="py-1 px-2">
+                      <!-- Heading -->
+                      <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Добавить блок</h3>
+                      <!-- List of Links -->
+                      <ul class="px-2 py-1 space-y-1">
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'customer')"
+                            :href="route('constructor.createBlock', column.id, 'customer')">
+                          Заказчик
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'equipment')"
+                            :href="route('constructor.createBlock', column.id, 'equipment')">
+                          Оборудование
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'commentary')"
+                            :href="route('constructor.createBlock', column.id, 'commentary')">
+                          Комментарий
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'mediafiles')"
+                            :href="route('constructor.createBlock', column.id, 'mediafiles')">
+                          Медиа
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'files')"
+                            :href="route('constructor.createBlock', column.id, 'files')">
+                          Файлы
+                          </Link>
+                        </li>
+                      </ul>
+                      <div class="border-b-2 "></div>
+                      <ul class="px-2 py-1 space-y-1">
+                        <li>
+                          <Link method="DELETE" :href="route('constructor.deleteColumn', column.id)">
+                          Удалить колонку
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </MenuItems>
+                </transition>
+              </Menu>
+              </Link>
+
+
+            </div>
+            <div class="mt-4">
+              <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
+                <div v-if="block.type == 'customer'">
+                  <p>Заказчик</p>
+
+                  <select v-if="block.contragent == null" v-model="form.chosenAgent" name="" id="">
+                    <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+                  </select>
+                  <p v-else>{{ block.contragent.name }}</p>
+                  <div v-if="block.contragent && block.equipment"> {{ block.contragent.name }} {{
+                    block.equipment.category.name }} {{ block.equipment.size.name }} {{ block.equipment.series }}</div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { contragent_id: form.chosenAgent });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'commentary'">
+                  <div>
+                    <textarea name="commentary" v-model="block.commentary" id=""></textarea>
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { text: block.commentary });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'mediafiles'">
+                  <div>
+                    <input type="file" @change="handleFileUpload" />
+                    <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
+                    <img :src="block.media_url" alt="">
+
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'equipment'">
+                  <div>
+                    <button v-if="!selectedEquipmentService" @click="showModal(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать оборудование
+                    </button>
+                    <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
+                    </ServiceModal>
+
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div v-for="column in advColumnsArchived.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
+            <div class="flex items-center justify-between">
+              <h3>Хронология</h3>
+              <Link @click="toggleDropdown">
+
+              <Menu as="div" class="relative inline-block text-left">
+                <div>
+                  <MenuButton
+                    class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                    <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                        fill="#697077" />
+                    </svg>
+
+                  </MenuButton>
+                </div>
+
+                <transition enter-active-class="transition ease-out duration-100"
+                  enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                  leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+                  leave-to-class="transform opacity-0 scale-95">
+                  <MenuItems
+                    class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div class="py-1 px-2">
+                      <!-- Heading -->
+                      <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Добавить блок</h3>
+                      <!-- List of Links -->
+                      <ul class="px-2 py-1 space-y-1">
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'customer')"
+                            :href="route('constructor.createBlock', column.id, 'customer')">
+                          Заказчик
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'equipment')"
+                            :href="route('constructor.createBlock', column.id, 'equipment')">
+                          Оборудование
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'commentary')"
+                            :href="route('constructor.createBlock', column.id, 'commentary')">
+                          Комментарий
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'mediafiles')"
+                            :href="route('constructor.createBlock', column.id, 'mediafiles')">
+                          Медиа
+                          </Link>
+                        </li>
+                        <li>
+                          <Link method="POST" @click="createBlock(column.id, 'files')"
+                            :href="route('constructor.createBlock', column.id, 'files')">
+                          Файлы
+                          </Link>
+                        </li>
+                      </ul>
+                      <div class="border-b-2 "></div>
+                      <ul class="px-2 py-1 space-y-1">
+                        <li>
+                          <Link method="DELETE" :href="route('constructor.deleteColumn', column.id)">
+                          Удалить колонку
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </MenuItems>
+                </transition>
+              </Menu>
+              </Link>
+
+
+            </div>
+            <div class="mt-4">
+              <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
+                <div v-if="block.type == 'customer'">
+                  <p>Заказчик</p>
+
+                  <select v-if="block.contragent == null" v-model="form.chosenAgent" name="" id="">
+                    <option v-for="agent in contragents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+                  </select>
+                  <p v-else>{{ block.contragent.name }}</p>
+                  <div v-if="block.contragent && block.equipment"> {{ block.contragent.name }} {{
+                    block.equipment.category.name }} {{ block.equipment.size.name }} {{ block.equipment.series }}</div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { contragent_id: form.chosenAgent });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'commentary'">
+                  <div>
+                    <textarea name="commentary" v-model="block.commentary" id=""></textarea>
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { text: block.commentary });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'mediafiles'">
+                  <div>
+                    <input type="file" @change="handleFileUpload" />
+                    <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
+                    <img :src="block.media_url" alt="">
+
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'equipment'">
+                  <div>
+                    <button v-if="!selectedEquipmentService" @click="showModal(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать оборудование
+                    </button>
+                    <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
+                    </ServiceModal>
+
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
 
 
       </div>

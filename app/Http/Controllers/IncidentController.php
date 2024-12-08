@@ -17,14 +17,24 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $columns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')
+        $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')->where('type','tasks')->where('isArchive',0)
+            ->paginate(10);
+        $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')->where('type','adv')->where('isArchive',0)
+            ->paginate(10);
+        $tasksColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')->where('type','tasks')->where('isArchive',1)
+            ->paginate(10);
+        $advColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+            ->orderBy('position')->where('type','adv')->where('isArchive',1)
             ->paginate(10);
         $contragents = Contragents::all();
+        $employees = User::where('isAdmin', 0)->get();
 
 
 
-        return Inertia::render('Incident/Index', ['columns' => $columns, 'contragents' => $contragents]);
+        return Inertia::render('Incident/Index', ['tasksColumns' => $tasksColumns, 'advColumns' => $advColumns, 'tasksColumnsArchived' => $tasksColumnsArchived, 'advColumnsArchived'=> $advColumnsArchived ,'contragents' => $contragents, 'employees' => $employees]);
     }
 
     public function history()
@@ -39,10 +49,10 @@ class IncidentController extends Controller
         return Inertia::render('Incident/History', ['archivedColumns' => $columns, 'contragents' => $contragents]);
     }
 
-    public function createColumn()
+    public function createColumn(Request $request)
     {
         $position = Column::max('position') + 1;
-        $column = Column::create(['position' => $position]);
+        $column = Column::create(['position' => $position, 'type' => $request->input('type')]);
         foreach (User::all() as $user) {
             Notification::create([
                 'type' => 'Создана новая колонка',
@@ -148,6 +158,10 @@ class IncidentController extends Controller
                         return [
                             'file_url' => [],
                         ];
+                    case 'employee':
+                        return [
+                            'employee_id' => $request->input('employee_id', null)
+                        ];
                                     
             default:
                 return [];
@@ -190,6 +204,7 @@ class IncidentController extends Controller
             'media_url' => $data['media_url'] ?? $block->media_url, 
             'file_url' => $data['file_url'] ?? $block->file_url,    
             'commentary' => $request->input('text', $block->commentary), 
+            'employee_id' => $data['employee_id']
         ]);
     
         return redirect()->route('incident.index')->with('success', 'Block updated successfully.');

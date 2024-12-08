@@ -22,6 +22,7 @@ return new class extends Migration
             $table->json('file_url')->nullable();
             $table->text('commentary')->nullable();
             $table->integer('position');
+            $table->foreignId('employee_id')->nullable()->constrained('users');
         });
         Schema::create('block_subequipment', function (Blueprint $table) {
             $table->id();
