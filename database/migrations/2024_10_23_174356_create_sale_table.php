@@ -25,6 +25,16 @@ return new class extends Migration {
             $table->integer('price')->nullable();
 
         });
+        Schema::create('sale_subequipment', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->unsignedBigInteger('equipment_id');
+            $table->foreign('equipment_id')->references('id')->on('equipment');
+            $table->foreignId('sale_number')->constrained('sale');
+            $table->date('shipping_date');
+            $table->string('commentary')->nullable();
+            $table->integer('price')->nullable();
+        });
 
         Schema::create('sale_extra', function (Blueprint $table) {
             $table->id();

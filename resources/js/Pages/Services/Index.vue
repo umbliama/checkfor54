@@ -135,7 +135,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </li>
                 <li>
                   <div class="flex">
-                    <Link :href="route('equip.tests')" class="text-lg">Admin</Link>
+                    <Link  v-if="user.isAdmin" :href="route('equip.tests')" class="text-lg">Admin</Link>
                   </div>
                 </li>
                 <Link>

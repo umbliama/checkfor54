@@ -132,7 +132,7 @@ function submit() {
                 class=" border-b-2 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
                 <ul class="flex items-center flex-row font-medium mt-0 space-x-8  rtl:space-x-reverse text-sm">
                   <li class="flex  border-b-2  border-selected-blue pb-4 " @click="updateMenuLink('all')">
-                    <Link class="text-lg sm:text-md  text-selected-blue">Новая аренда</Link>
+                    <Link class="text-lg sm:text-md  text-selected-blue">Новая продажа</Link>
 
                   </li>
                   <li class="flex pb-4">
@@ -159,7 +159,7 @@ function submit() {
                           <div class="py-1">
                             <MenuItem>
                             <Link :href="route('services.create')" class="flex items-center justify-around"
-                              :class="['block px-4 py-2 text-sm']">Создать аренду
+                              :class="['block px-4 py-2 text-sm']">Создать продажу
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                               xmlns="http://www.w3.org/2000/svg">
                               <path
@@ -189,7 +189,7 @@ function submit() {
           <div class="lg:block md:hidden sm:hidden grid grid-cols-2 gap-6 flex mt-4">
             <div class="flex whitespace-nowrap  justify-between items-center overflow-x-auto ">
               <div class="flex items-center flex-2 mx-3">
-                <label class="items-center mr-2" for="rent_num">Номер аренды:</label>
+                <label class="items-center mr-2" for="rent_num">Номер продажи:</label>
 
                 <!-- SVG Icon -->
                 <input v-model="form.service_number" id="rent_num"
