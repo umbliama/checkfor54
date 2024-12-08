@@ -50,4 +50,25 @@ class Contragents extends Model
         return $this->belongsTo(EquipmentSize::class, 'size_id');
     }
 
+    public static function getCountryMapping(): array
+    {
+        return [
+            'RU' => 'Россия',
+            'BY' => 'Беларусь',
+        ];
+    }
+
+
+
+    public function getFormattedCountryAttribute()
+    {
+        $countryMapping = self::getCountryMapping();
+        $countryCode = $this->country;
+        $countryName = $countryMapping[$countryCode] ?? 'Unknown';
+        return [
+            'value' => $countryCode,
+            'title' => $countryName,
+        ];
+    }
+
 }

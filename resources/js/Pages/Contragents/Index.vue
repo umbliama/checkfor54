@@ -23,6 +23,7 @@ const props = defineProps({
     contragents: Object,
     contragents_count: Number,
     contragents_customer_count: Number,
+    countries: Array,
     contragents_supplier_count: Number,
     contragents_suppliers: Object,
     contragents_customers: Object
