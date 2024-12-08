@@ -240,7 +240,7 @@ const setTab = (tab) => {
                     <div class="mt-6 space-y-4">
                         <div>
                             <span class="text-gray-400">Страна регистрации:</span>
-                            {{ translateCountry(contragent.country) }}
+                            {{ contragent.formatted_country.title }}
                         </div>
                         <div>
                             <span class="text-gray-400">Организационно-правовая форма:</span>
