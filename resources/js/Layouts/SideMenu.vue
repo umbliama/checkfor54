@@ -7,7 +7,7 @@ import store from '../../store';
 import { computed, ref, toRaw } from 'vue';
 import UiBtn from "@/Components/Ui/UiBtn.vue";
 import UiField from "@/Components/Ui/UiField.vue";
-import UiUserAvatar from "@/Components/Ui/UiUserAvatar.vue";
+import UiUserBadge from "@/Components/Ui/UiUserBadge.vue";
 
 const page = usePage();
 
@@ -116,7 +116,7 @@ setInterval(() => {
             <div class="flex items-center lg:mt-4">
                 <span class="inline-flex rounded-md order-2 lg:order-[unset]">
                     <Link href="/profile" class="block">
-                        <UiUserAvatar :size="{ pc: '48px', mob: '40px' }" />
+                        <UiUserBadge :size="{ pc: '48px', mob: '40px' }" />
 <!--                        <button
                             type="button"
                             class="flex items-center justify-center w-12 h-12 rounded-full bg-my-gray"

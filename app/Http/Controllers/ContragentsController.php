@@ -8,6 +8,7 @@ use App\Models\Contragents;
 
 class ContragentsController extends Controller
 {
+
     public function index(Request $request)
     {
         $searchTerm = $request->query('search');
@@ -22,30 +23,45 @@ class ContragentsController extends Controller
             });
         }
 
-        
+        $contragents = $query->paginate($perPage);
 
-        $contragents = $query->paginate($perPage); 
-
-        $contragents_customers = Contragents::where("customer", 1)->paginate($perPage); 
-        $contragents_suppliers = Contragents::where("supplier", 1)->paginate($perPage); 
+        $contragents_customers = Contragents::where('customer', 1)->paginate($perPage);
+        $contragents_suppliers = Contragents::where('supplier', 1)->paginate($perPage);
 
         $contragents_count = Contragents::count();
-        $contragents_customer_count = Contragents::where("customer", 1)->count();
-        $contragents_supplier_count = Contragents::where("supplier", 1)->count();
+        $contragents_customer_count = Contragents::where('customer', 1)->count();
+        $contragents_supplier_count = Contragents::where('supplier', 1)->count();
+
+        // Format the country attribute for each contragent
+        $contragents->getCollection()->transform(function ($contragent) {
+            return $contragent->append('formatted_country');
+        });
+
+        $contragents_customers->getCollection()->transform(function ($contragent) {
+            return $contragent->append('formatted_country');
+        });
+
+        $contragents_suppliers->getCollection()->transform(function ($contragent) {
+            return $contragent->append('formatted_country');
+        });
+
+        $countries = Contragents::getCountryMapping();
 
         return Inertia::render('Contragents/Index', [
             'contragents' => $contragents,
             'contragents_count' => $contragents_count,
+            'countries' => $countries,
             'contragents_customer_count' => $contragents_customer_count,
             'contragents_supplier_count' => $contragents_supplier_count,
             'contragents_customers' => $contragents_customers,
             'contragents_suppliers' => $contragents_suppliers
         ]);
     }
-
     public function create()
     {
-        return Inertia::render('Contragents/Create');
+        $countries = Contragents::getCountryMapping();
+
+        return Inertia::render('Contragents/Create',['countries' => $countries]);
     }
 
 
@@ -173,8 +189,10 @@ class ContragentsController extends Controller
     public function show($id)
     {
         $contragent = Contragents::findOrFail($id);
+        
+        $countries = Contragents::getCountryMapping();
 
-        return Inertia::render('Contragents/Show', ['contragent' => $contragent]);
+        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries]);
     }
 
 

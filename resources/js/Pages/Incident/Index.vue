@@ -3,15 +3,44 @@ import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 import store from '../../../store/index';
+
 
 
 const page = usePage()
 
 const user = computed(() => page.props.auth.user)
+const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
+const selectedEquipmentService = computed(() => store.getters['services/getSelectedEquipmentService']);
+const subEquipment = computed(() => store.getters['services/getSubEquipment']);
+const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
 
+watch(selectedEquipment, async (newValue, oldValue) => {
+  if (newValue) {
+    try {
+      const response = await fetch(`/api/equipment/${newValue}`);
+      const data = await response.json();
+      store.dispatch('services/updateSelectedEquipmentService', data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+});
+
+watch(subEquipmentArray, async (newValue, oldValue) => {
+  if (newValue.length) {
+    const lastValue = newValue[newValue.length - 1];
+    try {
+      const response = await fetch(`/api/equipment/${lastValue}`);
+      const data = await response.json();
+      store.dispatch('services/updateSubEquipment', data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}, { deep: true });
 
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
@@ -385,8 +414,24 @@ const saveBlock = async (blockId, blockData) => {
                   <button v-if="!selectedEquipmentService" @click="showModal(true)"
                       class=" text-side-gray-text px-4 py-2 rounded">
                       Нажмите чтобы выбрать оборудование
-                    </button>        <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
-                  
+                    </button>
+
+                    <div v-else class="p-4 bg-my-gray border whitespace-nowrap flex">
+                      <p> {{ selectedEquipmentService.category.name }} {{ selectedEquipmentService.size.name }} {{
+                        selectedEquipmentService.series }}</p>
+                      <!-- Hidden input to hold the selected equipment id for the form -->
+                      <input type="hidden" v-model="form.equipment_id">
+                    </div>
+                    <div class="p-4 bg-my-gray border border-l-2 border-violet-full flex flex-col border-t-0 border-r-0 border-b-0 whitespace-nowrap flex">
+                      <p v-for="item in subEquipment"> {{ item.category.name }}  {{ item.size.name }} {{ item.series }}</p>
+
+                    </div>
+                    <button v-if="!subSelectedEquipment" @click="showModal(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать доп.оборудование
+                    </button>
+                    <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
+
                 </div>
                 <Link @click="toggleDropdown">
 

@@ -15,7 +15,7 @@ import store from '../../../store/';
 import ContragentStatus from '@/Components/ContragentStatus.vue';
 import Pagination from '@/Components/Pagination.vue';
 import ContragentsToolbar from "@/Components/Contragents/ContragentsToolbar.vue";
-import UiUserAvatar from "@/Components/Ui/UiUserAvatar.vue";
+import UiUserBadge from "@/Components/Ui/UiUserBadge.vue";
 
 
 
@@ -23,6 +23,7 @@ const props = defineProps({
     contragents: Object,
     contragents_count: Number,
     contragents_customer_count: Number,
+    countries: Array,
     contragents_supplier_count: Number,
     contragents_suppliers: Object,
     contragents_customers: Object
@@ -128,7 +129,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <AuthenticatedLayout bg="gray">
+    <AuthenticatedLayout class="bg-my-gray">
         <ContragentsToolbar
             :contragents-count="props.contragents_count"
             :contragents-customer-count="props.contragents_customer_count"
@@ -203,7 +204,7 @@ onMounted(() => {
                                 />
                             </div>
                             <div class="w-[22.5%] flex px-3">
-                                <UiUserAvatar :image="item.avatar" size="40px" class="shrink-0 mr-2" />
+                                <UiUserBadge :image="item.avatar" size="40px" class="shrink-0 mr-2" />
                                 <div>
                                     <span class="flex justify-start items-start font-medium">
                                         {{ item.name }}
