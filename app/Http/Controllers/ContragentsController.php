@@ -59,7 +59,9 @@ class ContragentsController extends Controller
     }
     public function create()
     {
-        return Inertia::render('Contragents/Create');
+        $countries = Contragents::getCountryMapping();
+
+        return Inertia::render('Contragents/Create',['countries' => $countries]);
     }
 
 
@@ -187,8 +189,10 @@ class ContragentsController extends Controller
     public function show($id)
     {
         $contragent = Contragents::findOrFail($id);
+        
+        $countries = Contragents::getCountryMapping();
 
-        return Inertia::render('Contragents/Show', ['contragent' => $contragent]);
+        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries]);
     }
 
 
