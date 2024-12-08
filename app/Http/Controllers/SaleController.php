@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Contragents;
 use App\Models\SaleSub;
+use App\Models\Equipment;
 use Inertia\Inertia;
 use App\Models\Sale;
 use Illuminate\Http\Request;
@@ -14,8 +15,37 @@ class SaleController extends Controller
      */
     public function index()
     {
-        $sales = Sale::paginate(10);
-        return Inertia::render('Sale/Index',['sales' => $sales]);
+        $sales = Sale::with([
+            'subservices.equipment.category',
+            'subservices.equipment.size',
+            'equipment.category',
+            'equipment.size'
+        ])->paginate(10);
+
+        $sales->getCollection()->transform(function ($sale) {
+            $sale->subservices = $sale->subservices->map(function ($subservice) {
+
+                if ($subservice->equipment_id) {
+                    $subservice->equipment_info = $subservice->equipment;
+                } else {
+                    $subservice->equipment_info = null;
+                }
+                return $subservice;
+            });
+
+            $sale->equipment_info = $sale->equipment;
+
+            if ($sale->equipment) {
+                $sale->equipment_info->category_name = $sale->equipment->category->name ?? null;
+                $sale->equipment_info->size_name = $sale->equipment->size->name ?? null;
+            } else {
+                $sale->equipment_info = null;
+            }
+
+            return $sale;
+        });
+
+        return Inertia::render('Sale/Index', ['sales' => $sales]);
     }
 
     /**
@@ -55,16 +85,11 @@ class SaleController extends Controller
             'equipment_id',
             'contragent_id',
             'shipping_date',
-            'service_number',
-            'service_date',
-            'period_start_date',
-            'return_date',
-            'period_end_date',
-            'store',
-            'operating',
-            'return_reason',
-            'active',
-            'income'
+            'sale_number',
+            'sale_date',
+            'commentary',
+            'status',
+            'price'
         ]));
 
         foreach ($request->subEquipment as $subEquipmentData) {

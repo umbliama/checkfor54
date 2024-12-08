@@ -36,17 +36,15 @@ const selectActive = (value) => {
 
 const filterDatesActive = () => {
   const raw = toRaw(props.sales.data)
+  return raw.filter(sale => {
+    const saleDate = new Date(sale.sale_date);
 
-  return raw.filter(service => {
-    const serviceDate = new Date(service.service_date);
+    const isYearMatch = saleDate.getFullYear() == getYear.value;
 
-    const isYearMatch = serviceDate.getFullYear() == getYear.value;
-
-    const isMonthMatch = getMonth.value === 'all' || serviceDate.getMonth() === getMonthNumber(getMonth.value)
+    const isMonthMatch = getMonth.value === 'all' || saleDate.getMonth() === getMonthNumber(getMonth.value)
 
 
-    const isActive = service.active === 1;
-    return isYearMatch && isMonthMatch && isActive;
+    return isYearMatch && isMonthMatch 
 
   })
 }
@@ -61,7 +59,7 @@ const filterDatesInActive = () => {
     const isMonthMatch = getMonth.value === 'all' || serviceDate.getMonth() === getMonthNumber(getMonth.value)
 
     const isActive = service.active === 0
-    return isYearMatch && isMonthMatch && isActive;
+    return isYearMatch && isMonthMatch;
 
   })
 }
@@ -81,7 +79,7 @@ const getMonthNumber = (month) => {
     'novb': 10,
     'dec': 11
   };
-  return months[month] ?? null; // Return null if no match found
+  return months[month] ?? null; 
 
 }
 
@@ -90,7 +88,6 @@ const updateMonth = (month) => {
 }
 const showSubservices = ref({});
 
-// Toggle subservices display
 const toggleSubservice = (index) => {
   showSubservices.value[index] = !showSubservices.value[index];
 };
@@ -358,8 +355,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
             <div class="min-w-full grid grid-cols-5 gap-52 items-center whitespace-nowrap">
               <!-- Service Number with toggle button using SVG -->
               <div class="flex items-center space-x-2">
-                <span>{{ service.equipment_info.category.name }} {{ service.equipment_info.size.name }} {{
-                  service.equipment_info.series }}</span>
+                <span>{{ service.equipment.category.name}} {{ service.equipment.size.name }} {{ service.equipment.series }}</span>
                 <button @click="toggleSubservice(index)">
                   <svg v-if="!showSubservices[index]" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
@@ -409,8 +405,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
               <div class="" v-if="service.subservices.length > 0">
                 <div v-for="subservice in service.subservices" :key="subservice.id"
                   class="grid whitespace-nowrap grid-cols-5 gap-52 bg-gray-50 py-2 rounded-md">
-                  <div>{{ service.equipment_info.category.name }} {{ service.equipment_info.size.name }} {{
-                    service.equipment_info.series }}</div>
+                  <div>{{ subservice.equipment_info.category.name }} {{ subservice.equipment_info.size.name }} {{
+                  subservice.equipment_info.series }}</div>
                   <div>{{ service.shipping_date }}</div>
                   <div>{{ service.income ?? "Не задано" }}</div>
                   <div></div>

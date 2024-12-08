@@ -37,10 +37,9 @@ class Service extends Model
         return $this->hasMany(ServiceSub::class, 'service_id', 'id');
     }
 
-    // Assuming Service is related to one equipment directly
     public function equipment()
     {
-        return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); // Adjust foreign key if needed
+        return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); 
     }
 
 
