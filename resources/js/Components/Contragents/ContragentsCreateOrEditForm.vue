@@ -13,6 +13,9 @@ import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 const props = defineProps({
     equipment_categories: Array,
     equipment_sizes: Array,
+
+    countries: Object,
+    legalStatuses: Object,
     contragent: [Object, null]
 });
 
@@ -20,6 +23,25 @@ const page = usePage()
 
 const errors = computed(() => page.props.errors)
 const success = computed(() => page.props.flash.success)
+const country_list = computed(() => {
+    const res = [];
+    
+    for (let key in props.countries) {
+        res.push({ title: props.countries[key], value: key });
+    }
+
+    return res;
+});
+
+const legal_status_list = computed(() => {
+    const res = [];
+    
+    for (let key in props.legalStatuses) {
+        res.push({ title: props.legalStatuses[key], value: key });
+    }
+
+    return res;
+});
 
 
 const updateContrAgentID = (id) => {
@@ -37,8 +59,8 @@ const mobile_nav_items = [
 const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item=>item.value===getActiveTab.value) } : { ...mobile_nav_items[0] });
 
 const form = reactive({
-    agentTypeLegal: props.contragent?.agentTypeLegal || null,
-    country: props.contragent?.country || null,
+    agentTypeLegal: { ...legal_status_list.value.find(l=>l.value===props.contragent?.agentTypeLegal) } || null,
+    country: { ...country_list.value.find(l=>l.value===props.contragent?.country) } || null,
     name: props.contragent?.name || null,
     fullname: props.contragent?.fullname || null,
     inn: props.contragent?.inn || null,
@@ -262,7 +284,7 @@ const setTab = (tab) => {
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                             <UiFieldSelect
                                 v-model="form.country"
-                                :items="[ { title: 'Российская Федерация', value: 'russia' } ]"
+                                :items="country_list"
                                 label="Страна регистрации"
                                 placeholder="Выбрать..."
                                 required
@@ -271,15 +293,7 @@ const setTab = (tab) => {
 
                             <UiFieldSelect
                                 v-model="form.agentTypeLegal"
-                                :items="
-                                    [
-                                        { title: 'ООО',      value: 'OAO'        },
-                                        { title: 'ОАО',      value: 'OOO'        },
-                                        { title: 'ЗАО',      value: 'ZAO'        },
-                                        { title: 'ПАО',      value: 'PAO'        },
-                                        { title: 'Физ.лицо', value: 'individual' },
-                                    ]
-                                "
+                                :items="legal_status_list"
                                 label="Организационно-правовая форма"
                                 placeholder="Выбрать..."
                                 @blur="updateForm"

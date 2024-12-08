@@ -23,12 +23,11 @@ const props = defineProps({
     contragents: Object,
     contragents_count: Number,
     contragents_customer_count: Number,
-    countries: Array,
-    legalStatuses: Array,
+    countries: Object,
+    legalStatuses: Object,
     contragents_supplier_count: Number,
     contragents_suppliers: Object,
     contragents_customers: Object,
-    legalStatuses: Object
 });
 
 const pagination_el = ref(null);

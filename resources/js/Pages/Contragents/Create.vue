@@ -69,6 +69,7 @@ const form = reactive({
 const props = defineProps({
     equipment_categories: Array,
     equipment_sizes: Array,
+    countries: Object,
     legalStatuses: Object
 });
 
@@ -181,8 +182,8 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                     class="min-w-44 ml-3 lg:hidden"
                 />
             </div>
-
-            <ContragentsCreateOrEditForm />
+            
+            <ContragentsCreateOrEditForm :countries="props.countries" :legal-statuses="props.legalStatuses" />
             
             <!-- <div class="flex sm:justify-center sm:w-full">
                 <FormError v-if="Object.keys(errors).length > 0" :message="Object.values(errors)" />

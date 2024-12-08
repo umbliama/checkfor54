@@ -184,8 +184,6 @@ const setTab = (tab) => {
                 />
             </div>
             <div class="space-y-4">
-                {{ props.contragent }}
-                
                 <div class="flex items-start p-4 lg:items-center lg:p-6 content-block">
                     <UiUserAvatar :image="contragent.avatar" :size="{ pc: '96px', mob: '80px' }" />
 
@@ -241,11 +239,11 @@ const setTab = (tab) => {
                     <div class="mt-6 space-y-4">
                         <div>
                             <span class="text-gray-400">Страна регистрации:</span>
-                            {{ contragent.formatted_country.title }}
+                            {{ contragent.formatted_country.title || '-' }}
                         </div>
                         <div>
                             <span class="text-gray-400">Организационно-правовая форма:</span>
-                            {{ contragent.agentTypeLegal || '-' }}
+                            {{ contragent.legal_statuses.title || '-' }}
                         </div>
                         <div>
                             <span class="text-gray-400">Полное наименование:</span>

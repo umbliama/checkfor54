@@ -29,14 +29,10 @@ watch(value, new_value => {
 });
 
 onMounted(() => {
-    if (!value.value) value.value = { ...$props.items[0] };
+    if (!value.value) setValue($props.items[0]);
 });
 
 function setValue(v) {
-    const a = { ...v };
-    
-    console.log(a);
-    
     value.value = { ...v };
 }
 

@@ -33,7 +33,9 @@ const success = computed(() => page.props.flash.success)
 
 
 const props = defineProps({
-    contragent: Object
+    contragent: Object,
+    countries: Object,
+    legalStatuses: Object
 });
 
 const form = reactive({
@@ -182,7 +184,7 @@ const setTab = (tab) => {
                 />
             </div>
 
-            <ContragentsCreateOrEditForm :contragent="props.contragent" />
+            <ContragentsCreateOrEditForm :contragent="props.contragent" :countries="props.countries" :legal-statuses="props.legalStatuses" />
         </div>
         
         <!-- <div class="">
