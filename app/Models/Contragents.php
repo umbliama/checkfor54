@@ -57,6 +57,16 @@ class Contragents extends Model
             'BY' => 'Беларусь',
         ];
     }
+    public static function getLegalMapping(): array
+    {
+        return [
+            'ZAO' => 'ЗАО',
+            'OAO' => 'ОАО',
+            'OOO' => 'ООО',
+            'PAO' => 'ПАО',
+            'individual' => 'Физ.лицо',
+        ];
+    }
 
 
 
@@ -68,6 +78,17 @@ class Contragents extends Model
         return [
             'value' => $countryCode,
             'title' => $countryName,
+        ];
+    }
+
+    public function getLegalStatusesAttribute()
+    {
+        $legalMapping = self::getLegalMapping();
+        $legalCode = $this->agentTypeLegal;
+        $legalName = $legalMapping[$legalCode] ?? 'Unknown';
+        return [
+            'value' => $legalCode,
+            'title' => $legalName,
         ];
     }
 

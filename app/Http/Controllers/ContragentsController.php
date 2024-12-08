@@ -43,9 +43,21 @@ class ContragentsController extends Controller
         $contragents_suppliers->getCollection()->transform(function ($contragent) {
             return $contragent->append('formatted_country');
         });
+        $contragents->getCollection()->transform(function ($contragent) {
+            return $contragent->append('legal_statuses');
+        });
+
+        $contragents_customers->getCollection()->transform(function ($contragent) {
+            return $contragent->append('legal_statuses');
+        });
+
+        $contragents_suppliers->getCollection()->transform(function ($contragent) {
+            return $contragent->append('legal_statuses');
+        });
+
 
         $countries = Contragents::getCountryMapping();
-
+        $legalStatuses = Contragents::getLegalMapping();
         return Inertia::render('Contragents/Index', [
             'contragents' => $contragents,
             'contragents_count' => $contragents_count,
@@ -53,7 +65,8 @@ class ContragentsController extends Controller
             'contragents_customer_count' => $contragents_customer_count,
             'contragents_supplier_count' => $contragents_supplier_count,
             'contragents_customers' => $contragents_customers,
-            'contragents_suppliers' => $contragents_suppliers
+            'contragents_suppliers' => $contragents_suppliers,
+            'legalStatuses' => $legalStatuses
         ]);
     }
     public function create()
@@ -189,10 +202,12 @@ class ContragentsController extends Controller
     {
         $contragent = Contragents::findOrFail($id);
         $contragent->append('formatted_country');
+        $contragent->append('legal_statuses');
 
         $countries = Contragents::getCountryMapping();
+        $legalStatuses = Contragents::getLegalMapping();
 
-        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries]);
+        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries,'legalStatuses' => $legalStatuses]);
     }
 
 
