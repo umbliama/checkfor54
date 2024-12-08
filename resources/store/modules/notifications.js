@@ -25,7 +25,6 @@ export default {
                 const notifications = await response.json();
     
                 if (response.ok) {
-                    console.log('New Notifications:', notifications);
                     commit('setNotifications',notifications)
                 } else {
                     console.error('Error fetching notifications:', notifications.error);

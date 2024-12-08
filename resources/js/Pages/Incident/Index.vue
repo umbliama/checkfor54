@@ -241,7 +241,7 @@ const saveBlock = async (blockId, blockData) => {
                 <select v-if="!block.employee_id"v-model="form.employee_id">
                 <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{ employee.name }} </option>
                 </select>
-                <p v-else>{{findEmployeeById(block.employee_id).name findEmployeeById(block.employee_id).name}}</p>
+                <p v-else>{{findEmployeeById(block.employee_id).name }}</p>
                 <Link @click="toggleDropdown">
 
                 <Menu as="div" class="relative inline-block text-left">
