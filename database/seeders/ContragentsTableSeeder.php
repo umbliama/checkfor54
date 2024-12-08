@@ -20,7 +20,7 @@ class ContragentsTableSeeder extends Seeder
         foreach (range(1, 35) as $index) {
             DB::table('contragents')->insert([
                 'agentTypeLegal' => $faker->randomElement(['OOO', 'OAO', 'ZAO', 'PAO', 'individual']),
-                'country' => $faker->country,
+                'country' => 'russia',
                 'name' => $faker->company,
                 'fullname' => $faker->companySuffix,
                 'inn' => $faker->numerify('##########'),
