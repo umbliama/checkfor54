@@ -17,8 +17,15 @@ return new class extends Migration
             $table->string('type');
             $table->json('data');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
-            $table->timestamp('read_at')->nullable();
         });
+        Schema::create('notification_reads', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('notification_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+        });
+        
     }
 
     /**

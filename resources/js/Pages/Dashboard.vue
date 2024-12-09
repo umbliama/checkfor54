@@ -18,6 +18,10 @@ const updateActive = (tab) => {
     store.dispatch('dashboard/updateActiveTab', tab);
 }
 
+const updateUserId = () => {
+    store.dispatch('updateUserId', toRaw(user.value.id))
+}
+
 
 
 const props = defineProps({
@@ -25,6 +29,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
+    updateUserId()
     checkNewNotifications(toRaw(user.value.id))
 })
 

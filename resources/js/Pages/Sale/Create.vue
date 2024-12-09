@@ -119,52 +119,15 @@ function submit() {
               <div
                 class=" border-b-2 flex items-center lg:overflow-x-visible md:overflow-x-visible sm:overflow-y-hidden sm:whitespace-nowrap sm:overflow-x-auto ">
                 <ul class="flex items-center flex-row font-medium mt-0 space-x-8  rtl:space-x-reverse text-sm">
-                  <li class="flex  border-b-2  border-selected-blue pb-4 " @click="updateMenuLink('all')">
+                  <li class="flex  border-b-2  border-selected-blue pb-4 " >
                     <Link class="text-lg sm:text-md  text-selected-blue">Новая продажа</Link>
 
                   </li>
-                  <li class="flex pb-4">
-                    <Menu as="div" class="relative inline-block text-left">
-                      <div class="sm:overflow-x-visible">
-                        <MenuButton
-                          class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
-                          <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                              d="M2.33337 4C1.80294 4 1.29423 3.78929 0.91916 3.41421C0.544088 3.03914 0.333374 2.53043 0.333374 2C0.333374 1.46957 0.544088 0.960859 0.91916 0.585786C1.29423 0.210714 1.80294 0 2.33337 0C2.86381 0 3.37251 0.210714 3.74759 0.585786C4.12266 0.960859 4.33337 1.46957 4.33337 2C4.33337 2.53043 4.12266 3.03914 3.74759 3.41421C3.37251 3.78929 2.86381 4 2.33337 4ZM11.6667 4C11.1363 4 10.6276 3.78929 10.2525 3.41421C9.87742 3.03914 9.66671 2.53043 9.66671 2C9.66671 1.46957 9.87742 0.960859 10.2525 0.585786C10.6276 0.210714 11.1363 0 11.6667 0C12.1971 0 12.7058 0.210714 13.0809 0.585786C13.456 0.960859 13.6667 1.46957 13.6667 2C13.6667 2.53043 13.456 3.03914 13.0809 3.41421C12.7058 3.78929 12.1971 4 11.6667 4ZM7.00004 4C6.46961 4 5.9609 3.78929 5.58583 3.41421C5.21075 3.03914 5.00004 2.53043 5.00004 2C5.00004 1.46957 5.21075 0.960859 5.58583 0.585786C5.9609 0.210714 6.46961 0 7.00004 0C7.53047 0 8.03918 0.210714 8.41426 0.585786C8.78933 0.960859 9.00004 1.46957 9.00004 2C9.00004 2.53043 8.78933 3.03914 8.41426 3.41421C8.03918 3.78929 7.53047 4 7.00004 4Z"
-                              fill="#697077" />
-                          </svg>
-
-                        </MenuButton>
-                      </div>
-
-                      <transition enter-active-class="transition ease-out duration-100"
-                        enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                        leave-active-class="transition ease-in duration-75"
-                        leave-from-class="transform opacity-100 scale-100"
-                        leave-to-class="transform opacity-0 scale-95">
-                        <MenuItems
-                          class="absolute top-6 z-200 right-2  w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                          <div class="py-1">
-                            <MenuItem>
-                            <Link :href="route('services.create')" class="flex items-center justify-around"
-                              :class="['block px-4 py-2 text-sm']">Создать продажу
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                              xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M8.74999 2.75004C8.74999 2.33582 8.4142 2.00004 7.99999 2.00004C7.58578 2.00004 7.24999 2.33582 7.24999 2.75004V7.25H2.75C2.33579 7.25 2 7.58579 2 8C2 8.41422 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41422 14 8C14 7.58579 13.6642 7.25 13.25 7.25H8.74999V2.75004Z"
-                                fill="#464F60" />
-                            </svg>
-
-
-                            </Link>
-                            </MenuItem>
-
-                          </div>
-                        </MenuItems>
-                      </transition>
-                    </Menu>
+                  <li  class="flex  border-b-2  border-selected-blue pb-4 ">
+                    <Link :href="route('sale.index')" class="text-lg sm:text-md  text-selected-blue">История</Link>
 
                   </li>
+
 
                 </ul>
 
@@ -243,7 +206,7 @@ function submit() {
 
           <div class="lg:hidden md:flex sm:flex flex flex-col mt-4">
             <div class="flex whitespace-nowrap items-center overflow-x-auto bg-my-gray px-4 py-2">
-              <label class="w-56 border-b-2 border-gray-200 pb-3" for="rent_num">Номер аренды</label>
+              <label class="w-56 border-b-2 border-gray-200 pb-3" for="rent_num">Номер продажи</label>
               <div class="flex mx-3">
                 <!-- SVG Icon -->
               </div>
@@ -309,8 +272,8 @@ function submit() {
                   </th>
                   <th class="p-4">Оборудование</th>
                   <th class="p-4">Дата отгрузки</th>
-                  <th class="p-4">Начало периода</th>
                   <th class="p-4">Комментарий</th>
+                  <th class="p-4">Цена</th>
                   <th class="p-4">
                     <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
