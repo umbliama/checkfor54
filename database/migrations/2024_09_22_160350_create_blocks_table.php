@@ -26,8 +26,8 @@ return new class extends Migration
         });
         Schema::create('block_subequipment', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('block_id')->constrained()->onDelete('cascade'); 
-            $table->foreignId('subequipment_id')->constrained('block_subequipment')->onDelete('cascade'); 
+            $table->foreignId('block_id')->constrained('blocks')->onDelete('cascade'); 
+            $table->foreignId('subequipment_id')->constrained('equipment')->onDelete('cascade'); 
             $table->timestamps();
         });
     }

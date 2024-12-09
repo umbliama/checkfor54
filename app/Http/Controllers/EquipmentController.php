@@ -433,14 +433,14 @@ class EquipmentController extends Controller
             'category_id' => 'required|integer',
             'location_id' => 'required|integer',
             'size_id' => 'required|integer',
-            'series' => 'nullable|string',
+            'series' => 'required|string',
             'manufactor_date' => 'nullable|date',
-            'status' => ['required', 'string', 'in:new,good,satisfactory,bad,off'],
+            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off'],
             'notes' => 'nullable|string',
-            'price' => 'required|integer',
+            'price' => 'nullable|integer',
             'commentary' => 'nullable|string',
-            'length' => 'required|string',
-            'operating' => 'required|string',
+            'length' => 'nullable|string',
+            'operating' => 'nullable|string',
 
         ]);
 
@@ -448,10 +448,10 @@ class EquipmentController extends Controller
         switch ($request->input('category_id')) {
             case 1: // ВЗД
                 $extraData = $request->validate([
-                    'zahodnost' => 'required|string',
-                    'stator_rotor' => 'required|string',
-                    'narabotka_ds' => 'required|string',
-                    'dlina_ds' => 'required|string',
+                    'zahodnost' => 'nullable|string',
+                    'stator_rotor' => 'nullable|string',
+                    'narabotka_ds' => 'nullable|string',
+                    'dlina_ds' => 'nullable|string',
                 ]);
                 $validatedData = array_merge($validatedData, $extraData); // Merge extra data
                 break;
@@ -462,9 +462,9 @@ class EquipmentController extends Controller
             case 4: // ПК
             case 7:
                 $extraData = $request->validate([
-                    'rezbi' => 'required|string',
-                    'length_rezba' => 'required|string',
-                    'diameter' => 'required|string',
+                    'rezbi' => 'nullable|string',
+                    'length_rezba' => 'nullable|string',
+                    'diameter' => 'nullable|string',
                 ]);
                 $validatedData = array_merge($validatedData, $extraData); // Merge extra data
                 break;

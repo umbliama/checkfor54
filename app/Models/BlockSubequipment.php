@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\EquipmentCategories;
+use App\Models\EquipmentSize;
 use App\Models\Block;
 
 class BlockSubequipment extends Model
@@ -14,6 +16,23 @@ class BlockSubequipment extends Model
 
     public function blocks()
     {
-        return $this->belongsToMany(Block::class, 'block_subequipment');
+        return $this->belongsToMany(
+            Block::class,                    
+            'block_subequipment',            
+            'subequipment_id',               
+            'block_id'
+        )->withPivot('id');                 
     }
+    public function category()
+    {
+        return $this->belongsTo(EquipmentCategories::class, 'category_id');
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(EquipmentSize::class, 'size_id');
+    }
+
+    
+    
 }

@@ -15,19 +15,19 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('manufactor');
-            $table->unsignedBigInteger('category_id')->after('manufactor'); // Add the category_id column
+            $table->unsignedBigInteger('category_id')->after('manufactor'); 
             $table->foreign('category_id')->references('id')->on('equipment_categories')->onDelete('set null');
-            $table->unsignedBigInteger('size_id')->after('category_id'); // Add the size_id column
+            $table->unsignedBigInteger('size_id')->after('category_id'); 
             $table->foreign('size_id')->references('id')->on('equipment_sizes')->onDelete('set null');
-            $table->unsignedBigInteger('location_id')->after('size_id'); // Add the location column
+            $table->unsignedBigInteger('location_id')->after('size_id'); 
             $table->foreign('location_id')->references('id')->on('equipment_locations')->onDelete('set null');            
-            $table->string('series');
-            $table->string('length');
-            $table->string('operating');
-            $table->date('manufactor_date');
-            $table->enum('status',['new','good','satisfactory', 'bad', 'off']);
+            $table->string('series')->nullable();
+            $table->string('length')->nullable();
+            $table->string('operating')->nullable();
+            $table->date('manufactor_date')->nullable();
+            $table->enum('status',['new','good','satisfactory', 'bad', 'off'])->nullable();
             $table->text('notes')->nullable();
-            $table->integer('price');
+            $table->integer('price')->nullable();
             $table->text('commentary')->nullable();
             $table->string('zahodnost')->nullable();
             $table->string('stator_rotor')->nullable();

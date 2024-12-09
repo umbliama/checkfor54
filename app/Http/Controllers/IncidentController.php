@@ -17,30 +17,30 @@ class IncidentController extends Controller
      */
     public function index()
     {
-        $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')->where('type','tasks')->where('isArchive',0)
+        $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
+            ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
             ->paginate(10);
         $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')->where('type','adv')->where('isArchive',0)
+            ->orderBy('position')->where('type', 'adv')->where('isArchive', 0)
             ->paginate(10);
         $tasksColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')->where('type','tasks')->where('isArchive',1)
+            ->orderBy('position')->where('type', 'tasks')->where('isArchive', 1)
             ->paginate(10);
         $advColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')->where('type','adv')->where('isArchive',1)
+            ->orderBy('position')->where('type', 'adv')->where('isArchive', 1)
             ->paginate(10);
         $contragents = Contragents::all();
         $employees = User::where('isAdmin', 0)->get();
 
 
 
-        return Inertia::render('Incident/Index', ['tasksColumns' => $tasksColumns, 'advColumns' => $advColumns, 'tasksColumnsArchived' => $tasksColumnsArchived, 'advColumnsArchived'=> $advColumnsArchived ,'contragents' => $contragents, 'employees' => $employees]);
+        return Inertia::render('Incident/Index', ['tasksColumns' => $tasksColumns, 'advColumns' => $advColumns, 'tasksColumnsArchived' => $tasksColumnsArchived, 'advColumnsArchived' => $advColumnsArchived, 'contragents' => $contragents, 'employees' => $employees]);
     }
 
     public function history()
     {
         $columns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
-            ->orderBy('position')->where('isArchive',1)
+            ->orderBy('position')->where('isArchive', 1)
             ->paginate(10);
         $contragents = Contragents::all();
 
@@ -106,8 +106,6 @@ class IncidentController extends Controller
             case 'equipment':
                 return [
                     'equipment_id' => $request->input('equipment_id'),
-                    'name' => $request->input('name'),
-                    'status' => $request->input('status')
                 ];
             case 'customer':
                 return [
@@ -119,50 +117,50 @@ class IncidentController extends Controller
                     'equipment_id' => $request->input('equipment_id', null),
                     'commentary' => $request->input('text'),
                 ];
-                case 'mediafiles':
-                    if ($request->hasFile('media_file')) {
-                        $uploadedFiles = $request->file('media_file');
-                        $mediaUrls = [];
-                
-                        foreach ($uploadedFiles as $mediaFile) {
-                            $fileName = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
-                            $mediaFile->move(public_path('media_files'), $fileName);
-                            $mediaUrls[] = 'media_files/' . $fileName;
-                        }
-                
-                        return [
-                            'media_url' => $mediaUrls, 
-                        ];
+            case 'mediafiles':
+                if ($request->hasFile('media_file')) {
+                    $uploadedFiles = $request->file('media_file');
+                    $mediaUrls = [];
+
+                    foreach ($uploadedFiles as $mediaFile) {
+                        $fileName = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
+                        $mediaFile->move(public_path('media_files'), $fileName);
+                        $mediaUrls[] = 'media_files/' . $fileName;
                     }
-                
+
                     return [
-                        'media_url' => [],
+                        'media_url' => $mediaUrls,
                     ];
-                                
-                    case 'files':
-                        if ($request->hasFile('files')) {
-                            $uploadedFiles = $request->file('files');
-                            $fileUrls = [];
-                    
-                            foreach ($uploadedFiles as $file) {
-                                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                                $file->move(public_path('files'), $fileName);
-                                $fileUrls[] = 'files/' . $fileName;
-                            }
-                    
-                            return [
-                                'file_url' => $fileUrls, 
-                            ];
-                        }
-                    
-                        return [
-                            'file_url' => [],
-                        ];
-                    case 'employee':
-                        return [
-                            'employee_id' => $request->input('employee_id', null)
-                        ];
-                                    
+                }
+
+                return [
+                    'media_url' => [],
+                ];
+
+            case 'files':
+                if ($request->hasFile('files')) {
+                    $uploadedFiles = $request->file('files');
+                    $fileUrls = [];
+
+                    foreach ($uploadedFiles as $file) {
+                        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $file->move(public_path('files'), $fileName);
+                        $fileUrls[] = 'files/' . $fileName;
+                    }
+
+                    return [
+                        'file_url' => $fileUrls,
+                    ];
+                }
+
+                return [
+                    'file_url' => [],
+                ];
+            case 'employee':
+                return [
+                    'employee_id' => $request->input('employee_id', null)
+                ];
+
             default:
                 return [];
         }
@@ -197,17 +195,29 @@ class IncidentController extends Controller
     public function saveBlockInfo(Request $request, Block $block)
     {
         $type = $block->type;
-    
+
         $data = $this->prepareBlockContent($type, $request);
-    
+
         $block->update([
-            'media_url' => $data['media_url'] ?? $block->media_url, 
-            'file_url' => $data['file_url'] ?? $block->file_url,    
-            'commentary' => $request->input('text', $block->commentary), 
-            'employee_id' => $data['employee_id']
+            'media_url' => $data['media_url'] ?? $block->media_url,
+            'file_url' => $data['file_url'] ?? $block->file_url,
+            'contragent_id' => $request->input('contragent_id'),
+            'commentary' => $request->input('text', $block->commentary),
+            'employee_id' => $request->input('employee_id', $block->employee_id),
+            'equipment_id' => $request->input('equipment_id'), 
         ]);
-    
+        if ($request->input('subEquipmentArray')) {
+            $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
+        }
         return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
+    }
+    private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
+    {
+        $block->subequipment()->detach();
+
+        foreach ($subEquipmentArray as $subequipmentId) {
+            $block->subequipment()->attach($subequipmentId);
+        }
     }
     public function reorderColumns(Request $request)
     {

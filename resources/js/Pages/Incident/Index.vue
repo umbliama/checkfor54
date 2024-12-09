@@ -3,7 +3,7 @@ import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, onMounted, reactive, ref, toRaw } from 'vue';
+import { computed, onMounted, reactive, ref, toRaw, watch } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 import store from '../../../store/index';
 
@@ -13,10 +13,13 @@ const page = usePage()
 const user = computed(() => page.props.auth.user)
 
 
-
+const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
+const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
+const selectedSubEquipmentArray = computed(() => store.getters['services/getSubSelectedEquipmentObjects']);
+const selectedEquipmentService = computed(() => store.getters['services/getSelectedEquipmentService']);
 const modalShown = computed(() => store.getters['services/getModalShown']);
 const getMenuActiveItem = computed(() => store.getters['incident/getActiveMenuItem']);
-
+const subEquipment = computed(() => store.getters['services/getSubEquipment'])
 const props = defineProps({
   tasksColumns: Object,
   advColumns: Object,
@@ -45,7 +48,10 @@ const form = reactive({
   equipmentCategory: null,
   equipmentSeries: null,
   equipmentSize: null,
-  employee_id:null
+  employee_id: null,
+  equipmentId: selectedEquipment ?? null,
+  subEquipmentIds:  subEquipmentArray ??null,
+  files: null
 })
 
 const findEmployeeById = (employee_id) => {
@@ -53,9 +59,35 @@ const findEmployeeById = (employee_id) => {
   return raw.find(employee => employee.id == employee_id)
 }
 
+
 const createColumn = () => {
   axios.post('const')
 }
+watch(selectedEquipment, async (newValue, oldValue) => {
+  if (newValue) {
+    try {
+      const response = await fetch(`/api/equipment/${newValue}`);
+      const data = await response.json();
+      store.dispatch('services/updateSelectedEquipmentService', data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+});
+
+
+watch(subEquipmentArray, async (newValue, oldValue) => {
+  if (newValue.length) {
+    const lastValue = newValue[newValue.length - 1];
+    try {
+      const response = await fetch(`/api/equipment/${lastValue}`);
+      const data = await response.json();
+      store.dispatch('services/updateSubEquipment', data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}, { deep: true });
 
 
 const createBlock = (columnId, type) => {
@@ -63,8 +95,11 @@ const createBlock = (columnId, type) => {
 }
 
 
-const handleFileUpload = (event) => {
+const handleMediaFileUpload = (event) => {
   form.media_file = Array.from(event.target.files);
+};
+const handleFileUpload = (event) => {
+  form.files = Array.from(event.target.files);
 };
 
 
@@ -238,10 +273,11 @@ const saveBlock = async (blockId, blockData) => {
             <div v-for="block in column.blocks" :key="block.id" class="p-2 border rounded mb-2">
               <div v-if="block.type == 'employee'">
                 <p>Сотрудник</p>
-                <select v-if="!block.employee_id"v-model="form.employee_id">
-                <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }} {{ employee.name }} </option>
+                <select v-if="!block.employee_id" v-model="form.employee_id">
+                  <option v-for="employee in employees" :key="employee.id" :value="employee.id">{{ employee.lastname }}
+                    {{ employee.name }} </option>
                 </select>
-                <p v-else>{{findEmployeeById(block.employee_id).name }}</p>
+                <p v-else>{{ findEmployeeById(block.employee_id).name }}</p>
                 <Link @click="toggleDropdown">
 
                 <Menu as="div" class="relative inline-block text-left">
@@ -392,7 +428,7 @@ const saveBlock = async (blockId, blockData) => {
               </div>
               <div v-if="block.type == 'mediafiles'">
                 <div>
-                  <input type="file" name="media_file[]" multiple @change="handleFileUpload" />
+                  <input type="file" name="media_file[]" multiple @change="handleMediaFileUpload" />
 
                   <img v-for="item in block.media_url" :src="item" alt="">
 
@@ -442,14 +478,11 @@ const saveBlock = async (blockId, blockData) => {
                 </Link>
 
               </div>
-              <div v-if="block.type == 'equipment'">
+              <div v-if="block.type == 'files'">
                 <div>
-                  <button v-if="!selectedEquipmentService" @click="showModal(true)"
-                    class=" text-side-gray-text px-4 py-2 rounded">
-                    Нажмите чтобы выбрать оборудование
-                  </button>
-                  <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
-                  </ServiceModal>
+                  <input type="file" name="files[]" multiple @change="handleFileUpload" />
+
+                  <a v-for="item in block.file_url" :href="item" download alt="">Скачать</a>
 
                 </div>
                 <Link @click="toggleDropdown">
@@ -480,7 +513,86 @@ const saveBlock = async (blockId, blockData) => {
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                            <Link @click="saveBlock(block.id, { files: form.files });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'equipment'">
+                <div>
+                  <div v-if="block.equipment_id">
+                    {{block.equipment.category.name}} {{block.equipment.size.name}} {{block.equipment.series}}
+                  </div>
+                  <div v-else>
+                    <button v-if="!selectedEquipmentService || block.equipment_id " @click="showModal(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать оборудование
+                    </button>
+                    <div v-else class="p-4 bg-my-gray border whitespace-nowrap flex">
+                      <p> {{ selectedEquipmentService.category.name }} {{ selectedEquipmentService.size.name }} {{
+                        selectedEquipmentService.series }}</p>
+                    </div>
+                  </div>
+
+
+
+                  <div v-if="block.subequipment.length > 0">
+                    <p v-for="item in block.subequipment">{{ item.category.name }} {{ item.size.name }} {{ item.series }}</p>
+                  </div>
+                  <div v-else>
+                    <button @click="showModal(true)"
+                    class=" text-side-gray-text px-4 py-2 rounded">
+                    Нажмите чтобы выбрать оборудование
+                  </button>
+                  <div v-for="item in subEquipment" class="p-4 bg-my-gray border whitespace-nowrap flex">
+                    <p> {{ item.category.name }} {{ item.size.name }} {{ item.series }} </p>
+                  </div>
+                  
+                  </div>
+     
+
+                </div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { equipment_id: form.equipmentId, subEquipmentArray: form.subEquipmentIds });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -639,6 +751,7 @@ const saveBlock = async (blockId, blockData) => {
                 </Link>
 
               </div>
+
               <div v-if="block.type == 'commentary'">
                 <div>
                   <textarea name="commentary" v-model="block.commentary" id=""></textarea>
@@ -690,8 +803,7 @@ const saveBlock = async (blockId, blockData) => {
               </div>
               <div v-if="block.type == 'mediafiles'">
                 <div>
-                  <input type="file" @change="handleFileUpload" />
-                  <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
+                  <input type="file" @change="handleMediaFileUpload" />
                   <img :src="block.media_url" alt="">
 
                 </div>
@@ -740,14 +852,11 @@ const saveBlock = async (blockId, blockData) => {
                 </Link>
 
               </div>
-              <div v-if="block.type == 'equipment'">
+              <div v-if="block.type == 'files'">
                 <div>
-                  <button v-if="!selectedEquipmentService" @click="showModal(true)"
-                    class=" text-side-gray-text px-4 py-2 rounded">
-                    Нажмите чтобы выбрать оборудование
-                  </button>
-                  <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
-                  </ServiceModal>
+                  <input type="file" name="files[]" multiple @change="handleFileUpload" />
+
+                  <a v-for="item in block.file_url" :href="item" download alt="">Скачать</a>
 
                 </div>
                 <Link @click="toggleDropdown">
@@ -778,7 +887,83 @@ const saveBlock = async (blockId, blockData) => {
                         <div class="border-b-2 "></div>
                         <ul class="px-2 py-1 space-y-1">
                           <li>
-                            <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                            <Link @click="saveBlock(block.id, { files: form.files });">
+                            Сохранить блок
+                            </Link>
+                          </li>
+                          <li>
+                            <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                            Удалить блок
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </MenuItems>
+                  </transition>
+                </Menu>
+                </Link>
+
+              </div>
+              <div v-if="block.type == 'equipment'">
+                <div >
+                  <div v-if="block.equipment_id">
+                    {{block.equipment.category.name}} {{block.equipment.size.name}} {{block.equipment.series}}
+                  </div>
+                  <div v-else>
+                    <button v-if="!selectedEquipmentService || block.equipment_id " @click="showModal(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать оборудование
+                    </button>
+                    <div v-else class="p-4 bg-my-gray border whitespace-nowrap flex">
+                      <p> {{ selectedEquipmentService.category.name }} {{ selectedEquipmentService.size.name }} {{
+                        selectedEquipmentService.series }}</p>
+                    </div>
+                  </div>
+                  <div v-if="block.subequipment.length > 0">
+                    <p v-for="item in block.subequipment">{{ item.category.name }} {{ item.size.name }} {{ item.series }}</p>
+                  </div>
+                  <div v-else>
+                    <button @click="showModal(true)"
+                    class=" text-side-gray-text px-4 py-2 rounded">
+                    Нажмите чтобы выбрать оборудование
+                  </button>
+                  <div v-for="item in subEquipment" class="p-4 bg-my-gray border whitespace-nowrap flex">
+                    <p> {{ item.category.name }} {{ item.size.name }} {{ item.series }} </p>
+                  </div>
+                  
+                  </div>
+     
+
+                </div>
+                <Link @click="toggleDropdown">
+
+                <Menu as="div" class="relative inline-block text-left">
+                  <div>
+                    <MenuButton
+                      class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                      <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                          fill="#697077" />
+                      </svg>
+
+                    </MenuButton>
+                  </div>
+
+                  <transition enter-active-class="transition ease-out duration-100"
+                    enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems
+                      class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="py-1 px-2">
+                        <!-- Heading -->
+                        <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                        <div class="border-b-2 "></div>
+                        <ul class="px-2 py-1 space-y-1">
+                          <li>
+                            <Link @click="saveBlock(block.id, { equipment_id: form.equipmentId, subEquipmentArray: form.subEquipmentIds });">
                             Сохранить блок
                             </Link>
                           </li>
@@ -799,12 +984,14 @@ const saveBlock = async (blockId, blockData) => {
           </div>
 
         </div>
-        <div v-if="getMenuActiveItem == 'history' || getMenuActiveItem == 'history_tasks' || getMenuActiveItem == 'history_adv' ">
+        <div
+          v-if="getMenuActiveItem == 'history' || getMenuActiveItem == 'history_tasks' || getMenuActiveItem == 'history_adv'">
           <ul>
             <li @click="updateActiveMenuItem('history_tasks')">Задачи</li>
             <li @click="updateActiveMenuItem('history_adv')">Рекламация</li>
           </ul>
-          <div v-if="getMenuActiveItem == 'history_tasks'" v-for="column in tasksColumnsArchived.data" class="bg-white border-8 border-my-gray-500  rounded p-4">
+          <div v-if="getMenuActiveItem == 'history_tasks'" v-for="column in tasksColumnsArchived.data"
+            class="bg-white border-8 border-my-gray-500  rounded p-4">
             <div class="flex items-center justify-between">
               <h3>Хронология</h3>
               <Link @click="toggleDropdown">
@@ -987,9 +1174,59 @@ const saveBlock = async (blockId, blockData) => {
                 </div>
                 <div v-if="block.type == 'mediafiles'">
                   <div>
-                    <input type="file" @change="handleFileUpload" />
-                    <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
+                    <input type="file" @change="handleMediaFileUpload" />
                     <img :src="block.media_url" alt="">
+
+                  </div>
+                  <Link @click="toggleDropdown">
+
+                  <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                        <svg width="20" height="6" viewBox="0 0 20 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M3 4C3.26522 4 3.51957 3.89464 3.70711 3.70711C3.89464 3.51957 4 3.26522 4 3C4 2.73478 3.89464 2.48043 3.70711 2.29289C3.51957 2.10536 3.26522 2 3 2C2.73478 2 2.48043 2.10536 2.29289 2.29289C2.10536 2.48043 2 2.73478 2 3C2 3.26522 2.10536 3.51957 2.29289 3.70711C2.48043 3.89464 2.73478 4 3 4ZM3 6C2.20435 6 1.44129 5.68393 0.87868 5.12132C0.31607 4.55871 0 3.79565 0 3C0 2.20435 0.31607 1.44129 0.87868 0.87868C1.44129 0.31607 2.20435 0 3 0C3.79565 0 4.55871 0.31607 5.12132 0.87868C5.68393 1.44129 6 2.20435 6 3C6 3.79565 5.68393 4.55871 5.12132 5.12132C4.55871 5.68393 3.79565 6 3 6ZM17 6C16.2044 6 15.4413 5.68393 14.8787 5.12132C14.3161 4.55871 14 3.79565 14 3C14 2.20435 14.3161 1.44129 14.8787 0.87868C15.4413 0.31607 16.2044 0 17 0C17.7956 0 18.5587 0.31607 19.1213 0.87868C19.6839 1.44129 20 2.20435 20 3C20 3.79565 19.6839 4.55871 19.1213 5.12132C18.5587 5.68393 17.7956 6 17 6ZM17 4C17.2652 4 17.5196 3.89464 17.7071 3.70711C17.8946 3.51957 18 3.26522 18 3C18 2.73478 17.8946 2.48043 17.7071 2.29289C17.5196 2.10536 17.2652 2 17 2C16.7348 2 16.4804 2.10536 16.2929 2.29289C16.1054 2.48043 16 2.73478 16 3C16 3.26522 16.1054 3.51957 16.2929 3.70711C16.4804 3.89464 16.7348 4 17 4ZM10 6C9.20435 6 8.44129 5.68393 7.87868 5.12132C7.31607 4.55871 7 3.79565 7 3C7 2.20435 7.31607 1.44129 7.87868 0.87868C8.44129 0.31607 9.20435 0 10 0C10.7956 0 11.5587 0.31607 12.1213 0.87868C12.6839 1.44129 13 2.20435 13 3C13 3.79565 12.6839 4.55871 12.1213 5.12132C11.5587 5.68393 10.7956 6 10 6ZM10 4C10.2652 4 10.5196 3.89464 10.7071 3.70711C10.8946 3.51957 11 3.26522 11 3C11 2.73478 10.8946 2.48043 10.7071 2.29289C10.5196 2.10536 10.2652 2 10 2C9.73478 2 9.48043 2.10536 9.29289 2.29289C9.10536 2.48043 9 2.73478 9 3C9 3.26522 9.10536 3.51957 9.29289 3.70711C9.48043 3.89464 9.73478 4 10 4Z"
+                            fill="#697077" />
+                        </svg>
+
+                      </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1 px-2">
+                          <!-- Heading -->
+                          <h3 class="px-2 border-b-2  py-2 text-sm font-semibold text-gray-700">Меню блока</h3>
+
+                          <div class="border-b-2 "></div>
+                          <ul class="px-2 py-1 space-y-1">
+                            <li>
+                              <Link @click="saveBlock(block.id, { media_file: form.mediaFile });">
+                              Сохранить блок
+                              </Link>
+                            </li>
+                            <li>
+                              <Link method="DELETE" :href="route('constructor.deleteBlock', block.id)">
+                              Удалить блок
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                  </Link>
+
+                </div>
+                <div v-if="block.type == 'files'">
+                  <div>
+                    <input type="file" @change="handleFileUpload" />
+                    <img :src="block.file_url" alt="">
 
                   </div>
                   <Link @click="toggleDropdown">
@@ -1279,8 +1516,7 @@ const saveBlock = async (blockId, blockData) => {
                 </div>
                 <div v-if="block.type == 'mediafiles'">
                   <div>
-                    <input type="file" @change="handleFileUpload" />
-                    <input type="text" v-model="mediaCaption" placeholder="Enter caption" />
+                    <input type="file" @change="handleMediaFileUpload" />
                     <img :src="block.media_url" alt="">
 
                   </div>
@@ -1335,9 +1571,7 @@ const saveBlock = async (blockId, blockData) => {
                       class=" text-side-gray-text px-4 py-2 rounded">
                       Нажмите чтобы выбрать оборудование
                     </button>
-                    <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
-                    </ServiceModal>
-
+       
                   </div>
                   <Link @click="toggleDropdown">
 
@@ -1394,5 +1628,7 @@ const saveBlock = async (blockId, blockData) => {
 
       </div>
     </div>
+<ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown">
+                    </ServiceModal>
   </div>
 </template>

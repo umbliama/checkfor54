@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Block extends Model
 {
-    protected $fillable = ['column_id', 'type', 'commentary', 'file_url','employee_id' ,'media_url', 'position','contragent_id','equipment_id'];
+    protected $fillable = ['column_id', 'type', 'commentary', 'file_url', 'employee_idxx', 'media_url', 'position', 'contragent_id', 'equipment_id'];
 
     protected $casts = [
         'media_url' => 'array',
@@ -25,7 +25,7 @@ class Block extends Model
         return $this->belongsTo(Column::class);
     }
 
-    // Get block type label
+
     public function getTypeLabelAttribute()
     {
         return match ($this->type) {
@@ -40,17 +40,24 @@ class Block extends Model
 
     public function subequipment()
     {
-        return $this->belongsToMany(BlockSubequipment::class, 'block_subequipment');
+        return $this->belongsToMany(
+            Equipment::class,
+            'block_subequipment',
+            'block_id',
+            'subequipment_id'
+        )->with('category', 'size');
     }
 
-    public function equipment():BelongsTo
+
+
+    public function equipment(): BelongsTo
     {
-        return $this->belongsTo(Equipment::class,'equipment_id');
+        return $this->belongsTo(Equipment::class, 'equipment_id');
     }
 
     public function contragent(): BelongsTo
     {
-        return $this->belongsTo(Contragents::class,'contragent_id');
+        return $this->belongsTo(Contragents::class, 'contragent_id');
     }
 
 
