@@ -24,8 +24,12 @@ const store = createStore({
         cities: [],
         activeSideMenuItem: SideMenuMenuStates.DASHBOARD,
         equimpent: [],
+        userId:null
     },
     mutations: {
+        SET_USER_ID(state,userId) {
+            state.userId = userId
+        },
         SET_ACTIVE_CITY(state, city) {
             state.activeCity = city;
         },
@@ -49,6 +53,9 @@ const store = createStore({
                 console.log(error);
             }
         },
+        updateUserId({commit}, userId) {
+            commit('SET_USER_ID', userId)
+        },
 
         setActiveSidemenuItem({ commit }, item) {
             commit("SET_ACTIVE_SIDEMENU_ITEM", item);
@@ -58,6 +65,7 @@ const store = createStore({
         },
     },
     getters: {
+        getUserId: (state) => state.userId,
         activeCity: (state) => state.activeCity,
         cities: (state) => state.cities,
         activeSidemenuItem: (state) => state.activeSideMenuItem,
