@@ -6,6 +6,7 @@ use App\Models\Notification;
 use App\Models\NotificationRead;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -15,24 +16,33 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Notification::all();
-        return Inertia::render('Notifications/Index', ['notifications' => $notifications]);
+        $user_id = Auth::id();
+        $read_notifications = NotificationRead::all();
+        return Inertia::render('Notifications/Index', ['notifications' => $notifications, 'user_id' => $user_id,'read_notifications' => $read_notifications]);
     }
 
 
 
     public function getNotificationsByUserId($currentUserId)
     {
-        $notifications = Notification::where('user_id', '!=', $currentUserId)->get();
-
+        $notifications = Notification::where('user_id', '!=', $currentUserId)
+            ->whereNotIn('id', function ($query) use ($currentUserId) {
+                $query->select('notification_id')
+                    ->from('notification_reads')
+                    ->where('user_id', $currentUserId)
+                    ->whereNotNull('read_at');
+            })
+            ->get();
+    
         return response()->json($notifications);
     }
 
-    public function markAsRead(Request $request, $id)
+    public function markAsRead(Request $request, $id, $userId)
     {
         $notification = Notification::findOrFail($id);
 
         NotificationRead::updateOrCreate(
-            ['notification_id' => $notification->id, 'user_id' => auth()->id()],
+            ['notification_id' => $notification->id, 'user_id' => $userId],
             ['read_at' => now()]
         );
 

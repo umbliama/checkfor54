@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\Contragents;
 use App\Models\User;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 
@@ -52,14 +53,13 @@ class IncidentController extends Controller
     public function createColumn(Request $request)
     {
         $position = Column::max('position') + 1;
+        $user_id = Auth::id();
         $column = Column::create(['position' => $position, 'type' => $request->input('type')]);
-        foreach (User::all() as $user) {
-            Notification::create([
-                'type' => 'Создана новая колонка',
-                'data' => ['position' => $position],
-                'user_id' => $user->id
-            ]);
-        }
+        Notification::create([
+            'type' => 'Создана новая колонка',
+            'data' => ['position' => $position],
+            'user_id' => $user_id
+        ]);
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
@@ -203,7 +203,7 @@ class IncidentController extends Controller
             'file_url' => $data['file_url'] ?? $block->file_url,
             'contragent_id' => $request->input('contragent_id'),
             'commentary' => $request->input('text', $block->commentary),
-            'employee_id' => $request->input('employee_id', $block->employee_id),
+            'employee_id' => $request->input('employee_id'),
             'equipment_id' => $request->input('equipment_id'), 
         ]);
         if ($request->input('subEquipmentArray')) {

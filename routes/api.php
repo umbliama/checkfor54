@@ -35,7 +35,7 @@ Route::get('/equip/tests',[EquipmentController::class,'getFilteredTests']);
 
 
 Route::get('/getNotificationsByUserId/{id}',[NotificationController::class,'getNotificationsByUserId']);
-Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+Route::post('/notifications/read/{id}/{userId}', [NotificationController::class, 'markAsRead']);
 Route::post('/notifications/read-all/{id}', [NotificationController::class, 'markAllAsRead']);
 
 Route::middleware('auth:sanctum')->get('/check-auth', function () {
