@@ -22,6 +22,8 @@ class SaleController extends Controller
             'equipment.size'
         ])->paginate(10);
 
+        $saleStatuses = Sale::getStatusesMapping();
+
         $sales->getCollection()->transform(function ($sale) {
             $sale->subservices = $sale->subservices->map(function ($subservice) {
 
@@ -45,7 +47,7 @@ class SaleController extends Controller
             return $sale;
         });
 
-        return Inertia::render('Sale/Index', ['sales' => $sales]);
+        return Inertia::render('Sale/Index', ['sales' => $sales, 'saleStatuses' => $saleStatuses]);
     }
 
     /**
@@ -54,7 +56,10 @@ class SaleController extends Controller
     public function create()
     {
         $contragents = Contragents::all();
-        return Inertia::render('Sale/Create', ['contragents' => $contragents]);
+        $saleStatuses = Sale::getStatusesMapping();
+        $extraServices = Sale::getExtraServices();
+
+        return Inertia::render('Sale/Create', ['contragents' => $contragents, 'saleStatuses' => $saleStatuses, "extraServices" => $extraServices]);
     }
 
     /**
@@ -119,7 +124,7 @@ class SaleController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return Inertia::render('Sale/Edit');
     }
 
     /**
@@ -135,6 +140,8 @@ class SaleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $sale = Sale::findOrFail($id);
+
+        $sale->delete();
     }
 }

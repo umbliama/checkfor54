@@ -35,5 +35,26 @@ class Sale extends Model
         return $this->belongsToMany(Equipment::class, 'sale_subequipment', 'sale_number', 'subequipment_id');
     }
 
+    public static function getStatusesMapping(): array
+    {
+        return [
+            'full' => 'Полная оплата',
+            'pred' => 'Предоплата',
+            'credit' => 'Рассрочка',
+        ];
+    }
 
+    public static function getExtraServices(): array
+    {
+        return [
+            'transfer' => 'Перевозка оборудования',
+            'repair_vzd' => 'Ремонт ВЗД',
+            'repair_yss' => 'Ремонт ЯСС',
+            'test_vzd' => 'Испытание ВЗД',
+            'test_yss' => 'Испытание ЯСС',
+            'replace_vzd' => 'Замена ЗИП ВЗД',
+            'replace_yss' => 'Замена ЗИП ЯСС',
+            'kern' => 'Отбор керна'
+        ];
+    }
 }

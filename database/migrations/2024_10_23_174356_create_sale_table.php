@@ -30,24 +30,22 @@ return new class extends Migration {
             $table->timestamps();
             $table->unsignedBigInteger('equipment_id');
             $table->foreign('equipment_id')->references('id')->on('equipment');
-            $table->foreignId('sale_number')->constrained('sale');
+            $table->unsignedBigInteger('sale_id');
+            $table->foreign('sale_id')->references('id')->on('sale')->onDelete('cascade');
             $table->date('shipping_date');
             $table->string('commentary')->nullable();
             $table->integer('price')->nullable();
         });
-
         Schema::create('sale_extra', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('subequipment_id');
             $table->date('shipping_date');
+            $table->enum('type', ['transfer,repair_vzd,repair_yss,test_vzd,test_yss,replace_vzd,replace_yss,kern']);
             $table->string('commentary');
             $table->unsignedBigInteger('sale_id');
-            $table->integer('price')->nullable();
-            $table->enum('return_reason', ['project', 'rejected'])->nullable();
             $table->foreign('sale_id')->references('id')->on('sale')->onDelete('cascade');
+            $table->integer('price')->nullable();
             $table->timestamps();
         });
-
 
     }
 

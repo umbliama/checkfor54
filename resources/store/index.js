@@ -7,6 +7,7 @@ import dashboard from "./modules/dashboard";
 import services from "./modules/services";
 import notifications from "./modules/notifications";
 import incident from "./modules/incident";
+import sale from "./modules/sale";
 
 
 
@@ -18,7 +19,8 @@ const store = createStore({
         services,
         dashboard,
         notifications,
-        incident
+        incident,
+        sale
     },
     state: {
         cities: [],
