@@ -53,7 +53,7 @@ class Contragents extends Model
     public static function getCountryMapping(): array
     {
         return [
-            'RU' => 'Россия',
+            'RU' => 'Российская Федерация',
             'BY' => 'Беларусь',
         ];
     }
