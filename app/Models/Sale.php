@@ -28,7 +28,7 @@ class Sale extends Model
 
     public function subservices()
     {
-        return $this->hasMany(SaleSub::class, 'sale_number', 'id');
+        return $this->hasMany(SaleSub::class, 'sale_id', 'id');
     }
     public function subequipment()
     {

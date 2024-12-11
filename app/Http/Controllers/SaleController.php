@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Contragents;
+use App\Models\SaleExtra;
 use App\Models\SaleSub;
 use App\Models\Equipment;
 use Inertia\Inertia;
@@ -50,6 +51,12 @@ class SaleController extends Controller
         return Inertia::render('Sale/Index', ['sales' => $sales, 'saleStatuses' => $saleStatuses]);
     }
 
+    public function getExtraServices()
+    {
+        $saleStatuses = Sale::getExtraServices();
+
+        return $saleStatuses;
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -100,10 +107,21 @@ class SaleController extends Controller
         foreach ($request->subEquipment as $subEquipmentData) {
             SaleSub::create([
                 'equipment_id' => $subEquipmentData['subequipment_id'],
-                'sale_number' => $sale->id,
+                'sale_id' => $sale->id,
                 'shipping_date' => $subEquipmentData['shipping_date'],
                 'commentary' => $subEquipmentData['commentary'],
                 'price' => $subEquipmentData['price'],
+            ]);
+        }
+
+
+        foreach ($request->extraServices as $extraService) {
+            SaleExtra::create([
+                'shipping_date' => $extraService['shipping_date'],
+                'sale_id' => $sale->id,
+                'type' => $extraService['item']['item'],
+                'commentary' => $extraService['commentary'],
+                'price' => $extraService['price'],
             ]);
         }
 

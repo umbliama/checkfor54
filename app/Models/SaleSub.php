@@ -10,7 +10,7 @@ class SaleSub extends Model
 
     protected $fillable = [
         'equipment_id',
-        'sale_number',
+        'sale_id',
         'shipping_date',
         'commentary',
         'price'
