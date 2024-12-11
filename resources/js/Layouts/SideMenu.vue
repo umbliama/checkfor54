@@ -96,7 +96,7 @@ const checkNewNotifications = (userId) => {
 
 setInterval(() => {
     checkNewNotifications(toRaw(user.value.id))
-}, 3000);
+}, 60000);
 </script>
 
     <template>
