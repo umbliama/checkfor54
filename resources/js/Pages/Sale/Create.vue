@@ -8,6 +8,7 @@ import { reactive, watch } from 'vue';
 import store from '../../../store/index';
 import { computed, onMounted, ref } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
+import ExtraServicesModal from '@/Components/ExtraServicesModal.vue';
 
 const props = defineProps({
   contragents: Array,
@@ -25,15 +26,23 @@ const selectedEquipmentService = computed(() => store.getters['services/getSelec
 const subRowsCount = computed(() => store.getters['services/getsubRowsCount']);
 const activeTab = computed(() => store.getters['sale/getActiveTab']);
 const getExtraServices = computed(() => store.getters['sale/getExtraServices']);
+const getCurrentIndex = computed(() => store.getters['sale/getCurrentIndex']);
+const getSelectedServices = computed(() => store.getters['sale/getSelectedServices']);
+const getRowsCount = computed(() => store.getters['sale/getRowsCount']);
 
 const selectedServices = ref(new Array(subRowsCount.length).fill(null))
 
 const addService = (service, subRowIndex) => {
-  store.dispatch('sale/updateExtraServices', service,subRowIndex)
+  store.dispatch('sale/updateExtraServices', service, subRowIndex)
+}
+const removeExtraServiceAction = (index) => {
+  console.log(index)
+  store.dispatch('sale/removeExtraServiceAction', index)
 }
 
 const incSubRow = () => {
   store.dispatch('services/updateIncSubRowsCount');
+  store.dispatch('sale/incCurrentIndex')
   store.dispatch('services/updateSubSelectedEquipmentObjects', {
     subequipment_id: '',
     shipping_date: '',
@@ -48,17 +57,24 @@ const incSubRow = () => {
   });
 }
 
+const incServiceRow = () => {
+  store.dispatch('sale/updateIncRowsCount');
+}
+
 const updateActiveTab = (tab) => {
   store.dispatch('sale/updateActiveTab', tab)
 }
 
 const updateByKey = (index, field, value) => {
-  store.dispatch('services/updateSubSelectedEquipmentObjectsByKey', { index, field, value });
+  store.dispatch('sale/updateSelectedServicesObejct', { index, field, value });
 
 }
 
 const showModal = (value) => {
   store.dispatch('services/updateModalShown', value)
+}
+const showModalServices = (value) => {
+  store.dispatch('sale/showModal', value)
 }
 const form = reactive({
   contragent_id: null,
@@ -100,12 +116,16 @@ watch(subEquipmentArray, async (newValue, oldValue) => {
 
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
+const modalShownServices = computed(() => store.getters['sale/getExtraServicesModal']);
 
 function submit() {
   const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
     return sub.subequipment_id && sub.shipping_date && sub.price && sub.commentary
   });
-  console.log(cleanedSubEquipment)
+  const cleanedServices = getSelectedServices.value.filter(sub => {
+    return sub.item.item && sub.shipping_date && sub.price && sub.commentary
+  });
+  console.log(cleanedServices)
   router.post('/sales', {
     equipment_id: form.equipment_id,
     contragent_id: form.contragent_id,
@@ -115,7 +135,8 @@ function submit() {
     commentary: form.commentary,
     status: form.status,
     price: form.price,
-    subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment))
+    subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment)),
+    extraServices: cleanedServices
   })
 }
 
@@ -127,6 +148,8 @@ function submit() {
 
       <div class="flex">
         <ServiceModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShown"></ServiceModal>
+        <ExtraServicesModal style="z-index: 1;" class="mt-14 absolute  bg-my-gray " v-if="modalShownServices">
+        </ExtraServicesModal>
         <div class="flex-1 sm:w-full">
           <nav class="">
             <div class=" sm:w-full lg:max-w-screen-xl px-4  mx-auto">
@@ -356,26 +379,78 @@ function submit() {
                   </td>
                   <td>
                     <div class="flex items-center justify-around">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z"
-                          fill="#21272A" />
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
-                          fill="#21272A" />
-                      </svg>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M9.5 2C9.5 2.82843 8.82843 3.5 8 3.5C7.17157 3.5 6.5 2.82843 6.5 2C6.5 1.17157 7.17157 0.5 8 0.5C8.82843 0.5 9.5 1.17157 9.5 2Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 8C9.5 8.82843 8.82843 9.5 8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 14C9.5 14.8284 8.82843 15.5 8 15.5C7.17157 15.5 6.5 14.8284 6.5 14C6.5 13.1716 7.17157 12.5 8 12.5C8.82843 12.5 9.5 13.1716 9.5 14Z"
-                          fill="#687182" />
-                      </svg>
+                      <Menu as="div" class="relative inline-block text-left">
+                        <div class="sm:overflow-x-visible">
+                          <MenuButton
+                            class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                            <svg width="4" height="16" viewBox="0 0 4 16" fill="none"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2Z"
+                                fill="#687182" />
+                              <path
+                                d="M3.5 8C3.5 8.82843 2.82843 9.5 2 9.5C1.17157 9.5 0.5 8.82843 0.5 8C0.5 7.17157 1.17157 6.5 2 6.5C2.82843 6.5 3.5 7.17157 3.5 8Z"
+                                fill="#687182" />
+                              <path
+                                d="M3.5 14C3.5 14.8284 2.82843 15.5 2 15.5C1.17157 15.5 0.5 14.8284 0.5 14C0.5 13.1716 1.17157 12.5 2 12.5C2.82843 12.5 3.5 13.1716 3.5 14Z"
+                                fill="#687182" />
+                            </svg>
+                          </MenuButton>
+                        </div>
 
+                        <transition enter-active-class="transition ease-out duration-100"
+                          enter-from-class="transform opacity-0 scale-95"
+                          enter-to-class="transform opacity-100 scale-100"
+                          leave-active-class="transition ease-in duration-75"
+                          leave-from-class="transform opacity-100 scale-100"
+                          leave-to-class="transform opacity-0 scale-95">
+                          <MenuItems
+                            class="absolute top-6 z-200 right-2 justify-between w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div class="py-1">
+
+
+
+                              <MenuItem>
+                              <Link method="get" :href="route('services.edit', service.id)"
+                                class="flex items-center justify-around" :class="['block px-4 py-2 text-sm']">
+                              Редактировать
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M11.0981 3.10827C10.6795 3.52693 10.4702 3.73626 10.2506 3.77677C10.0309 3.81728 9.88682 3.67315 9.59856 3.3849L8.61511 2.40144C8.32686 2.11319 8.18273 1.96906 8.22324 1.74946C8.26375 1.52985 8.47308 1.32052 8.89174 0.901864L9.11838 0.675215C9.53704 0.25656 9.74637 0.0472318 9.96598 0.00672082C10.1856 -0.0337902 10.3297 0.110336 10.618 0.398589L11.6014 1.38204C11.8897 1.6703 12.0338 1.81442 11.9933 2.03403C11.9528 2.25364 11.7434 2.46297 11.3248 2.88162L11.0981 3.10827Z"
+                                  fill="#464F60" />
+                                <path
+                                  d="M0.954058 11.9107C0.454198 12.0029 0.204269 12.049 0.077628 11.9224C-0.0490128 11.7957 -0.00290857 11.5458 0.0893002 11.0459L0.311753 9.84003C0.35173 9.62332 0.371719 9.51497 0.43005 9.41009C0.488381 9.30521 0.579134 9.21446 0.76064 9.03295L6.31438 3.47921C6.73303 3.06056 6.94236 2.85123 7.16197 2.81072C7.38158 2.77021 7.5257 2.91433 7.81396 3.20259L8.79741 4.18604C9.08566 4.4743 9.22979 4.61842 9.18928 4.83803C9.14877 5.05764 8.93944 5.26697 8.52078 5.68562L2.96705 11.2394C2.78554 11.4209 2.69479 11.5116 2.58991 11.5699C2.48503 11.6283 2.37668 11.6483 2.15997 11.6882L0.954058 11.9107Z"
+                                  fill="#464F60" />
+                              </svg>
+
+
+
+                              </Link>
+                              </MenuItem>
+
+                              <MenuItem>
+                              <Link method="delete" :href="route('services.destroy', service.id)"
+                                class="flex items-center justify-around" :class="['block px-4 py-2 text-sm']">Удалить
+                              <svg width="12" height="14" viewBox="0 0 12 14" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                  d="M2.75 2.75V3.25H0.75C0.335786 3.25 0 3.58579 0 4C0 4.41421 0.335786 4.75 0.75 4.75H1.51389L1.89504 11.6109C1.95392 12.6708 2.8305 13.5 3.89196 13.5H8.10802C9.16948 13.5 10.0461 12.6708 10.1049 11.6109L10.4861 4.75H11.25C11.6642 4.75 12 4.41421 12 4C12 3.58579 11.6642 3.25 11.25 3.25H9.25V2.75C9.25 1.50736 8.24264 0.5 7 0.5H5C3.75736 0.5 2.75 1.50736 2.75 2.75ZM5 2C4.58579 2 4.25 2.33579 4.25 2.75V3.25H7.75V2.75C7.75 2.33579 7.41421 2 7 2H5ZM5.25 6.75C5.25 6.33579 4.91421 6 4.5 6C4.08579 6 3.75 6.33579 3.75 6.75V11.25C3.75 11.6642 4.08579 12 4.5 12C4.91421 12 5.25 11.6642 5.25 11.25V6.75ZM8.25 6.75C8.25 6.33579 7.91421 6 7.5 6C7.08579 6 6.75 6.33579 6.75 6.75V11.25C6.75 11.6642 7.08579 12 7.5 12C7.91421 12 8.25 11.6642 8.25 11.25V6.75Z"
+                                  fill="#DC4067" />
+                              </svg>
+
+
+
+                              </Link>
+                              </MenuItem>
+                              <MenuItem>
+
+                              </MenuItem>
+
+                            </div>
+                          </MenuItems>
+                        </transition>
+                      </Menu>
                     </div>
                   </td>
                 </tr>
@@ -479,7 +554,7 @@ function submit() {
               <thead>
                 <tr class="bg-table-gray">
                   <th class="bg-violet p-4">
-                    <a @click.prevent="incSubRow" class="flex justify-between" href="">
+                    <a @click.prevent="incServiceRow" class="flex justify-between" href="">
 
                       <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
@@ -491,9 +566,9 @@ function submit() {
                     </a>
                   </th>
                   <th class="p-4">Услуги</th>
-                  <th class="p-4">Дата перевозки</th>
+                  <th class="p-4">Дата отгрузки</th>
                   <th class="p-4">Комментарий</th>
-                  <th class="p-4">Цена без НДС</th>
+                  <th class="p-4">Цена</th>
                   <th class="p-4">
                     <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -515,67 +590,9 @@ function submit() {
               </thead>
 
               <tbody>
-                <tr>
-                  <td class="flex justify-center items-center">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M15.9999 12.6671V16.667C15.9999 17.0206 15.8594 17.3598 15.6094 17.6098C15.3594 17.8599 15.0202 18.0003 14.6666 18.0003H7.33332C6.9797 18.0003 6.64057 17.8599 6.39052 17.6098C6.14047 17.3598 6 17.0206 6 16.667V9.33375C6 8.98013 6.14047 8.641 6.39052 8.39095C6.64057 8.1409 6.9797 8.00043 7.33332 8.00043H11.3333"
-                        stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                      <path d="M14 6H18V9.99997" stroke="#808192" stroke-width="1.2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                      <path d="M10.6667 13.3333L18 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    </svg>
 
-
-
-                  </td>
-                  <td>
-                    <select @change="addService($event.target.value, subRowIndex)" v-model="selectedServices[subRowIndex]">
-      <option v-for="(value, key) in extraServices" :value="key" :key="key">{{ value }}</option>
-    </select>
-
-                  </td>
-
-                  <td><input v-model="form.shipping_date" type="date"
-                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
-                  </td>
-
-                  <td><input type="text" v-model="form.commentary"
-                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
-                  </td>
-                  <td>
-                    <input
-                      class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none"
-                      type="text" v-model="form.price">
-                  </td>
-                  <td>
-                    <div class="flex items-center justify-around">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z"
-                          fill="#21272A" />
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
-                          fill="#21272A" />
-                      </svg>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M9.5 2C9.5 2.82843 8.82843 3.5 8 3.5C7.17157 3.5 6.5 2.82843 6.5 2C6.5 1.17157 7.17157 0.5 8 0.5C8.82843 0.5 9.5 1.17157 9.5 2Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 8C9.5 8.82843 8.82843 9.5 8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 14C9.5 14.8284 8.82843 15.5 8 15.5C7.17157 15.5 6.5 14.8284 6.5 14C6.5 13.1716 7.17157 12.5 8 12.5C8.82843 12.5 9.5 13.1716 9.5 14Z"
-                          fill="#687182" />
-                      </svg>
-
-                    </div>
-                  </td>
-                </tr>
-                <tr class="border-l-2 border-violet-full" v-for="(item, index) in subEquipment " :key="index"
-                  v-if="subEquipment.length > 0">
+                <tr class="border-l-2 border-violet-full" v-for="(item, index) in getSelectedServices " :key="index"
+                  v-if="getSelectedServices.length > 0">
 
                   <td class="flex justify-center items-center"> <svg width="40" height="40" viewBox="0 0 24 24"
                       fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -589,15 +606,20 @@ function submit() {
                     </svg>
                   </td>
                   <td colspan="1">
-                    <select name="" id="">
-                      <option v-for="(key, value) in extraServices" :value="key">{{ value }}</option>
-                    </select>
+                    <button v-if="!getSelectedServices" @click="showModalServices(true)"
+                      class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать оборудование
+                    </button>
+
+                    <div class="p-4 bg-my-gray border whitespace-nowrap flex" v-else>
+                      <p> {{ item.item.value }}</p>
+                    </div>
 
                     <input type="text" v-model="form.subEquipment" placeholder="Sub-equipment name"
                       class="input hidden border-r-0 border-t-0 border-b-0 border-l-2 border-violet-full bg-input-gray" />
                   </td>
-                  <td><input @change="updateByKey(index, 'subequipment_id', item.id)"
-                      @input="updateByKey(index, 'shipping_date', $event.target.value)" type="date"
+                  <td><input @change="updateByKey(index, 'shipping_date', $event.target.value)"
+                      v-model="item.shipping_date" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td><input @input="updateByKey(index, 'commentary', $event.target.value)" v-model="item.commentary"
@@ -610,31 +632,65 @@ function submit() {
 
                   <td>
                     <div class="flex items-center justify-around">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z"
-                          fill="#21272A" />
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
-                          fill="#21272A" />
-                      </svg>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M9.5 2C9.5 2.82843 8.82843 3.5 8 3.5C7.17157 3.5 6.5 2.82843 6.5 2C6.5 1.17157 7.17157 0.5 8 0.5C8.82843 0.5 9.5 1.17157 9.5 2Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 8C9.5 8.82843 8.82843 9.5 8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8Z"
-                          fill="#687182" />
-                        <path
-                          d="M9.5 14C9.5 14.8284 8.82843 15.5 8 15.5C7.17157 15.5 6.5 14.8284 6.5 14C6.5 13.1716 7.17157 12.5 8 12.5C8.82843 12.5 9.5 13.1716 9.5 14Z"
-                          fill="#687182" />
-                      </svg>
+                      <Menu as="div" class="relative inline-block text-left">
+                        <div class="sm:overflow-x-visible">
+                          <MenuButton
+                            class="inline-flex w-full justify-center gap-x-1.5 px-3 py-2 text-sm font-semibold text-gray-900 ">
+                            <svg width="4" height="16" viewBox="0 0 4 16" fill="none"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M3.5 2C3.5 2.82843 2.82843 3.5 2 3.5C1.17157 3.5 0.5 2.82843 0.5 2C0.5 1.17157 1.17157 0.5 2 0.5C2.82843 0.5 3.5 1.17157 3.5 2Z"
+                                fill="#687182" />
+                              <path
+                                d="M3.5 8C3.5 8.82843 2.82843 9.5 2 9.5C1.17157 9.5 0.5 8.82843 0.5 8C0.5 7.17157 1.17157 6.5 2 6.5C2.82843 6.5 3.5 7.17157 3.5 8Z"
+                                fill="#687182" />
+                              <path
+                                d="M3.5 14C3.5 14.8284 2.82843 15.5 2 15.5C1.17157 15.5 0.5 14.8284 0.5 14C0.5 13.1716 1.17157 12.5 2 12.5C2.82843 12.5 3.5 13.1716 3.5 14Z"
+                                fill="#687182" />
+                            </svg>
+                          </MenuButton>
+                        </div>
+
+                        <transition enter-active-class="transition ease-out duration-100"
+                          enter-from-class="transform opacity-0 scale-95"
+                          enter-to-class="transform opacity-100 scale-100"
+                          leave-active-class="transition ease-in duration-75"
+                          leave-from-class="transform opacity-100 scale-100"
+                          leave-to-class="transform opacity-0 scale-95">
+                          <MenuItems
+                            class="absolute top-6 z-200 right-2 justify-between w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div class="py-1">
+
+
+
+                              <MenuItem>
+                              <button @click="removeExtraServiceAction(index)"
+                                class="flex items-center justify-around" :class="['block px-4 py-2 text-sm']">
+                              Удалить
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M11.0981 3.10827C10.6795 3.52693 10.4702 3.73626 10.2506 3.77677C10.0309 3.81728 9.88682 3.67315 9.59856 3.3849L8.61511 2.40144C8.32686 2.11319 8.18273 1.96906 8.22324 1.74946C8.26375 1.52985 8.47308 1.32052 8.89174 0.901864L9.11838 0.675215C9.53704 0.25656 9.74637 0.0472318 9.96598 0.00672082C10.1856 -0.0337902 10.3297 0.110336 10.618 0.398589L11.6014 1.38204C11.8897 1.6703 12.0338 1.81442 11.9933 2.03403C11.9528 2.25364 11.7434 2.46297 11.3248 2.88162L11.0981 3.10827Z"
+                                  fill="#464F60" />
+                                <path
+                                  d="M0.954058 11.9107C0.454198 12.0029 0.204269 12.049 0.077628 11.9224C-0.0490128 11.7957 -0.00290857 11.5458 0.0893002 11.0459L0.311753 9.84003C0.35173 9.62332 0.371719 9.51497 0.43005 9.41009C0.488381 9.30521 0.579134 9.21446 0.76064 9.03295L6.31438 3.47921C6.73303 3.06056 6.94236 2.85123 7.16197 2.81072C7.38158 2.77021 7.5257 2.91433 7.81396 3.20259L8.79741 4.18604C9.08566 4.4743 9.22979 4.61842 9.18928 4.83803C9.14877 5.05764 8.93944 5.26697 8.52078 5.68562L2.96705 11.2394C2.78554 11.4209 2.69479 11.5116 2.58991 11.5699C2.48503 11.6283 2.37668 11.6483 2.15997 11.6882L0.954058 11.9107Z"
+                                  fill="#464F60" />
+                              </svg>
+
+
+
+                              </button>
+                              </MenuItem>
+                            </div>
+                          </MenuItems>
+                        </transition>
+                      </Menu>
 
                     </div>
                   </td>
 
                 </tr>
-                <tr v-for="item in subRowsCount" v-if="subRowsCount > 0">
+                <tr v-for="item in getRowsCount" v-if="getRowsCount > 0">
 
                   <td class="flex justify-center items-center"> <svg width="40" height="40" viewBox="0 0 24 24"
                       fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -648,9 +704,11 @@ function submit() {
                     </svg>
                   </td>
                   <td colspan="5">
-                    <select @change="addService($event.target.value, subRowIndex)" v-model="selectedServices[subRowIndex]">
-      <option v-for="(value, key) in extraServices" :value="key" :key="key">{{ value }}</option>
-    </select>
+                    <input type="text" placeholder="Sub-equipment name"
+                      class="input hidden border-r-0 border-t-0 border-b-0 border-l-2 border-violet-full bg-input-gray" />
+                    <button @click="showModalServices(true)" class=" text-side-gray-text px-4 py-2 rounded">
+                      Нажмите чтобы выбрать услугу
+                    </button>
                   </td>
 
                 </tr>
