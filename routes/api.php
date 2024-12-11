@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\EquipmentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SaleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,8 @@ Route::get('/equip/tests',[EquipmentController::class,'getFilteredTests']);
 Route::get('/getNotificationsByUserId/{id}',[NotificationController::class,'getNotificationsByUserId']);
 Route::post('/notifications/read/{id}/{userId}', [NotificationController::class, 'markAsRead']);
 Route::post('/notifications/read-all/{id}', [NotificationController::class, 'markAllAsRead']);
+
+Route::get('/getExtraServices', [SaleController::class, 'getExtraServices']);
 
 Route::middleware('auth:sanctum')->get('/check-auth', function () {
     return response()->json(['user' => auth()->user()]);

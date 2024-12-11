@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContragentsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\NotificationController;
@@ -100,6 +101,9 @@ Route::get('/sale/edit/{id}', [SaleController::class,'edit'])->name('sale.edit')
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/directory/{type}/{id}',[DirectoryController::class,'index'])->name('directory.index');
+Route::post('/directory/{type}/{id}', [DirectoryController::class,'store'])->name('directory.store');
 
 Route::get('/admin', [AdminController::class,'index'])->name('admin.index');
 
