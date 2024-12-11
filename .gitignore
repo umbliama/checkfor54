@@ -19,3 +19,6 @@ yarn-error.log
 /.idea
 /.vscode
 database/database.sqlite
+public/files
+public/media_files
+database.sqlite
