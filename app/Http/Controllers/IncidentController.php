@@ -21,13 +21,13 @@ class IncidentController extends Controller
         $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
             ->paginate(10);
-        $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+        $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'adv')->where('isArchive', 0)
             ->paginate(10);
-        $tasksColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+        $tasksColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 1)
             ->paginate(10);
-        $advColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
+        $advColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'adv')->where('isArchive', 1)
             ->paginate(10);
         $contragents = Contragents::all();
