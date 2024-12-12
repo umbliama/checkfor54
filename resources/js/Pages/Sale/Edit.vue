@@ -39,7 +39,7 @@ const incSubRow = () => {
   });
 }
 
-const updateByKey = (index, field, value) => {
+const updateByKey= (index, field, value) => {
   store.dispatch('services/updateSubSelectedEquipmentObjectsByKey', { index, field, value });
 
 }

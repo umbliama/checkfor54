@@ -65,8 +65,13 @@ const updateActiveTab = (tab) => {
   store.dispatch('sale/updateActiveTab', tab)
 }
 
+const updateByKeyServices = (index, field, value) => {
+  store.dispatch('sale/updateSelectedServicesObject', { index, field, value });
+
+}
+
 const updateByKey = (index, field, value) => {
-  store.dispatch('sale/updateSelectedServicesObejct', { index, field, value });
+  store.dispatch('services/updateSubSelectedEquipmentObjectsByKey', { index, field, value });
 
 }
 
@@ -125,6 +130,7 @@ function submit() {
   const cleanedServices = getSelectedServices.value.filter(sub => {
     return sub.item.item && sub.shipping_date && sub.price && sub.commentary
   });
+  console.log(selectedSubEquipmentArray.value)
   console.log(cleanedServices)
   router.post('/sales', {
     equipment_id: form.equipment_id,
@@ -136,7 +142,10 @@ function submit() {
     status: form.status,
     price: form.price,
     subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment)),
-    extraServices: cleanedServices
+    extraServices: cleanedServices,
+    onSuccess: () => {
+      store.dispatch("services/clearSubEquipmentArray")
+    }
   })
 }
 
@@ -618,15 +627,15 @@ function submit() {
                     <input type="text" v-model="form.subEquipment" placeholder="Sub-equipment name"
                       class="input hidden border-r-0 border-t-0 border-b-0 border-l-2 border-violet-full bg-input-gray" />
                   </td>
-                  <td><input @change="updateByKey(index, 'shipping_date', $event.target.value)"
+                  <td><input @change="updateByKeyServices(index, 'shipping_date', $event.target.value)"
                       v-model="item.shipping_date" type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input @input="updateByKey(index, 'commentary', $event.target.value)" v-model="item.commentary"
+                  <td><input @input="updateByKeyServices(index, 'commentary', $event.target.value)" v-model="item.commentary"
                       type="text"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input @input="updateByKey(index, 'price', $event.target.value)" v-model="item.price" type="text"
+                  <td><input @input="updateByKeyServices(index, 'price', $event.target.value)" v-model="item.price" type="text"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
 

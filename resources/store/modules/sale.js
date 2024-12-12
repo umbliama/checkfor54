@@ -67,7 +67,7 @@ export default {
         updateActiveTab({ commit }, payload) {
             commit("setActiveTab", payload);
         },
-        updateSelectedServicesObejct({ commit }, { index, field, value }) {
+        updateSelectedServicesObject({ commit }, { index, field, value }) {
             commit("setSelectedServicesObjectInfo", { index, field, value });
         },
         updateIncRowsCount({ commit }) {

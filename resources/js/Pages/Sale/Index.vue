@@ -288,7 +288,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
           <div>Заказчик</div>
           <div>Дата отгрузки</div>
           <div>Комментарий</div>
-          <div>Доход</div>
+          <div>Цена</div>
           <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd"
                 d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
@@ -433,9 +433,9 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                   class="grid whitespace-nowrap grid-cols-5 gap-52 bg-gray-50 py-2 rounded-md">
                   <div>{{ subservice.equipment_info.category.name }} {{ subservice.equipment_info.size.name }} {{
                   subservice.equipment_info.series }}</div>
-                  <div>{{ service.shipping_date }}</div>
-                  <div>{{ service.commentary }}</div>
-                  <div>{{ service.price ?? "Не задано" }}</div>
+                  <div>{{ subservice.shipping_date }}</div>
+                  <div>{{ subservice.commentary }}</div>
+                  <div>{{ subservice.price ?? "Не задано" }}</div>
                   <div></div>
                 </div>
               </div>

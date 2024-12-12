@@ -26,9 +26,13 @@ const store = createStore({
         cities: [],
         activeSideMenuItem: SideMenuMenuStates.DASHBOARD,
         equimpent: [],
-        userId:null
+        userId:null,
+        globalSearch:[]
     },
     mutations: {
+        SET_GLOBAL_SEARCH(state,value){
+            state.globalSearch = value
+        },
         SET_USER_ID(state,userId) {
             state.userId = userId
         },
@@ -55,6 +59,9 @@ const store = createStore({
                 console.log(error);
             }
         },
+        updateGlobalSearch({commit}, value){
+            commit('SET_GLOBAL_SEARCH', value)
+        },
         updateUserId({commit}, userId) {
             commit('SET_USER_ID', userId)
         },
@@ -67,6 +74,7 @@ const store = createStore({
         },
     },
     getters: {
+        getGlobalSearch: (state) => state.globalSearch,
         getUserId: (state) => state.userId,
         activeCity: (state) => state.activeCity,
         cities: (state) => state.cities,
