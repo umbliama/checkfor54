@@ -24,6 +24,12 @@ const form = reactive({
     files:null
 })
 
+const parsedFiles = () => {
+    const files = JSON.parse(props.directory.files)
+
+    return files
+}
+
 const submit = () => {
     const path = window.location.pathname;
     const parts = path.split('/');
@@ -57,9 +63,7 @@ const submit = () => {
 </script>
 
 <template>
-
     <AuthenticatedLayout>
-
         <div class="flex h-screen bg-gray-100">
             <!-- Sidebar -->
             <div class="w-1/4 bg-white p-4 shadow-md">
@@ -71,8 +75,9 @@ const submit = () => {
                             <span class="inline-block w-6 h-6 bg-gray-300 flex justify-center items-center rounded-md">
                                 📄
                             </span>
-                            <span>Паспорт двигателя</span>
-                            <a v-for="file in directory.files" href="">{{file}}</a>
+                            <a :href="'/' + file" download v-for="file in parsedFiles()">
+                                Скачать
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -80,11 +85,10 @@ const submit = () => {
                     <span class="inline-block w-6 h-6 bg-gray-300 flex justify-center items-center rounded-md">
                         ➕
                     </span>
+                    
                     <input @change="handleFileUpload"  type="file"  name="files[]" multiple >
                 </button>
             </div>
-
-            <!-- Main Content -->
             <div class="flex-1 p-6">
                 <h2 class="text-lg font-bold mb-4">Общая информация:</h2>
                 <div>

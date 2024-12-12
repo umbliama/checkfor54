@@ -19,15 +19,11 @@ class DirectoryController extends Controller
             return redirect()->back()->withErrors(['error' => 'Invalid directory type']);
         }
 
+
         $typeIdField = $type . '_id';
 
         $directory = Directory::where($typeIdField, $id)->first();
 
-        if (!$directory) {
-            return redirect()->back()->withErrors(['error' => 'No directory found for the given type and ID']);
-        }
-
-        // Render the view with the directory data
         return Inertia::render('Directory/Index', [
             'directory' => $directory,
             'type' => $type,
@@ -56,42 +52,35 @@ class DirectoryController extends Controller
         $directory = Directory::where($type . '_id', $id)->first();
 
 
-        // Validate the request
         $validatedData = $request->validate([
-            'files.*' => 'nullable|file', // Validate each file in the array
+            'files.*' => 'nullable|file',
             'commentary' => 'required',
         ]);
 
         $fileUrls = [];
 
-        // Check if files are uploaded
         if ($request->hasFile('files')) {
-            $uploadedFiles = $request->file('files'); // Retrieve files array
+            $uploadedFiles = $request->file('files'); 
 
             foreach ($uploadedFiles as $file) {
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('files'), $fileName);
-                $fileUrls[] = 'files/' . $fileName; // Save the file URL
+                $fileUrls[] = 'files/' . $fileName; 
             }
         }
-
-
-
         if ($directory) {
             $directory->update(array_merge($validatedData, [
                 $type . '_id' => $id,
-                'files' => $fileUrls, // Store file URLs as JSON
+                'files' => json_encode($fileUrls), 
             ]));
-        dd($directory);
 
             return redirect()->back()->with('success', 'Directory updated successfully!');
 
         } else {
             $directory = Directory::create(array_merge($validatedData, [
                 $type . '_id' => $id,
-                'files' => $fileUrls, // Store file URLs as JSON
+                'files' => json_encode($fileUrls), 
             ]));
-            dd($directory);
 
             return redirect()->back()->with('success', 'Directory created successfully!');
 
