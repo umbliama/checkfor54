@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -106,5 +107,9 @@ Route::get('/directory/{type}/{id}',[DirectoryController::class,'index'])->name(
 Route::post('/directory/{type}/{id}', [DirectoryController::class,'store'])->name('directory.store');
 
 Route::get('/admin', [AdminController::class,'index'])->name('admin.index');
+
+
+Route::get('/search', [SearchController::class,'search']);
+Route::get('/search-results', [SearchController::class,'index'] )->name('search.index');
 
 require __DIR__.'/auth.php';
