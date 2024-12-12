@@ -1,7 +1,7 @@
 <script setup>
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
-import { usePage } from '@inertiajs/vue3'
+import { usePage,router } from '@inertiajs/vue3'
 import { SideMenuMenuStates } from '../../constants';
 import store from '../../store';
 import { computed, ref, toRaw } from 'vue';
@@ -10,6 +10,8 @@ import UiField from "@/Components/Ui/UiField.vue";
 import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
 
 const page = usePage();
+
+const query = ref("");
 
 const menu = ref([
     {
@@ -94,6 +96,11 @@ const checkNewNotifications = (userId) => {
     store.dispatch('notifications/checkNewNotifications', userId);
 }
 
+const search = () => {
+    router.get('/search', {query: query.value}, {
+    })
+}
+
 setInterval(() => {
     checkNewNotifications(toRaw(user.value.id))
 }, 60000);
@@ -151,8 +158,8 @@ setInterval(() => {
                 </ui-btn>
             </div>
 
-            <form class="hidden lg:flex max-w-md mx-auto mt-4">
-                <ui-field :inp-attrs="{ placeholder: 'Поиск...' }">
+            <form @submit.prevent="search" class="hidden lg:flex max-w-md mx-auto mt-4">
+                <ui-field v-model="query" :inp-attrs="{ placeholder: 'Поиск...' }">
                     <template #prepend>
                         <button type="submit">
                             <svg class="w-4 h-4" aria-hidden="true"
