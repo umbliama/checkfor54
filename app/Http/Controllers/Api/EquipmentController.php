@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\EquipmentCategories;
 use App\Models\EquipmentSize;
@@ -21,8 +22,7 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        // Assuming you have a Repair model
-        $repairs = EquipmentRepair::where('series', $series)
+            $repairs = EquipmentRepair::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
             ->get();
@@ -35,7 +35,6 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        // Assuming you have a Repair model
         $reports = Equipment::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
@@ -49,7 +48,6 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        // Assuming you have a Repair model
         $reports = EquipmentTest::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
@@ -63,18 +61,26 @@ class EquipmentController extends Controller
         $series = $request->input('series');
         $category = $request->input('category_id');
         $size = $request->input('size_id');
-
-        // Assuming you have a Repair model
-        $equipment_id = Equipment::where('series', $series)
+    
+        $equipment_ids = Equipment::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
             ->pluck('id');
-
-        $service = Service::where('equipment_id', $equipment_id)->get();
-
-
-        return response()->json($service);
+    
+        $services = Service::whereIn('equipment_id', $equipment_ids)->get();
+    
+        $contragents = Contragents::whereIn('id', $services->pluck('contragent_id'))->get();
+    
+        $response = $services->map(function ($service) use ($contragents) {
+            return [
+                'service' => $service,
+                'contragent' => $contragents->firstWhere('id', $service->contragent_id),
+            ];
+        });
+    
+        return response()->json($response);
     }
+    
 
 
     public function getEquipment(Request $request)
