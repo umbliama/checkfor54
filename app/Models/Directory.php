@@ -10,6 +10,8 @@ class Directory extends Model
         'sale_id',
         'equipment_id',
         'service_id',
+        'test_id',
+        'repair_id',
         'commentary',
         'files'
     ];

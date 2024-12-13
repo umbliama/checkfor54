@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('sale_id')->nullable();
             $table->foreignId('service_id')->nullable();
             $table->foreignId('equipment_id')->nullable();
+            $table->foreignId('test_id')->nullable();
+            $table->foreignId('repair_id')->nullable();
             $table->json('files')->nullable();
             $table->text('commentary')->nullable();
         });
