@@ -9,6 +9,7 @@ use App\Models\EquipmentCategories;
 use App\Models\EquipmentSize;
 use App\Models\EquipmentTest;
 use App\Models\Service;
+use App\Models\ServiceSub;
 use Illuminate\Http\Request;
 use App\Models\EquipmentRepair;
 
@@ -22,7 +23,7 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-            $repairs = EquipmentRepair::where('series', $series)
+        $repairs = EquipmentRepair::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
             ->get();
@@ -61,26 +62,51 @@ class EquipmentController extends Controller
         $series = $request->input('series');
         $category = $request->input('category_id');
         $size = $request->input('size_id');
-    
+
         $equipment_ids = Equipment::where('series', $series)
             ->where('category_id', $category)
             ->where('size_id', $size)
             ->pluck('id');
-    
+
         $services = Service::whereIn('equipment_id', $equipment_ids)->get();
-    
+
+        $equipment = Equipment::whereIn('id', $services->pluck('equipment_id'))->get();
+
         $contragents = Contragents::whereIn('id', $services->pluck('contragent_id'))->get();
-    
-        $response = $services->map(function ($service) use ($contragents) {
+
+        $subequipment = ServiceSub::whereIn('service_id', $services->pluck('id'))->get();
+
+        $response = $services->map(function ($service) use ($contragents, $equipment, $subequipment) {
+            $contragent = $contragents->firstWhere('id', $service->contragent_id);
+
+            $equipmentData = $equipment->firstWhere('id', $service->equipment_id);
+
+            $subequipmentData = $subequipment->where('service_id', $service->id)->map(function ($sub) {
+                return [
+                    'subequipment_id' => $sub->subequipment_id,
+                    'shipping_date' => $sub->shipping_date,
+                    'period_start_date' => $sub->period_start_date,
+                    'commentary' => $sub->commentary,
+                    'return_date' => $sub->return_date,
+                    'period_end_date' => $sub->period_end_date,
+                    'store' => $sub->store,
+                    'operating' => $sub->operating,
+                    'income' => $sub->income,
+                    'return_reason' => $sub->return_reason,
+                ];
+            });
+
             return [
                 'service' => $service,
-                'contragent' => $contragents->firstWhere('id', $service->contragent_id),
+                'contragent' => $contragent,
+                'equipment' => $equipmentData,
+                'subequipment' => $subequipmentData, 
             ];
         });
-    
+
         return response()->json($response);
     }
-    
+
 
 
     public function getEquipment(Request $request)
