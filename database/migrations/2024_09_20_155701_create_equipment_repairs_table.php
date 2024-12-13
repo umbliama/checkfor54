@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('size_id');
             $table->foreign('size_id')->references('id')->on('equipment_sizes')->onDelete('cascade');
             $table->string('series');
+            $table->string('hyperlink');
         });
     }
 
