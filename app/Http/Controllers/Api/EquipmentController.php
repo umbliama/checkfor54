@@ -7,6 +7,7 @@ use App\Models\Equipment;
 use App\Models\EquipmentCategories;
 use App\Models\EquipmentSize;
 use App\Models\EquipmentTest;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Models\EquipmentRepair;
 
@@ -55,6 +56,24 @@ class EquipmentController extends Controller
             ->get();
 
         return response()->json($reports);
+    }
+
+    public function getFilteredServicesInActive(Request $request)
+    {
+        $series = $request->input('series');
+        $category = $request->input('category_id');
+        $size = $request->input('size_id');
+
+        // Assuming you have a Repair model
+        $equipment_id = Equipment::where('series', $series)
+            ->where('category_id', $category)
+            ->where('size_id', $size)
+            ->pluck('id');
+
+        $service = Service::where('equipment_id', $equipment_id)->get();
+
+
+        return response()->json($service);
     }
 
 

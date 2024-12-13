@@ -216,6 +216,7 @@ class EquipmentController extends Controller
 
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
         $equipment_tests = EquipmentTest::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
+
         // $equipment_repairs = EquipmentRepair::all();
 
 
