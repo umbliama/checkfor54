@@ -44,7 +44,9 @@ const updateMenuLink = (link) => {
                 >
                     Все
                     <span
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text {{ strlen($contragents_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                        :class="[$props?.contragentsCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
+                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                    >
                         {{ $props.contragentsCount }}
                     </span>
                 </li>
@@ -54,7 +56,9 @@ const updateMenuLink = (link) => {
                 >
                     Заказчики
                     <span
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text {{ strlen($contragents_customer_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                        :class="[$props?.contragentsCustomerCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
+                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                    >
                         {{ $props.contragentsCustomerCount }}
                     </span>
                 </li>
@@ -64,7 +68,9 @@ const updateMenuLink = (link) => {
                 >
                     Поставщики
                     <span
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text {{ strlen($contragents_supplier_count) === 1 ? 'w-[30px]' : 'w-auto' }}">
+                        :class="[$props?.contragentsCupplierCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
+                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                    >
                         {{ $props.contragentsSupplierCount }}
                     </span>
                 </li>

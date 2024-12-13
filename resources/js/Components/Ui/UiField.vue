@@ -27,10 +27,10 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
 
 <template>
     <div>
-        <label v-if="$props.label" class="block"> {{ $props.label }} <span v-if="$props.inpAttrs.required" class="text-red-warning">*</span></label>
+        <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="$props.inpAttrs.required" class="text-red-warning">*</span></label>
         <div
             :class="[ stateClasses ]"
-            class="relative inline-flex items-center w-full mt-2 border bg-my-gray"
+            class="relative inline-flex items-center w-full border bg-my-gray"
         >
             <span v-if="$slots.prepend" class="absolute left-2 top-3 inline-flex items-center justify-center w-6 h-6 mr-2">
                 <slot name="prepend"></slot>

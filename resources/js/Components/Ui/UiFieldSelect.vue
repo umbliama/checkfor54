@@ -18,10 +18,11 @@ const value = defineModel();
 const $emit = defineEmits([ 'blur' ]);
 
 const $props = defineProps({
-    label      : String,
-    placeholder: String,
-    required   : Boolean,
-    items      : Array, // [ { title: 'Title', value: 'some_val' } ]
+    label       : String,
+    placeholder : String,
+    required    : Boolean,
+    items       : Array, // [ { title: 'Title', value: 'some_val' } ]
+    triggerAttrs: Object
 });
 
 watch(value, new_value => {
@@ -40,10 +41,11 @@ function setValue(v) {
 
 <template>
     <div>
-        <label v-if="$props.label" class="block"> {{ $props.label }} <span v-if="required" class="text-red-warning">*</span></label>
+        <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="required" class="text-red-warning">*</span></label>
         <SelectRoot :model-value="value?.value" @update:model-value="setValue">
             <SelectTrigger
-                class="inline-flex items-center justify-between w-full mt-2 py-3 px-4 border-b border-b-[#C1C7CD] bg-my-gray text-side-gray-text"
+                class="inline-flex items-center justify-between w-full py-3 px-4 border-b border-b-[#C1C7CD] bg-my-gray text-side-gray-text"
+                v-bind="triggerAttrs"
                 aria-label="Customise options"
             >
                 {{ value?.title || $props.placeholder }}

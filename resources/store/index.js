@@ -15,7 +15,7 @@ const store = createStore({
     modules: {
         pagination,
         equipment,
-        contragent, 
+        contragent,
         services,
         dashboard,
         notifications,

@@ -160,45 +160,48 @@ onMounted(() => {
     <AuthenticatedLayout>
 
         <EquipNav></EquipNav>
-        <div class="container sm:pb-20 mt-5 md:mx-auto sm:mx-auto ">
-            <nav class="m-5 rounded-xl bg-my-gray">
+        <div class="p-5">
+            <nav class="py-2.5 px-6 rounded-xl text-sm bg-my-gray">
                 <div class="max-w-screen-xl sm:rounded-2xl py-2 px-4 ">
-                    <div class="mt-6 flex items-center">
-                        <ul
-                            class="flex overflow-x-auto flex-row border-b-2 font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
-                            <li class="text-my-nav-text text-md w-full sm:py-2"
-                                :class="{ 'border-b-2 border-blue-600': selectedCategory === item.id }"
-                                @click="selectCategory(item.id)" v-for="item in equipment_categories" :key="item.id">
-                                <Link class="flex items-center justify-around" :href="route('equip.index')">
-                                {{ item.name }}
-                                <span
-                                    class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-500 ">
-                                    {{ equipment_categories_counts[item.id] }}
-                                </span>
+                    <div class="relative">
+                        <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
+                        <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                            <li class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
+                                :class="{ '!border-[#001D6C] text-[#001D6C]': selectedCategory === item.id }"
+                                @click="selectCategory(item.id)" v-for="item in equipment_categories" :key="item.id"
+                            >
+                                <Link class="flex items-center justify-between" :href="route('equip.index')">
+                                    {{ item.name }}
+                                    <span
+                                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                                    >
+                                        {{ equipment_categories_counts[item.id] }}
+                                    </span>
                                 </Link>
                             </li>
                         </ul>
                     </div>
-                    <div class="mt-6 flex items-center">
+                    <div class="relative">
+                        <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                         <ul
-                            class="flex lg:py-2 flex-row sm:overflow-x-auto font-medium mt-0 space-x-8 rtl:space-x-reverse text-sm">
-                            <li class="text-my-nav-text text-lg  sm:py-2 w-full"
-                                :class="{ 'border-b-2 border-blue-600': selectedSize === item.id }"
-                                @click="selectSize(item.id)" v-for="item in equipment_sizes" :key="item.id">
-                                <Link class="flex justify-around">
-                                {{ item.name }}
-                                <span
-                                    class="ml-1 rounded-full text-sm flex items-center px-3 py-1 text-white bg-gray-500 ">
-                                    {{ equipment_sizes_counts[item.id] }}
-                                </span>
+                            class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible"
+                        >
+                            <li class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
+                                :class="{ '!border-[#001D6C] text-[#001D6C]': selectedSize === item.id }"
+                                @click="selectSize(item.id)" v-for="item in equipment_sizes" :key="item.id"
+                            >
+                                <Link class="flex items-center justify-between">
+                                    {{ item.name }}
+                                    <span
+                                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                                        {{ equipment_sizes_counts[item.id] }}
+                                    </span>
                                 </Link>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
-
-
             <div class="lg:m-5 sm:hidden lg:flex md:flex border-b-2  items-center mt-5 space-x-6">
                 <div @click="setLocation(0)" :class="{ 'border-b-2 border-blue-900': locationId === 0 }"
                     class=" flex items-center space-x-2">

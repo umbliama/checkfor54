@@ -4,8 +4,8 @@ export default {
     namespaced: true,
     state: () => ({
         equipmentObject: {},
-        categoryActive: 1,
-        sizeActive: 0,
+        categoryActive: null,
+        sizeActive: null,
         seriesActive: "",
         menuActiveItem: EquipMenuItems.REPORT,
         locationActive: 0,
@@ -18,6 +18,7 @@ export default {
         equipmentRepair: null,
         equipmentTest: null,
         equipmentReport: null,
+        equipmentHistory: null,
         equipmentCount: 0,
         equipmentRepairCount: 0,
         equipmentTestCount: 0,
@@ -30,7 +31,7 @@ export default {
         sortOrder: "asc",
         filterShown:false,
         priceRowsCount:0,
-        
+
     }),
     mutations: {
         incPriceRowsCount:(state) => {
@@ -98,6 +99,9 @@ export default {
         },
         setEquipmentReport(state, reports) {
             state.equipmentReport = reports;
+        },
+        setEquipmentHistory(state, reports) {
+            state.equipmentHistory = reports;
         },
         setSeriesId(state, seriesId) {
             state.seriesActive = seriesId;
@@ -236,6 +240,20 @@ export default {
                 console.log(error);
             }
         },
+        async updateEquipmentHistory(
+            { commit },
+            { category_id, size_id, series }
+        ) {
+            try {
+                const response = await fetch(
+                    `/api/equip/services?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                );
+                const data = await response.json();
+                commit("setEquipmentHistory", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async updateEquipmentTest(
             { commit },
             { category_id, size_id, series }
@@ -348,6 +366,7 @@ export default {
         getSeriesActive: (state) => state.seriesActive,
         getEquipmentRepairs: (state) => state.equipmentRepair,
         getEquipmentTests: (state) => state.equipmentTest,
+        getEquipmentHistory: (state) => state.equipmentHistory,
         getEquipmentReports: (state) => state.equipmentReport,
     },
 };

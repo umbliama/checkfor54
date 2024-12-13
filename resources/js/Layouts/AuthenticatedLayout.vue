@@ -12,10 +12,19 @@ import {
 import { SideMenuMenuStates } from '../../constants';
 import store from '../../store';
 
+const $props = defineProps({
+    bg: {
+        type: String,
+        default: 'white',
+        validator(v) {
+            return ['white', 'gray'].includes(v);
+        }
+    }
+})
 
 const selectMenu = (menuState) => {
-        store.dispatch('setActiveSidemenuItem', menuState);
-    };
+    store.dispatch('setActiveSidemenuItem', menuState);
+};
 
 </script>
 
@@ -24,7 +33,7 @@ const selectMenu = (menuState) => {
         <div class="shrink-0 sticky top-0 left-0 flex self-start w-full border-b border-b-[#DDE1E6] bg-my-gray z-10 lg:flex-col lg:w-64">
             <SideMenu />
         </div>
-        <div class="grow sm:h-full lg:min-h-screen">
+        <div class="w-full sm:h-full lg:min-h-screen lg:w-[calc(100%-256px)]">
             <main class="w-full">
                 <slot />
             </main>

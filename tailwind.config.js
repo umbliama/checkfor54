@@ -34,7 +34,12 @@ export default {
 
 
                 'danger': '#DA1E28',
-                'text'  : '#21272A'
+                'text'  : '#21272A',
+                'bg1'   : '#F2F4F8',
+                'bg2'   : '#F9F9FC',
+                'gray1' : '#697077',
+                'gray2' : '#484964',
+                'gray3' : '#EEEEF2',
             },
             screens: {
                 sm: "370px",
