@@ -46,7 +46,7 @@ const updateTestTable = (selectedCategory, selectedSize, seriesActive) => {
 }
 const updateUrl = () => {
     if (selectedCategory.value && selectedSize.value) {
-        router.get(route('equip.tests', { category_id: selectedCategory.value, size_id: selectedSize.value, series: seriesActive.val }));
+        router.get(route('equip.tests', { category_id: selectedCategory.value, size_id: selectedSize.value, series: seriesActive.value }));
     }
 };
 
