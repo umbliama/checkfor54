@@ -1,9 +1,12 @@
 <script setup>
 
-const is_checked = defineModel();
+import { computed } from "vue";
+
+const model_value = defineModel();
 
 const $props = defineProps({
     required: Boolean,
+    inpAttrs: Object,
     size: {
         type: String,
         default: 'normal',
@@ -11,13 +14,20 @@ const $props = defineProps({
             return ['normal', 'lg'].includes(v);
         }
     }
-})
+});
+
+const $emit = defineEmits(['change'])
+
+const is_checked = computed(() => {
+    return (typeof model_value.value === 'boolean' && model_value.value)
+           || (typeof model_value.value === 'object' && model_value.value.includes($props?.inpAttrs?.value));
+});
 
 </script>
 
 <template>
     <label>
-        <input v-model="is_checked" type="checkbox" hidden :required="$props.required">
+        <input v-bind="inpAttrs" v-model="model_value" type="checkbox" hidden :required="$props.required" @change="$emit('change')">
         <span
             :class="{ 'w-4 h-4': $props.size === 'normal', 'w-6 h-6 border-2': $props.size === 'lg', 'bg-[#121619]': is_checked }"
             class="flex items-center justify-center border border-[#121619]"

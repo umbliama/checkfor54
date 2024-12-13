@@ -15,6 +15,7 @@ import ContragentStatus from '@/Components/ContragentStatus.vue';
 import Pagination from '@/Components/Pagination.vue';
 import ContragentsToolbar from "@/Components/Contragents/ContragentsToolbar.vue";
 import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
+import UiCheckbox from "@/Components/Ui/UiCheckbox.vue";
 
 
 
@@ -129,7 +130,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <AuthenticatedLayout class="bg-my-gray">
+    <AuthenticatedLayout bg="gray">
         <ContragentsToolbar
             :contragents-count="props.contragents_count"
             :contragents-customer-count="props.contragents_customer_count"
@@ -142,10 +143,7 @@ onMounted(() => {
                     <div class="border-b-2">
                         <div class="flex items-center min-h-12 py-2 font-medium text-sm">
                             <div class="flex items-center w-10 px-3">
-                                <input
-                                    class="w-4 h-4 border-my-black"
-                                    type="checkbox" v-model="selectAll" @change="toggleSelectAll"
-                                />
+                                <UiCheckbox v-model="selectAll" @change="toggleSelectAll" />
                             </div>
                             <div class="w-[22.5%] px-3">
                                 <button type="button" class="flex items-center" @click="toggleSortBy('name')">
@@ -198,10 +196,7 @@ onMounted(() => {
                             <span v-if="selectedItems.includes(item.id)" class="absolute left-0 top-0 w-[3px] h-full bg-[#697077]"></span>
 
                             <div class="flex items-center justify-center w-10 px-3">
-                                <input
-                                    class="w-4 h-4 text-side-gray-text bg-gray-100 accent-[#697077] border-my-black"
-                                    type="checkbox" v-model="selectedItems" :value="item.id"
-                                />
+                                <UiCheckbox v-model="selectedItems" :inp-attrs="{ value: item.id }" />
                             </div>
                             <div class="w-[22.5%] flex px-3">
                                 <UiUserBadge :image="item.avatar" size="40px" class="shrink-0 mr-2" />
