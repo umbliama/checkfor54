@@ -7,10 +7,17 @@ import store from '../../../store';
 
 
 const props = defineProps({
-    notifications: Array,
+    notifications: {
+        type: Array,
+        default: () => []
+    },
     user_id: Number,
-    read_notifications: Array
-})
+    read_notifications: {
+        type: Array,
+        default: () => []
+    }
+});
+
 
 const page = usePage()
 
@@ -20,10 +27,18 @@ const userId = computed(() => store.getters['getUserId']);
 
 
 const unreadNotifications = computed(() => {
-  return props.notifications.filter((notification) => {
-    return!props.read_notifications.some((readNotification) => readNotification.notification_id === notification.id);
-  });
-})
+    if (Array.isArray(props.notifications)) {
+        return props.notifications.filter((notification) => {
+            return !props.read_notifications.some(
+                (readNotification) => readNotification.notification_id === notification.id
+            );
+        });
+    } else {
+        console.error("notifications is not an array:", props.notifications);
+        return [];
+    }
+});
+
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     const options = { year: "numeric", month: "long", day: "numeric" };
@@ -63,7 +78,7 @@ const readNotification = (id,userId) => {
                 <div class="border-b p-4">
                     <h1 class="text-xl font-bold">Уведомления</h1>
                 </div>
-                <div class="divide-y">
+                <div v-if="unreadNotifications" class="divide-y">
 
                         <div v-for="(notification, index) in unreadNotifications" :key="index"
                         class="p-4 hover:bg-gray-50 flex justify-between items-center">
@@ -75,8 +90,9 @@ const readNotification = (id,userId) => {
                         <button @click="readNotification(notification.id, user_id)">Прочитать</button>
                     </div>
                 </div>
+                <div>Уведомлений нет</div>
             </div>
-            <button @click="readAllNotifications">Прочитать всё</button>
+            <button  v-if="unreadNotifications" @click="readAllNotifications">Прочитать всё</button>
         </div>
     </AuthenticatedLayout>
 

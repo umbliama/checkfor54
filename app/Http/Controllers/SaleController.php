@@ -5,8 +5,12 @@ use App\Models\Contragents;
 use App\Models\SaleExtra;
 use App\Models\SaleSub;
 use App\Models\Equipment;
+use App\Models\Column;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Sale;
+use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -125,8 +129,49 @@ class SaleController extends Controller
             ]);
         }
 
+        foreach (User::all() as $user){
+            Notification::create([
+                'type' => 'Создан новая продажа №'.$sale->id,
+                'data' => ['equipment_id' => $sale->equipment_id],
+                'user_id' => $user->id
+            ]);
+        }
+
         return redirect()->route('sale.index')->with('success', 'Service created successfully.');
 
+    }
+
+    public function createIncident($id)
+    {
+        $user_id = Auth::id();
+        $sale = Sale::findOrFail($id);
+        $equipment = Equipment::findOrFail($sale->equipment_id)->value('id');
+        $contragent_id = Contragents::findOrFail($sale->contragent_id)->value('id');
+        $position = Column::max('position') + 1;
+        $column = Column::create(['position' => $position,'type' => 'adv']);
+        Notification::create([
+            'type' => 'Создан новый инцидент',
+            'data' => ['position'=>$position],
+            'user_id' => $user_id
+        ]);
+
+        $position = $column->blocks()->max('position') + 1;
+    
+        $block = $column->blocks()->create([
+            'type' => 'customer',
+            'contragent_id' => $contragent_id,
+            'equipment_id' => $equipment,
+            'position' => $position
+        ]);
+        if ($sale->subequiment_id !== null) {
+            $block_subequipment = $block->subequipment()->create([
+                'block_id' => $block->id,
+                'subequipment_id' => $sale->subequipment_id
+            ]);
+        }
+        
+
+        return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
     /**

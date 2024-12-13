@@ -9,6 +9,7 @@ use App\Models\Column;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\EquipmentPrice;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\ServiceModel;
@@ -144,13 +145,16 @@ class ServiceController extends Controller
 
     public function store(Request $request)
     {
+        $user_id = Auth::id();
+        $user = User::where('user_id', $user_id)->get();
         $request->validate([
             'equipment_id' => 'required|int',
             'contragent_id' => 'required|int',
             'shipping_date' => 'required|date',
             'service_number' => "required|string",
             'service_date' => "required|date",
-            'period_start_date' => 'required|date',
+            'commentary' => "nullable|string",
+            'period_start_date' => 'nullable|date',
             'return_date' => 'nullable|date',
             'period_end_date' => 'nullable|date',
             'store' => 'nullable|numeric',
@@ -172,6 +176,7 @@ class ServiceController extends Controller
             'equipment_id',
             'contragent_id',
             'shipping_date',
+            'commentary',
             'service_number',
             'service_date',
             'period_start_date',
@@ -184,6 +189,7 @@ class ServiceController extends Controller
             'income'
         ]));
 
+
         foreach ($request->subEquipment as $subEquipmentData) {
             ServiceSub::create([
                 'subequipment_id' => $subEquipmentData['subequipment_id'],
@@ -193,6 +199,12 @@ class ServiceController extends Controller
                 'service_id' => $service->id,
             ]);
         }
+
+        Notification::create([
+            'type' => 'Пользователь ' . User::find($user_id)->name . ' создал новую аренда №'.$service->id,
+            'data' => ['service_id' => $service->id],
+            'user_id' => $user_id
+        ]);
 
         return redirect()->route('services.index')->with('success', 'Service created successfully.');
     }
@@ -219,18 +231,12 @@ class ServiceController extends Controller
     public function createIncident($id)
     {
         $service = Service::findOrFail($id);
+        $user_id = Auth::id();
         $equipment = Equipment::findOrFail($service->equipment_id)->value('id');
         $contragent_id = Contragents::findOrFail($service->contragent_id)->value('id');
         $position = Column::max('position') + 1;
-        $column = Column::create(['position' => $position]);
-        foreach (User::all() as $user){
-            Notification::create([
-                'type' => 'Создан новый инцидент',
-                'data' => ['position'=>$position],
-                'user_id' => $user->id
-            ]);
-        }
-    
+        $column = Column::create(['position' => $position,'type' => 'adv']);
+
         $position = $column->blocks()->max('position') + 1;
     
         $block = $column->blocks()->create([
@@ -252,6 +258,7 @@ class ServiceController extends Controller
 
     public function update(Request $request, Service $service)
     {
+        $user_id = Auth::id();
 
         $equipment_id = $request->get('equipment_id');
         $category = Equipment::where('id',$equipment_id)->value('category_id');
@@ -296,6 +303,7 @@ class ServiceController extends Controller
             'subEquipment.*.period_end_date' => 'nullable|date',
             'subEquipment.*.income' => 'nullable|int'
         ]);
+        $isChangingToInactive = $service->active && !$request->get('active', true);
 
         // Update the main service record
         $service->update(array_merge(
@@ -315,6 +323,14 @@ class ServiceController extends Controller
             ]),
             ['income' => $income]
         ));
+
+        if ($isChangingToInactive) {
+            Notification::create([
+                'type' => 'Пользователь ' . User::find($user_id)->name . ' закрыл аренду №'.$service->id,
+                'data' => ['service_id' => $service->id],
+                'user_id' => $user_id
+            ]);
+        }
 
         // Update or create sub-equipment records
         if ($request->has('subEquipment')) {
