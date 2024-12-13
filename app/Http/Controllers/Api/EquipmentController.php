@@ -76,12 +76,25 @@ class EquipmentController extends Controller
 
         $subequipment = ServiceSub::whereIn('service_id', $services->pluck('id'))->get();
 
-        $response = $services->map(function ($service) use ($contragents, $equipment, $subequipment) {
+        $sizes = EquipmentSize::whereIn('id', $equipment->pluck('size_id'))->get();
+        $categories = EquipmentCategories::whereIn('id', $equipment->pluck('category_id'))->get();
+
+        $subequipmentEquipment = Equipment::whereIn('id', $subequipment->pluck('subequipment_id'))->get();
+
+        $response = $services->map(function ($service) use ($contragents, $equipment, $subequipment, $sizes, $categories, $subequipmentEquipment) {
             $contragent = $contragents->firstWhere('id', $service->contragent_id);
 
             $equipmentData = $equipment->firstWhere('id', $service->equipment_id);
 
-            $subequipmentData = $subequipment->where('service_id', $service->id)->map(function ($sub) {
+            $sizeData = $sizes->firstWhere('id', $equipmentData->size_id);
+            $categoryData = $categories->firstWhere('id', $equipmentData->category_id);
+
+            $subequipmentData = $subequipment->where('service_id', $service->id)->map(function ($sub) use ($subequipmentEquipment, $sizes, $categories) {
+                $subequipmentData = $subequipmentEquipment->firstWhere('id', $sub->subequipment_id);
+
+                $sizeData = $sizes->firstWhere('id', $subequipmentData->size_id);
+                $categoryData = $categories->firstWhere('id', $subequipmentData->category_id);
+
                 return [
                     'subequipment_id' => $sub->subequipment_id,
                     'shipping_date' => $sub->shipping_date,
@@ -93,19 +106,26 @@ class EquipmentController extends Controller
                     'operating' => $sub->operating,
                     'income' => $sub->income,
                     'return_reason' => $sub->return_reason,
+                    'subequipment_size' => $sizeData ? $sizeData->name : null,  
+                    'subequipment_category' => $categoryData ? $categoryData->name : null,  
                 ];
             });
 
             return [
                 'service' => $service,
                 'contragent' => $contragent,
-                'equipment' => $equipmentData,
-                'subequipment' => $subequipmentData, 
+                'equipment' => [
+                    'equipmentData' => $equipmentData,
+                    'size' => $sizeData ? $sizeData->name : null,  
+                    'category' => $categoryData ? $categoryData->name : null, 
+                ],
+                'subequipment' => $subequipmentData,
             ];
         });
 
         return response()->json($response);
     }
+
 
 
 
