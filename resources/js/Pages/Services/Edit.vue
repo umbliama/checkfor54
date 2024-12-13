@@ -146,7 +146,7 @@ function submit() {
     period_start_date: form.period_start_date,
     return_date: form.return_date,
     period_end_date: form.period_end_date,
-    store: form.store ?? dateResult,
+    store: form.store ? dateResult : 0,
     operating: form.operating,
     return_reason: form.return_reason,
     active: form.active,

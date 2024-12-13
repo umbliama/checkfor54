@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('service_number');   
             $table->date('service_date');
             $table->date('shipping_date');
-            $table->date('period_start_date');
+            $table->date('period_start_date')->nullable();
             $table->date('return_date')->nullable();
             $table->date('period_end_date')->nullable();
             $table->string('store')->nullable();

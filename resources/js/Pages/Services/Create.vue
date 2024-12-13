@@ -88,6 +88,7 @@ const form = reactive({
   store: null,
   operating: null,
   return_reason: null,
+  commentary: null,
   active: null,
   income: null,
   equipment_id: selectedEquipment,
@@ -101,6 +102,7 @@ function submit() {
   console.log(cleanedSubEquipment)
   router.post('/services', {
     equipment_id: form.equipment_id,
+    commentary: form.commentary,
     contragent_id: form.contragent_id,
     shipping_date: form.shipping_date,
     service_number: form.service_number,
@@ -369,7 +371,7 @@ function submit() {
                   <td><input v-model="form.period_start_date"type="date"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
-                  <td><input type="text"
+                  <td><input type="text" v-model="form.commentary"
                       class="border-transparent focus:border-transparent focus:ring-0 input bg-input-gray  border-none" />
                   </td>
                   <td>

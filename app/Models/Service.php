@@ -17,6 +17,7 @@ class Service extends Model
        'period_end_date',
        'store',
        'service_id',
+       'commentary',
        'service_number',
        'service_date',
        'operating',
