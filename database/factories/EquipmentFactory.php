@@ -24,8 +24,8 @@ class EquipmentFactory extends Factory
 
         return [
             'manufactor' => $this->faker->company,
-            'category_id' => 1,
-           'size_id' => 1,
+            'category_id' => $this->faker->randomElement([1, 2, 3]),
+            'size_id' => $this->faker->randomElement([1, 8, 19]),
             'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id?? null,
            'series' => $this->faker->bothify('ДР-####'),
             'length' => $this->faker->numberBetween(20, 100),
