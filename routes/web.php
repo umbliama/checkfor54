@@ -12,6 +12,8 @@ use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckIfApproved;
+
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -21,7 +23,14 @@ Route::get('/', function () {
         return redirect('/login');
     }
 });
-Route::middleware('auth')->group(function () {
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/notallowed',function(){
+        return Inertia::render('NotAllowed/Index');
+    })->name('notallowed.index');
+});
+
+Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
 Route::get('/dashboard', [DashboardController::class,'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -98,18 +107,23 @@ Route::post('/sales', [SaleController::class,'store'])->name('sale.store');
 Route::delete('/sales/delete/{id}', [SaleController::class,'destroy'])->name('sale.destroy');
 Route::get('/sale/edit/{id}', [SaleController::class,'edit'])->name('sale.edit');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 
 Route::get('/directory/{type}/{id}',[DirectoryController::class,'index'])->name('directory.index');
 Route::post('/directory/{type}/{id}', [DirectoryController::class,'store'])->name('directory.store');
 
 Route::get('/admin', [AdminController::class,'index'])->name('admin.index');
+Route::post('/approve/{id}', [AdminController::class,'approveUser'])->name('admin.approve');
 
 
 Route::get('/search', [SearchController::class,'search']);
 Route::get('/search-results', [SearchController::class,'index'] )->name('search.index');
+
+});
+
+
 
 require __DIR__.'/auth.php';

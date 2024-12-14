@@ -19,7 +19,17 @@ class UsersSeeder extends Seeder
             'name' => 'test',
             'lastname' => 'test',
             'email' => 'test@test.ru',
-            'password' => bcrypt('123123123')
+            'password' => bcrypt('123123123'),
+            'isAdmin' => 1,
+            'isApproved' => 1,
+        ]);
+        User::create([
+            'name' => 'admin',
+            'lastname' => 'admin',
+            'email' => 'admin@admin.ru',
+            'password' => bcrypt('123123123'),
+            'isAdmin' => 1,
+            'isApproved' => 1,
         ]);
 
         foreach (range(1, 35) as $index) {
