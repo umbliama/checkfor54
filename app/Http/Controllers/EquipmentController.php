@@ -44,20 +44,23 @@ class EquipmentController extends Controller
             });
         }
 
-        // Count the number of equipment per category
         $equipment_categories_counts = [];
-        foreach ($equipment_categories as $category) {
-            $categoryIDForCount = $category->id;
-            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
-        }
-
-        // Count the number of equipment per size
         $equipment_sizes_counts = [];
-        foreach ($equipment_sizes as $size) {
-            $sizeIDForCount = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        $combined_counts = [];
+        
+        foreach ($equipment_categories as $category) {
+            $categoryId = $category->id;
+        
+            $combined_counts[$categoryId] = [];
+            foreach ($equipment_sizes as $size) {
+                $sizeId = $size->id;
+        
+                $combined_counts[$categoryId][$sizeId] = Equipment::where('category_id', $categoryId)
+                    ->where('size_id', $sizeId)
+                    ->count();
+            }
         }
-
+        
         $location_counts = [];
         foreach ($equipment_location as $location) {
             $locationIdCount = $location->id;
