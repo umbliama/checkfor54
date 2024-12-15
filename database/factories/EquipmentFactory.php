@@ -4,8 +4,6 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Equipment;
-use App\Models\EquipmentCategories;
-use App\Models\EquipmentSize;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Equipment>
@@ -22,28 +20,25 @@ class EquipmentFactory extends Factory
 
     public function definition(): array
     {
-        // Get all categories
-        $categories = EquipmentCategories::all();
-
-        // Select a random category
-        $category = $categories->random();
-
-        // Get all sizes for the selected category
-        $sizes = EquipmentSize::where('category_id', $category->id)->get();
-
-        // Select a random size for the selected category
-        $size = $sizes->random();
 
         return [
             'manufactor' => $this->faker->company,
-            'category_id' => $category->id, // Random category
-            'size_id' => $size->id, // Random size from the category
+            'category_id' => $this->faker->randomElement([1, 2, 3]), 
+            'size_id' => function (array $attributes) {
+                if ($attributes['category_id'] == 1) {
+                    return $this->faker->numberBetween(1, 12); 
+                } elseif ($attributes['category_id'] == 2) {
+                    return 13; 
+                } elseif ($attributes['category_id'] == 3) {
+                    return 19;
+                }
+            },
             'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id ?? null,
             'series' => $this->faker->bothify('ДР-####'),
             'length' => $this->faker->numberBetween(20, 100),
             'operating' => $this->faker->numberBetween(20, 100),
             'manufactor_date' => $this->faker->date(),
-            'status' => $this->faker->randomElement(['new', 'good','satisfactory', 'bad', 'off']),
+            'status' => $this->faker->randomElement(['new', 'good', 'satisfactory', 'bad', 'off']),
             'notes' => $this->faker->sentence(),
             'price' => $this->faker->numberBetween(4000, 50000),
             'commentary' => $this->faker->paragraph(),
@@ -56,5 +51,6 @@ class EquipmentFactory extends Factory
             'diameter' => $this->faker->numberBetween(20, 100),
             'hyperlink' => $this->faker->url,
         ];
+
     }
 }
