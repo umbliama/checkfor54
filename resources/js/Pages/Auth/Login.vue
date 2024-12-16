@@ -30,7 +30,7 @@ const submit = () => {
 </script>
 
 <template>
-        <p class="fixed t-0 r-0 ">Version from 7 nov</p>
+        <p class="fixed t-0 r-0 ">Version from 15 Dec</p>
 
     <GuestLayout>
         <Head title="Log in" />
