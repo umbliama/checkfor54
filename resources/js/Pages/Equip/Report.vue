@@ -50,7 +50,8 @@ const setSeriesId = (seriesId) => {
     store.dispatch('equipment/updateSeriesId', seriesId)
     updateUrl();
 
-    if (!selectedCategory.value || !selectedSize.value || !seriesActive.value) return;
+
+    if (!selectedCategory.value || !selectedSize.value) return;
 
     updateReportTable (selectedCategory.value, selectedSize.value, seriesActive.value);
     updateRepairTable (selectedCategory.value, selectedSize.value, seriesActive.value);
@@ -153,9 +154,10 @@ onMounted(() => {
 
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('category_id') && +url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));
-    if (url_params.get('size_id')     && +url_params.get('size_id')     !== selectedSize.value)     setSizeId(+url_params.get('size_id'));
-    if (url_params.get('series')      && url_params.get('series')       !== seriesActive.value)     setSeriesId(url_params.get('series'));
+    if (url_params.get('category_id') && +url_params.get('category_id') !== selectedCategory.value)  setCategoryId(+url_params.get('category_id'));
+    if (url_params.get('size_id')     && +url_params.get('size_id')     !== selectedSize.value)      setSizeId(+url_params.get('size_id'));
+    if (url_params.get('size_id')     && url_params.get('category_id') && !url_params.get('series')) setSeriesId(props.equipment_series[0]);
+    if (url_params.get('series')      && url_params.get('series')       !== seriesActive.value)      setSeriesId(url_params.get('series'));
 });
 
 
@@ -213,7 +215,14 @@ onMounted(() => {
             </nav>
 
             <div class="flex justify-between bg-my-gray mt-4 p-1 lg:hidden">
-                <UiFieldSelect v-model="localSeriesActive" :items="get_equipment_series" :trigger-attrs="{ class: 'bg-white' }" class="w-[calc(50%-10px)]" />
+                <UiFieldSelect
+                    v-model="localSeriesActive"
+                    :items="get_equipment_series"
+                    :trigger-attrs="{ class: 'bg-white' }"
+                    :disabled="!!!seriesActive"
+                    placeholder="Номер"
+                    class="w-[calc(50%-10px)]"
+                />
 
                 <div class="flex mx-2 items-center">
                     <svg width="5" height="34" viewBox="0 0 3 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -228,7 +237,11 @@ onMounted(() => {
 
                 </div>
                 <form action="" method="GET" class="w-[calc(50%-10px)]">
-                    <UiField class="w-full" :inp-attrs="{ placeholder: 'Поиск', class: 'bg-white' }">
+                    <UiField
+                        :inp-attrs="{ placeholder: 'Поиск', class: 'bg-white' }"
+                        :disabled="!!!seriesActive"
+                        class="w-full"
+                    >
                         <template #prepend>
                             <button type="submit">
                                 <svg class="w-4 h-4" aria-hidden="true"

@@ -21,8 +21,9 @@ const $props = defineProps({
     label       : String,
     placeholder : String,
     required    : Boolean,
+    disabled    : Boolean,
     items       : Array, // [ { title: 'Title', value: 'some_val' } ]
-    triggerAttrs: Object
+    triggerAttrs: Object,
 });
 
 watch(value, new_value => {
@@ -40,7 +41,7 @@ function setValue(v) {
 </script>
 
 <template>
-    <div>
+    <div :class="[ $props.disabled ? 'opacity-60 pointer-events-none' : '' ]">
         <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="required" class="text-red-warning">*</span></label>
         <SelectRoot :model-value="value?.value" @update:model-value="setValue">
             <SelectTrigger

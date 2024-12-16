@@ -4,8 +4,9 @@ import { computed, ref, useSlots } from "vue";
 const $props = defineProps({
     modelValue: [String, Number, null],
     label     : String,
-    inpAttrs  : Object,
     textarea  : Boolean,
+    disabled  : Boolean,
+    inpAttrs  : Object,
 });
 
 const $emit = defineEmits([ 'blur', 'update:modelValue' ]);
@@ -26,7 +27,7 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
 </script>
 
 <template>
-    <div>
+    <div :class="[ $props.disabled ? 'opacity-60 pointer-events-none' : '' ]">
         <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="$props.inpAttrs.required" class="text-red-warning">*</span></label>
         <div
             :class="[ stateClasses ]"
