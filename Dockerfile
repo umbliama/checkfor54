@@ -21,7 +21,6 @@ WORKDIR /var/www
 
 # Copy all application files from the previous stage
 COPY --from=deps /app /var/www
-COPY .env /var/www
 
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
