@@ -48,6 +48,7 @@ class EquipmentFactory extends Factory
             'narabotka_ds' => $this->faker->numberBetween(20, 100),
             'rezbi' => $this->faker->numberBetween(20, 100),
             'length_rezba' => $this->faker->numberBetween(20, 100),
+
             'diameter' => $this->faker->numberBetween(20, 100),
             'hyperlink' => $this->faker->url,
         ];
