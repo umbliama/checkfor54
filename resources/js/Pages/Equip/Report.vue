@@ -269,7 +269,120 @@ onMounted(() => {
                     <div v-if="props.equipment?.length">
                         <h3 class="font-bold text-gray1">Характеристики</h3>
 
-                        <div v-if="selectedCategory == 1" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                        <div v-if="selectedCategory === 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                            <div class="min-w-[1050px] text-xs">
+                                <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                                    <div class="shrink-0 flex items-center justify-center w-[11.07%] py-2.5 px-2">Производитель</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">Длина</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">Наработка</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[9.53%] py-2.5 px-2 text-center">Дата <br>изготовления</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">Стоимость</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">Примечание</div>
+                                    <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">Состояние</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z" fill="#21272A"/>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z" fill="#21272A"/>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z" fill="#21272A"/>
+                                            <path d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z" fill="#21272A"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <template v-for="item in equipment">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                        <a :href="item.hyperlink" class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M15.9999 12.6671V16.6671C15.9999 17.0207 15.8594 17.3598 15.6094 17.6099C15.3594 17.8599 15.0202 18.0004 14.6666 18.0004H7.33332C6.9797 18.0004 6.64057 17.8599 6.39052 17.6099C6.14047 17.3598 6 17.0207 6 16.6671V9.33378C6 8.98016 6.14047 8.64103 6.39052 8.39098C6.64057 8.14093 6.9797 8.00046 7.33332 8.00046H11.3333" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M14 6H18V9.99997" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(11.07%-44px)] py-2.5 px-2">{{ item.manufactor || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.operating || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.53%] py-2.5 px-2">{{ item.manufactor_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
+                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
+                                            {{ statuses[item.status] || '-' }}
+                                        </div>
+                                        <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                    <div class="flex">
+                                        <div class="w-[11.07%] py-4 px-2.5">Комментарий:</div>
+                                        <p class="py-4 px-2.5 border-l border-l-gray3">{{ item.commentary }}</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div
+                            v-else-if="[3,4,5].includes(selectedCategory)"
+                            class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3"
+                        >
+                            <div class="min-w-[1050px] text-xs">
+                                <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                                    <div class="shrink-0 flex items-center justify-center w-[14.86%] py-2.5 px-2">Производитель</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[6.89%] py-2.5 px-2">Диаметр</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[6.89%] py-2.5 px-2">Длина</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">Длина с <br>резьбой</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">Резьбы</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">Наработка</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[9.52%] py-2.5 px-2 text-center">Дата <br>изготовления</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">Стоимость</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-14.86%-6.89%-6.89%-7.48%-7.87%-7.87%-9.52%-9.23%-11.66%-50px)] py-2.5 px-2">Примечание</div>
+                                    <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">Состояние</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z" fill="#21272A"/>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z" fill="#21272A"/>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z" fill="#21272A"/>
+                                            <path d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z" fill="#21272A"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <template v-for="item in equipment">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                        <a :href="item.hyperlink" class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M15.9999 12.6671V16.6671C15.9999 17.0207 15.8594 17.3598 15.6094 17.6099C15.3594 17.8599 15.0202 18.0004 14.6666 18.0004H7.33332C6.9797 18.0004 6.64057 17.8599 6.39052 17.6099C6.14047 17.3598 6 17.0207 6 16.6671V9.33378C6 8.98016 6.14047 8.64103 6.39052 8.39098C6.64057 8.14093 6.9797 8.00046 7.33332 8.00046H11.3333" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M14 6H18V9.99997" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ item.manufactor || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[6.89%] py-2.5 px-2">{{ item.diameter || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[6.89%] py-2.5 px-2">{{ item.length || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length_rezba || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.rezbi || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.operating || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.52%] py-2.5 px-2">{{ item.manufactor_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-6.89%-6.89%-7.48%-7.87%-7.87%-9.52%-9.23%-11.66%-50px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
+                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
+                                            {{ statuses[item.status] || '-' }}
+                                        </div>
+                                        <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                    <div class="flex">
+                                        <div class="w-[14.86%] py-4 px-2.5">Комментарий:</div>
+                                        <p class="py-4 px-2.5 border-l border-l-gray3">{{ item.commentary }}</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div v-else class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                     <div class="shrink-0 flex items-center justify-center w-[11.07%] py-2.5 px-2">Производитель</div>
@@ -301,19 +414,19 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(11.07%-44px)] py-2.5 px-2">{{ item.manufactor ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[5.73%] py-2.5 px-2">{{ item.zahodnost ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length_rezba ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.stator_rotor ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.operating ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.narabotka_ds ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[9.52%] py-2.5 px-2">{{ item.manufactor_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.84%] py-2.5 px-2">{{ item.price ?? '-' }} ₽</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.notes ?? '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(11.07%-44px)] py-2.5 px-2">{{ item.manufactor || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[5.73%] py-2.5 px-2">{{ item.zahodnost || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length_rezba || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.stator_rotor || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.operating || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.narabotka_ds || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.52%] py-2.5 px-2">{{ item.manufactor_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.84%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-11.07%-5.73%-7.48%-7.48%-7.87%-7.87%-7.87%-9.52%-8.84%-9.23%-45px)] py-2.5 px-2">
                                             <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
-                                            {{ statuses[item.status] ?? '-' }}
+                                            {{ statuses[item.status] || '-' }}
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -329,55 +442,6 @@ onMounted(() => {
                                 </template>
                             </div>
                         </div>
-
-                        <div v-else-if="selectedCategory == 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
-                            <div class="min-w-[1050px] text-xs">
-                                <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[11.07%] py-2.5 px-2">Производитель</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">Длина</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">Наработка</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[9.53%] py-2.5 px-2 text-center">Дата <br>изготовления</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">Стоимость</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">Примечание</div>
-                                    <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">Состояние</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z" fill="#21272A"/>
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z" fill="#21272A"/>
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z" fill="#21272A"/>
-                                            <path d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z" fill="#21272A"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <template v-for="item in equipment">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                        <a :href="item.hyperlink" class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M15.9999 12.6671V16.6671C15.9999 17.0207 15.8594 17.3598 15.6094 17.6099C15.3594 17.8599 15.0202 18.0004 14.6666 18.0004H7.33332C6.9797 18.0004 6.64057 17.8599 6.39052 17.6099C6.14047 17.3598 6 17.0207 6 16.6671V9.33378C6 8.98016 6.14047 8.64103 6.39052 8.39098C6.64057 8.14093 6.9797 8.00046 7.33332 8.00046H11.3333" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M14 6H18V9.99997" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(11.07%-44px)] py-2.5 px-2">{{ item.manufactor ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ item.length ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.87%] py-2.5 px-2">{{ item.operating ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[9.53%] py-2.5 px-2">{{ item.manufactor_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.price ?? '-' }} ₽</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">{{ item.notes ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
-                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
-                                            {{ statuses[item.status] ?? '-' }}
-                                        </div>
-                                        <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
-                                            </svg>
-                                        </Link>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
                     </div>
 
                     <div v-if="repairs?.length">
@@ -386,8 +450,8 @@ onMounted(() => {
                         <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата ремонта</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">Описание</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[14.86%] py-2.5 px-2">Дата ремонта</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">Описание</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">Расход</div>
                                     <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,9 +471,9 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ repair.repair_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">{{ repair.description ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ repair.expense ?? '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ repair.repair_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">{{ repair.description || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ repair.expense || '-' }} ₽</div>
                                         <Link :href="'/directory/repairs/'+repair.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
@@ -425,11 +489,15 @@ onMounted(() => {
                     <div v-if="tests?.length">
                         <h3 class="font-bold text-gray1">Стендовые испытания</h3>
 
-                        <div v-if="selectedCategory == 1" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                        <div v-if="selectedCategory === 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата испытания</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">Примечание</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[14.86%] py-2.5 px-2">Дата испытания</div>
+                                    <div class="shrink-0 flex items-center w-[8.16%] py-2.5 px-2">Мех. Вверх</div>
+                                    <div class="shrink-0 flex items-center w-[7.48%] py-2.5 px-2">Мех. Вниз</div>
+                                    <div class="shrink-0 flex items-center w-[5.92%] py-2.5 px-2">Усилие</div>
+                                    <div class="shrink-0 flex items-center w-[7.48%] py-2.5 px-2 text-center">Время задержки</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.16%-7.48%-5.92%-7.48%-8.9%-50px)] py-2.5 px-2">Примечание</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">Расход</div>
                                     <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -449,9 +517,13 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ test.test_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">{{ test.description ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense ?? '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ test.test_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.16%] py-2.5 px-2">{{ test.mex_vverx || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ test.mex_vniz || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[5.92%] py-2.5 px-2">{{ test.usilie || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ test.delay || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.16%-7.48%-5.92%-7.48%-8.9%-50px)] py-2.5 px-2">{{ test.description || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense || '-' }} ₽</div>
                                         <Link :href="'/directory/tests/'+test.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
@@ -462,16 +534,11 @@ onMounted(() => {
                                 </template>
                             </div>
                         </div>
-
-                        <div v-else-if="selectedCategory == 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                        <div v-else class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата испытания</div>
-                                    <div class="shrink-0 flex items-center w-[8.16%] py-2.5 px-2">Мех. Вверх</div>
-                                    <div class="shrink-0 flex items-center w-[7.48%] py-2.5 px-2">Мех. Вниз</div>
-                                    <div class="shrink-0 flex items-center w-[5.92%] py-2.5 px-2">Усилие</div>
-                                    <div class="shrink-0 flex items-center w-[7.48%] py-2.5 px-2 text-center">Время задержки</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.16%-7.48%-5.92%-7.48%-8.9%-50px)] py-2.5 px-2">Примечание</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[14.86%] py-2.5 px-2">Дата испытания</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">Примечание</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">Расход</div>
                                     <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -491,13 +558,9 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ test.test_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.16%] py-2.5 px-2">{{ test.mex_vverx ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ test.mex_vniz ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[5.92%] py-2.5 px-2">{{ test.usilie ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[7.48%] py-2.5 px-2">{{ test.delay ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.16%-7.48%-5.92%-7.48%-8.9%-50px)] py-2.5 px-2">{{ test.description ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense ?? '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ test.test_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">{{ test.description || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense || '-' }} ₽</div>
                                         <Link :href="'/directory/tests/'+test.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
@@ -541,17 +604,17 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ history_item.contragent.name ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[10.2%] py-2.5 px-2">{{ history_item.service.shipping_date ?? '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ history_item.contragent.name || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[10.2%] py-2.5 px-2">{{ history_item.service.shipping_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[11.46%] py-2.5 px-2">
-                                            {{ history_item.equipment.category ?? '-' }} -
-                                            {{ history_item.equipment.size ?? '-' }} -
-                                            {{ seriesActive ?? '-' }}
+                                            {{ history_item.equipment.category || '-' }} -
+                                            {{ history_item.equipment.size || '-' }} -
+                                            {{ seriesActive || '-' }}
                                         </div>
-                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.operating ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.return_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-10.2%-11.46%-10%-10%-10%-50px)] py-2.5 px-2">{{ history_item.contragent.reason ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.income ?? '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.operating || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.return_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-14.86%-10.2%-11.46%-10%-10%-10%-50px)] py-2.5 px-2">{{ history_item.contragent.reason || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.income || '-' }}</div>
                                         <Link :href="'/directory/services/'+history_item.service.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
@@ -592,9 +655,9 @@ onMounted(() => {
                                                 <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         </a>
-                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ test.test_date ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">{{ test.description ?? '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense ?? '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ test.test_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.9%-50px)] py-2.5 px-2">{{ test.description || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense || '-' }} ₽</div>
                                         <Link :href="'/directory/tests/'+test.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
