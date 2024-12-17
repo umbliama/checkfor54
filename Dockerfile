@@ -18,7 +18,6 @@ RUN --mount=type=cache,target=/tmp/cache \
 FROM php:8.3-apache
 
 WORKDIR /var/www
-RUN npm run build
 
 # Copy all application files from the previous stage
 COPY --from=deps /app /var/www
