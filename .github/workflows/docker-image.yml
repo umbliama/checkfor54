@@ -14,16 +14,6 @@ jobs:
     - name: Checkout the code
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18  # Adjust to match your Node.js version
-
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
-
     - name: Log in to Docker registry
       uses: docker/login-action@v2
       with:
@@ -37,3 +27,7 @@ jobs:
         docker tag koepido/bm-service-server:$IMAGE_TAG koepido/bm-service-server:latest
         docker push koepido/bm-service-server:$IMAGE_TAG
         docker push koepido/bm-service-server:latest
+
+do I need to make it here or in docker file
+
+ChatGPT said:
