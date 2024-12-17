@@ -12,6 +12,19 @@ COPY . .
 RUN --mount=type=cache,target=/tmp/cache \
     composer install --no-dev --no-interaction
 
+
+FROM node:lts as node-build
+
+WORKDIR /app
+
+# Copy application files into the container
+COPY . .
+
+# Install Node.js dependencies 
+RUN npm install
+
+# Run the build command 
+RUN npm run build
 ################################################################################
 # Stage 2: Build the final image
 ################################################################################
