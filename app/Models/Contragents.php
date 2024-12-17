@@ -60,9 +60,9 @@ class Contragents extends Model
     public static function getLegalMapping(): array
     {
         return [
+            'OOO' => 'ООО',
             'ZAO' => 'ЗАО',
             'OAO' => 'ОАО',
-            'OOO' => 'ООО',
             'PAO' => 'ПАО',
             'individual' => 'ИП',
         ];
