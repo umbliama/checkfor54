@@ -45,11 +45,9 @@ RUN apt-get update && apt-get install -y \
     # Install Node.js and npm
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
-    && npm install
-    && npm run build
+    && npm install \
+    && npm run build \
     && rm -rf /var/lib/apt/lists/*
-
-
 
 # Configure Apache and PHP
 RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
