@@ -64,7 +64,7 @@ class Contragents extends Model
             'OAO' => 'ОАО',
             'OOO' => 'ООО',
             'PAO' => 'ПАО',
-            'individual' => 'Физ.лицо',
+            'individual' => 'ИП',
         ];
     }
 
