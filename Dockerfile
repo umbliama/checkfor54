@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y nodejs \
     && npm install \
     && npm run build \
+    && php artisan serve \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache and PHP
