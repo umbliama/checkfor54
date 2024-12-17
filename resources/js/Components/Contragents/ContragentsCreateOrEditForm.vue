@@ -32,7 +32,7 @@ const errors = computed(() => page.props.errors)
 const success = computed(() => page.props.flash.success)
 const country_list = computed(() => {
     const res = [];
-    
+
     for (let key in props.countries) {
         res.push({ title: props.countries[key], value: key });
     }
@@ -42,7 +42,7 @@ const country_list = computed(() => {
 
 const legal_status_list = computed(() => {
     const res = [];
-    
+
     for (let key in props.legalStatuses) {
         res.push({ title: props.legalStatuses[key], value: key });
     }
@@ -157,7 +157,7 @@ function submit() {
 
     const router_method = props.contragent ? 'patch' : 'post';
     const router_url    = props.contragent ? `/contragents/update/${props.contragent.id}` : '/contragents';
-    
+
     router[router_method](router_url, {
         agentTypeLegal: form.agentTypeLegal.value,
         country: form.country.value,
@@ -201,7 +201,7 @@ const setTab = (tab) => {
 <template>
     <div class="flex flex-wrap lg:flex-nowrap">
         <FormError v-if="Object.keys(errors).length > 0" :message="Object.values(errors)" />
-        
+
         <div class="hidden w-1/4 lg:block">
 
             <div class="content-block">
@@ -227,11 +227,11 @@ const setTab = (tab) => {
             <div class="mt-12 p-2 space-y-2 content-block">
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Заказчик</span>
-                    <UiCheckbox v-mode="form.customer" size="lg" required />
+                    <UiCheckbox v-model="form.customer" size="lg" required />
                 </label>
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Поставщик</span>
-                    <UiCheckbox v-mode="form.supplier" size="lg" required />
+                    <UiCheckbox v-model="form.supplier" size="lg" required />
                 </label>
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Активный</span>
@@ -254,11 +254,9 @@ const setTab = (tab) => {
             <div class="space-y-4">
                 <div class="flex flex-col p-4 content-block">
                     <h3 class="font-bold text-lg lg:text-xl">Логотип</h3>
-
                     <div class="flex items-start mt-6">
-
                         <div class="flex items-center w-full lg:w-1/2">
-                            <UiUserAvatar size="96px" />
+                            <UiUserAvatar :image="props.contragent?.avatar" size="96px" />
 
                             <div class="flex flex-col pl-0 mx-auto lg:mx-0 lg:pl-6">
                                 <label class="py-2 px-5 font-bold text-sm border-2 border-black lg:px-8 lg:py-3 lg:text-base"
@@ -317,25 +315,25 @@ const setTab = (tab) => {
 
                             <UiField
                                 v-model="form.name"
-                                :inpAttrs="{ placeholder: 'ООО Компания', required: true }"    
+                                :inpAttrs="{ placeholder: 'ООО Компания', required: true }"
                                 label="Наименование"
                                 @blur="updateForm"
                             />
                             <UiField
                                 v-model="form.inn"
-                                :inpAttrs="{ placeholder: '0123456789', required: true }"         
+                                :inpAttrs="{ placeholder: '0123456789', required: true }"
                                 label="ИНН"
                                 @blur="updateForm"
                             />
                             <UiField
                                 v-model="form.kpp"
-                                :inpAttrs="{ placeholder: '0123456789' }"        
+                                :inpAttrs="{ placeholder: '0123456789' }"
                                 label="КПП"
                                 @blur="updateForm"
                             />
                             <UiField
                                 v-model="form.ogrn"
-                                :inpAttrs="{ placeholder: '0123456789' }"             
+                                :inpAttrs="{ placeholder: '0123456789' }"
                                 label="ОГРН"
                                 @blur="updateForm"
                             />
@@ -347,7 +345,7 @@ const setTab = (tab) => {
                             />
                             <UiField
                                 v-model="form.group"
-                                :inpAttrs="{ placeholder: 'наименование группы' }"        
+                                :inpAttrs="{ placeholder: 'наименование группы' }"
                                 label="Входит в группу"
                                 @blur="updateForm"
                             />
@@ -401,7 +399,7 @@ const setTab = (tab) => {
                             <UiField
                                 v-model="form.bank_kpp"
                                 :inpAttrs="{ placeholder: '012345678' }"
-                                label="ИНН"
+                                label="КПП"
                                 @blur="updateForm"
                             />
                             <UiField
@@ -535,7 +533,7 @@ const setTab = (tab) => {
                 >Сохранить</button>
             </div> -->
         </div>
-        
+
         <div class="shrink-0 w-full mt-4 space-y-4 lg:w-60 lg:mt-0 lg:space-y-1">
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Комм. предложения:</div>

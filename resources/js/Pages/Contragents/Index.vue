@@ -210,15 +210,15 @@ onMounted(() => {
                                 </div>
                             </div>
                             <div class="w-[14.08%] px-3">
-                                {{ item.contact_person ? item.contact_person : 'Не задано' }}
+                                {{ item.contact_person ?? '-' }}
                             </div>
                             <div class="w-[14.08%] px-3">
-                                {{ item.contact_person_phone ? item.contact_person_phone : 'Не задано' }}
+                                {{ item.contact_person_phone ?? '-' }}
                             </div>
                             <div class="w-[14.08%] px-3">
-                                {{ item.email ? item.email : 'Не задано' }}
+                                {{ item.contact_person_email ?? '-' }}
                             </div>
-                            <div class="w-[14.08%] px-3">{{ item.notes }}</div>
+                            <div class="w-[14.08%] px-3">{{ item.contact_person_notes }}</div>
                             <div class="w-[14.08%] px-3">
                                 <ContragentStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                             </div>
