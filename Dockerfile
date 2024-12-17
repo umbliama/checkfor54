@@ -46,6 +46,8 @@ RUN apt-get update && apt-get install -y \
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
+    && npm install
+    && npm run build
 
 
 # Configure Apache and PHP
