@@ -34,7 +34,7 @@ WORKDIR /var/www
 
 # Copy all application files from the previous stage
 COPY --from=deps /app /var/www
-
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
     openssl \
