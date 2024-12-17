@@ -51,10 +51,3 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
-
-# Copy the entrypoint script and make it executable
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Set the entrypoint
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
