@@ -41,6 +41,9 @@ RUN apt-get update && apt-get install -y \
     certbot \
     python3-certbot-apache \
     && rm -rf /var/lib/apt/lists/*
+    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache and PHP
 RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
