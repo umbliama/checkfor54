@@ -128,6 +128,14 @@ const statuses = {
     'off'         : 'Списано',
     'unknown'     : 'Неизвестный статус'
 };
+const statuses_colors = {
+    'new'         : 'bg-[#0F62FE]',
+    'good'        : 'bg-[#31C246]',
+    'satisfactory': 'bg-[#DAC41E]',
+    'bad'         : 'bg-[#DA1E28]',
+    'off'         : 'bg-[#000000]',
+    'unknown'     : 'bg-[#C0C0C0]'
+};
 
 const localSeriesActive = ref({
     title: seriesActive,
@@ -317,7 +325,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
-                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
+                                            <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             {{ statuses[item.status] || '-' }}
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
@@ -378,7 +386,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-14.86%-6.89%-6.89%-7.48%-7.87%-7.87%-9.52%-9.23%-11.66%-50px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
-                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
+                                            <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             {{ statuses[item.status] || '-' }}
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
@@ -438,7 +446,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[8.84%] py-2.5 px-2">{{ item.price || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-11.07%-5.73%-7.48%-7.48%-7.87%-7.87%-7.87%-9.52%-8.84%-9.23%-45px)] py-2.5 px-2">
-                                            <span class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full bg-[#C9BFFF]"></span>
+                                            <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             {{ statuses[item.status] || '-' }}
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
