@@ -59,7 +59,7 @@ function setValue(v) {
                 <SelectContent
                     :side-offset="5"
                     position="popper"
-                    class="bg-white rounded z-[100] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                    class="max-h-[180px] overflow-y-auto rounded bg-white z-[100] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                 >
                     <SelectViewport class="p-[5px] min-w-[--radix-select-trigger-width]">
                         <SelectGroup>
