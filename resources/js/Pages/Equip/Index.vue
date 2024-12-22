@@ -34,7 +34,6 @@ const updateFilterShown = () => store.dispatch("equipment/updateFilterShown")
 const setLocation = (location) => {
     store.dispatch('equipment/updateLocationActive', location)
     updateUrl()
-
 }
 
 const toggleSortBy = (column) => {
@@ -113,8 +112,8 @@ function submitHyperlink(id, data) {
 }
 
 const setCategoryId = (categoryId) => {
+    if (selectedCategory.value) setSizeId(null);
     store.dispatch('equipment/updateCategory', categoryId);
-    setSizeId(null);
     updateUrl();
 }
 
@@ -174,8 +173,13 @@ onMounted(() => {
 
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('category_id') && +url_params.get('category_id') !== selectedCategory.value)  setCategoryId(+url_params.get('category_id'));
-    if (url_params.get('size_id')     && +url_params.get('size_id')     !== selectedSize.value)      setSizeId(+url_params.get('size_id'));
+    if (url_params.get('category_id')) {
+        if (+url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));
+    } else setCategoryId(null);
+
+    if (url_params.get('size_id')) {
+        if (+url_params.get('size_id') !== selectedSize.value) setSizeId(+url_params.get('size_id'));
+    }
 
     store.dispatch('equipment/updateMenuItem', EquipMenuItems.EQUIPMENT);
 });

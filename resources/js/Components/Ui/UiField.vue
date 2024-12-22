@@ -40,7 +40,7 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
 
 <template>
     <div :class="[ $props.disabled ? 'opacity-60 pointer-events-none' : '' ]">
-        <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="$props.inpAttrs.required" class="text-red-warning">*</span></label>
+        <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="$props.inpAttrs?.required" class="text-red-warning">*</span></label>
         <div
             :class="[ stateClasses ]"
             class="relative inline-flex items-center w-full border bg-my-gray"
@@ -52,7 +52,7 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
                 :is="tagName"
                 :value="$props.modelValue"
                 :class="{ 'pl-10': !!$slots.prepend, ...inpSizeClasses }"
-                class="w-full bg-inherit outline-0"
+                class="w-full px-5 bg-inherit outline-0"
                 type="text"
                 v-bind="inpAttrs"
                 @focusin="is_focused = true"

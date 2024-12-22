@@ -36,8 +36,8 @@ const get_equipment_series = computed(() => {
 });
 
 const setCategoryId = (categoryId) => {
+    if (selectedCategory.value) setSizeId(null);
     store.dispatch('equipment/updateCategory', categoryId);
-    setSizeId(null);
     updateUrl();
 }
 
@@ -163,10 +163,19 @@ onMounted(() => {
 
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('category_id') && +url_params.get('category_id') !== selectedCategory.value)  setCategoryId(+url_params.get('category_id'));
-    if (url_params.get('size_id')     && +url_params.get('size_id')     !== selectedSize.value)      setSizeId(+url_params.get('size_id'));
+    if (url_params.get('category_id')) {
+        if (+url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));
+    } else setCategoryId(null);
+
+    if (url_params.get('size_id')) {
+        if (+url_params.get('size_id') !== selectedSize.value) setSizeId(+url_params.get('size_id'));
+    }
+
+
     if (url_params.get('size_id')     && url_params.get('category_id') && !url_params.get('series')) setSeriesId(props.equipment_series[0]);
     if (url_params.get('series')      && url_params.get('series')       !== seriesActive.value)      setSeriesId(url_params.get('series'));
+
+    store.dispatch('equipment/updateMenuItem', EquipMenuItems.REPORT);
 });
 
 
@@ -229,7 +238,7 @@ onMounted(() => {
                 </form>
             </div>
 
-            <div class="flex w-full mt-5">
+            <div v-if="selectedCategory && selectedSize" class="flex w-full mt-5">
                 <ul class="hidden w-[100px] mr-3.5 lg:block">
                     <li
                         :class="{ 'pointer-events-none bg-my-gray': seriesActive === series }"
