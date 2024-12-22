@@ -288,7 +288,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center w-[calc(100%-11.07%-7.48%-7.87%-9.53%-9.23%-11.66%-45px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
                                             <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                            {{ statuses[item.status] || '-' }}
+                                            <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] || '-' }}</span>
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -349,7 +349,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center w-[calc(100%-14.86%-6.89%-6.89%-7.48%-7.87%-7.87%-9.52%-9.23%-11.66%-50px)] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[11.66%] py-2.5 px-2">
                                             <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                            {{ statuses[item.status] || '-' }}
+                                            <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] || '-' }}</span>
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -409,7 +409,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[9.23%] py-2.5 px-2">{{ item.notes || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-11.07%-5.73%-7.48%-7.48%-7.87%-7.87%-7.87%-9.52%-8.84%-9.23%-45px)] py-2.5 px-2">
                                             <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                            {{ statuses[item.status] || '-' }}
+                                            <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] || '-' }}</span>
                                         </div>
                                         <Link :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[45px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
