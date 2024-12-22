@@ -33,7 +33,7 @@ const updateFilterShown = () => store.dispatch("equipment/updateFilterShown")
 
 const setLocation = (location) => {
     store.dispatch('equipment/updateLocationActive', location)
-    updateUrl()
+    updateUrl();
 }
 
 const toggleSortBy = (column) => {
@@ -127,6 +127,7 @@ const updateUrl = () => {
 
     if (selectedCategory.value) params.category_id = selectedCategory.value;
     if (selectedSize.value)     params.size_id     = selectedSize.value;
+    if (locationId.value)       params.location_id = locationId.value;
 
     Object.keys(params).length && router.get(route('equip.index', params));
 };
