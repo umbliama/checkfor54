@@ -19,7 +19,7 @@ export const EquipCategoriesState = {
 
 export const EquipMenuItems = {
     REPORT: 'report',
-    EQUIPMENT: 'equiment',
+    EQUIPMENT: 'equipment',
     REPAIR: 'repair',
     TESTS: 'tests',
     PRICE: 'price',

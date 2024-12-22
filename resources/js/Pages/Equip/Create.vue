@@ -2,7 +2,7 @@
 import { reactive, defineProps, useAttrs, computed } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import EquipNav from '@/Components/EquipNav.vue';
+import EquipNav from '@/Components/Equip/EquipNav.vue';
 import FormSuccess from '@/Components/FormSuccess.vue';
 import FormError from '@/Components/FormError.vue';
 import store from '../../../store/index';
@@ -23,10 +23,10 @@ const errors = computed(() => page.props.errors)
 
 const updateErrors = (errors) => {
     store.dispatch('equipment/updateErrors', errors)
-} 
+}
 
 const formLocation = reactive({
-    'name': null,   
+    'name': null,
 })
 
 
@@ -128,7 +128,7 @@ function submit() {
         )
     }
 }
-</script>   
+</script>
 
 <template>
     <AuthenticatedLayout>

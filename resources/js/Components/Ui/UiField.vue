@@ -6,6 +6,13 @@ const $props = defineProps({
     label     : String,
     textarea  : Boolean,
     disabled  : Boolean,
+    size      : {
+        type: String,
+        default: 'default',
+        validator(v) {
+            return ['sm', 'default'].includes(v);
+        }
+    },
     inpAttrs  : Object,
 });
 
@@ -22,6 +29,11 @@ const stateClasses = computed(() => {
     }
 });
 
+const inpSizeClasses = computed(() => ({
+    'min-h-12 py-3 text-base': $props.size === 'default',
+    'min-h-7 py-1.5 text-xs': $props.size === 'sm',
+}));
+
 const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
 
 </script>
@@ -33,16 +45,14 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
             :class="[ stateClasses ]"
             class="relative inline-flex items-center w-full border bg-my-gray"
         >
-            <span v-if="$slots.prepend" class="absolute left-2 top-3 inline-flex items-center justify-center w-6 h-6 mr-2">
+            <span v-if="$slots.prepend" :class="{ 'top-3': $props.size === 'default', 'top-0.5': $props.size === 'sm' }" class="absolute left-2 inline-flex items-center justify-center w-6 h-6 mr-2">
                 <slot name="prepend"></slot>
             </span>
             <component
                 :is="tagName"
                 :value="$props.modelValue"
-                :class="{ 'pl-10': !!$slots.prepend }"
-                class="
-                    w-full min-h-12 py-3 px-4 bg-inherit outline-0
-                "
+                :class="{ 'pl-10': !!$slots.prepend, ...inpSizeClasses }"
+                class="w-full bg-inherit outline-0"
                 type="text"
                 v-bind="inpAttrs"
                 @focusin="is_focused = true"

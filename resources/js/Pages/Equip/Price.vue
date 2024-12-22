@@ -1,5 +1,5 @@
 <script setup>
-import EquipNav from '@/Components/EquipNav.vue';
+import EquipNav from '@/Components/Equip/EquipNav.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import store from '../../../store';
 
@@ -277,7 +277,7 @@ function submit() {
                         </svg>
 
                     </div>
-           
+
                     <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left">Заказчик</div>
                     <div @click="toggleSortBy('date')" :class="{ 'bg-violet border-t-2 border-violet-full': sortBy === 'date' }" class="col-span-1 text-table-heading font-robotoBold font-semibold p-4     text-left text-gray-500">Дата</div>
                     <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left text-gray-500">Примечание</div>
@@ -338,7 +338,7 @@ function submit() {
 
                     <!-- Data Rows -->
                     <template v-for="(price, index) in sortedPrices" :key="index">
-  
+
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left">{{ price.contragent.name }}</div>
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500 p-4" :class="{ 'bg-violet': sortBy === 'date' }">{{ price.store_date }}</div>
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500">{{ price.notes }}</div>
@@ -383,7 +383,7 @@ function submit() {
                         </svg>
 
                     </div>
-           
+
                     <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left">Заказчик</div>
                     <div @click="toggleSortBy('date')" :class="{ 'bg-violet border-t-2 border-violet-full': sortBy === 'date' }" class="col-span-1 text-table-heading font-robotoBold font-semibold p-4     text-left text-gray-500">Дата</div>
                     <div class="col-span-1 text-table-heading font-robotoBold font-semibold p-4 text-left text-gray-500">Примечание</div>
@@ -414,7 +414,7 @@ function submit() {
 
                     <!-- Data Rows -->
                     <template v-for="(price, index) in sortedPricesArchived" :key="index">
-  
+
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left">{{ price.contragent.name }}</div>
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500 p-4" :class="{ 'bg-violet': sortBy === 'date' }">{{ price.store_date }}</div>
                         <div class="col-span-1 text-table-heading font-robotoBold p-4 text-left text-gray-500">{{ price.notes }}</div>

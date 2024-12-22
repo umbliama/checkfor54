@@ -1,9 +1,9 @@
 <script setup>
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { EquipMenuItems } from '../../constants/index';
+import { EquipMenuItems } from '../../../constants/index.js';
 import { Link } from '@inertiajs/vue3';
 import { computed, onMounted } from 'vue';
-import store from '../../store';
+import store from '../../../store/index.js';
 
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);

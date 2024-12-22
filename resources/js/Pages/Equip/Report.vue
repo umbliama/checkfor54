@@ -6,11 +6,12 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 
 import store from '../../../store/index';
-import EquipNav from '@/Components/EquipNav.vue';
+import EquipNav from '@/Components/Equip/EquipNav.vue';
 import { MenuButton, MenuItems, MenuItem, Menu } from '@headlessui/vue';
 import EquipStatus from '@/Components/EquipStatus.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 import UiField from '@/Components/Ui/UiField.vue';
+import EquipFilter from "@/Components/Equip/EquipFilter.vue";
 
 const seriesActive = computed(() => store.getters['equipment/getSeriesActive'])
 
@@ -177,50 +178,16 @@ onMounted(() => {
         <EquipNav />
 
         <div class="p-4 lg:p-5">
-            <nav class="py-2.5 px-6 rounded-xl text-sm bg-my-gray">
-                <div class="relative">
-                    <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-
-                    <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': selectedCategory === item.id }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                            @click="setCategoryId(item.id)" v-for="item in equipment_categories" :key="item.id"
-                        >
-                            <Link
-                                :href="route('equip.report', { category_id: item.id })"
-                                class="flex items-center justify-between"
-                            >
-                                {{ item.name }}
-                                <span
-                                    class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
-                                >
-                                    {{ equipment_categories_counts[item.id] }}
-                                </span>
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
-                <div class="relative mt-4">
-                    <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-                    <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': selectedSize === item.id }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                            @click="setSizeId(item.id)" v-for="item in equipment_sizes" :key="item.id"
-                        >
-                            <Link class="flex items-center justify-between" :href="route('equip.report', { size_id: item.id })">
-                                {{ item.name }}
-                                <span
-                                    class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
-                                >
-                                    {{ equipment_sizes_counts[item.id] }}
-                                </span>
-                            </Link>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <EquipFilter
+                :selected-category="selectedCategory"
+                :selected-size="selectedSize"
+                :categories-counts="equipment_categories_counts"
+                :sizes-counts="equipment_sizes_counts"
+                :categories="equipment_categories"
+                :sizes="equipment_sizes"
+                @category-click="cat_id => setCategoryId(cat_id)"
+                @size-click="size_id => setSizeId(size_id)"
+            />
 
             <div class="flex justify-between bg-my-gray mt-4 p-1 lg:hidden">
                 <UiFieldSelect
@@ -242,7 +209,6 @@ onMounted(() => {
                             d="M0 0V1H1V0H0ZM0 3V5H1V3H0ZM0 7V9H1V7H0ZM0 11V13H1V11H0ZM0 15V17H1V15H0ZM0 19V21H1V19H0ZM0 23V25H1V23H0ZM0 27V28H1V27H0ZM-0.5 0V1H1.5V0H-0.5ZM-0.5 3V5H1.5V3H-0.5ZM-0.5 7V9H1.5V7H-0.5ZM-0.5 11V13H1.5V11H-0.5ZM-0.5 15V17H1.5V15H-0.5ZM-0.5 19V21H1.5V19H-0.5ZM-0.5 23V25H1.5V23H-0.5ZM-0.5 27V28H1.5V27H-0.5Z"
                             fill="#C1C7CD" mask="url(#path-1-inside-1_2101_84576)" />
                     </svg>
-
                 </div>
                 <form action="" method="GET" class="w-[calc(50%-10px)]">
                     <UiField
@@ -260,19 +226,6 @@ onMounted(() => {
                             </button>
                         </template>
                     </UiField>
-                    <!-- <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                            </svg>
-                        </div>
-                        <input type="search" name="search" id="default-search"
-                            class="block w-full ps-10 text-sm text-gray-900 border-b-2 border-gray-200 border-t-0 border-l-0 border-r-0 bg-white-50 py-4"
-                            placeholder="Поиск">
-                    </div> -->
                 </form>
             </div>
 

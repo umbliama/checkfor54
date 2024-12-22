@@ -2,7 +2,7 @@
 import { reactive, defineProps, useAttrs, computed } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import EquipNav from '@/Components/EquipNav.vue';
+import EquipNav from '@/Components/Equip/EquipNav.vue';
 import FormSuccess from '@/Components/FormSuccess.vue';
 import FormError from '@/Components/FormError.vue';
 
@@ -131,7 +131,7 @@ function submit() {
                             class="mt-1 block w-full border-b-2 border-gray-300 bg-my-gray border-r-0 border-t-0 border-l-0 px-3 "
                             value="ДР - 3980">
                     </div>
-                    
+
                     <div class="col-span-1">
                         <label class="block text-gray-700">Заходность</label>
                         <input required v-model="form.zahodnost" type="text"

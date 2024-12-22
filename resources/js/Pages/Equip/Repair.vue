@@ -1,5 +1,5 @@
 <script setup>
-import EquipNav from '@/Components/EquipNav.vue';
+import EquipNav from '@/Components/Equip/EquipNav.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import store from '../../../store/index';
