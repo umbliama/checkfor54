@@ -669,7 +669,7 @@ onMounted(() => {
                     </table>
                 </div>-->
 
-                <div v-if="selectedCategory == 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                <div v-else-if="selectedCategory == 2" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                     <div class="min-w-[1144px] text-xs">
                         <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Производитель</div>
@@ -973,7 +973,7 @@ onMounted(() => {
                     </table>
                 </div>-->
 
-                <div v-if="[3,4,5,6,7].includes(selectedCategory)" class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
+                <div v-else class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                     <div class="min-w-[1144px] text-xs">
                         <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Производитель</div>
