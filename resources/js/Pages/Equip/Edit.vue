@@ -9,8 +9,6 @@ import FormError from '@/Components/FormError.vue';
 
 const page = usePage()
 
-
-
 const success = computed(() => page.props.flash.success)
 const errors = computed(() => page.props.errors)
 
@@ -24,7 +22,6 @@ const props = defineProps({
 
 const form = reactive({
     'manufactor': null,
-    'status': null,
     'size_id': null,
     'category_id': null,
     'status': null,
@@ -48,7 +45,6 @@ const form = reactive({
 function submit() {
     router.post('/equip', {
         manufactor: form.manufactor,
-        status: form.status,
         size_id: form.size_id,
         category_id: form.category_id,
         status: form.status,
