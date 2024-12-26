@@ -28,9 +28,9 @@ class EquipmentFactory extends Factory
                 if ($attributes['category_id'] == 1) {
                     return $this->faker->numberBetween(1, 12);
                 } elseif ($attributes['category_id'] == 2) {
-                    return 13;
+                    return $this->faker->numberBetween(13, 18);
                 } elseif ($attributes['category_id'] == 3) {
-                    return 19;
+                    return $this->faker->numberBetween(19, 30);
                 }
             },
             'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id ?? null,

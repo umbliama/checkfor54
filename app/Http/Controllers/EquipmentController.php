@@ -21,18 +21,16 @@ class EquipmentController extends Controller
     {
         $searchTerm = $request->query('search');
 
-        // Fetch categories, sizes, and locations
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
 
-        $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
+        $categoryId = $request->query('category_id', 0);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $query = Equipment::query();
         $perPage = $request->query('perPage');
         $locationId = $request->query('location_id');
 
-        // Search filtering logic
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {
                 $query->where('manufactor', 'LIKE', "%$searchTerm%")
@@ -59,15 +57,17 @@ class EquipmentController extends Controller
         $location_counts = [];
         foreach ($equipment_location as $location) {
             $locationIdCount = $location->id;
-            $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
-        }
+            if ($categoryId > 0) {
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->count();
+            } else {
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
 
-        // Filtering by category
+            }
+        }
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
 
-        // Filtering by size if provided
         if ($sizeId) {
             $query->where('size_id', $sizeId);
         }
@@ -78,12 +78,10 @@ class EquipmentController extends Controller
 
 
 
-        // Paginate the results
         $equipment = $query->paginate($perPage);
 
 
 
-        // Render the view with Inertia
         return Inertia::render('Equip/Index', [
             'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
@@ -490,7 +488,6 @@ class EquipmentController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate common fields
         $validatedData = $request->validate([
             'manufactor' => 'required|string|max:255',
             'category_id' => 'required|integer',
@@ -556,10 +553,36 @@ class EquipmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request)
     {
-        $equipment = Equipment::findOrFail($id);
-        Inertia::render('Equip/Edit', ['equipment' => $equipment]);
+        $equipment_categories = EquipmentCategories::all();
+        $equipment_sizes = EquipmentSize::all();
+        $equipment_location = EquipmentLocation::all();
+
+
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+        $categoryId = $request->query('category_id', 1);
+        $sizeId = $request->query('size_id');
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+
+
+        return Inertia::render('Equip/Edit', [
+            'equipment_categories' => $equipment_categories,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_sizes_counts' => $equipment_sizes_counts
+        ]);
     }
 
     /**
@@ -567,7 +590,60 @@ class EquipmentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validatedData = $request->validate([
+            'manufactor' => 'required|string|max:255',
+            'category_id' => 'required|integer',
+            'location_id' => 'required|integer',
+            'size_id' => 'required|integer',
+            'series' => 'nullable|string',
+            'manufactor_date' => 'nullable|date',
+            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off'],
+            'notes' => 'nullable|string',
+            'price' => 'nullable|integer',
+            'commentary' => 'nullable|string',
+            'length' => 'nullable|string',
+            'operating' => 'nullable|string',
+
+        ]);
+
+        $existingEquipment = Equipment::where('series', $request->input('series'))->first();
+
+        if ($existingEquipment) {
+            return redirect()->back()->withErrors(['series' => 'Оборудование с такой серией уже существует.']);
+        }
+
+        switch ($request->input('category_id')) {
+            case 1: // ВЗД
+                $extraData = $request->validate([
+                    'zahodnost' => 'nullable|string',
+                    'stator_rotor' => 'nullable|string',
+                    'narabotka_ds' => 'nullable|string',
+                    'dlina_ds' => 'nullable|string',
+                ]);
+                $validatedData = array_merge($validatedData, $extraData);
+                break;
+            case 2:
+                break;
+            case 3: // ФД
+            case 5: // ПК
+            case 4: // ПК
+            case 7:
+                $extraData = $request->validate([
+                    'rezbi' => 'nullable|string',
+                    'length_rezba' => 'nullable|string',
+                    'diameter' => 'nullable|string',
+                ]);
+                $validatedData = array_merge($validatedData, $extraData);
+                break;
+
+        }
+
+
+        $equipment = Equipment::update($validatedData);
+
+
+        return redirect()->route('equip.index')->with('success', 'Оборудование успешно обновлено.');
+
     }
 
     /**
