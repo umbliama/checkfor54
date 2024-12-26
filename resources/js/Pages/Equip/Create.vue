@@ -16,11 +16,11 @@ import UiFieldSelect from "@/Components/Ui/UiFieldSelect.vue";
 const page = usePage()
 
 const statuses = [
-    { title: 'Новое',              value: 'new' },
-    { title: 'Хорошее',            value: 'good' },
+    { title: 'Новое', value: 'new' },
+    { title: 'Хорошее', value: 'good' },
     { title: 'Удволетворительное', value: 'satisfactory' },
-    { title: 'Плохое',             value: 'bad' },
-    { title: 'Списано',            value: 'off' },
+    { title: 'Плохое', value: 'bad' },
+    { title: 'Списано', value: 'off' },
 ];
 
 const locationId = computed(() => store.getters['equipment/getLocationActive']);
@@ -109,26 +109,26 @@ function submit() {
     }
     if (locationId !== 0 && selectedCategory && selectedSize) {
         router.post('/equip', {
-                manufactor: form.manufactor,
-                size_id: form.size_id,
-                category_id: form.category_id,
-                status: form.status.value,
-                series: form.series,
-                price: form.price,
-                manufactor_date: form.manufactor_date,
-                notes: form.notes,
-                location_id: form.location_id,
-                zahodnost: form.zahodnost,
-                stator_rotor: form.stator_rotor,
-                narabotka_ds: form.narabotka_ds,
-                rezbi: form.rezbi,
-                length_rezba: form.length_rezba,
-                diameter: form.diameter,
-                length: form.length,
-                operating: form.operating,
-                dlina_ds: form.dlina_ds,
-                commentary: form.commentary
-            },
+            manufactor: form.manufactor,
+            size_id: form.size_id,
+            category_id: form.category_id,
+            status: form.status.value,
+            series: form.series,
+            price: form.price,
+            manufactor_date: form.manufactor_date,
+            notes: form.notes,
+            location_id: form.location_id,
+            zahodnost: form.zahodnost,
+            stator_rotor: form.stator_rotor,
+            narabotka_ds: form.narabotka_ds,
+            rezbi: form.rezbi,
+            length_rezba: form.length_rezba,
+            diameter: form.diameter,
+            length: form.length,
+            operating: form.operating,
+            dlina_ds: form.dlina_ds,
+            commentary: form.commentary
+        },
             {
                 onSuccess: () => console.log(page.props.flash.success),
             },
@@ -160,20 +160,14 @@ onMounted(() => {
 <template>
     <AuthenticatedLayout>
         <EquipNav></EquipNav>
-
+        <input v-model="form.manufactor" type="text">
         <div class="py-9 px-6">
             <h3 class="mb-6 font-bold text-lg">Добавить новое оборудование:</h3>
 
-            <EquipFilter
-                :selected-category="selectedCategory"
-                :selected-size="selectedSize"
-                :categories-counts="equipment_categories_counts"
-                :sizes-counts="equipment_sizes_counts"
-                :categories="equipment_categories"
-                :sizes="equipment_sizes"
-                @category-click="cat_id => setCategoryId(cat_id)"
-                @size-click="size_id => setSizeId(size_id)"
-            />
+            <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
+                :categories-counts="equipment_categories_counts" :sizes-counts="equipment_sizes_counts"
+                :categories="equipment_categories" :sizes="equipment_sizes"
+                @category-click="cat_id => setCategoryId(cat_id)" @size-click="size_id => setSizeId(size_id)" />
 
             <!--            <div class="max-w-screen-xl py-2 px-4 ">
                             <div class=" flex items-center">
@@ -211,19 +205,18 @@ onMounted(() => {
 
             <div class="relative mt-5 text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-                <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
-                    <li
-                        v-for="location in store.getters.cities" :key="location.id"
+                <ul
+                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                    <li v-for="location in store.getters.cities" :key="location.id"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': form.location_id === location.id }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
-                        @click="form.location_id = location.id"
-                    >
+                        @click="form.location_id = location.id">
                         {{ location.name }}
                     </li>
                 </ul>
             </div>
 
-<!--            <div class="sm:hidden lg:flex md:flex border-b-2  items-center mt-5 pl-5 space-x-6">
+            <!--            <div class="sm:hidden lg:flex md:flex border-b-2  items-center mt-5 pl-5 space-x-6">
 
                 <div v-for="location in equipment_location" @click="setLocation(location.id)"
                      :class="{ 'border-b-2 border-blue-500': locationId === location.id }" class="text-gray-800">{{
@@ -286,7 +279,8 @@ onMounted(() => {
             </div>-->
 
             <div v-if="selectedCategory && selectedSize" class="mt-6">
-                <div :class="selectedCategory === 2 ? 'lg:grid-cols-5' : 'lg:grid-cols-6'" class="grid grid-cols-1 gap-4 mb-6">
+                <div :class="selectedCategory === 2 ? 'lg:grid-cols-5' : 'lg:grid-cols-6'"
+                    class="grid grid-cols-1 gap-4 mb-6">
                     <UiField v-model="form.manufactor" label="Производитель" :inp-attrs="{ required: true }" />
                     <UiField v-model="form.series" label="Серия" :inp-attrs="{ required: true }" />
 
@@ -311,7 +305,8 @@ onMounted(() => {
                         <UiField v-model="form.operating" label="Наработка" :inp-attrs="{ required: true }" />
                     </template>
 
-                    <UiField v-model="form.manufactor_date" label="Дата изготовления" :inp-attrs="{ type: 'date', required: true }" />
+                    <UiField v-model="form.manufactor_date" label="Дата изготовления"
+                        :inp-attrs="{ type: 'date', required: true }" />
                     <UiField v-model="form.price" label="Стоимость" :inp-attrs="{ required: true }" />
                     <UiField v-model="form.notes" label="Примечание" :inp-attrs="{ required: true }" />
                     <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" />
@@ -320,15 +315,14 @@ onMounted(() => {
                 <UiField v-model="form.commentary" label="Комментарий" textarea />
 
                 <div class="flex justify-end mt-4">
-                    <button @click="submit"
-                            class="bg-my-gray text-side-gray-text font-bold px-6 py-3 ">Сохранить
+                    <button @click="submit" class="bg-my-gray text-side-gray-text font-bold px-6 py-3 ">Сохранить
                     </button>
 
                 </div>
             </div>
         </div>
 
-        <FormSuccess class="bg-black-500" v-if="success" :message="success"/>
-        <FormError v-if="Object.keys(errors).length > 0" :message="Object.values(errors)"/>
+        <FormSuccess class="bg-black-500" v-if="success" :message="success" />
+        <FormError v-if="Object.keys(errors).length > 0" :message="Object.values(errors)" />
     </AuthenticatedLayout>
 </template>

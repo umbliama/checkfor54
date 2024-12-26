@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,17 +14,17 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('manufactor');
-            $table->unsignedBigInteger('category_id')->after('manufactor'); 
-            $table->foreign('category_id')->references('id')->on('equipment_categories')->onDelete('set null');
-            $table->unsignedBigInteger('size_id')->after('category_id'); 
-            $table->foreign('size_id')->references('id')->on('equipment_sizes')->onDelete('set null');
-            $table->unsignedBigInteger('location_id')->after('size_id'); 
-            $table->foreign('location_id')->references('id')->on('equipment_locations')->onDelete('set null');            
+            $table->unsignedBigInteger('category_id');
+            $table->foreign('category_id')->references('id')->on('equipment_categories');
+            $table->unsignedBigInteger('size_id');
+            $table->foreign('size_id')->references('id')->on('equipment_sizes');
+            $table->unsignedBigInteger('location_id')->after('size_id');
+            $table->foreign('location_id')->references('id')->on('equipment_locations');
             $table->string('series')->nullable();
             $table->string('length')->nullable();
             $table->string('operating')->nullable();
             $table->date('manufactor_date')->nullable();
-            $table->enum('status',['new','good','satisfactory', 'bad', 'off'])->nullable();
+            $table->enum('status', ['new', 'good', 'satisfactory', 'bad', 'off'])->nullable();
             $table->text('notes')->nullable();
             $table->integer('price')->nullable();
             $table->text('commentary')->nullable();
@@ -37,7 +36,7 @@ return new class extends Migration
             $table->string('length_rezba')->nullable();
             $table->string('diameter')->nullable();
             $table->string('hyperlink')->nullable();
-        }); 
+        });
     }
 
     /**

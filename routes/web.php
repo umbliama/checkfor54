@@ -57,7 +57,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::get('/equip/create', [EquipmentController::class, 'create'])->middleware(['auth', 'verified'])->name('equip.create');
     Route::get('/equip/edit/{id}', [EquipmentController::class, 'edit'])->middleware(['auth', 'verified'])->name('equip.edit');
-    Route::delete('/equip/update/{id}', [EquipmentController::class, 'update'])->middleware(['auth', 'verified'])->name('equip.update');
+    Route::put('/equip/update/{id}', [EquipmentController::class, 'update'])->middleware(['auth', 'verified'])->name('equip.update');
     Route::delete('/equip/delete/{id}', [EquipmentController::class, 'destroy'])->middleware(['auth', 'verified'])->name('equip.destroy');
 
     Route::post('/equip', [EquipmentController::class, 'store'])->name('equip.store');
