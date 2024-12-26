@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Equipment;
 use App\Models\Contragents;
 use Illuminate\Support\Str;
+use Faker\Factory as Faker;
 
 class ServiceSeeder extends Seeder
 {
@@ -16,6 +17,7 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
+        $faker = Faker::create();
         $equipmentList = Equipment::whereIn('category_id', [1, 2, 3])
             ->whereIn('size_id', [1, 13, 19])
             ->get();
@@ -42,7 +44,7 @@ class ServiceSeeder extends Seeder
                     'operating' => '20',
                     'commentary' => 'Routine maintenance',
                     'return_reason' => null,
-                    'active' => false,
+                    'active' => $faker->boolean(50),
                     'income' => 1500.50,
                     'created_at' => now(),
                     'updated_at' => now(),
