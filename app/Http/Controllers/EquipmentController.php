@@ -164,8 +164,13 @@ class EquipmentController extends Controller
                 return $query->where('size_id', $sizeId);
             })
             ->pluck('series');
-        $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
+        $equipment_repairs = Equipment::where('category_id', $categoryId)
 
+            ->when($sizeId, function ($query) use ($sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->where('series', $series)
+            ->get();
         return Inertia::render('Equip/Repair', [
             'equipmentSeries' => $equipment_series,
             'equipment_location' => $equipment_location,
@@ -237,11 +242,21 @@ class EquipmentController extends Controller
             })
             ->pluck('series');
 
-        $equipment = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->get();
+        $equipment = Equipment::where('category_id', $categoryId)
 
+            ->when($sizeId, function ($query) use ($sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->where('series', $series)
+            ->get();
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
-        $equipment_tests = EquipmentTest::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
+        $equipment_tests = Equipment::where('category_id', $categoryId)
 
+            ->when($sizeId, function ($query) use ($sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->where('series', $series)
+            ->get();
         // $equipment_repairs = EquipmentRepair::all();
 
 
