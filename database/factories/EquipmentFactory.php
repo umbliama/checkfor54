@@ -23,12 +23,12 @@ class EquipmentFactory extends Factory
 
         return [
             'manufactor' => $this->faker->company,
-            'category_id' => $this->faker->randomElement([1, 2, 3]), 
+            'category_id' => $this->faker->randomElement([1, 2, 3]),
             'size_id' => function (array $attributes) {
                 if ($attributes['category_id'] == 1) {
-                    return $this->faker->numberBetween(1, 12); 
+                    return $this->faker->numberBetween(1, 12);
                 } elseif ($attributes['category_id'] == 2) {
-                    return 13; 
+                    return 13;
                 } elseif ($attributes['category_id'] == 3) {
                     return 19;
                 }
@@ -50,7 +50,7 @@ class EquipmentFactory extends Factory
             'length_rezba' => $this->faker->numberBetween(20, 100),
 
             'diameter' => $this->faker->numberBetween(20, 100),
-            'hyperlink' => $this->faker->url,
+            'hyperlink' => '',
         ];
 
     }

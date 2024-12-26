@@ -52,7 +52,7 @@ class TestsRepairsSeeder extends Seeder
                 'mex_vniz' => $faker->numberBetween(100, 10000),
                 'usilie' => $faker->numberBetween(100, 10000),
                 'delay' => $faker->numberBetween(100, 10000),
-                'hyperlink' => $faker->url,
+                'hyperlink' => '',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -71,7 +71,7 @@ class TestsRepairsSeeder extends Seeder
                 'category_id' => $equipment->category_id,
                 'size_id' => $equipment->size_id,
                 'series' => $equipment->series,
-                'hyperlink' => $faker->url,
+                'hyperlink' => '',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
