@@ -9,5 +9,5 @@ class EquipmentRepair extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['repair_date', 'location_id', 'expense','description','category_id','size_id','series'];
+    protected $fillable = ['repair_date', 'location_id', 'expense', 'description', 'category_id', 'size_id', 'series', 'hyperlink'];
 }
