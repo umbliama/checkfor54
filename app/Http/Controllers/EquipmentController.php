@@ -114,7 +114,6 @@ class EquipmentController extends Controller
         $equipment->hyperlink = $request->input('hyperlink');
         $equipment->save();
 
-        return redirect()->route('equip.index')->with('success', 'Ссылка успешно добавлена.');
 
     }
 
