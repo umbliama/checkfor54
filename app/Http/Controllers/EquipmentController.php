@@ -157,7 +157,13 @@ class EquipmentController extends Controller
 
 
 
-        $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
+        $equipment_series = Equipment::when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->pluck('series');
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
 
         return Inertia::render('Equip/Repair', [
@@ -223,7 +229,13 @@ class EquipmentController extends Controller
             $sizeIDForCount = $size->id;
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
-        $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
+        $equipment_series = Equipment::when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->pluck('series');
 
         $equipment = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->get();
 
@@ -274,7 +286,13 @@ class EquipmentController extends Controller
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
 
-        $equipment_series = Equipment::where('category_id', $categoryId)->where('size_id', $sizeId)->pluck('series');
+        $equipment_series = Equipment::when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->pluck('series');
 
         return Inertia::render(
             'Equip/Tests',
