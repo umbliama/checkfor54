@@ -106,8 +106,8 @@ class EquipmentController extends Controller
                     'operating' => $sub->operating,
                     'income' => $sub->income,
                     'return_reason' => $sub->return_reason,
-                    'subequipment_size' => $sizeData ? $sizeData->name : null,  
-                    'subequipment_category' => $categoryData ? $categoryData->name : null,  
+                    'subequipment_size' => $sizeData ? $sizeData->name : null,
+                    'subequipment_category' => $categoryData ? $categoryData->name : null,
                 ];
             });
 
@@ -116,8 +116,8 @@ class EquipmentController extends Controller
                 'contragent' => $contragent,
                 'equipment' => [
                     'equipmentData' => $equipmentData,
-                    'size' => $sizeData ? $sizeData->name : null,  
-                    'category' => $categoryData ? $categoryData->name : null, 
+                    'size' => $sizeData ? $sizeData->name : null,
+                    'category' => $categoryData ? $categoryData->name : null,
                 ],
                 'subequipment' => $subequipmentData,
             ];
@@ -211,7 +211,6 @@ class EquipmentController extends Controller
     }
     public function getEquipmentSizesCount()
     {
-        dd('123');
 
         $equipment_sizes = EquipmentSize::all();
 
@@ -267,15 +266,19 @@ class EquipmentController extends Controller
     public function getEquipmentByCategoryID($categoryId)
     {
 
-        $query = Equipment::query();
+        $equipment = Equipment::where('category_id', $categoryId)->get();
 
-        if ($categoryId) {
-            $query->where('category_id', $categoryId);
-        }
 
-        $equipment = $query->paginate(3);
 
         return response()->json($equipment);
     }
+    public function getEquipmentBySizeID($sizeId)
+    {
 
+        $equipment = Equipment::where('category_id', $sizeId)->get();
+
+
+
+        return response()->json($equipment);
+    }
 }
