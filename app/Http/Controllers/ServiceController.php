@@ -113,7 +113,7 @@ class ServiceController extends Controller
             return $service;
         });
 
-        
+
 
 
         $contragents_names = Contragents::pluck('name', 'id');
@@ -162,6 +162,7 @@ class ServiceController extends Controller
             'return_reason' => 'nullable',
             'active' => 'required|boolean',
             'income' => 'nullable|int',
+            'hyperlink' => 'nullable|string',
             'subEquipment' => 'array|nullable',
             'subEquipment.*.subequipment_id' => 'nullable|int|exists:equipment,id',
             'subEquipment.*.shipping_date' => 'nullable|date',
@@ -169,6 +170,7 @@ class ServiceController extends Controller
             'subEquipment.*.return_date' => 'nullable|date',
             'subEquipment.*.period_end_date' => 'nullable|date',
             'subEquipment.*.income' => 'nullable|int'
+
 
         ]);
 
@@ -186,7 +188,8 @@ class ServiceController extends Controller
             'operating',
             'return_reason',
             'active',
-            'income'
+            'income',
+            'hyperlink'
         ]));
 
 
@@ -201,7 +204,7 @@ class ServiceController extends Controller
         }
 
         Notification::create([
-            'type' => 'Пользователь ' . User::find($user_id)->name . ' создал новую аренда №'.$service->id,
+            'type' => 'Пользователь ' . User::find($user_id)->name . ' создал новую аренда №' . $service->id,
             'data' => ['service_id' => $service->id],
             'user_id' => $user_id
         ]);
@@ -211,21 +214,21 @@ class ServiceController extends Controller
 
 
     public function edit($id)
-    {   
+    {
         $service = Service::findOrFail($id);
         $equipment = Equipment::where('id', $service->equipment_id)
-        ->with(['category', 'size'])
-        ->first();
+            ->with(['category', 'size'])
+            ->first();
         $contragents = Contragents::all();
-    
-        if ($equipment) {
-            $equipment->category_name = $equipment->category ? $equipment->category->name : null; 
-            $equipment->size_name = $equipment->size ? $equipment->size->name : null; 
-        }
-    
-        $subservices = ServiceSub::where('service_id','=', $service->id)->get();
 
-        return Inertia::render('Services/Edit',['service' => $service, 'equipment' => $equipment,'subservices' => $subservices,'contragents'=>$contragents]);
+        if ($equipment) {
+            $equipment->category_name = $equipment->category ? $equipment->category->name : null;
+            $equipment->size_name = $equipment->size ? $equipment->size->name : null;
+        }
+
+        $subservices = ServiceSub::where('service_id', '=', $service->id)->get();
+
+        return Inertia::render('Services/Edit', ['service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
     }
 
     public function createIncident($id)
@@ -235,10 +238,10 @@ class ServiceController extends Controller
         $equipment = Equipment::findOrFail($service->equipment_id)->value('id');
         $contragent_id = Contragents::findOrFail($service->contragent_id)->value('id');
         $position = Column::max('position') + 1;
-        $column = Column::create(['position' => $position,'type' => 'adv']);
+        $column = Column::create(['position' => $position, 'type' => 'adv']);
 
         $position = $column->blocks()->max('position') + 1;
-    
+
         $block = $column->blocks()->create([
             'type' => 'customer',
             'contragent_id' => $contragent_id,
@@ -251,7 +254,7 @@ class ServiceController extends Controller
                 'subequipment_id' => $service->subequipment_id
             ]);
         }
-        
+
 
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
@@ -261,10 +264,10 @@ class ServiceController extends Controller
         $user_id = Auth::id();
 
         $equipment_id = $request->get('equipment_id');
-        $category = Equipment::where('id',$equipment_id)->value('category_id');
+        $category = Equipment::where('id', $equipment_id)->value('category_id');
         $size = Equipment::where('id', $equipment_id)->value('size_id');
-        $store_price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->where('archive', false)->value('store_price');
-        $operation_price = EquipmentPrice::where('category_id',$category)->where('size_id', $size)->where('archive', false)->value('operation_price');
+        $store_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('store_price');
+        $operation_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('operation_price');
 
 
         $operating = $request->get('operating', 0);
@@ -272,10 +275,10 @@ class ServiceController extends Controller
 
         if ($operating == 0) {
             $income = $store * $store_price;
-        }else {
+        } else {
             $days = ceil($operating / 24);
 
-        
+
             $income = ($operating * $operation_price) + ($store * $store_price);
         }
 
@@ -326,7 +329,7 @@ class ServiceController extends Controller
 
         if ($isChangingToInactive) {
             Notification::create([
-                'type' => 'Пользователь ' . User::find($user_id)->name . ' закрыл аренду №'.$service->id,
+                'type' => 'Пользователь ' . User::find($user_id)->name . ' закрыл аренду №' . $service->id,
                 'data' => ['service_id' => $service->id],
                 'user_id' => $user_id
             ]);
