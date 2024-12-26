@@ -434,6 +434,15 @@ onMounted(() => {
                                                             </li>
                                                         </ul>
                                                     </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
+                                                    </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
                                         </PopoverRoot>
@@ -861,6 +870,15 @@ onMounted(() => {
                                                             </li>
                                                         </ul>
                                                     </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
+                                                    </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
                                         </PopoverRoot>
@@ -1234,6 +1252,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>

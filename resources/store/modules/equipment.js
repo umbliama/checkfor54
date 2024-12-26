@@ -217,8 +217,10 @@ export default {
             { category_id, size_id, series }
         ) {
             try {
+                let url = `/api/equip/repair?category_id=${category_id}&series=${series}`;
+                if (size_id) url += `&size_id=${size_id}`;
                 const response = await fetch(
-                    `/api/equip/repair?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                    url
                 );
                 const data = await response.json();
                 commit("setEquipmentRepair", data);
@@ -231,8 +233,10 @@ export default {
             { category_id, size_id, series }
         ) {
             try {
+                let url = `/api/equip/report?category_id=${category_id}&series=${series}`;
+                if (size_id) url += `&size_id=${size_id}`;
                 const response = await fetch(
-                    `/api/equip/report?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                    url
                 );
                 const data = await response.json();
                 commit("setEquipmentReport", data);
@@ -245,8 +249,10 @@ export default {
             { category_id, size_id, series }
         ) {
             try {
+                let url = `/api/equip/services?category_id=${category_id}&series=${series}`;
+                if (size_id) url += `&size_id=${size_id}`;
                 const response = await fetch(
-                    `/api/equip/services?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                    url
                 );
                 const data = await response.json();
                 commit("setEquipmentHistory", data);
@@ -259,8 +265,10 @@ export default {
             { category_id, size_id, series }
         ) {
             try {
+                let url = `/api/equip/tests?category_id=${category_id}&series=${series}`;
+                if (size_id) url += `&size_id=${size_id}`;
                 const response = await fetch(
-                    `/api/equip/tests?category_id=${category_id}&size_id=${size_id}&series=${series}`
+                    url
                 );
                 const data = await response.json();
                 commit("setEquipmentTest", data);

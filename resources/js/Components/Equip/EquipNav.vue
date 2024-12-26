@@ -7,25 +7,10 @@ import store from '../../../store/index.js';
 
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
-const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
-const equipment_categories = computed(() => store.getters['equipment/getEquipmentCategories'])
-const equipment_sizes_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
-const equipment_categories_counts = computed(() => store.getters['equipment/getEquipmentSizesCounts'])
-const equipment_sizes = computed(() => store.getters['equipment/getEquipmentSizes'])
 const equipment_count = computed(() => store.getters['equipment/getEquipmentCount'])
 const equipment_count_repair = computed(() => store.getters['equipment/getEquipmentRepairCount'])
 const equipment_count_test = computed(() => store.getters['equipment/getEquipmentTestCount'])
-
-
-
-const selectCategory = (category) => {
-    store.dispatch('equipment/updateCategory', category);
-};
-
-const selectSize = (size) => {
-    store.dispatch('equipment/updateSize', size)
-}
 
 const setMenuItem = (item) => {
     store.dispatch('equipment/downgradeSizeActive')
@@ -180,5 +165,4 @@ onMounted(() => {
             </ul>
         </div>
     </nav>
-
 </template>

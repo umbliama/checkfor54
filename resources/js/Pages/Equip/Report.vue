@@ -51,13 +51,6 @@ const setSizeId = (sizeId) => {
 const setSeriesId = (seriesId) => {
     store.dispatch('equipment/updateSeriesId', seriesId)
     updateUrl();
-
-    if (!selectedCategory.value || !selectedSize.value) return;
-
-    updateReportTable (selectedCategory.value, selectedSize.value, seriesActive.value);
-    updateRepairTable (selectedCategory.value, selectedSize.value, seriesActive.value);
-    updateTestsTable  (selectedCategory.value, selectedSize.value, seriesActive.value);
-    updateHistoryTable(selectedCategory.value, selectedSize.value, seriesActive.value);
 }
 
 
@@ -154,12 +147,6 @@ function submitHyperlink(id, data) {
 watch(localSeriesActive, ({ value: seriesId }) => {
     store.dispatch('equipment/updateSeriesId', seriesId)
     updateUrl();
-    if (!selectedCategory.value) return;
-
-    updateReportTable (selectedCategory.value, selectedSize.value, seriesActive.value);
-    updateRepairTable (selectedCategory.value, selectedSize.value, seriesActive.value)
-    updateTestsTable  (selectedCategory.value, selectedSize.value, seriesActive.value)
-    updateHistoryTable(selectedCategory.value, selectedSize.value, seriesActive.value)
 });
 
 onMounted(() => {
@@ -171,19 +158,39 @@ onMounted(() => {
 
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('category_id')) {
-        if (+url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));
-    } else setCategoryId(null);
+    const fetch_by = {};
 
     if (url_params.get('size_id')) {
-        if (+url_params.get('size_id') !== selectedSize.value) setSizeId(+url_params.get('size_id'));
+        fetch_by.size_id = +url_params.get('size_id');
+        store.dispatch('equipment/updateSize', fetch_by.size_id);
+    }
+    if (url_params.get('series'))  {
+        fetch_by.series  = url_params.get('series');
+        store.dispatch('equipment/updateSeriesId', fetch_by.series);
+    }
+
+    if (url_params.get('category_id')) {
+        fetch_by.category_id = +url_params.get('category_id');
+        store.dispatch('equipment/updateCategory', fetch_by.category_id);
+
+        /*if (+url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));*/
+
+        updateReportTable (fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
+        updateRepairTable (fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
+        updateTestsTable  (fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
+        updateHistoryTable(fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
     }
 
 
-    if (url_params.get('size_id')     && url_params.get('category_id') && !url_params.get('series')) setSeriesId(props.equipment_series[0]);
+    /*if (url_params.get('size_id')) {
+        if (+url_params.get('size_id') !== selectedSize.value) setSizeId(+url_params.get('size_id'));
+    }*/
+
+
+    /*if (url_params.get('size_id')     && url_params.get('category_id') && !url_params.get('series')) setSeriesId(props.equipment_series[0]);
     if (url_params.get('series')      && url_params.get('series')       !== seriesActive.value)      setSeriesId(url_params.get('series'));
 
-    store.dispatch('equipment/updateMenuItem', EquipMenuItems.REPORT);
+    store.dispatch('equipment/updateMenuItem', EquipMenuItems.REPORT);*/
 });
 
 
@@ -257,6 +264,7 @@ onMounted(() => {
                         {{ series }}
                     </li>
                 </ul>
+
                 <div v-if="seriesActive" class="w-full space-y-5 lg:w-[calc(100%-100px-14px)]">
                     <div v-if="props.equipment?.length">
                         <h3 class="font-bold text-gray1">Характеристики</h3>
@@ -280,7 +288,7 @@ onMounted(() => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="item in equipment">
+                                <template v-for="item in props.equipment">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                         <PopoverRoot>
                                             <PopoverTrigger class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
@@ -351,6 +359,15 @@ onMounted(() => {
                                                             </li>
                                                         </ul>
                                                     </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
+                                                    </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
                                         </PopoverRoot>
@@ -403,7 +420,7 @@ onMounted(() => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="item in equipment">
+                                <template v-for="item in props.equipment">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                         <PopoverRoot>
                                             <PopoverTrigger class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
@@ -473,6 +490,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
@@ -527,7 +553,7 @@ onMounted(() => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="item in equipment">
+                                <template v-for="item in props.equipment">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                         <PopoverRoot>
                                             <PopoverTrigger class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
@@ -597,6 +623,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
@@ -720,6 +755,15 @@ onMounted(() => {
                                                             </li>
                                                         </ul>
                                                     </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
+                                                    </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
                                         </PopoverRoot>
@@ -831,6 +875,15 @@ onMounted(() => {
                                                             </li>
                                                         </ul>
                                                     </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(test.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
+                                                    </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
                                         </PopoverRoot>
@@ -936,6 +989,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
@@ -1047,6 +1109,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(history_item.id, form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>

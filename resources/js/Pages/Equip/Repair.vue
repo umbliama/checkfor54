@@ -113,6 +113,10 @@ const form = reactive({
     'series': null
 })
 
+const hyperlink_form = reactive({
+    'hyperlink': null
+})
+
 watch(localSeriesActive, ({ value: seriesId }) => {
     store.dispatch('equipment/updateSeriesId', seriesId);
     updateUrl();
@@ -132,6 +136,12 @@ function submit() {
         series: seriesActive.value
     })
     updateRepairTable(selectedCategory.value, selectedSize.value, seriesActive.value);
+}
+
+function submitHyperlink(id, data) {
+    router.post(`/equipment/${id}/hyperlink`, {
+        'hyperlink': data
+    });
 }
 
 onMounted(() => {
@@ -352,11 +362,11 @@ onMounted(() => {
                                                                             align="start"
                                                                             class="min-w-[137px] py-4 px-3 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         >
-                                                                            <UiField v-model="form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                                            <UiField v-model="hyperlink_form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
                                                                             <PopoverClose>
                                                                                 <button
                                                                                     class="inline-block mt-2 font-bold text-xs text-violet-full"
-                                                                                    @click="submitHyperlink(repair.id, form.hyperlink)"
+                                                                                    @click="submitHyperlink(repair.id, hyperlink_form.hyperlink)"
                                                                                 >Сохранить</button>
                                                                             </PopoverClose>
                                                                         </PopoverContent>
@@ -375,6 +385,15 @@ onMounted(() => {
                                                                 </Link>
                                                             </li>
                                                         </ul>
+                                                    </template>
+                                                    <template v-else>
+                                                        <UiField v-model="hyperlink_form.hyperlink" :inp-attrs="{ placeholder: 'www.site.ru' }" size="sm" />
+                                                        <PopoverClose>
+                                                            <button
+                                                                class="inline-block mt-2 font-bold text-xs text-violet-full"
+                                                                @click="submitHyperlink(repair.id, hyperlink_form.hyperlink)"
+                                                            >Сохранить</button>
+                                                        </PopoverClose>
                                                     </template>
                                                 </PopoverContent>
                                             </PopoverPortal>
