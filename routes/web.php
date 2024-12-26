@@ -63,7 +63,9 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::post('/equip/location', [EquipmentController::class, 'storeLocation'])->name('equip.storeLocation');
     Route::delete('/equip/location/delete/{id}', action: [EquipmentController::class, 'deleteLocation'])->name('equip.deleteLocation');
     Route::post('/equipment/{id}/hyperlink', [EquipmentController::class, 'storeHyperLink']);
-    Route::post('/equipment/repair/{id}/hyperlink', [EquipmentController::class, 'storeRepairHyperLink']);
+    Route::post('/equipment/repair/{id}/hyperlink', action: [EquipmentController::class, 'storeRepairHyperLink']);
+    Route::post('/equipment/tests/{id}/hyperlink', action: [EquipmentController::class, 'storeTestHyperLink']);
+
 
     Route::get('/contragents', [ContragentsController::class, 'index'])->name('contragents.index');
     Route::get('/contragents/create', [ContragentsController::class, 'create'])->name('contragents.create');

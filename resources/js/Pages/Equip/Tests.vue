@@ -60,7 +60,9 @@ const props = defineProps({
     equipment_sizes_counts: Array,
     equipment_sizes: Array,
 })
-
+const hyperlink_form = reactive({
+    'hyperlink': null
+})
 
 
 const form = reactive({
@@ -72,6 +74,12 @@ const form = reactive({
     'size_id': null,
     'series': null
 })
+function submitHyperlink(id, data) {
+    router.post(`/equipment/tests/${id}/hyperlink`, {
+        'hyperlink': data
+    });
+}
+
 function submit() {
     router.post('/equip/tests', {
         test_date: form.test_date,

@@ -132,6 +132,21 @@ class EquipmentController extends Controller
 
     }
 
+    public function storeTestHyperLink(Request $request, $id)
+    {
+        $request->validate([
+            'hyperlink' => 'required|string'
+        ]);
+
+        $repair = EquipmentTest::find($id);
+
+        $repair->hyperlink = $request->input('hyperlink');
+
+        $repair->save();
+
+
+    }
+
     public function repair(Request $request)
     {
 

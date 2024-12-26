@@ -110,6 +110,7 @@ class ServiceController extends Controller
                 $service->equipment_info = null;
             }
 
+
             return $service;
         });
 
