@@ -23,10 +23,13 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        $repairs = EquipmentRepair::where('series', $series)
-            ->where('category_id', $category)
-            ->where('size_id', $size)
-            ->get();
+        $repairs = EquipmentRepair::when($category, function ($query, $category) {
+            return $query->where('category_id', $category);
+        })->when($size, function ($query, $size) {
+            return $query->where('size_id', $size);
+        })->when($series, function ($query, $series) {
+            return $query->where('series', $series);
+        })->get();
 
         return response()->json($repairs);
     }
@@ -36,10 +39,13 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        $reports = Equipment::where('series', $series)
-            ->where('category_id', $category)
-            ->where('size_id', $size)
-            ->get();
+        $reports = Equipment::when($category, function ($query, $category) {
+            return $query->where('category_id', $category);
+        })->when($size, function ($query, $size) {
+            return $query->where('size_id', $size);
+        })->when($series, function ($query, $series) {
+            return $query->where('series', $series);
+        })->get();
 
         return response()->json($reports);
     }
@@ -49,10 +55,14 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        $reports = EquipmentTest::where('series', $series)
-            ->where('category_id', $category)
-            ->where('size_id', $size)
-            ->get();
+        $reports = EquipmentTest::when($category, function ($query, $category) {
+            return $query->where('category_id', $category);
+        })->when($size, function ($query, $size) {
+            return $query->where('size_id', $size);
+        })->when($series, function ($query, $series) {
+            return $query->where('series', $series);
+        })->get();
+
 
         return response()->json($reports);
     }
