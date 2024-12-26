@@ -63,12 +63,20 @@ class ServiceController extends Controller
     {
 
 
-        $services = Service::with([
+        $inActiveServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->paginate(10);
+        ])->where('active', 0)->paginate(10);
+
+        $activeServices = Service::with([
+            'subservices.equipment.category',
+            'subservices.equipment.size',
+            'equipment.category',
+            'equipment.size'
+        ])->where('active', 1)->paginate(10);
+
 
         // Retrieve all subservices and group them by service_id
         $subservices = ServiceSub::with(['equipment.category', 'equipment.size'])->get();
@@ -86,7 +94,7 @@ class ServiceController extends Controller
         $formatted_data_months = $this->formatServicesByYearMonth($services_by_year_month);
 
         // Transform the services collection
-        $services->getCollection()->transform(function ($service) use ($grouped_subservices) {
+        $inActiveServices->getCollection()->transform(function ($service) use ($grouped_subservices) {
             // Attach subservices to the service
             $service->subservices = collect($grouped_subservices->get($service->id) ?? []);
 
@@ -120,7 +128,8 @@ class ServiceController extends Controller
         $contragents_names = Contragents::pluck('name', 'id');
 
         return Inertia::render('Services/Index', [
-            'services' => $services,
+            'services' => $inActiveServices,
+            'activeServices' => $activeServices,
             'contragents_names' => $contragents_names,
             'count_services_active' => $count_services_active,
             'count_services_inactive' => $count_services_inactive,
