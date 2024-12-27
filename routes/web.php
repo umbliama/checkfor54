@@ -66,6 +66,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::post('/equipment/{id}/hyperlink', [EquipmentController::class, 'storeHyperLink']);
     Route::post('/equipment/repair/{id}/hyperlink', action: [EquipmentController::class, 'storeRepairHyperLink']);
     Route::post('/equipment/tests/{id}/hyperlink', action: [EquipmentController::class, 'storeTestHyperLink']);
+    Route::post('/equipment/service/{id}/hyperlink', action: [ServiceController::class, 'storeHyperLink']);
 
 
     Route::get('/contragents', [ContragentsController::class, 'index'])->name('contragents.index');

@@ -145,6 +145,21 @@ class EquipmentController extends Controller
 
     }
 
+    public function storeServiceHyperLink(Request $request, $id)
+    {
+        $request->validate([
+            'hyperlink' => 'required|string'
+        ]);
+
+        $repair = EquipmentTest::find($id);
+
+        $repair->hyperlink = $request->input('hyperlink');
+
+        $repair->save();
+
+
+    }
+
     public function repair(Request $request)
     {
 
@@ -553,8 +568,9 @@ class EquipmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request)
+    public function edit(Request $request, $id)
     {
+        $equipment = Equipment::findOrFail($id);
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes = EquipmentSize::all();
         $equipment_location = EquipmentLocation::all();
@@ -577,6 +593,7 @@ class EquipmentController extends Controller
 
 
         return Inertia::render('Equip/Edit', [
+            'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
             'equipment_sizes' => $equipment_sizes,
             'equipment_location' => $equipment_location,

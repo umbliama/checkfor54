@@ -89,6 +89,7 @@ const updateUrl = () => {
 
 
 const props = defineProps({
+    equipment: Object,
     equipment_categories: Array,
     equipment_sizes: Array,
     equipment_location: Array,
