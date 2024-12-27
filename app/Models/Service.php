@@ -9,22 +9,23 @@ class Service extends Model
 {
 
     protected $fillable = [
-       'equipment_id',
-       'contragent_id',
-       'shipping_date',
-       'period_start_date',
-       'return_date',
-       'period_end_date',
-       'store',
-       'service_id',
-       'commentary',
-       'service_number',
-       'service_date',
-       'operating',
-       'return_reason',
-       'active',
-       'income',
-       'subequipment_ids'
+        'equipment_id',
+        'contragent_id',
+        'shipping_date',
+        'period_start_date',
+        'return_date',
+        'period_end_date',
+        'store',
+        'service_id',
+        'commentary',
+        'service_number',
+        'service_date',
+        'operating',
+        'return_reason',
+        'active',
+        'income',
+        'subequipment_ids',
+        'hyperlink'
     ];
 
 
@@ -40,7 +41,7 @@ class Service extends Model
 
     public function equipment()
     {
-        return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); 
+        return $this->belongsTo(Equipment::class, 'equipment_id', 'id');
     }
 
 

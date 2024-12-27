@@ -223,6 +223,19 @@ class ServiceController extends Controller
     }
 
 
+    public function storeHyperLink(Request $request, $id)
+    {
+        $request->validate([
+            'hyperlink' => 'required|string'
+        ]);
+
+        $service = Service::find($id);
+
+        $service->hyperlink = $request->input('hyperlink');
+
+        $service->save();
+    }
+
     public function edit($id)
     {
         $service = Service::findOrFail($id);
