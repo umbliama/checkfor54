@@ -39,12 +39,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 RUN apt-get update && apt-get install -y \
     openssl \
     certbot \
+    git \
+    nano \ 
     python3-certbot-apache \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     # Install Node.js and npm
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
+    && composer install\
     && npm install \
     && npm run build \
     && php artisan migrate \
