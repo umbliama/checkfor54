@@ -652,11 +652,6 @@ class EquipmentController extends Controller
 
         ]);
         $equipment = Equipment::findOrFail($id);
-        $existingEquipment = Equipment::where('series', $request->input('series'))->first();
-
-        if ($existingEquipment) {
-            return redirect()->back()->withErrors(['series' => 'Оборудование с такой серией уже существует.']);
-        }
 
         switch ($request->input('category_id')) {
             case 1: // ВЗД
