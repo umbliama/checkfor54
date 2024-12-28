@@ -166,7 +166,7 @@ class EquipmentController extends Controller
         $sizeId = $request->query('size_id');
         $series = $request->query('series');
         $equipment_location = EquipmentLocation::all();
-        $categoryId = $request->query('category_id', 1); // Default to category_id = 1 if not provided
+        $categoryId = $request->query('category_id', 1);
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $equipment_categories = EquipmentCategories::all();
         $equipment_categories_counts = [];
@@ -241,7 +241,7 @@ class EquipmentController extends Controller
             'size_id' => 'nullable|int',
             'series' => 'nullable|string'
         ]);
-        $repair = EquipmentRepair::update($request->all());
+        $repair->update($request->all());
 
         return response('Success');
     }
@@ -384,9 +384,10 @@ class EquipmentController extends Controller
     }
 
 
-    public function updateTest(Request $request)
+    public function updateTest(Request $request, $id)
     {
 
+        $test = EquipmentTest::findOrFail($id);
         $request->validate([
             'test_date' => 'nullable|date',
             'location_id' => 'nullable|int',
@@ -397,7 +398,7 @@ class EquipmentController extends Controller
             'series' => 'nullable|string '
         ]);
 
-        EquipmentTest::update($request->all());
+        $test->update($request->all());
     }
     public function price(Request $request)
     {
