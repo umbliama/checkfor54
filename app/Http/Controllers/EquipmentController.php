@@ -388,14 +388,12 @@ class EquipmentController extends Controller
     {
 
         $test = EquipmentTest::findOrFail($id);
+
         $request->validate([
             'test_date' => 'nullable|date',
             'location_id' => 'nullable|int',
             'expense' => 'nullable|int',
             'description' => 'nullable|min:3|max:200',
-            'category_id' => 'nullable|int',
-            'size_id' => 'nullable|int',
-            'series' => 'nullable|string '
         ]);
 
         $test->update($request->all());
