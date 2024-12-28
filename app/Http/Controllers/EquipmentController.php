@@ -24,7 +24,7 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
 
-        $categoryId = $request->query('category_id', 0);
+        $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $query = Equipment::query();
@@ -227,6 +227,24 @@ class EquipmentController extends Controller
 
         EquipmentRepair::create($request->all());
     }
+
+
+    public function updateRepair(Request $request, $id)
+    {
+        $repair = EquipmentRepair::findOrFail($id);
+        $request->validate([
+            'repair_date' => 'nullable|date',
+            'location_id' => 'nullable|int',
+            'expense' => 'nullable|int',
+            'description' => 'nullable|min:3|max:200',
+            'category_id' => 'nullable|int',
+            'size_id' => 'nullable|int',
+            'series' => 'nullable|string'
+        ]);
+        $repair = EquipmentRepair::update($request->all());
+
+        return response('Success');
+    }
     public function destroyRepair($id)
     {
         $repair = EquipmentRepair::findOrFail($id);
@@ -365,6 +383,22 @@ class EquipmentController extends Controller
         EquipmentTest::create($request->all());
     }
 
+
+    public function updateTest(Request $request)
+    {
+
+        $request->validate([
+            'test_date' => 'nullable|date',
+            'location_id' => 'nullable|int',
+            'expense' => 'nullable|int',
+            'description' => 'nullable|min:3|max:200',
+            'category_id' => 'nullable|int',
+            'size_id' => 'nullable|int',
+            'series' => 'nullable|string '
+        ]);
+
+        EquipmentTest::update($request->all());
+    }
     public function price(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();

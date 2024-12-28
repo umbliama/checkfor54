@@ -16,6 +16,10 @@ use App\Http\Middleware\CheckIfApproved;
 
 use Inertia\Inertia;
 
+Route::get('/welcome', function () {
+    return Inertia::render('Welcome');
+});
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect('/login');
@@ -59,6 +63,11 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/equip/edit/{id}', [EquipmentController::class, 'edit'])->middleware(['auth', 'verified'])->name('equip.edit');
     Route::put('/equip/update/{id}', [EquipmentController::class, 'update'])->middleware(['auth', 'verified'])->name('equip.update');
     Route::delete('/equip/delete/{id}', [EquipmentController::class, 'destroy'])->middleware(['auth', 'verified'])->name('equip.destroy');
+
+
+    Route::put('/equip/repair/update/{id}', [EquipmentController::class, 'updateRepair'])->middleware(['auth', 'verified'])->name('equip.updateRepair');
+    Route::put('/equip/tests/update/{id}', [EquipmentController::class, 'updateTest'])->middleware(['auth', 'verified'])->name('equip.updateTest');
+
 
     Route::post('/equip', [EquipmentController::class, 'store'])->name('equip.store');
     Route::post('/equip/location', [EquipmentController::class, 'storeLocation'])->name('equip.storeLocation');
