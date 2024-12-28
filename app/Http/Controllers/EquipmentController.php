@@ -657,7 +657,7 @@ class EquipmentController extends Controller
             'operating' => 'nullable|string',
 
         ]);
-
+        $equipment = Equipment::findOrFail($id);
         $existingEquipment = Equipment::where('series', $request->input('series'))->first();
 
         if ($existingEquipment) {
@@ -691,7 +691,7 @@ class EquipmentController extends Controller
         }
 
 
-        $equipment = Equipment::update($validatedData);
+        $equipment->update($validatedData);
 
 
         return redirect()->route('equip.index')->with('success', 'Оборудование успешно обновлено.');
