@@ -237,13 +237,9 @@ class EquipmentController extends Controller
             'location_id' => 'nullable|int',
             'expense' => 'nullable|int',
             'description' => 'nullable|min:3|max:200',
-            'category_id' => 'nullable|int',
-            'size_id' => 'nullable|int',
-            'series' => 'nullable|string'
         ]);
         $repair->update($request->all());
 
-        return response('Success');
     }
     public function destroyRepair($id)
     {
