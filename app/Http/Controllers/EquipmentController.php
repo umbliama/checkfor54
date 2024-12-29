@@ -399,7 +399,8 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
-        $prices = EquipmentPrice::with(['category', 'size', 'contragent'])->get();
+        $perPage = $request->input('perPage');
+        $prices = EquipmentPrice::with(['category', 'size', 'contragent'])->paginate($perPage);
 
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
@@ -431,6 +432,8 @@ class EquipmentController extends Controller
             })
             ->get();
 
+
+        dd($prices);
 
 
         return Inertia::render('Equip/Price', [
