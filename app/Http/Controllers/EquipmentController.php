@@ -400,7 +400,8 @@ class EquipmentController extends Controller
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
         $perPage = $request->input('perPage');
-        $prices = EquipmentPrice::with(['category', 'size', 'contragent'])->paginate($perPage);
+        $prices = EquipmentPrice::with(['category', 'size', 'contragent'])->where('archived', 0)->paginate($perPage);
+        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent'])->where('archived', 1)->paginate($perPage);
 
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
@@ -443,6 +444,7 @@ class EquipmentController extends Controller
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'contragents' => $contragents,
             'prices' => $prices,
+            'archivedPrices' => $archivedPrices
         ]);
     }
 
