@@ -468,6 +468,21 @@ class EquipmentController extends Controller
 
     }
 
+    public function storeHyperlinkPrice(Request $request, $id)
+    {
+        $request->validate([
+
+            'hyperlink' => 'required|string'
+        ]);
+
+        $repair = EquipmentPrice::find($id);
+
+        $repair->hyperlink = $request->input('hyperlink');
+
+        $repair->save();
+
+    }
+
     /**
      * Show the form for creating a new resource.
      */
