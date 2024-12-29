@@ -433,7 +433,6 @@ class EquipmentController extends Controller
             ->get();
 
 
-        dd($prices);
 
 
         return Inertia::render('Equip/Price', [
