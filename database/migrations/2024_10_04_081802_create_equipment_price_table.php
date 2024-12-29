@@ -20,9 +20,9 @@ return new class extends Migration {
             $table->unsignedBigInteger('contragent_id'); // Add the equipment_id column
             $table->foreign('contragent_id')->references('id')->on('contragents');
             $table->date('store_date');
-            $table->string('notes');
-            $table->float('store_price');
-            $table->float('operation_price');
+            $table->string('notes')->nullable();
+            $table->float('store_price')->nullable();
+            $table->float('operation_price')->nullable();
             $table->boolean('archive');
             $table->string('hyperlink')->nullable();
         });

@@ -17,11 +17,9 @@ class TestsRepairsSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // Fetch existing equipment and locations
         $equipmentItems = DB::table('equipment')->select('category_id', 'size_id', 'series')->get();
         $locations = DB::table('equipment_locations')->pluck('id');
 
-        // Check if there are equipment and location items to use
         if ($equipmentItems->isEmpty()) {
             $this->command->warn('No equipment records found. Please populate the equipment table first.');
             return;
