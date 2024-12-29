@@ -18,7 +18,8 @@ class EquipmentPrice extends Model
         'notes',
         'store_price',
         'operation_price',
-        'archive'
+        'archive',
+        'hyperlink'
     ];
 
     public function category()
