@@ -129,9 +129,12 @@ function submit() {
         repair_date: form.repair_date,
         location_id: form.location_id,
         expense: form.expense,
-        description: form.description
+        description: form.description,
+        category_id: selectedCategory.value,
+        size_id: selectedSize.value,
+        series: seriesActive.value
     })
-    // updateRepairTable(selectedCategory.value, selectedSize?.value, seriesActive.value);
+    updateRepairTable(selectedCategory.value, selectedSize?.value, seriesActive.value);
 }
 
 function openDialog(repair_id) {
