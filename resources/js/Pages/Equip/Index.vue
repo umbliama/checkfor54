@@ -804,6 +804,7 @@ onMounted(() => {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <Link :href="route('equip.destroy', item.id)"
+                                                              method="DELETE"
                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                         Удалить
                                                         <svg class="block ml-2" width="16" height="16"

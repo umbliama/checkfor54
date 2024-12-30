@@ -130,8 +130,8 @@ function submit() {
         location_id: form.location_id,
         expense: form.expense,
         description: form.description,
-        category_id: selectedCategory.value,
-        size_id: selectedSize.value,
+        category_id: selectedCategory.value ?? 1,
+        size_id: selectedSize.value ?? 1,
         series: seriesActive.value
     })
     updateRepairTable(selectedCategory.value, selectedSize?.value, seriesActive.value);
@@ -417,7 +417,8 @@ onMounted(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link :href="route('equip.destroy', repair.id)"
+                                                                <Link :href="route('repair.destroy', repair.id)"
+                                                                      method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить
                                                                 <svg class="block ml-2" width="16" height="16"
