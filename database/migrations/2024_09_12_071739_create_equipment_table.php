@@ -15,11 +15,11 @@ return new class extends Migration {
             $table->timestamps();
             $table->string('manufactor');
             $table->unsignedBigInteger('category_id');
-            $table->foreign('category_id')->references('id')->on('equipment_categories');
+            $table->foreign('category_id')->references('id')->on('equipment_categories')->onDelete('cascade');
             $table->unsignedBigInteger('size_id');
-            $table->foreign('size_id')->references('id')->on('equipment_sizes');
+            $table->foreign('size_id')->references('id')->on('equipment_sizes')->onDelete('cascade');
             $table->unsignedBigInteger('location_id')->after('size_id');
-            $table->foreign('location_id')->references('id')->on('equipment_locations');
+            $table->foreign('location_id')->references('id')->on('equipment_locations')->onDelete('cascade');
             $table->string('series')->nullable();
             $table->string('length')->nullable();
             $table->string('operating')->nullable();

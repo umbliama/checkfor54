@@ -67,7 +67,11 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::put('/equip/repair/update/{id}', [EquipmentController::class, 'updateRepair'])->middleware(['auth', 'verified'])->name('equip.updateRepair');
     Route::put('/equip/tests/update/{id}', [EquipmentController::class, 'updateTest'])->middleware(['auth', 'verified'])->name('equip.updateTest');
+    Route::put('/equip/price/update/{id}', [EquipmentController::class, 'updatePrice'])->middleware(['auth', 'verified'])->name('equip.updatePrice');
 
+    Route::delete('/equip/repair/delete/{id}', [EquipmentController::class, 'destroyRepair'])->middleware(['auth', 'verified'])->name('repair.destroy');
+    Route::delete('/equip/tests/delete/{id}', [EquipmentController::class, 'destroyTest'])->middleware(['auth', 'verified'])->name('tests.destroy');
+    Route::delete('/equip/price/delete/{id}', [EquipmentController::class, 'destroyPrice'])->middleware(['auth', 'verified'])->name('price.destroy');
 
     Route::post('/equip', [EquipmentController::class, 'store'])->name('equip.store');
     Route::post('/equip/location', [EquipmentController::class, 'storeLocation'])->name('equip.storeLocation');

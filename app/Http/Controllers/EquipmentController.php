@@ -396,6 +396,14 @@ class EquipmentController extends Controller
 
         $test->update($request->all());
     }
+
+    public function destroyTest($id)
+    {
+        $Test = EquipmentTest::findOrFail($id);
+
+        $Test->delete();
+    }
+
     public function price(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
@@ -471,7 +479,35 @@ class EquipmentController extends Controller
         EquipmentPrice::create(array_merge($validatedData, ['archive' => false]));
 
 
+
     }
+
+    public function updatePrice(Request $request, $id)
+    {
+
+        $price = EquipmentPrice::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'contragent_id' => "nullable|int",
+            'store_date' => "nullable|date",
+            'notes' => "nullable|string",
+            'store_price' => "nullable|int",
+            'operation_price' => "nullable|int",
+            'archive' => "nullable|boolean",
+        ]);
+
+        $price->update($validatedData);
+
+
+    }
+    public function destroyPrice($id)
+    {
+        $price = EquipmentPrice::findOrFail($id);
+
+        $price->delete();
+    }
+
+
 
     public function storeHyperlinkPrice(Request $request, $id)
     {
