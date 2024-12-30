@@ -59,23 +59,23 @@ class ServiceController extends Controller
         return array_values($formatted_data); // Use array_values to reset the keys
     }
 
-    public function index()
+    public function index(Request $request)
     {
 
-
+        $perPage = $request->input('perPage');
         $inActiveServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->where('active', 0)->paginate(10);
+        ])->where('active', 0)->paginate($perPage);
 
         $activeServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->where('active', 1)->paginate(10);
+        ])->where('active', 1)->paginate($perPage);
 
 
         // Retrieve all subservices and group them by service_id
