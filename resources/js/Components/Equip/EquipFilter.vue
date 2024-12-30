@@ -1,7 +1,7 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
-
 const $props = defineProps({
+    requiredSize: Boolean,
+
     selectedCategory: Number,
     selectedSize    : Number,
 
@@ -9,11 +9,10 @@ const $props = defineProps({
     sizesCounts     : Object,
 
     categories: Array,
-    sizes     : Array
+    sizes     : Array,
 });
 
 const $emit = defineEmits(['categoryClick', 'sizeClick']);
-
 </script>
 
 <template>
@@ -44,6 +43,7 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
                 <li
+                    v-if="!$props.requiredSize"
                     :class="{ '!border-[#001D6C] text-[#001D6C]': !$props.selectedSize }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                     @click="$emit('sizeClick', 0)"

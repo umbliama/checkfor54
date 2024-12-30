@@ -1,10 +1,9 @@
 <script setup>
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EquipMenuItems } from '../../../constants/index.js';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted } from 'vue';
 import store from '../../../store/index.js';
-
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
@@ -41,7 +40,6 @@ function filterByCategory() {
     }
     const newUrl = `${window.location.pathname}?${query.toString()}`;
     window.history.replaceState(null, '', newUrl);
-
 }
 
 onMounted(() => {
@@ -52,7 +50,6 @@ onMounted(() => {
     if (selectedCategory.value) {
         filterByCategory();
     }
-
 })
 
 </script>
@@ -62,62 +59,61 @@ onMounted(() => {
         <div class="relative flex items-center flex-col lg:flex-row">
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto lg:overflow-x-visible">
-                <li
-                    :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
-                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    @click="setMenuItem(EquipMenuItems.REPORT)"
-                >
-                    <Link :href="route('equip.report')" class="text-base lg:text-lg">Отчет</Link>
+                <li>
+                    <Link
+                        :href="route('equip.report')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg"
+                    >Отчет</Link>
                 </li>
-                <li
-                    :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.EQUIPMENT }"
-                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    @click="setMenuItem(EquipMenuItems.EQUIPMENT)"
-                >
-                    <div class="flex items-center">
-                        <Link :href="route('equip.index')" class="text-base lg:text-lg">Оборудование</Link>
+                <li>
+                    <Link
+                        :href="route('equip.index')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.EQUIPMENT }"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                    >
+                        Оборудование
                         <span
                             :class="[equipment_count === 1 ? 'w-[30px]' : 'w-auto']"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count }}
                         </span>
-                    </div>
+                    </Link>
                 </li>
-                <li
-                    :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPAIR }"
-                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    @click="setMenuItem(EquipMenuItems.REPAIR)"
-                >
-                    <div class="flex items-center">
-                        <Link :href="route('equip.repair')" class="text-base lg:text-lg">Ремонт</Link>
+                <li>
+                    <Link
+                        :href="route('equip.repair')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPAIR }"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                    >
+                        Ремонт
                         <span
                             :class="[equipment_count_repair === 1 ? 'w-[30px]' : 'w-auto']"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count_repair }}
                         </span>
-                    </div>
+                    </Link>
                 </li>
-                <li
-                    :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.TESTS }"
-                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    @click="setMenuItem(EquipMenuItems.TESTS)"
+                <li>
+                    <Link
+                        :href="route('equip.tests')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.TESTS }"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
                     >
-                    <div class="flex items-center">
-                        <Link :href="route('equip.tests')" class="text-base lg:text-lg">Испытания</Link>
+                        Испытания
                         <span
                             :class="[equipment_count_test === 1 ? 'w-[30px]' : 'w-auto']"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count_test }}
                         </span>
-                    </div>
+                    </Link>
                 </li>
                 <li
                     :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    @click="setMenuItem(EquipMenuItems.PRICE)"
                 >
                     <Link :href="route('equip.price')" class="text-base lg:text-lg">Стоимость</Link>
                 </li>

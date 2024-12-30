@@ -24,8 +24,8 @@ const is_focused = ref(false);
 
 const stateClasses = computed(() => {
     return {
-        'text-my-black border-selected-blue'                   : $props.modelValue || is_focused.value,
-        'text-side-gray-text border-my-gray border-b-[#C1C7CD]': !$props.modelValue && !is_focused.value,
+        'text-my-black border-selected-blue'                   : is_focused.value,
+        'text-side-gray-text border-my-gray border-b-[#C1C7CD]': !is_focused.value,
     }
 });
 
@@ -45,7 +45,9 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
             :class="[ stateClasses ]"
             class="relative inline-flex items-center w-full border bg-my-gray"
         >
-            <span v-if="$slots.prepend" :class="{ 'top-3': $props.size === 'default', 'top-0.5': $props.size === 'sm' }" class="absolute left-2 inline-flex items-center justify-center w-6 h-6 mr-2">
+            <span
+                v-if="$slots.prepend"
+                :class="{ 'top-3': $props.size === 'default', 'top-0.5': $props.size === 'sm' }" class="absolute left-2 inline-flex items-center justify-center w-6 h-6 mr-2">
                 <slot name="prepend"></slot>
             </span>
             <component

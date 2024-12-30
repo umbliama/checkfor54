@@ -11,9 +11,9 @@ import {
     SelectValue,
     SelectViewport,
 } from "radix-vue";
-import { computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
-const value = defineModel();
+const model = defineModel();
 
 const $emit = defineEmits([ 'blur' ]);
 
@@ -26,16 +26,28 @@ const $props = defineProps({
     triggerAttrs: Object,
 });
 
-watch(value, new_value => {
+const is_open = ref(false);
+
+const stateClasses = computed(() => {
+    return {
+        'text-my-black border border-selected-blue': is_open.value,
+        'border-x-transparent border-t-transparent border-b border-b-[#C1C7CD]': !is_open.value,
+    }
+});
+
+watch(model, new_value => {
     $emit('blur', new_value);
 });
 
 onMounted(() => {
-    if (!value.value) setValue($props.items[0]);
+    if (!model.value) {
+        if      (typeof model.value === 'object') setValue($props.items[0]);
+        else if (typeof model.value === 'string' || typeof model.value === 'number') setValue($props.items[0].value);
+    };
 });
 
 function setValue(v) {
-    value.value = { ...v };
+    model.value = { ...v };
 }
 
 </script>
@@ -43,13 +55,18 @@ function setValue(v) {
 <template>
     <div :class="[ $props.disabled ? 'opacity-60 pointer-events-none' : '' ]">
         <label v-if="$props.label" class="block mb-2"> {{ $props.label }} <span v-if="required" class="text-red-warning">*</span></label>
-        <SelectRoot :model-value="value?.value" @update:model-value="setValue">
+        <SelectRoot
+            v-model:open="is_open"
+            :model-value="model?.value || model"
+            @update:model-value="setValue"
+        >
             <SelectTrigger
-                class="inline-flex items-center justify-between w-full py-3 px-4 border-b border-b-[#C1C7CD] bg-my-gray text-side-gray-text"
+                :class="stateClasses"
+                class="inline-flex items-center justify-between w-full py-3 px-4 bg-bg1 border"
                 v-bind="triggerAttrs"
                 aria-label="Customise options"
             >
-                {{ value?.title || $props.placeholder }}
+                {{ model?.title || $props.items.find(item=>item.value===model)?.title || $props.placeholder }}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.071 13.314L17.021 8.364C17.1133 8.26849 17.2236 8.19231 17.3456 8.1399C17.4676 8.08749 17.5988 8.05991 17.7316 8.05875C17.8644 8.0576 17.9961 8.0829 18.119 8.13318C18.2419 8.18346 18.3535 8.25772 18.4474 8.35161C18.5413 8.4455 18.6156 8.55715 18.6658 8.68005C18.7161 8.80295 18.7414 8.93463 18.7403 9.06741C18.7391 9.20018 18.7115 9.3314 18.6591 9.45341C18.6067 9.57541 18.5305 9.68576 18.435 9.778L12.778 15.435C12.5905 15.6225 12.3362 15.7278 12.071 15.7278C11.8059 15.7278 11.5515 15.6225 11.364 15.435L5.70702 9.778C5.61151 9.68576 5.53533 9.57541 5.48292 9.45341C5.43051 9.3314 5.40292 9.20018 5.40177 9.06741C5.40062 8.93463 5.42592 8.80295 5.4762 8.68005C5.52648 8.55715 5.60073 8.4455 5.69463 8.35161C5.78852 8.25772 5.90017 8.18346 6.02307 8.13318C6.14596 8.0829 6.27764 8.0576 6.41042 8.05875C6.5432 8.05991 6.67442 8.08749 6.79643 8.1399C6.91843 8.19231 7.02877 8.26849 7.12102 8.364L12.071 13.314Z" fill="#697077"/>
                 </svg>
@@ -67,7 +84,7 @@ function setValue(v) {
                                 v-for="(option, index) in $props.items"
                                 :key="index"
                                 :value="option"
-                                :class="{ '!bg-[#464F60] pointer-events-none text-white': option?.value === value?.value }"
+                                :class="{ '!bg-[#464F60] pointer-events-none text-white': option?.value === model?.value || option?.value === model }"
                                 class="flex items-center relative py-1 px-2 rounded outline-none cursor-pointer hover:bg-my-gray"
                             >
                                 <SelectItemText>
