@@ -15,7 +15,7 @@ import { EquipMenuItems } from "../../../constants/index.js";
 import EquipFilter from "@/Components/Equip/EquipFilter.vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import Pagination from "@/Components/Pagination.vue";
-import EquipPriceDialog from "@/Components/Equip/EquipPriceDialog.vue";
+import EquipPriceEditDialog from "@/Components/Equip/EquipPriceEditDialog.vue";
 
 
 const props = defineProps({
@@ -32,7 +32,6 @@ const props = defineProps({
 })
 
 const is_dialog_open = ref(false);
-const dialog_purpose = ref('create');
 const price_to_edit  = ref(null);
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
@@ -195,10 +194,10 @@ function submit() {
     form.archive         = 1;
 }
 
-function openDialog(purpose, price_id) {
+function openDialog(price_id) {
     is_dialog_open.value = true;
-    dialog_purpose.value = purpose;
-    if (purpose === 'edit') price_to_edit.value = props.prices.data.find(p=>p.id==price_id);
+    console.log(props.prices.data)
+    price_to_edit.value = props.prices.data.find(p=>p.id==price_id);
 }
 
 const currentPage = ref(props.prices.current_page || 1);
@@ -449,7 +448,7 @@ onMounted(() => {
                                                 <button
                                                     type="button"
                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                    @click="openDialog('edit', price.id)"
+                                                    @click="openDialog(price.id)"
                                                 >
                                                 Редактировать
                                                 <svg class="block ml-2" width="16" height="16"
@@ -465,8 +464,9 @@ onMounted(() => {
                                                 </button>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem>
-                                                <Link :href="route('price.destroy')"
+                                                <Link :href="route('price.destroy', price.id)"
                                                       method="DELETE"
+                                                      as="button"
                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                 Удалить
                                                 <svg class="block ml-2" width="16" height="16"
@@ -506,12 +506,11 @@ onMounted(() => {
             />
         </div>
 
-<!--        <EquipPriceDialog
+        <EquipPriceEditDialog
             v-model="is_dialog_open"
-            :purpose="dialog_purpose"
-            :agents="contragents"
+            :contragents="props.contragents"
             :price="price_to_edit"
-        />-->
+        />
     </AuthenticatedLayout>
 
 </template>
