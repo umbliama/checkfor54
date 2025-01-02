@@ -176,8 +176,12 @@ onMounted(() => {
             />
 
             <div class="flex justify-between bg-my-gray mt-4 p-1 lg:hidden">
-                <UiFieldSelect v-model="localSeriesActive" :items="get_equipmentSeries"
-                    :trigger-attrs="{ class: 'bg-white' }" :disabled="!!!seriesActive" placeholder="Номер"
+                <UiFieldSelect
+                    v-model="localSeriesActive"
+                    :items="get_equipmentSeries"
+                    :trigger-attrs="{ class: 'bg-white' }"
+                    :disabled="!get_equipmentSeries.length"
+                    placeholder="Номер"
                     class="w-[calc(50%-10px)]" />
 
                 <div class="flex mx-2 items-center">

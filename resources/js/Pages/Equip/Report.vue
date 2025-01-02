@@ -212,7 +212,7 @@ onMounted(() => {
                     v-model="localSeriesActive"
                     :items="get_equipment_series"
                     :trigger-attrs="{ class: 'bg-white' }"
-                    :disabled="!!!seriesActive"
+                    :disabled="!get_equipment_series.length"
                     placeholder="Номер"
                     class="w-[calc(50%-10px)]"
                 />
