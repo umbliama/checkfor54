@@ -65,11 +65,12 @@ const updateSelectedEquipment = (value) => {
             operating: false,
             return_reason: '',
             commentary: '',
-
         });
     }
 
     model.value = false;
+    selectCategory(null);
+    selectSize    (null);
 };
 const selectSize = (size) => {
     store.dispatch('equipment/updateSize', size);
@@ -107,7 +108,7 @@ onMounted(() => {
     <DialogRoot v-model:open="model">
         <DialogPortal>
             <transition name="fade">
-                <DialogOverlay class="fixed left-0 top-0 w-full h-full bg-black bg-opacity-60 z-30"/>
+                <DialogOverlay class="fixed left-0 top-0 w-full h-full bg-black bg-opacity-60 z-[60]"/>
             </transition>
             <transition name="fade">
                 <DialogContent

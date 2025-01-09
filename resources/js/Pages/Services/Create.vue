@@ -142,39 +142,42 @@ function submit() {
             <ServicesNav2 />
 
             <div class="mt-9 text-nowrap">
-                <div class="flex justify-between items-start">
-                    <div class="space-y-4">
-                        <div class="flex items-center">
-                            <label class="flex items-center">
-                                <span class="block mr-2 font-medium">Номер аренды:</span>
-                                <div class="flex items-center rounded-lg bg-[#F3F3F8]">
+                <div class="justify-between lg:flex">
+                    <div class="space-y-2 lg:space-y-4">
+                        <div class="items-center space-y-2 lg:flex lg:space-y-0">
+                            <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
+                                <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0">Номер аренды:</span>
+                                <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
+                                <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg overflow-hidden bg-white lg: lg:text-basew-auto lg:bg-[#F3F3F8]">
                                     <span class="inline-block pl-2 font-medium">№</span>
                                     <input
                                         v-model="form.service_number"
                                         type="text"
-                                        class="block p-2 w-[177px] h-9 rounded-lg bg-inherit"
+                                        class="block grow p-2 w-[177px] h-9 rounded-lg bg-inherit"
                                     />
                                 </div>
                             </label>
-                            <label class="flex items-center ml-2">
-                                <span class="block mr-2 font-medium">от</span>
-                                <div class="flex items-center rounded-lg bg-[#F3F3F8]">
-                                    <span class="inline-block pl-2 font-medium">Дата</span>
+                            <label class="flex items-center p-1 bg-bg1 lg:ml-2 lg:bg-transparent">
+                                <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0">от</span>
+                                <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
+                                <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
+                                    <span class="hidden pl-2 font-medium lg:inline-block ">Дата</span>
                                     <input
                                         v-model="form.service_date"
                                         type="date"
-                                        class="block p-2 w-[177px] h-9 rounded-lg bg-inherit"
+                                        class="block grow p-2 w-[177px] h-9 rounded-lg bg-inherit"
                                         onclick="this.showPicker()"
                                     />
                                 </div>
                             </label>
                         </div>
-                        <label class="flex items-center">
-                            <span class="block mr-[52px] font-medium">Заказчик:</span>
-                            <div class="flex grow items-center rounded-lg bg-[#F3F3F8]">
+                        <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
+                            <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчик:</span>
+                            <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
+                            <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:grow lg:text-base lg:w-auto lg:bg-[#F3F3F8]">
                                 <select
                                     v-model="form.active"
-                                    class="block p-2 w-full h-9 rounded-lg bg-inherit font-medium"
+                                    class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]"
                                 >
                                     <option value="0" selected>Аренда закрыта</option>
                                     <option value="1">Аренда открыта</option>
@@ -184,25 +187,27 @@ function submit() {
                     </div>
 
 
-                    <div class="space-y-4">
-                        <label class="flex items-center justify-between">
-                            <span class="block mr-2 font-medium">Статус:</span>
-                            <div class="flex items-center rounded-lg bg-[#F3F3F8]">
+                    <div class="mt-2 space-y-2 lg:space-y-4 lg:mt-0">
+                        <label class="flex items-center p-1 bg-bg1 lg:justify-between lg:bg-transparent">
+                            <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0">Статус:</span>
+                            <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
+                            <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select
                                     v-model="form.active"
-                                    class="block p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium"
+                                    class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]"
                                 >
                                     <option value="0" selected>Аренда закрыта</option>
                                     <option value="1">Аренда открыта</option>
                                 </select>
                             </div>
                         </label>
-                        <label class="flex items-center justify-between">
-                            <span class="block mr-2 font-medium">Договор:</span>
-                            <div class="flex items-center bg-[#F3F3F8]">
+                        <label class="flex items-center p-1 bg-bg1 lg:justify-between lg:bg-transparent">
+                            <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0">Договор:</span>
+                            <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
+                            <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select
                                     v-model="form.contract"
-                                    class="block p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium"
+                                    class="block grow p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium"
                                 >
                                     <option value="0" selected>Договор 0</option>
                                     <option value="1">Договор 1</option>
@@ -993,6 +998,7 @@ select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg width='19' height='18' viewBox='0 0 19 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.9707 7.5L9.78872 10.682L6.60674 7.5' stroke='%23242533' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
     background-position: calc(100% - 10px) center;
+    padding-right: 30px;
     background-repeat: no-repeat;
 }
 
