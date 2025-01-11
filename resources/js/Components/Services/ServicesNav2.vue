@@ -1,15 +1,16 @@
 <script setup>
-import store from "../../../store/index.js";
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuRoot,
   DropdownMenuTrigger,
-} from 'radix-vue'
-import { computed, ref } from "vue";
-import UiFieldDate from "@/Components/Ui/UiFieldDate.vue";
+} from 'radix-vue';
+
+const $props = defineProps({
+    title: String
+});
 </script>
 
 <template>
@@ -18,7 +19,7 @@ import UiFieldDate from "@/Components/Ui/UiFieldDate.vue";
 
         <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto text-nowrap lg:overflow-x-visible">
             <li class="flex items-center border-b-2 border-transparent py-3 cursor-pointer !border-[#001D6C] text-[#001D6C]">
-                Новая аренда:
+                {{ $props.title }}:
             </li>
             <li>
                 <DropdownMenuRoot>

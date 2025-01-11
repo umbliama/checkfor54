@@ -90,7 +90,7 @@ const modalShown = computed(() => store.getters['services/getModalShown']);
 
 
 const form = reactive({
-    contragent_id: null,
+    contragent_id: props.contragents[0].id,
     shipping_date: null,
     service_number: null,
     service_date: null,
@@ -139,7 +139,7 @@ function submit() {
         <ServicesDialog v-model="is_dialog_open" />
 
         <div class="p-5">
-            <ServicesNav2 />
+            <ServicesNav2 title="Новая аренда" />
 
             <div class="mt-9 text-nowrap">
                 <div class="justify-between lg:flex">
@@ -171,16 +171,17 @@ function submit() {
                                 </div>
                             </label>
                         </div>
+
                         <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
                             <span class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчик:</span>
                             <span class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:grow lg:text-base lg:w-auto lg:bg-[#F3F3F8]">
                                 <select
-                                    v-model="form.active"
+                                    v-model="form.contragent_id"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]"
                                 >
-                                    <option value="0" selected>Аренда закрыта</option>
-                                    <option value="1">Аренда открыта</option>
+                                    <option value="">Выберите</option>
+                                    <option v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
                                 </select>
                             </div>
                         </label>

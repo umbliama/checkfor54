@@ -60,6 +60,9 @@ export default {
                 "3xl": "1536px",
                 // => @media (min-width: 1536px) { ... }
             },
+            keyframes: {
+
+            }
         },
     },
 

@@ -20,3 +20,15 @@ input, button, input:focus, input:focus-visible {
 .fade-leave-to {
   opacity: 0;
 }
+
+@keyframes accordionSlideDown {
+    from { height: 0; }
+    to   { height: var(--radix-collapsible-content-height); }
+}
+@keyframes accordionSlideUp {
+    from { height: var(--radix-collapsible-content-height); }
+    to   { height: 0; }
+}
+
+.animate-accordion-slideUp   { animation: accordionSlideUp   300ms cubic-bezier(0.87, 0, 0.13, 1); }
+.animate-accordion-slideDown { animation: accordionSlideDown 300ms cubic-bezier(0.87, 0, 0.13, 1); }
