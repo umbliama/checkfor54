@@ -24,7 +24,8 @@ const props = defineProps({
     contragents: Array,
     count_services_active: Number,
     count_services_inactive: Number,
-    formatted_data_months: Object
+    formatted_data_months: Object,
+    groupedServices: Object
 });
 
 
@@ -384,7 +385,7 @@ watch(() => props.services.current_page, () => {
                                                         </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
-                                                        <Link :href="route('services.destroy', service.id)" methods="delete"
+                                                        <Link :href="route('services.destroy', service.id)" method="delete"
                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                         Удалить
                                                         <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
@@ -404,7 +405,7 @@ watch(() => props.services.current_page, () => {
 
                             <div v-if="service.subservices.length" ref="subservicesEls" style="transition: .3s;"
                                 class="h-0 overflow-hidden">
-                                <div v-for="subservice in service.subservices" :key="subservice.id"
+                                <div 
                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                     <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                         <PopoverRoot>
@@ -435,10 +436,10 @@ watch(() => props.services.current_page, () => {
                                             <PopoverPortal>
                                                 <PopoverContent align="start"
                                                     class="min-w-[137px] py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
-                                                    <template v-if="subservice.hyperlink">
+                                                    <template v-if="service.hyperlink">
                                                         <ul>
                                                             <li>
-                                                                <Link :href="subservice.hyperlink"
+                                                                <Link :href="service.hyperlink"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                 Открыть
                                                                 <svg class="block ml-2" width="16" height="16"
@@ -475,7 +476,7 @@ watch(() => props.services.current_page, () => {
                                                                             <PopoverClose>
                                                                                 <button
                                                                                     class="inline-block mt-2 font-bold text-xs text-violet-full"
-                                                                                    @click="submitHyperlink(subservice.id, form.hyperlink)">Сохранить</button>
+                                                                                    @click="submitHyperlink(service.id, form.hyperlink)">Сохранить</button>
                                                                             </PopoverClose>
                                                                         </PopoverContent>
                                                                     </PopoverPortal>
@@ -510,15 +511,15 @@ watch(() => props.services.current_page, () => {
                                     </div>
                                     <div
                                         class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                        {{ subservice.equipment.series ?? '-' }}
+                                        Аренда №{{ service.service_number ?? '-' }}
                                     </div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
-                                        subservice.shipping_date ?? '-' }}</div>
+                                        service.shipping_date ?? '-' }}</div>
                                     <div
                                         class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
                                         {{
-                                            subservice.commentary ?? '-' }}</div>
-                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.income ??
+                                            service.commentary ?? '-' }}</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.income ??
                                         '-' }} ₽</div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                         <Link :href="route('directory.index', { type: 'services', id: service.id })"
@@ -556,7 +557,7 @@ watch(() => props.services.current_page, () => {
                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                         :side-offset="5" align="end">
                                                         <DropdownMenuItem>
-                                                            <Link :href="route('services.edit', subservice.id)"
+                                                            <Link :href="route('services.edit', service.id)"
                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                             Редактировать
                                                             <svg class="block ml-2" width="16" height="16"
@@ -572,7 +573,7 @@ watch(() => props.services.current_page, () => {
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
-                                                            <Link :href="route('services.destroy', subservice.id)"
+                                                            <Link :href="route('services.destroy', service.id)"
                                                                 methods="delete"
                                                                 class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                             Удалить

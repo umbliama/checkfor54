@@ -77,6 +77,7 @@ class ServiceController extends Controller
             'equipment.size'
         ])->where('active', 1)->paginate($perPage);
 
+        $groupedServices = $activeServices->groupBy('contragent_id');
 
         // Retrieve all subservices and group them by service_id
         $subservices = ServiceSub::with(['equipment.category', 'equipment.size'])->get();
@@ -130,6 +131,7 @@ class ServiceController extends Controller
         return Inertia::render('Services/Index', [
             'services' => $inActiveServices,
             'activeServices' => $activeServices,
+            'groupedServices' => $groupedServices,
             'contragents_names' => $contragents_names,
             'count_services_active' => $count_services_active,
             'count_services_inactive' => $count_services_inactive,
@@ -249,7 +251,7 @@ class ServiceController extends Controller
             $equipment->size_name = $equipment->size ? $equipment->size->name : null;
         }
 
-        $subservices = ServiceSub::where('service_id', '=', $service->id)->get();
+        $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category','equipment.size'])->get();
 
         return Inertia::render('Services/Edit', ['service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
     }
@@ -303,6 +305,7 @@ class ServiceController extends Controller
 
 
             $income = ($operating * $operation_price) + ($store * $store_price);
+
         }
 
 
@@ -329,6 +332,7 @@ class ServiceController extends Controller
             'subEquipment.*.period_end_date' => 'nullable|date',
             'subEquipment.*.income' => 'nullable|int'
         ]);
+
         $isChangingToInactive = $service->active && !$request->get('active', true);
 
         // Update the main service record
