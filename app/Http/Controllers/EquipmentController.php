@@ -6,6 +6,7 @@ use App\Models\Contragents;
 use App\Models\EquipmentCategories;
 use App\Models\EquipmentPrice;
 use App\Models\EquipmentSize;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\EquipmentLocation;
@@ -20,15 +21,19 @@ class EquipmentController extends Controller
     public function index(Request $request)
     {
         $searchTerm = $request->query('search');
+        $perPage = $request->query('perPage');
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
+        $equipment_on_rent_count = Service::where('active', true)->count();
+        $activeEquipment = Equipment::whereHas('services', function ($query) {
+            $query->where('active', true);
+        })->paginate($perPage);
 
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $query = Equipment::query();
-        $perPage = $request->query('perPage');
         $locationId = $request->query('location_id');
 
         if ($searchTerm) {
@@ -90,7 +95,9 @@ class EquipmentController extends Controller
             'equipment_sizes' => $equipment_sizes,
             'equipment_location' => $equipment_location,
             'selectedCategory' => $categoryId,
-            'location_counts' => $location_counts
+            'location_counts' => $location_counts,
+            'equipment_on_rent_count' => $equipment_on_rent_count,
+            'activeEquipment' => $activeEquipment
         ]);
     }
     public function storeHyperLink(Request $request, $id)

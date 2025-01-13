@@ -79,7 +79,9 @@ const props = defineProps({
     equipment_sizes_counts: Object,
     equipment_sizes: Object,
     equipment_location: Array,
-    location_counts: Object
+    location_counts: Object,
+    equipment_on_rent: Number,
+    activeEquipment: Object
 });
 
 const statuses = {
