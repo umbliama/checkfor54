@@ -361,40 +361,48 @@ class ServiceController extends Controller
                 'user_id' => $user_id
             ]);
         }
-
-        // Update or create sub-equipment records
-        if ($request->has('subEquipment')) {
+        if ($request->has('subEquipment') && is_array($request->subEquipment)) {
             foreach ($request->subEquipment as $subEquipmentData) {
-                if (isset($subEquipmentData['id'])) {
-                    // Update existing sub-equipment
-                    $subService = ServiceSub::find($subEquipmentData['id']);
-                    if ($subService) {
-                        $subService->update([
-                            'subequipment_id' => $subEquipmentData['subequipment_id'],
-                            'shipping_date' => $subEquipmentData['shipping_date'],
-                            'period_start_date' => $subEquipmentData['period_start_date'],
-                            'commentary' => $subEquipmentData['commentary'] ?? null,
-                            'return_date' => $subEquipmentData['return_date'],
-                            'period_end_date' => $subEquipmentData['period_end_date'],
-                            'income' => $subEquipmentData['income'] ?? null,
-                        ]);
-                    }
+                // Access the necessary values
+                $subOperating = $subEquipmentData['operating'];
+                $subStore = $subEquipmentData['store'];
+        
+                // Calculate income
+                if ($subOperating == 0) {
+                    $subincome = $subStore * $store_price;
                 } else {
-                    // Create new sub-equipment record if it's a new entry
-                    ServiceSub::create([
-                        'subequipment_id' => $subEquipmentData['subequipment_id'],
-                        'shipping_date' => $subEquipmentData['shipping_date'],
-                        'period_start_date' => $subEquipmentData['period_start_date'],
-                        'commentary' => $subEquipmentData['commentary'] ?? null,
-                        'service_id' => $service->id,
-                        'return_date' => $subEquipmentData['return_date'],
-                        'period_end_date' => $subEquipmentData['period_end_date'],
-                        'income' => $subEquipmentData['income'] ?? null,
-                    ]);
+                    $days = ceil($subOperating / 24);
+                    $subincome = ($subOperating * $operation_price) + ($subStore * $store_price);
+                }
+                dd($request->subEquipment);
+                // Update or create sub-equipment records
+                if (isset($subEquipmentData['subequipment_id'])) {
+                    // Update existing sub-equipment
+                    $subService = ServiceSub::find($subEquipmentData['subequipment_id']);
+                    if ($subService) {
+                        $subService->update(array_merge(
+                            [
+                                'subequipment_id' => $subEquipmentData['subequipment_id'],
+                                'shipping_date' => $subEquipmentData['shipping_date'],
+                                'period_start_date' => $subEquipmentData['period_start_date'],
+                                'commentary' => $subEquipmentData['commentary'] ?? null,
+                                'return_date' => $subEquipmentData['return_date'],
+                                'operating' => $subEquipmentData['operating'],
+                                'store' => $subEquipmentData['store'],
+                                'period_end_date' => $subEquipmentData['period_end_date'],
+                            ],
+                            ['income' => $subincome]
+                        ));
+                    }
+
+                    dd($subService);
                 }
             }
+        } else {
+            // Handle the case where subEquipment is not set or not an array
+            echo "No subequipment data found.\n";
         }
-
+    
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
 

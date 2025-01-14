@@ -37,12 +37,13 @@ const incSubRow = () => {
     store.dispatch('services/updateIncSubRowsCount');
     store.dispatch('services/updateSubSelectedEquipmentObjects', {
         subequipment_id: '',
+        id:'',
         shipping_date: '',
         period_start_date: '',
         return_date: '',
         period_end_date: '',
         store: '',
-        operating: false,
+        operating: "",
         return_reason: '',
         commentary: '',
     });

@@ -138,7 +138,7 @@ const form = reactive({
     period_start_date: null,
     return_date: props.service.return_date?.split(' ')[0] ?? null,
     period_end_date: props.service.preiod_end_date?.split(' ')[0] ?? null,
-    store: null,
+    store: 0,
     operating: 0,
     contract: 0,
     return_reason: null,
@@ -673,22 +673,27 @@ const test_rows = ref([
                                         </template>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent" onclick="this.showPicker()" value="2024-04-11" />
+                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'shipping_date', $event.target.value)" onclick="this.showPicker()"  />
+                                    </div>
+                                    
+                                    <div class=" shrink-0 flex items-center w-[8.97%]">
+                                        <input type="number" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'id', item.id)"  />
+                                    </div>
+
+                                    <div class="shrink-0 flex items-center w-[8.97%]">
+                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"   @input="updateByKey(index, 'period_start_date', $event.target.value)" onclick="this.showPicker()" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent" onclick="this.showPicker()" />
+                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'store', $event.target.value)" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"  v-model="form.store"/>
+                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'operating', $event.target.value)"/>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" v-model="form.operating"/>
+                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'period_end_date', $event.target.value)"  onclick="this.showPicker()" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent" onclick="this.showPicker()" value="2024-04-11" />
-                                    </div>
-                                    <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent" onclick="this.showPicker()" value="2024-04-11" />
+                                        <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"  @input="updateByKey(index, 'return_date', $event.target.value)" onclick="this.showPicker()"/>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%] ">
                                         <select class="block w-full h-full py-2.5 px-2 bg-transparent">

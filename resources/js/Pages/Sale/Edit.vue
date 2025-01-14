@@ -31,8 +31,8 @@ const incSubRow = () => {
     period_start_date: '',
     return_date: '',
     period_end_date: '',
-    store: '',
-    operating: false,
+    store: 0,
+    operating: 0,
     return_reason: '',
     commentary: '',
 
