@@ -235,7 +235,6 @@ onMounted(() => {
                 <div class="flex justify-end mt-4">
                     <button @click="submit" class="bg-my-gray text-side-gray-text font-bold px-6 py-3 ">Сохранить
                     </button>
-
                 </div>
             </div>
         </div>
