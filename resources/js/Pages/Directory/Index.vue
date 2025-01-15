@@ -33,7 +33,11 @@ const form = reactive({
 })
 
 const parsedFiles = computed(() => {
-    return JSON.parse(props.directory.files);
+    if (props.directory?.files && props.directory?.files.length) {
+        return JSON.parse(props.directory?.files);
+    } else {
+        return false;
+    }
 });
 
 const submit = () => {
@@ -74,7 +78,7 @@ const submit = () => {
         <div class="flex flex-col px-6 pb-6 lg:items-start lg:flex-row">
             <div class="py-5 px-2 content-block lg:mr-6 lg:w-[220px]">
                 <div class="font-medium">Файлы:</div>
-                <div class="mt-3 p-4 bg-bg1 text-xs">
+                <div v-if="parsedFiles" class="mt-3 p-4 bg-bg1 text-xs">
                     <div v-for="file in parsedFiles" class="flex items-center max-w-full">
                         <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.split('/')[1] }}</span>
                         <svg v-if="file.includes('.zip') || file.includes('.rar') || file.includes('.tar.gz')"
