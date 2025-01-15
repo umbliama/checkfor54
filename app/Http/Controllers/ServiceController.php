@@ -293,8 +293,8 @@ class ServiceController extends Controller
         $size = Equipment::where('id', $equipment_id)->value('size_id');
         $store_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('store_price');
         $operation_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('operation_price');
-
-
+        $fullIncome = 0;
+    
         $operating = $request->get('operating', 0);
         $store = $request->get('store', 0);
 
@@ -360,7 +360,11 @@ class ServiceController extends Controller
                 'data' => ['service_id' => $service->id],
                 'user_id' => $user_id
             ]);
+            
         }
+
+        
+
         if ($request->has('subEquipment') && is_array($request->subEquipment)) {
             foreach ($request->subEquipment as $subEquipmentData) {
                 // Access the necessary values
@@ -374,18 +378,18 @@ class ServiceController extends Controller
                     $days = ceil($subOperating / 24);
                     $subincome = ($subOperating * $operation_price) + ($subStore * $store_price);
                 }
-                dd($request->subEquipment);
+
                 // Update or create sub-equipment records
                 if (isset($subEquipmentData['subequipment_id'])) {
                     // Update existing sub-equipment
-                    $subService = ServiceSub::find($subEquipmentData['subequipment_id']);
+                    $subService = ServiceSub::find($subEquipmentData['id']);
                     if ($subService) {
                         $subService->update(array_merge(
                             [
                                 'subequipment_id' => $subEquipmentData['subequipment_id'],
                                 'shipping_date' => $subEquipmentData['shipping_date'],
                                 'period_start_date' => $subEquipmentData['period_start_date'],
-                                'commentary' => $subEquipmentData['commentary'] ?? null,
+                                'commentary' => $subEquipmentData['commentary'] ?? "",
                                 'return_date' => $subEquipmentData['return_date'],
                                 'operating' => $subEquipmentData['operating'],
                                 'store' => $subEquipmentData['store'],
@@ -394,14 +398,18 @@ class ServiceController extends Controller
                             ['income' => $subincome]
                         ));
                     }
-
-                    dd($subService);
+                    $fullIncome += $subincome;
                 }
+                
             }
         } else {
             // Handle the case where subEquipment is not set or not an array
             echo "No subequipment data found.\n";
         }
+
+        $service->update([
+            'income' => $fullIncome + $income
+        ]);
     
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
