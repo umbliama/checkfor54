@@ -155,15 +155,15 @@ const form = reactive({
     shipping_date: props.service.shipping_date?.split(' ')[0] ?? null,
     service_number: props.service.service_number ?? null,
     service_date: props.service.service_date?.split(' ')[0] ?? null,
-    period_start_date: null,
+    period_start_date: props.service.period_start_date ?? null,
     return_date: props.service.return_date?.split(' ')[0] ?? null,
     period_end_date: props.service.preiod_end_date?.split(' ')[0] ?? null,
-    store: 0,
-    operating: 0,
+    store: props.service.store ?? null,
+    operating: props.service.operating ?? null,
     contract: 0,
     return_reason: null,
     active: props.service.active ?? null,
-    income: null,
+    income: props.service.income ?? null,
     equipment_id: props.service.equipment_id ?? null,
 
 })
@@ -172,7 +172,7 @@ function submit() {
     const cleanedSubEquipment = selectedSubEquipmentArray.value.filter(sub => {
         return sub.subequipment_id && sub.shipping_date && sub.period_start_date && sub.store
     });
-    console.log(cleanedSubEquipment)
+    console.log(form)
     router.put(`/services/${props.service.id}`, {
         equipment_id: form.equipment_id,
         contragent_id: form.contragent_id,
@@ -538,8 +538,7 @@ const test_rows = ref([
                                         </select>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            value="1 280 000" />
+                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" v-model="form.income" />
                                         <span class="shrink-0 inline-block mr-2">₽</span>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
@@ -667,30 +666,36 @@ const test_rows = ref([
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                             @input="updateByKey(index, 'shipping_date', $event.target.value)"
-                                            onclick="this.showPicker()" />
+                                            onclick="this.showPicker()"
+                                            v-model="subservices[index].shipping_date" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                             @input="updateByKey(index, 'period_start_date', $event.target.value)"
-                                            onclick="this.showPicker()" />
+                                            onclick="this.showPicker()"
+                                            v-model="subservices[index].period_start_date" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            @input="updateByKey(index, 'store', $event.target.value)" />
+                                            @input="updateByKey(index, 'store', $event.target.value)" 
+                                            v-model="subservices[index].store" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            @input="updateByKey(index, 'operating', $event.target.value)" />
+                                            @input="updateByKey(index, 'operating', $event.target.value)"
+                                            v-model="subservices[index].operating" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                             @input="updateByKey(index, 'period_end_date', $event.target.value)"
-                                            onclick="this.showPicker()" />
+                                            onclick="this.showPicker()"
+                                            v-model="subservices[index].period_end_date" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                             @input="updateByKey(index, 'return_date', $event.target.value)"
-                                            onclick="this.showPicker()" />
+                                            onclick="this.showPicker()"
+                                            v-model="subservices[index].return_date" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%] ">
                                         <select class="block w-full h-full py-2.5 px-2 bg-transparent">
@@ -699,8 +704,8 @@ const test_rows = ref([
                                         </select>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            value="1 280 000" />
+                                        <input readonly="readonly" type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                            v-model="subservices[index].income" />
                                         <span class="shrink-0 inline-block mr-2">₽</span>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">

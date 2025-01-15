@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->enum('return_reason', ['project', 'rejected'])->nullable();
             $table->boolean('active');
             $table->float('income')->nullable();
+            $table->float('full_income')->nullable();
             $table->string('hyperlink')->nullable();
         });
 

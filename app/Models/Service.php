@@ -24,6 +24,7 @@ class Service extends Model
         'return_reason',
         'active',
         'income',
+        'full_income',
         'subequipment_ids',
         'hyperlink'
     ];

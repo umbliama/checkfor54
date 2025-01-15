@@ -408,7 +408,7 @@ class ServiceController extends Controller
         }
 
         $service->update([
-            'income' => $fullIncome + $income
+            'full_income' => $fullIncome + $income
         ]);
     
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
