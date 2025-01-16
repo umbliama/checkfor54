@@ -33,7 +33,7 @@ class ServiceSeeder extends Seeder
             for ($i = 0; $i < 20; $i++) {
                 $serviceId = DB::table('services')->insertGetId([
                     'equipment_id' => $equipment->id,
-                    'contragent_id' => $contragent->id,
+                    'contragent_id' => rand(1,5),
                     'service_number' => Str::uuid(),
                     'service_date' => now(),
                     'shipping_date' => now()->addDays(2),
