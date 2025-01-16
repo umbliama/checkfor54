@@ -26,7 +26,7 @@ class EquipmentFactory extends Factory
             'category_id' => $this->faker->randomElement([1, 2, 3]),
             'size_id' => function (array $attributes) {
                 if ($attributes['category_id'] == 1) {
-                    return $this->faker->numberBetween(1, 12);
+                    return $this->faker->numberBetween(1,1);
                 } elseif ($attributes['category_id'] == 2) {
                     return $this->faker->numberBetween(13, 18);
                 } elseif ($attributes['category_id'] == 3) {
