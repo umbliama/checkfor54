@@ -141,6 +141,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/search', [SearchController::class, 'search']);
     Route::get('/search-results', [SearchController::class, 'index'])->name('search.index');
 
+    Route::post('/changeLocation', [EquipmentController::class,'changeLocation'])->name('location.change');
 });
 
 

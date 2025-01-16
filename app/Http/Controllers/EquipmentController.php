@@ -7,6 +7,7 @@ use App\Models\EquipmentCategories;
 use App\Models\EquipmentPrice;
 use App\Models\EquipmentSize;
 use App\Models\Service;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\EquipmentLocation;
@@ -758,5 +759,28 @@ class EquipmentController extends Controller
         $equipment_item = Equipment::findOrFail($id);
 
         $equipment_item->delete();
+    }
+
+    public function changeLocation(Request $request)
+    {   
+        
+        $request->validate([
+            'id' => 'required|integer',
+            'locationId' => 'required|integer',
+        ]);
+    
+        $id = $request->input('id');
+        $locationId = $request->input('locationId');
+    
+        try {
+            $equipment = Equipment::findOrFail($id);
+            $location = EquipmentLocation::findOrFail($locationId);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Equipment or Location not found'], 404);
+        }
+    
+        $equipment->location_id = $location->id;
+        $equipment->save();
+    
     }
 }
