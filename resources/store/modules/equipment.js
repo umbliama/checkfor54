@@ -31,9 +31,13 @@ export default {
         sortOrder: "asc",
         filterShown:false,
         priceRowsCount:0,
+        isRentActive:0
 
     }),
     mutations: {
+        setRentActive: (state,value) => {
+            state.isRentActive = value
+        },
         incPriceRowsCount:(state) => {
             state.priceRowsCount += 1
         },
@@ -135,6 +139,9 @@ export default {
         },
     },
     actions: {
+        updateIsRentActive({commit}, payload) {
+            commit('setRentActive',payload)
+        },
         updatePriceRowsCountInc({commit}) {
             commit('incPriceRowsCount')
         },
@@ -347,6 +354,7 @@ export default {
         },
     },
     getters: {
+        getRentActive: state => state.isRentActive,
         getPriceRowsCount: state => state.priceRowsCount,
         getFilterShown: state => state.filterShown,
         getSortOrder: state => state.sortOrder,

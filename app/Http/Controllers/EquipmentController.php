@@ -26,7 +26,9 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-        $equipment_on_rent_count = Service::where('active', true)->count();
+        $equipment_on_rent_count = Equipment::whereHas('services', function ($query) {
+            $query->where('active', true);
+        })->count();
         $activeEquipment = Equipment::whereHas('services', function ($query) {
             $query->where('active', true);
         })->paginate($perPage);
@@ -36,6 +38,7 @@ class EquipmentController extends Controller
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
         $query = Equipment::query();
         $locationId = $request->query('location_id');
+        $rentActive = $request->query('isRentActive');
 
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {
@@ -69,6 +72,11 @@ class EquipmentController extends Controller
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
 
             }
+        }
+        if ($rentActive) {
+            $query->whereHas('services', function ($query) {
+                $query->where('active', true);
+            });
         }
         if ($categoryId) {
             $query->where('category_id', $categoryId);

@@ -35,14 +35,27 @@ const inputHyperlinkShown = computed(() => store.getters['equipment/getInputHype
 const selectedId = computed(() => store.getters['equipment/getSelectedID']);
 const sortOrder = computed(() => store.getters['equipment/getSortOrder']);
 const sortBy = computed(() => store.getters['equipment/getSortBy']);
+const rentActive = computed(() => store.getters['equipment/getRentActive']);
 const updateSortBy = (value) => store.dispatch("equipment/updateSortBy", value)
 const updateSortOrder = (value) => store.dispatch("equipment/updateSortOrder", value)
 
 const setLocation = (location) => {
     store.dispatch('equipment/updateLocationActive', location)
+    store.dispatch('equipment/updateIsRentActive',0)
+
+    updateUrl();
+}
+const setRentActive = (value) => {
+
+    store.dispatch('equipment/updateIsRentActive',value)
     updateUrl();
 }
 
+const setLocationAll = () => {
+    store.dispatch('equipment/updateIsRentActive',0)
+    store.dispatch('equipment/updateLocationActive', 0)
+    updateUrl();
+}
 const toggleSortBy = (column) => {
     if (sortBy.value === column) {
         updateSortOrder(sortOrder.value === 'asc' ? 'desc' : 'asc');
@@ -64,6 +77,8 @@ const sumLocs = () => {
 
 const sortedEquipment = computed(() => {
     // Clone the array to avoid mutating the original array
+
+    
     return props.equipment.data.slice().sort((a, b) => {
         let result = 0;
         // Determine which property to sort by (e.g., 'name' or 'status')
@@ -131,6 +146,7 @@ const updateUrl = () => {
     if (selectedCategory.value) params.category_id = selectedCategory.value;
     if (selectedSize.value) params.size_id = selectedSize.value;
     if (locationId.value) params.location_id = locationId.value;
+    if (rentActive.value) params.isRentActive = rentActive.value;
 
     Object.keys(params).length && router.get(route('equip.index', params));
 };
@@ -141,7 +157,12 @@ const updateUrl = () => {
     }
 };*/
 
-async function changeEquipLocatoin() {}
+async function changeEquipLocatoin(itemId, locationId) {
+    router.post('/changeLocation', {
+        id: itemId,
+        locationId: locationId
+    })
+}
 
 const isInputVisible = computed(() => store.getters['equipment/getInputLocationShown']);
 const isDropdownVisible = computed(() => store.getters['equipment/getDropdownShown']);
@@ -207,9 +228,9 @@ onMounted(() => {
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                 <ul
                     class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
-                    <li :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === 0 }"
+                    <li :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === 0 && !rentActive }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
-                        @click="setLocation(0)">
+                        @click="setLocationAll">
                         Все
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
@@ -225,7 +246,8 @@ onMounted(() => {
                             {{ location_counts[location.id] }}
                         </span>
                     </li>
-                    <li
+                    <li @click="setRentActive(1)"
+                    :class="{ '!border-[#001D6C] text-[#001D6C]': rentActive === 1 }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                     >
                         В аренде
