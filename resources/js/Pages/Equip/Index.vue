@@ -46,7 +46,7 @@ const setLocation = (location) => {
     updateUrl();
 }
 const setRentActive = (value) => {
-
+    store.dispatch('equipment/updateLocationActive', 0)
     store.dispatch('equipment/updateIsRentActive',value)
     updateUrl();
 }
