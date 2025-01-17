@@ -7,7 +7,22 @@ import axios from 'axios';
 import {computed, onMounted, ref, toRaw} from 'vue';
 import store from '../../../store/index';
 import SaleNav from "@/Components/Sale/SaleNav.vue";
-
+import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
+import {
+    AccordionContent,
+    AccordionHeader,
+    AccordionItem,
+    AccordionRoot,
+    AccordionTrigger
+} from "radix-vue";
+import {
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuPortal,
+    DropdownMenuRoot,
+    DropdownMenuTrigger,
+} from 'radix-vue';
+import Pagination from "@/Components/Pagination.vue";
 
 const props = defineProps({
     sales: Object,
@@ -136,7 +151,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </ul>
             </div>
 
-            <div class="flex items-center justify-between mt-5">
+            <div class="flex items-center justify-between mt-6">
                 <div class="font-bold text-sm text-gray1">Список проданного оборудования:</div>
 
                 <div class="flex space-x-4">
@@ -183,6 +198,304 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     </div>
                 </div>
             </div>
+
+            <div v-if="filterDatesActive().length" class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
+                <div class="min-w-[1050px] text-xs">
+                    <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                        <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
+                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
+                            Заказчик
+                            <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
+                            Дата отгрузки
+                            <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">Комментарий</div>
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Цена продажи</div>
+                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z" fill="#21272A"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z" fill="#21272A"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z" fill="#21272A"/>
+                                <path d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z" fill="#21272A"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <AccordionRoot type="multiple" :collapsible="true">
+                        <template v-for="(service, index) in filterDatesActive()" :key="service.id">
+                            <AccordionItem :value="service.id">
+                                <AccordionHeader class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                        <UiHyperlink :item-id="service.id" :hyperlink="service.hyperlink" endpoint="/equipment" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
+                                        {{ service.equipment.category.name }} {{
+                                                service.equipment.size.name
+                                            }} {{ service.equipment.series }}
+
+                                        <AccordionTrigger class="shrink-0 group ml-3">
+                                            <svg class="group-data-[state=open]:hidden" width="24" height="24" viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                      d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
+                                                      fill="#242533"/>
+                                            </svg>
+                                            <svg class="group-data-[state=closed]:hidden" width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.27198 9.29127C2.27198 8.9599 2.54061 8.69127 2.87198 8.69127H14.6285C14.9599 8.69127 15.2285 8.9599 15.2285 9.29127C15.2285 9.62265 14.9599 9.89127 14.6285 9.89127H2.87198C2.54061 9.89127 2.27198 9.62265 2.27198 9.29127Z" fill="#242533"/>
+                                            </svg>
+                                        </AccordionTrigger>
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.shipping_date ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ service.commentary ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.price ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                        <Link :href="'/directory/equipment/'+service.id" class="mr-3">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                            </svg>
+                                        </Link>
+                                        <DropdownMenuRoot>
+                                            <DropdownMenuTrigger aria-label="Customise options">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                        fill="#687182" />
+                                                </svg>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuPortal>
+                                                <transition name="fade">
+                                                    <DropdownMenuContent
+                                                        class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                        :side-offset="5" align="end">
+                                                        <DropdownMenuItem>
+                                                            <button type="button"
+                                                                class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                Укомплектовать
+                                                                <svg class="block ml-2" width="16" height="16"
+                                                                    viewBox="0 0 16 16" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M10 3.5C10 3.36739 9.94732 3.24021 9.85355 3.14645C9.75979 3.05268 9.63261 3 9.5 3H1.5C1.36739 3 1.24021 3.05268 1.14645 3.14645C1.05268 3.24021 1 3.36739 1 3.5V12.5C1 12.6326 1.05268 12.7598 1.14645 12.8536C1.24021 12.9473 1.36739 13 1.5 13H9.5C9.63261 13 9.75979 12.9473 9.85355 12.8536C9.94732 12.7598 10 12.6326 10 12.5V10.5C10 10.3674 10.0527 10.2402 10.1464 10.1464C10.2402 10.0527 10.3674 10 10.5 10C10.6326 10 10.7598 10.0527 10.8536 10.1464C10.9473 10.2402 11 10.3674 11 10.5V12.5C11 12.8978 10.842 13.2794 10.5607 13.5607C10.2794 13.842 9.89782 14 9.5 14H1.5C1.10218 14 0.720644 13.842 0.43934 13.5607C0.158035 13.2794 0 12.8978 0 12.5L0 3.5C0 3.10218 0.158035 2.72064 0.43934 2.43934C0.720644 2.15804 1.10218 2 1.5 2H9.5C9.89782 2 10.2794 2.15804 10.5607 2.43934C10.842 2.72064 11 3.10218 11 3.5V5.5C11 5.63261 10.9473 5.75979 10.8536 5.85355C10.7598 5.94732 10.6326 6 10.5 6C10.3674 6 10.2402 5.94732 10.1464 5.85355C10.0527 5.75979 10 5.63261 10 5.5V3.5Z"
+                                                                        fill="#21272A" />
+                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        d="M4.14592 8.35402C4.09935 8.30758 4.06241 8.2524 4.0372 8.19165C4.012 8.13091 3.99902 8.06579 3.99902 8.00002C3.99902 7.93425 4.012 7.86913 4.0372 7.80839C4.06241 7.74764 4.09935 7.69247 4.14592 7.64602L7.14592 4.64602C7.2398 4.55213 7.36714 4.49939 7.49992 4.49939C7.63269 4.49939 7.76003 4.55213 7.85392 4.64602C7.9478 4.73991 8.00055 4.86725 8.00055 5.00002C8.00055 5.1328 7.9478 5.26013 7.85392 5.35402L5.70692 7.50002H14.4999C14.6325 7.50002 14.7597 7.5527 14.8535 7.64647C14.9472 7.74024 14.9999 7.86741 14.9999 8.00002C14.9999 8.13263 14.9472 8.25981 14.8535 8.35358C14.7597 8.44734 14.6325 8.50002 14.4999 8.50002H5.70692L7.85392 10.646C7.90041 10.6925 7.93728 10.7477 7.96244 10.8084C7.9876 10.8692 8.00055 10.9343 8.00055 11C8.00055 11.0658 7.9876 11.1309 7.96244 11.1916C7.93728 11.2523 7.90041 11.3075 7.85392 11.354C7.80743 11.4005 7.75224 11.4374 7.6915 11.4625C7.63076 11.4877 7.56566 11.5007 7.49992 11.5007C7.43417 11.5007 7.36907 11.4877 7.30833 11.4625C7.24759 11.4374 7.19241 11.4005 7.14592 11.354L4.14592 8.35402Z"
+                                                                        fill="#21272A" />
+                                                                </svg>
+                                                            </button>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem>
+                                                            <Link :href="'/'" method="DELETE"
+                                                                class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
+                                                            Удалить
+                                                            <svg class="block ml-2" width="16" height="16"
+                                                                viewBox="0 0 16 16" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                    d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                    fill="currentColor" />
+                                                            </svg>
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </transition>
+                                            </DropdownMenuPortal>
+                                        </DropdownMenuRoot>
+                                    </div>
+                                </AccordionHeader>
+                                <AccordionContent
+                                    class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden"
+                                >
+                                    <div class="" v-if="service.subservices.length > 0">
+                                        <div v-for="subservice in service.subservices" :key="subservice.id" class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                            <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                                <UiHyperlink :item-id="subservice.id" :hyperlink="subservice.hyperlink" endpoint="/equipment" />
+                                            </div>
+                                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                {{ subservice.equipment_info.category.name }}
+                                                {{ subservice.equipment_info.size.name }} {{
+                                                    subservice.equipment_info.series
+                                                }}
+                                            </div>
+                                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.shipping_date ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ subservice.commentary ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.price ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                                <Link :href="'/directory/equipment/'+subservice.id" class="mr-3">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                                    </svg>
+                                                </Link>
+                                                <DropdownMenuRoot>
+                                                    <DropdownMenuTrigger aria-label="Customise options">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                                fill="#687182" />
+                                                            <path
+                                                                d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                                fill="#687182" />
+                                                            <path
+                                                                d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                                fill="#687182" />
+                                                        </svg>
+                                                    </DropdownMenuTrigger>
+
+                                                    <DropdownMenuPortal>
+                                                        <transition name="fade">
+                                                            <DropdownMenuContent
+                                                                class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                                :side-offset="5" align="end">
+                                                                <DropdownMenuItem>
+                                                                    <button type="button"
+                                                                        class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                        Укомплектовать
+                                                                        <svg class="block ml-2" width="16" height="16"
+                                                                            viewBox="0 0 16 16" fill="none"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                                d="M10 3.5C10 3.36739 9.94732 3.24021 9.85355 3.14645C9.75979 3.05268 9.63261 3 9.5 3H1.5C1.36739 3 1.24021 3.05268 1.14645 3.14645C1.05268 3.24021 1 3.36739 1 3.5V12.5C1 12.6326 1.05268 12.7598 1.14645 12.8536C1.24021 12.9473 1.36739 13 1.5 13H9.5C9.63261 13 9.75979 12.9473 9.85355 12.8536C9.94732 12.7598 10 12.6326 10 12.5V10.5C10 10.3674 10.0527 10.2402 10.1464 10.1464C10.2402 10.0527 10.3674 10 10.5 10C10.6326 10 10.7598 10.0527 10.8536 10.1464C10.9473 10.2402 11 10.3674 11 10.5V12.5C11 12.8978 10.842 13.2794 10.5607 13.5607C10.2794 13.842 9.89782 14 9.5 14H1.5C1.10218 14 0.720644 13.842 0.43934 13.5607C0.158035 13.2794 0 12.8978 0 12.5L0 3.5C0 3.10218 0.158035 2.72064 0.43934 2.43934C0.720644 2.15804 1.10218 2 1.5 2H9.5C9.89782 2 10.2794 2.15804 10.5607 2.43934C10.842 2.72064 11 3.10218 11 3.5V5.5C11 5.63261 10.9473 5.75979 10.8536 5.85355C10.7598 5.94732 10.6326 6 10.5 6C10.3674 6 10.2402 5.94732 10.1464 5.85355C10.0527 5.75979 10 5.63261 10 5.5V3.5Z"
+                                                                                fill="#21272A" />
+                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                                d="M4.14592 8.35402C4.09935 8.30758 4.06241 8.2524 4.0372 8.19165C4.012 8.13091 3.99902 8.06579 3.99902 8.00002C3.99902 7.93425 4.012 7.86913 4.0372 7.80839C4.06241 7.74764 4.09935 7.69247 4.14592 7.64602L7.14592 4.64602C7.2398 4.55213 7.36714 4.49939 7.49992 4.49939C7.63269 4.49939 7.76003 4.55213 7.85392 4.64602C7.9478 4.73991 8.00055 4.86725 8.00055 5.00002C8.00055 5.1328 7.9478 5.26013 7.85392 5.35402L5.70692 7.50002H14.4999C14.6325 7.50002 14.7597 7.5527 14.8535 7.64647C14.9472 7.74024 14.9999 7.86741 14.9999 8.00002C14.9999 8.13263 14.9472 8.25981 14.8535 8.35358C14.7597 8.44734 14.6325 8.50002 14.4999 8.50002H5.70692L7.85392 10.646C7.90041 10.6925 7.93728 10.7477 7.96244 10.8084C7.9876 10.8692 8.00055 10.9343 8.00055 11C8.00055 11.0658 7.9876 11.1309 7.96244 11.1916C7.93728 11.2523 7.90041 11.3075 7.85392 11.354C7.80743 11.4005 7.75224 11.4374 7.6915 11.4625C7.63076 11.4877 7.56566 11.5007 7.49992 11.5007C7.43417 11.5007 7.36907 11.4877 7.30833 11.4625C7.24759 11.4374 7.19241 11.4005 7.14592 11.354L4.14592 8.35402Z"
+                                                                                fill="#21272A" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <Link :href="'/'" method="DELETE"
+                                                                        class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
+                                                                    Удалить
+                                                                    <svg class="block ml-2" width="16" height="16"
+                                                                        viewBox="0 0 16 16" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                            fill="currentColor" />
+                                                                    </svg>
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </transition>
+                                                    </DropdownMenuPortal>
+                                                </DropdownMenuRoot>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else class="p-2 bg-red-50 text-red-500">
+                                        Нет добавленного оборудования
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </template>
+                    </AccordionRoot>
+<!--                    <template v-for="(service, index) in filterDatesActive()" :key="service.id">
+                        <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                            <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                <UiHyperlink :item-id="service.id" :hyperlink="service.hyperlink" endpoint="/equipment" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
+                                {{ service.equipment.category.name }} {{
+                                        service.equipment.size.name
+                                    }} {{ service.equipment.series }}
+                                <button @click="toggleSubservice(index)">
+                                    <svg v-if="!showSubservices[index]" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                              d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
+                                              fill="#242533"/>
+                                    </svg>
+
+                                    <svg v-if="showSubservices[index]" width="18" height="18" viewBox="0 0 18 18"
+                                         fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                              d="M2.27174 9.29127C2.27174 8.9599 2.54037 8.69127 2.87174 8.69127H14.6283C14.9596 8.69127 15.2283 8.9599 15.2283 9.29127C15.2283 9.62265 14.9596 9.89127 14.6283 9.89127H2.87174C2.54037 9.89127 2.27174 9.62265 2.27174 9.29127Z"
+                                              fill="#242533"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.shipping_date ?? "Не задано" }}</div>
+                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ service.commentary ?? "Не задано" }}</div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.price ?? "Не задано" }}</div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <Link :href="'/directory/equipment/'+service.id">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                    </svg>
+                                </Link>
+                            </div>
+                        </div>
+                        <div v-if="showSubservices[index]">
+                            <div class="" v-if="service.subservices.length > 0">
+                                <div v-for="subservice in service.subservices" :key="subservice.id" class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                        <UiHyperlink :item-id="subservice.id" :hyperlink="subservice.hyperlink" endpoint="/equipment" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                        {{ subservice.equipment_info.category.name }}
+                                        {{ subservice.equipment_info.size.name }} {{
+                                            subservice.equipment_info.series
+                                        }}
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.shipping_date ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ subservice.commentary ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.price ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                        <Link :href="'/directory/equipment/'+subservice.id">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="p-2 bg-red-50 text-red-500">
+                                Нет добавленного оборудования
+                            </div>
+                        </div>
+                    </template>-->
+                </div>
+            </div>
+
+            <pagination
+                :current-page="props.sales.current_page"
+                :total-pages="props.sales.last_page"
+                :total-count="props.sales.total"
+                :next-page-url="props.sales.next_page_url"
+                :links="props.sales.links"
+                :prev-page-url="props.sales.prev_page_url"
+                class="mt-5 bg-bg1"
+            />
         </div>
 
         <div class="flex-1 2xl:w-[1184px] md:w-full sm:w-full">
@@ -294,7 +607,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
             </nav>-->
 
 
-            <div class="lg:hidden md:hidden flex bg-my-gray mt-4 p-4">
+<!--            <div class="lg:hidden md:hidden flex bg-my-gray mt-4 p-4">
 
                 <select v-model="seriesActive" class="text-gray-500 border-gray-200" name="" id="">
                     <option value="">Номер</option>
@@ -380,10 +693,12 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     </div>
 
                 </div>
-            </div>
+            </div>-->
 
-            <div class="overflow-x-auto lg:px-4 pb-20">
-                <!-- Table header -->
+
+
+<!--            <div class="overflow-x-auto lg:px-4 pb-20">
+                &lt;!&ndash; Table header &ndash;&gt;
                 <div class="min-w-full whitespace-nowrap grid grid-cols-5 gap-52 bg-gray-100 font-bold p-2 rounded-md">
                     <div>Заказчик</div>
                     <div>Дата отгрузки</div>
@@ -407,16 +722,14 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     </div>
                 </div>
 
-                <!-- Table body -->
-
-                {{ filterDatesActive() }}
+                &lt;!&ndash; Table body &ndash;&gt;
 
                 <div v-if="filterDatesActive().length && selectedActive" class="">
                     <div v-for="(service, index) in filterDatesActive()" :key="service.id"
                          class=" border-b border-gray-200 p-2">
-                        <!-- Main service row -->
+                        &lt;!&ndash; Main service row &ndash;&gt;
                         <div class="min-w-full grid grid-cols-5 gap-52 items-center whitespace-nowrap">
-                            <!-- Service Number with toggle button using SVG -->
+                            &lt;!&ndash; Service Number with toggle button using SVG &ndash;&gt;
                             <div class="flex items-center space-x-2">
                                 <span>{{ service.equipment.category.name }} {{
                                         service.equipment.size.name
@@ -442,7 +755,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                             <div>{{ service.shipping_date ?? "Не задано" }}</div>
                             <div>{{ service.commentary ?? "Не задано" }}</div>
                             <div>{{ service.price ?? "Не задано" }}</div>
-                            <!-- Actions column (empty for now) -->
+                            &lt;!&ndash; Actions column (empty for now) &ndash;&gt;
                             <div class="flex justify-center items-center space-x-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
@@ -539,7 +852,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                             </div>
                         </div>
 
-                        <!-- Subservices (shown when expanded) -->
+                        &lt;!&ndash; Subservices (shown when expanded) &ndash;&gt;
                         <div v-if="showSubservices[index]" class="mt-2">
                             <div class="" v-if="service.subservices.length > 0">
                                 <div v-for="subservice in service.subservices" :key="subservice.id"
@@ -636,7 +949,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
 
         </div>

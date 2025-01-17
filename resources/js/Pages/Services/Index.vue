@@ -252,7 +252,7 @@ watch(() => props.services.current_page, () => {
                                 @click="date_sort === 'asc' ? date_sort = 'desc' : date_sort = 'asc'"
                             >
                                 Дата отгрузки
-                                <svg  width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08"/>
                                     <path d="M8.26783 12.1904L10.6249 9.83325L12.9821 12.1904" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -288,7 +288,7 @@ watch(() => props.services.current_page, () => {
                                 <div class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2">
                                     {{ props.contragents_names[service.contragent_id] ?? '-' }}
                                     <button v-if="service.subservices.length" type="button"
-                                        class="flex items-center py-1 px-2 rounded-full border border-[#AD9FFF]"
+                                        class="flex items-center py-1 px-2 ml-2 rounded-full border border-[#AD9FFF]"
                                         @click="toggleSubservice(index)">
                                         <svg class="block" width="18" height="18" viewBox="0 0 18 18" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -405,7 +405,7 @@ watch(() => props.services.current_page, () => {
 
                             <div v-if="service.subservices.length" ref="subservicesEls" style="transition: .3s;"
                                 class="h-0 overflow-hidden">
-                                <div 
+                                <div
                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                     <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                         <PopoverRoot>

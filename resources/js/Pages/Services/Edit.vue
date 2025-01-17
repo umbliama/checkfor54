@@ -87,6 +87,10 @@ const showModal = (value) => {
     store.dispatch('services/updateModalShown', value)
 }
 
+function openDialog() {
+    is_dialog_open.value = true;
+}
+
 watch(selectedEquipment, async (newValue, oldValue) => {
     if (newValue) {
         try {
@@ -677,7 +681,7 @@ const test_rows = ref([
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            @input="updateByKey(index, 'store', $event.target.value)" 
+                                            @input="updateByKey(index, 'store', $event.target.value)"
                                             v-model="subservices[index].store" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
@@ -785,6 +789,18 @@ const test_rows = ref([
                         </AccordionItem>
                     </AccordionRoot>
 
+                    <div
+                        v-if="subRowsCount > 0"
+                        v-for="item in subRowsCount"
+                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3"
+                    >
+                        <button
+                            class=" text-side-gray-text px-4 py-2 rounded"
+                            @click="openDialog"
+                        >
+                            Нажмите чтобы выбрать оборудование
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end mt-6">
