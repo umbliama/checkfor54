@@ -335,11 +335,11 @@ onMounted(() => {
                                         ремонта</div>
                                     <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
                                     <div
-                                        class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">
+                                        class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-100px)] py-2.5 px-2">
                                         Описание</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
                                     </div>
-                                    <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -366,7 +366,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">
                                             {{ repair.repair_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">{{ getLocationName(repair.location_id) || '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">{{ repair.description || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-100px)] py-2.5 px-2">{{ repair.description || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ repair.expense || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <Link :href="'/directory/repairs/' + repair.id" class="mr-3.5">
