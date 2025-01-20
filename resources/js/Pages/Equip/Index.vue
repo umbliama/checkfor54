@@ -36,7 +36,7 @@ import UiCheckbox from "@/Components/Ui/UiCheckbox.vue";
 import UiField from "@/Components/Ui/UiField.vue";
 
 const is_location_dialog_open = ref(false);
-
+const changeLocationItemId = ref(null);
 const locationId = computed(() => store.getters['equipment/getLocationActive']);
 const inputHyperlinkShown = computed(() => store.getters['equipment/getInputHyperLinkShown']);
 const selectedId = computed(() => store.getters['equipment/getSelectedID']);
@@ -164,13 +164,39 @@ const updateUrl = () => {
     }
 };*/
 
-async function changeEquipLocation(itemId, locationId) {
-    is_location_dialog_open.value = true;
 
-    // router.post('/changeLocation', {
-    //     id: itemId,
-    //     locationId: locationId
-    // })
+function showLocationModal(itemId) {
+    changeLocationItemId.value = itemId
+    is_location_dialog_open.value = true
+}
+
+async function selectLocation(selectedLocation) {
+    return new Promise((resolve, reject) => {
+        is_location_dialog_open.value = true;
+        if (selectedLocation) {
+            changeEquipLocation(changeLocationItemId.value, selectedLocation).then( result => {
+                is_location_dialog_open.value = false
+                resolve(result)
+            }).catch(error => {
+                is_location_dialog_open.value = false
+                reject(error)
+            })
+        } else {
+            is_location_dialog_open.value = false
+            reject(new Error('Не выбрана локация'));
+        }
+    });
+}
+
+async function changeEquipLocation(itemId,locationId) {
+    try {        
+        router.post('/changeLocation', {
+            id: itemId,
+            locationId: locationId
+        });
+    } catch (error) {
+        console.error(error.message);
+    }
 }
 
 const isInputVisible = computed(() => store.getters['equipment/getInputLocationShown']);
@@ -527,7 +553,7 @@ onMounted(() => {
                                                         <button
                                                             type="button"
                                                           class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                          @click="changeEquipLocation"
+                                                          @click="showLocationModal(item.id)"
                                                         >
                                                             Переместить в
                                                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -987,16 +1013,15 @@ onMounted(() => {
                 >
                     <DialogTitle class="flex items-center justify-between font-semibold">
                         Выбрать локацию
-
                         <DialogClose class="shrink-0 ml-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.95 8.464a1 1 0 0 0-1.414-1.414L12 10.586L8.464 7.05A1 1 0 1 0 7.05 8.464L10.586 12L7.05 15.536a1 1 0 1 0 1.414 1.414L12 13.414l3.536 3.536a1 1 0 1 0 1.414-1.414L13.414 12z"/></svg>
                         </DialogClose>
                     </DialogTitle>
 
                     <ul class="mt-5">
-                        <li
+                        <li 
                             v-for="location in store.getters.cities" :key="location.id"
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === location.id }"
+                            @click="selectLocation(location.id)"
                             class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-1.5 cursor-pointer"
                         >
                             {{ location.name }}
