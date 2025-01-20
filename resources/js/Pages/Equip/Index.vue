@@ -4,6 +4,11 @@ import {Link, router} from '@inertiajs/vue3';
 import store from '../../../store/index';
 import {computed, onMounted, reactive, ref, toRaw} from 'vue';
 import {
+    DialogClose,
+    DialogContent,
+    DialogPortal,
+    DialogRoot,
+    DialogOverlay,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuPortal,
@@ -29,6 +34,8 @@ import {Menu, MenuItems, MenuItem, MenuButton} from '@headlessui/vue'
 import {EquipMenuItems} from "../../../constants/index.js";
 import UiCheckbox from "@/Components/Ui/UiCheckbox.vue";
 import UiField from "@/Components/Ui/UiField.vue";
+
+const is_location_dialog_open = ref(false);
 
 const locationId = computed(() => store.getters['equipment/getLocationActive']);
 const inputHyperlinkShown = computed(() => store.getters['equipment/getInputHyperLinkShown']);
@@ -78,7 +85,7 @@ const sumLocs = () => {
 const sortedEquipment = computed(() => {
     // Clone the array to avoid mutating the original array
 
-    
+
     return props.equipment.data.slice().sort((a, b) => {
         let result = 0;
         // Determine which property to sort by (e.g., 'name' or 'status')
@@ -157,11 +164,13 @@ const updateUrl = () => {
     }
 };*/
 
-async function changeEquipLocatoin(itemId, locationId) {
-    router.post('/changeLocation', {
-        id: itemId,
-        locationId: locationId
-    })
+async function changeEquipLocation(itemId, locationId) {
+    is_location_dialog_open.value = true;
+
+    // router.post('/changeLocation', {
+    //     id: itemId,
+    //     locationId: locationId
+    // })
 }
 
 const isInputVisible = computed(() => store.getters['equipment/getInputLocationShown']);
@@ -515,9 +524,10 @@ onMounted(() => {
                                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                     :side-offset="5" align="end">
                                                     <DropdownMenuItem>
-                                                        <div
+                                                        <button
+                                                            type="button"
                                                           class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                          @click="changeEquipLocatoin"
+                                                          @click="changeEquipLocation"
                                                         >
                                                             Переместить в
                                                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -557,7 +567,7 @@ onMounted(() => {
                                                                     </clipPath>
                                                                 </defs>
                                                             </svg>
-                                                        </div>
+                                                        </button>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <Link :href="route('equip.edit', item.id)"
@@ -965,4 +975,35 @@ onMounted(() => {
             </div>
         </div>
     </AuthenticatedLayout>
+
+    <DialogRoot v-model:open="is_location_dialog_open">
+        <DialogPortal>
+            <transition name="fade">
+                <DialogOverlay class="fixed left-0 top-0 w-full h-full bg-black bg-opacity-60 z-[60]"/>
+            </transition>
+            <transition name="fade">
+                <DialogContent
+                    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[85vh] w-[90vw] max-w-[300px] p-6 rounded bg-white overflow-y-auto z-[100]"
+                >
+                    <DialogTitle class="flex items-center justify-between font-semibold">
+                        Выбрать локацию
+
+                        <DialogClose class="shrink-0 ml-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.95 8.464a1 1 0 0 0-1.414-1.414L12 10.586L8.464 7.05A1 1 0 1 0 7.05 8.464L10.586 12L7.05 15.536a1 1 0 1 0 1.414 1.414L12 13.414l3.536 3.536a1 1 0 1 0 1.414-1.414L13.414 12z"/></svg>
+                        </DialogClose>
+                    </DialogTitle>
+
+                    <ul class="mt-5">
+                        <li
+                            v-for="location in store.getters.cities" :key="location.id"
+                            :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === location.id }"
+                            class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-1.5 cursor-pointer"
+                        >
+                            {{ location.name }}
+                        </li>
+                    </ul>
+                </DialogContent>
+            </transition>
+        </DialogPortal>
+    </DialogRoot>
 </template>
