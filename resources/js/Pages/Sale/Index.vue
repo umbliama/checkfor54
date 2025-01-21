@@ -135,14 +135,12 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
 <template>
     <AuthenticatedLayout>
-
         <SaleNav />
 
         <div class="p-6">
             <div class="relative text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-                <ul
-                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li v-for="(value, key) in months" :class="{ '!border-[#001D6C] text-[#001D6C]': getMonth === key }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="updateMonth(key)">
@@ -263,7 +261,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                     </div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.shipping_date ?? "Не задано" }}</div>
                                     <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ service.commentary ?? "Не задано" }}</div>
-                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.price ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 font-bold"><span>Итого:</span>{{ service.price ?? "Не задано" }}</div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                         <Link :href="'/directory/equipment/'+service.id" class="mr-3">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -343,7 +341,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                             </div>
                                             <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.shipping_date ?? "Не задано" }}</div>
                                             <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ subservice.commentary ?? "Не задано" }}</div>
-                                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.price ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center justify-end w-[14.08%] py-2.5 px-2">{{ subservice.price ?? "Не задано" }}</div>
                                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                                 <Link :href="'/directory/equipment/'+subservice.id" class="mr-3">
                                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
