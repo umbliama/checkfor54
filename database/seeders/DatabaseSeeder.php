@@ -15,8 +15,6 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             EquipmentSeeder::class,
             ContragentsTableSeeder::class,
-            TestsRepairsSeeder::class,
-            ServiceSeeder::class,
         ]);
     }
 }

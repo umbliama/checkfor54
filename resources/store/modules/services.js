@@ -7,8 +7,8 @@ export default {
         equipmentSizesCounts: null,
         equipmentCategoriesCounts: null,
         equipmentSizes: null,
-        selectedEquipment: null,
-        selectedEquipmentService: null,
+        selectedEquipment: [],
+        selectedEquipmentService: [],
         equipmentObject: null,
         subRowsCount: 0,
         subEquipmentArray: [],
@@ -16,9 +16,13 @@ export default {
         subSelectedEquipmentObjects:[],
         selectedMonth: "all",
         selectedYear: new Date().getFullYear(),
-        selectedActive:true
+        selectedActive:true,
+        equipmentType: 0
     }),
     mutations: {    
+        setEquipmentType(state, value) {
+            state.equipmentType = value
+        },
         setSelectedActive(state,value){
             state.selectedActive = value
         },
@@ -35,9 +39,7 @@ export default {
             state.subSelectedEquipmentObjects.push(value)
         },
         updateSubSelectedEquipmentObject(state, { index, field, value }) {
-            // Ensure that the object exists at the given index
             if (state.subSelectedEquipmentObjects[index]) {
-                // Dynamically update the field of the object
                 state.subSelectedEquipmentObjects[index][field] = value;
             }
         },
@@ -57,10 +59,22 @@ export default {
             state.subRowsCount -= 1;
         },
         setSelectedEquipment(state, value) {
-            state.selectedEquipment = value;
+            state.selectedEquipment.push(value);
         },
         setSelecetedEquipmentService(state, value) {
-            state.selectedEquipmentService = value;
+            const equipmentObject = {
+                ...value,
+                subEquipment:[]
+            }
+            state.selectedEquipmentService.push(equipmentObject);
+        },
+        addSubEquipmentToSelected(state, { equipment_id, subEquipmentItem }) {
+            const equipment = state.selectedEquipmentService.find(eq => eq.id === equipment_id);
+            if (equipment) {
+                equipment.subEquipment.push(subEquipmentItem);
+            } else {
+                console.warn(`Equipment with ID ${equipment_id} not found.`);
+            }
         },
         setModalShown(state, value) {
             state.modalShown = value;
@@ -88,7 +102,6 @@ export default {
         async fetchServices({ state }) {
             const { selectedMonth, selectedYear } = state;
             
-            // Call API with selectedMonth and selectedYear
             const response = await axios.get('/api/services', {
                 params: {
                     month: selectedMonth,
@@ -96,8 +109,13 @@ export default {
                 }
             });
             
-            // Handle the response and update the service data in your store
         },    
+        updateSubSelectedEquipment({ commit }, { equipment_id, subEquipmentItem }) {
+            commit('addSubEquipmentToSelected', { equipment_id, subEquipmentItem });
+        },
+        updateEquipmentType({commit}, value) {
+            commit('setEquipmentType', value)
+        },
         updateSelectedActive({commit}, value) {
             commit('setSelectedActive', value)
         },
@@ -210,6 +228,7 @@ export default {
         },
     },
     getters: {
+        getEquipmentType: (state) => state.equipmentType,
         getSelectedActive: (state) => state.selectedActive,
         getSelectedYear: (state) => state.selectedYear,
         getSelectedMonth: (state) => state.selectedMonth,

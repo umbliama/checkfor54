@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\Service;
+use App\Models\ServiceEquip;
 use App\Models\ServiceSub;
 use App\Models\Column;
 use App\Models\User;
@@ -158,72 +159,87 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         $user_id = Auth::id();
-        $user = User::where('user_id', $user_id)->get();
+        $user = User::find($user_id); 
+    
+        // Validate request data
         $request->validate([
-            'equipment_id' => 'required|int',
-            'contragent_id' => 'required|int',
+            'contragent_id' => 'required|int|exists:contragents,id',
             'shipping_date' => 'required|date',
-            'service_number' => "required|string",
-            'service_date' => "required|date",
-            'commentary' => "nullable|string",
-            'period_start_date' => 'nullable|date',
-            'return_date' => 'nullable|date',
-            'period_end_date' => 'nullable|date',
-            'store' => 'nullable|numeric',
-            'operating' => 'nullable|numeric',
-            'return_reason' => 'nullable',
+            'service_number' => 'required|string',
+            'service_date' => 'required|date',
             'active' => 'required|boolean',
-            'income' => 'nullable|int',
+            'return_reason' => 'nullable|in:project,rejected',
             'hyperlink' => 'nullable|string',
-            'subEquipment' => 'array|nullable',
-            'subEquipment.*.subequipment_id' => 'nullable|int|exists:equipment,id',
-            'subEquipment.*.shipping_date' => 'nullable|date',
-            'subEquipment.*.period_start_date' => 'nullable|date',
-            'subEquipment.*.return_date' => 'nullable|date',
-            'subEquipment.*.period_end_date' => 'nullable|date',
-            'subEquipment.*.income' => 'nullable|int'
-
-
+            'equipment' => 'required|array',
+            'equipment.*.equipment_id' => 'required|int|exists:equipment,id',
+            'equipment.*.commentary' => 'nullable|string',
+            'equipment.*.period_start_date' => 'nullable|date',
+            'equipment.*.return_date' => 'nullable|date',
+            'equipment.*.period_end_date' => 'nullable|date',
+            'equipment.*.store' => 'nullable|string',
+            'equipment.*.operating' => 'nullable|string',
+            'equipment.*.income' => 'nullable|numeric',
+            'equipment.*.subEquipment' => 'array|nullable',
+            'equipment.*.subEquipment.*.subequipment_id' => 'required|int|exists:subequipment,id',
+            'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.return_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.period_end_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.commentary' => 'nullable|string',
+            'equipment.*.subEquipment.*.income' => 'nullable|numeric'
         ]);
-
-        $service = Service::create($request->only([
-            'equipment_id',
-            'contragent_id',
-            'shipping_date',
-            'commentary',
-            'service_number',
-            'service_date',
-            'period_start_date',
-            'return_date',
-            'period_end_date',
-            'store',
-            'operating',
-            'return_reason',
-            'active',
-            'income',
-            'hyperlink'
-        ]));
-
-
-        foreach ($request->subEquipment as $subEquipmentData) {
-            ServiceSub::create([
-                'subequipment_id' => $subEquipmentData['subequipment_id'],
-                'shipping_date' => $subEquipmentData['shipping_date'],
-                'period_start_date' => $subEquipmentData['period_start_date'],
-                'commentary' => $subEquipmentData['commentary'],
+    
+        // Create the Service
+        $service = Service::create([
+            'contragent_id' => $request->contragent_id,
+            'service_date' => $request->shipping_date,
+            'service_number' => $request->service_number,
+            'active' => $request->active,
+        ]);
+    
+        // Loop through Equipment List
+        foreach ($request->equipment as $equipmentData) {
+            // Create ServiceEquipment
+            $serviceEquipment = ServiceEquip::create([
                 'service_id' => $service->id,
+                'equipment_id' => $equipmentData['equipment_id'],
+                'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                'period_start_date' => $equipmentData['period_start_date'] ?? null,
+                'return_date' => $equipmentData['return_date'] ?? null,
+                'period_end_date' => $equipmentData['period_end_date'] ?? null,
+                'store' => $equipmentData['store'] ?? null,
+                'operating' => $equipmentData['operating'] ?? null,
+                'commentary' => $equipmentData['commentary'] ?? null,
+                'income' => $equipmentData['income'] ?? null,
             ]);
+    
+            // Loop through SubEquipment (if exists)
+            if (!empty($equipmentData['subEquipment'])) {
+                foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
+                    ServiceSubequipment::create([
+                        'service_equipment_id' => $serviceEquipment->id, // Correct foreign key
+                        'subequipment_id' => $subEquipmentData['subequipment_id'],
+                        'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
+                        'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
+                        'return_date' => $subEquipmentData['return_date'] ?? null,
+                        'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
+                        'commentary' => $subEquipmentData['commentary'] ?? null,
+                        'income' => $subEquipmentData['income'] ?? null,
+                    ]);
+                }
+            }
         }
-
+    
+        // Create Notification
         Notification::create([
-            'type' => 'Пользователь ' . User::find($user_id)->name . ' создал новую аренда №' . $service->id,
+            'type' => "Пользователь {$user->name} создал новую аренду №{$service->id}",
             'data' => ['service_id' => $service->id],
             'user_id' => $user_id
         ]);
-
+    
         return redirect()->route('services.index')->with('success', 'Service created successfully.');
     }
-
+    
 
     public function storeHyperLink(Request $request, $id)
     {

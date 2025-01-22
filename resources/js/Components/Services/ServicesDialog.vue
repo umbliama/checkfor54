@@ -10,9 +10,21 @@ import {
 import { Link, router } from '@inertiajs/vue3';
 import store from '../../../store/index';
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, toRaw, watch } from 'vue';
+
 
 const model = defineModel();
+
+const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
+const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
+const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
+const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
+const equipment_categories = computed(() => store.getters['services/getEquipmentCategories']);
+const equipment_categories_counts = computed(() => store.getters['services/getEquipmentCategoriesCounts']);
+const equipment_sizes = computed(() => store.getters['services/getEquipmentSizes']);
+const equipment_sizes_counts = computed(() => store.getters['services/getEquipmentSizesCounts']);
+const equipment = computed(() => store.getters['services/getEquipment']);
+const equipmentType = computed(() => store.getters['services/getEquipmentType']);
 
 const statuses = {
     'new': 'Новое',
@@ -46,16 +58,19 @@ const fetchEquipmentSizes = () => {
     store.dispatch('services/fetchEquipmentSizesCount')
 }
 
+const updateSubSelectedEquipment = (equipment_id,subEquipmentItem) => {
+    store.dispatch('updateSubSelectedEquipment', {equipment_id,subEquipmentItem})
+}
+
+
 const updateSelectedEquipment = (value) => {
-    if (!selectedEquipment.value) {
-        // Dispatch action to update selected equipment
+    if ( equipmentType.value === 0) {
         store.dispatch('services/updateSelectedEquipment', value);
     } else {
-        // Dispatch action to update sub-equipment array
-
-
         store.dispatch('services/updateSubEquipmentArray', value);
-        store.dispatch('services/updateSubSelectedEquipmentObjects', {
+        store.dispatch('services/updateSubSelectedEquipment', {
+        equipment_id: toRaw(selectedEquipment.value[selectedEquipment.value.length - 1]),  
+        subEquipmentItem: {
             subequipment_id: '',
             shipping_date: '',
             period_start_date: '',
@@ -65,7 +80,8 @@ const updateSelectedEquipment = (value) => {
             operating: false,
             return_reason: '',
             commentary: '',
-        });
+    }
+});
     }
 
     model.value = false;
@@ -82,15 +98,7 @@ const selectSize = (size) => {
     }
 };
 
-const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
-const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
-const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
-const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
-const equipment_categories = computed(() => store.getters['services/getEquipmentCategories']);
-const equipment_categories_counts = computed(() => store.getters['services/getEquipmentCategoriesCounts']);
-const equipment_sizes = computed(() => store.getters['services/getEquipmentSizes']);
-const equipment_sizes_counts = computed(() => store.getters['services/getEquipmentSizesCounts']);
-const equipment = computed(() => store.getters['services/getEquipment']);
+
 
 watch(model, () => {
     store.dispatch('equipment/updateCategory', null);
