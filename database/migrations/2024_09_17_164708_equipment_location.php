@@ -20,7 +20,7 @@ return new class extends Migration
 
         DB::table('equipment_locations')->insert([
             ['name' => 'г. Пермь', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'г. Нефтюганск', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'г. Нефтеюганск', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
