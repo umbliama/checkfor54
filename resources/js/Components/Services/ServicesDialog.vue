@@ -16,6 +16,7 @@ import { computed, onMounted, ref, toRaw, watch } from 'vue';
 const model = defineModel();
 
 const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
+const subSelectedEquipment = computed(() => store.getters['services/getSubEquipment']);
 const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
@@ -65,22 +66,13 @@ const updateSubSelectedEquipment = (equipment_id,subEquipmentItem) => {
 
 const updateSelectedEquipment = (value) => {
     if ( equipmentType.value === 0) {
+        console.log(value)
         store.dispatch('services/updateSelectedEquipment', value);
     } else {
         store.dispatch('services/updateSubEquipmentArray', value);
         store.dispatch('services/updateSubSelectedEquipment', {
         equipment_id: toRaw(selectedEquipment.value[selectedEquipment.value.length - 1]),  
-        subEquipmentItem: {
-            subequipment_id: '',
-            shipping_date: '',
-            period_start_date: '',
-            return_date: '',
-            period_end_date: '',
-            store: '',
-            operating: false,
-            return_reason: '',
-            commentary: '',
-    }
+        subEquipmentItem: subSelectedEquipment.value
 });
     }
 

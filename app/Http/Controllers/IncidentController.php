@@ -39,11 +39,12 @@ class IncidentController extends Controller
         return Inertia::render('Incident/Index', ['tasksColumns' => $tasksColumns, 'advColumns' => $advColumns, 'tasksColumnsArchived' => $tasksColumnsArchived, 'advColumnsArchived' => $advColumnsArchived, 'contragents' => $contragents, 'employees' => $employees]);
     }
 
-    public function history()
+    public function history(Request $request)
     {
+        $perPage = $request->input("perPage");
         $columns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent')
             ->orderBy('position')->where('isArchive', 1)
-            ->paginate(10);
+            ->paginate($perPage);
         $contragents = Contragents::all();
 
 
