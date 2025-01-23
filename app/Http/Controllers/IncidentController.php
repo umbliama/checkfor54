@@ -16,20 +16,21 @@ class IncidentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('perPage');
         $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
-            ->paginate(10);
+            ->paginate($perPage);
         $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'adv')->where('isArchive', 0)
-            ->paginate(10);
+            ->paginate($perPage);
         $tasksColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 1)
-            ->paginate(10);
+            ->paginate($perPage);
         $advColumnsArchived = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
             ->orderBy('position')->where('type', 'adv')->where('isArchive', 1)
-            ->paginate(10);
+            ->paginate($perPage);
         $contragents = Contragents::all();
         $employees = User::where('isAdmin', 0)->get();
 
