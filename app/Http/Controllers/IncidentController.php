@@ -62,7 +62,6 @@ class IncidentController extends Controller
             'data' => ['position' => $position],
             'user_id' => $user_id
         ]);
-        return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
 
     public function archiveColumn(Column $column)
