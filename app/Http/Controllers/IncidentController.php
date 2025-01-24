@@ -70,13 +70,11 @@ class IncidentController extends Controller
 
         $column->save();
 
-        return redirect()->back()->with('success', 'Column archived successfully.');
     }
 
     public function deleteColumn(Column $column)
     {
         $column->delete();
-        return redirect()->route('incident.index')->with('success', 'Column deleted successfully.');
     }
 
     public function createBlock(Request $request, Column $column)
@@ -96,7 +94,6 @@ class IncidentController extends Controller
         );
 
 
-        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
     }
 
 
@@ -190,7 +187,6 @@ class IncidentController extends Controller
     public function deleteBlock(Block $block)
     {
         $block->delete();
-        return redirect()->route('incident.index')->with('success', 'Block deleted successfully.');
     }
 
     public function saveBlockInfo(Request $request, Block $block)
@@ -210,7 +206,6 @@ class IncidentController extends Controller
         if ($request->input('subEquipmentArray')) {
             $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
         }
-        return redirect()->route('incident.index')->with('success', 'Block updated successfully.');
     }
     private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
     {
