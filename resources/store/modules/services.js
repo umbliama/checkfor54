@@ -70,11 +70,15 @@ export default {
         },
         addSubEquipmentToSelected(state, { equipment_id, subEquipmentItem }) {
             const equipment = state.selectedEquipmentService.find(eq => eq.id === equipment_id);
+            console.log(`${subEquipmentItem} has been added to ${equipment.subEquipment} by ${equipment_id   }` )
+        
             if (equipment) {
                 equipment.subEquipment.push(subEquipmentItem);
             } else {
                 console.warn(`Equipment with ID ${equipment_id} not found.`);
             }
+            console.log(`${subEquipmentItem} has been added to ${equipment}` )
+
         },
         setModalShown(state, value) {
             state.modalShown = value;

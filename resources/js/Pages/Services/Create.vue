@@ -485,7 +485,7 @@ function submit() {
                     </div>
                     <div
                         v-if="subRowsCount > 0"
-                        v-for="item in subRowsCount"
+                        v-for="item in subRowsCount - subEquipment.length"
                         class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3"
                     >
                         <button
