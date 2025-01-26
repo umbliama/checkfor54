@@ -1232,12 +1232,21 @@ onBeforeMount(() => {
                                         <img :src="n.img" />
                                     </SwiperSlide>
                                 </Swiper>
-                                <div class="grid grid-cols-8 gap-2.5 mt-2 p-2 bg-bg1">
-                                    <button
-                                        v-for="(n, i) in [{ img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }, { img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }, { img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }]"
-                                        type="button" @click="swiper_refs['1'].slideTo(i)">
-                                        <img :src="n.img" />
-                                    </button>
+                                <div class="grid grid-cols-6 gap-2.5 mt-2 p-2 bg-bg1">
+                                    <div class="relative" v-for="(n, i) in [{ img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }, { img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }, { img: 'https://a.d-cd.net/74fe71ds-1920.jpg' }]">
+                                        <button
+                                            type="button" @click="swiper_refs['1'].slideTo(i)">
+                                            <img :src="n.img" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="absolute left-full bottom-full translate-y-1/2 -translate-x-1/2 rounded-full bg-[#DDE1E6]"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
+                                                <path fill="currentColor" d="m12 13.4l-4.9 4.9q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7l4.9-4.9l-4.9-4.9q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.9 4.9l4.9-4.9q.275-.275.7-.275t.7.275t.275.7t-.275.7L13.4 12l4.9 4.9q.275.275.275.7t-.275.7t-.7.275t-.7-.275z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="flex items-center justify-between">
