@@ -164,11 +164,9 @@ class ServiceController extends Controller
         // Validate request data
         $request->validate([
             'contragent_id' => 'required|int|exists:contragents,id',
-            'shipping_date' => 'required|date',
             'service_number' => 'required|string',
             'service_date' => 'required|date',
             'active' => 'required|boolean',
-            'return_reason' => 'nullable|in:project,rejected',
             'hyperlink' => 'nullable|string',
             'equipment' => 'required|array',
             'equipment.*.equipment_id' => 'required|int|exists:equipment,id',
@@ -180,7 +178,7 @@ class ServiceController extends Controller
             'equipment.*.operating' => 'nullable|string',
             'equipment.*.income' => 'nullable|numeric',
             'equipment.*.subEquipment' => 'array|nullable',
-            'equipment.*.subEquipment.*.subequipment_id' => 'required|int|exists:subequipment,id',
+            'equipment.*.subEquipment.*.subequipment_id' => 'required|int',
             'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
             'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
             'equipment.*.subEquipment.*.return_date' => 'nullable|date',
@@ -188,11 +186,10 @@ class ServiceController extends Controller
             'equipment.*.subEquipment.*.commentary' => 'nullable|string',
             'equipment.*.subEquipment.*.income' => 'nullable|numeric'
         ]);
-    
         // Create the Service
         $service = Service::create([
             'contragent_id' => $request->contragent_id,
-            'service_date' => $request->shipping_date,
+            'service_date' => $request->service_date,
             'service_number' => $request->service_number,
             'active' => $request->active,
         ]);
@@ -216,8 +213,9 @@ class ServiceController extends Controller
             // Loop through SubEquipment (if exists)
             if (!empty($equipmentData['subEquipment'])) {
                 foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
-                    ServiceSubequipment::create([
-                        'service_equipment_id' => $serviceEquipment->id, // Correct foreign key
+                    ServiceSub::create([
+                        'service_id' => $service->id,
+                        'service_equipment_id' => $serviceEquipment->id, 
                         'subequipment_id' => $subEquipmentData['subequipment_id'],
                         'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
                         'period_start_date' => $subEquipmentData['period_start_date'] ?? null,

@@ -12,39 +12,43 @@ export default {
         equipmentObject: null,
         subRowsCount: 0,
         subEquipmentArray: [],
-        subSelectedEquipment:[],
-        subSelectedEquipmentObjects:[],
+        subSelectedEquipment: [],
+        subSelectedEquipmentObjects: [],
         selectedMonth: "all",
         selectedYear: new Date().getFullYear(),
-        selectedActive:true,
-        equipmentType: 0
+        selectedActive: true,
+        equipmentType: 0,
+        chosenEquipment: null,
     }),
-    mutations: {    
+    mutations: {
+        setChosenEquipment(state, value) {
+            state.chosenEquipment = value;
+        },
         setEquipmentType(state, value) {
-            state.equipmentType = value
+            state.equipmentType = value;
         },
-        setSelectedActive(state,value){
-            state.selectedActive = value
+        setSelectedActive(state, value) {
+            state.selectedActive = value;
         },
-        setSelectedMonth(state,value){
-            state.selectedMonth = value
+        setSelectedMonth(state, value) {
+            state.selectedMonth = value;
         },
-        decSelectedYear(state){
-            state.selectedYear -= 1
+        decSelectedYear(state) {
+            state.selectedYear -= 1;
         },
-        incSelectedYear(state){
-            state.selectedYear += 1
+        incSelectedYear(state) {
+            state.selectedYear += 1;
         },
-        setSubSelectedEquipmentObjects(state,value){
-            state.subSelectedEquipmentObjects.push(value)
+        setSubSelectedEquipmentObjects(state, value) {
+            state.subSelectedEquipmentObjects.push(value);
         },
         updateSubSelectedEquipmentObject(state, { index, field, value }) {
             if (state.subSelectedEquipmentObjects[index]) {
                 state.subSelectedEquipmentObjects[index][field] = value;
             }
         },
-        setSubSelectedEquipment(state, value){
-            state.subSelectedEquipment.push(value)
+        setSubSelectedEquipment(state, value) {
+            state.subSelectedEquipment.push(value);
         },
         setSubEquipmentArray(state, equipment) {
             state.subEquipmentArray.push(equipment);
@@ -64,21 +68,24 @@ export default {
         setSelecetedEquipmentService(state, value) {
             const equipmentObject = {
                 ...value,
-                subEquipment:[]
-            }
+                subEquipment: [],
+            };
             state.selectedEquipmentService.push(equipmentObject);
         },
         addSubEquipmentToSelected(state, { equipment_id, subEquipmentItem }) {
-            const equipment = state.selectedEquipmentService.find(eq => eq.id === equipment_id);
-            console.log(`${subEquipmentItem} has been added to ${equipment.subEquipment} by ${equipment_id   }` )
-        
+            const equipment = state.selectedEquipmentService.find(
+                (eq) => eq.id === equipment_id.value
+            );
+            console.log(
+                `${subEquipmentItem} has been added to ${equipment.subEquipment} by ${equipment_id}`
+            );
+
             if (equipment) {
                 equipment.subEquipment.push(subEquipmentItem);
             } else {
                 console.warn(`Equipment with ID ${equipment_id} not found.`);
             }
-            console.log(`${subEquipmentItem} has been added to ${equipment}` )
-
+            console.log(`${subEquipmentItem} has been added to ${equipment}`);
         },
         setModalShown(state, value) {
             state.modalShown = value;
@@ -103,43 +110,54 @@ export default {
         },
     },
     actions: {
+        async updateChosenEquipment({commit}, value) {
+            commit("setChosenEquipment", value)
+        },
         async fetchServices({ state }) {
             const { selectedMonth, selectedYear } = state;
-            
-            const response = await axios.get('/api/services', {
+
+            const response = await axios.get("/api/services", {
                 params: {
                     month: selectedMonth,
-                    year: selectedYear
-                }
+                    year: selectedYear,
+                },
             });
-            
-        },    
-        updateSubSelectedEquipment({ commit }, { equipment_id, subEquipmentItem }) {
-            commit('addSubEquipmentToSelected', { equipment_id, subEquipmentItem });
         },
-        updateEquipmentType({commit}, value) {
-            commit('setEquipmentType', value)
+        updateSubSelectedEquipment(
+            { commit },
+            { equipment_id, subEquipmentItem }
+        ) {
+            commit("addSubEquipmentToSelected", {
+                equipment_id,
+                subEquipmentItem,
+            });
         },
-        updateSelectedActive({commit}, value) {
-            commit('setSelectedActive', value)
+        updateEquipmentType({ commit }, value) {
+            commit("setEquipmentType", value);
         },
-        updateSelectedMonth({commit}, value ) {
-            commit('setSelectedMonth', value)
+        updateSelectedActive({ commit }, value) {
+            commit("setSelectedActive", value);
         },
-        updateDecSelectedYear({commit} ) {
-            commit('decSelectedYear')
+        updateSelectedMonth({ commit }, value) {
+            commit("setSelectedMonth", value);
         },
-        updateIncSelectedYear({commit} ) {
-            commit('incSelectedYear')
+        updateDecSelectedYear({ commit }) {
+            commit("decSelectedYear");
         },
-        updateSubSelectedEquipmentObjectsByKey({ commit }, { index, field, value }) {
-            commit('updateSubSelectedEquipmentObject', { index, field, value });
+        updateIncSelectedYear({ commit }) {
+            commit("incSelectedYear");
         },
-        updateSubSelectedEquipmentObjects({commit}, value) {
-            commit('setSubSelectedEquipmentObjects', value);
+        updateSubSelectedEquipmentObjectsByKey(
+            { commit },
+            { index, field, value }
+        ) {
+            commit("updateSubSelectedEquipmentObject", { index, field, value });
         },
-        updateSubEquipment({commit},value) {
-            commit('setSubSelectedEquipment',value)
+        updateSubSelectedEquipmentObjects({ commit }, value) {
+            commit("setSubSelectedEquipmentObjects", value);
+        },
+        updateSubEquipment({ commit }, value) {
+            commit("setSubSelectedEquipment", value);
         },
         clearSubEquipmentArray({ commit }) {
             commit("clearSubEquipmentData");
@@ -201,9 +219,11 @@ export default {
                 console.log(error);
             }
         },
-        async fetchEquipmentSizesById({ commit },categoryId) {
+        async fetchEquipmentSizesById({ commit }, categoryId) {
             try {
-                const response = await fetch(`/api/equipment/sizes/${categoryId}`);
+                const response = await fetch(
+                    `/api/equipment/sizes/${categoryId}`
+                );
                 const data = await response.json();
                 commit("setEquipmentSizes", data);
             } catch (error) {
@@ -232,11 +252,13 @@ export default {
         },
     },
     getters: {
+        getChosenEquipment: (state) => state.chosenEquipment,
         getEquipmentType: (state) => state.equipmentType,
         getSelectedActive: (state) => state.selectedActive,
         getSelectedYear: (state) => state.selectedYear,
         getSelectedMonth: (state) => state.selectedMonth,
-        getSubSelectedEquipmentObjects: (state) => state.subSelectedEquipmentObjects,
+        getSubSelectedEquipmentObjects: (state) =>
+            state.subSelectedEquipmentObjects,
         getSubEquipment: (state) => state.subSelectedEquipment,
         getSubEquipmentArray: (state) => state.subEquipmentArray,
         getsubRowsCount: (state) => state.subRowsCount,

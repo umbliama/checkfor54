@@ -22,7 +22,7 @@ class ServiceSub extends Model
         'service_id',
         'income',
         'return_reason',
-        'service_id'
+        'service_equipment_id',
     ];
 
 

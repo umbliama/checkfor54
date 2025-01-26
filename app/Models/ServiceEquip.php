@@ -19,6 +19,7 @@ class ServiceEquip extends Model
         'operating',
         'commentary',
         'return_reason',
-        'income'
+        'income',
+        'subequipment_id'
     ];
 }

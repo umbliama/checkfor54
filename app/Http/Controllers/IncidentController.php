@@ -19,7 +19,7 @@ class IncidentController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('perPage');
-        $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')
+        $tasksColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size','blocks')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
             ->paginate($perPage);
         $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent','blocks.subequipment','blocks.subequipment.category','blocks.subequipment.size')

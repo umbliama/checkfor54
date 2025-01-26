@@ -26,6 +26,7 @@ const equipment_sizes = computed(() => store.getters['services/getEquipmentSizes
 const equipment_sizes_counts = computed(() => store.getters['services/getEquipmentSizesCounts']);
 const equipment = computed(() => store.getters['services/getEquipment']);
 const equipmentType = computed(() => store.getters['services/getEquipmentType']);
+const chosenEquipment = computed(() => store.getters['services/getChosenEquipment']);
 
 const statuses = {
     'new': 'Новое',
@@ -73,7 +74,7 @@ const updateSelectedEquipment = async (value) => {
         const response = await fetch(`/api/equipment/${value}`);
         const data = await response.json();
         store.dispatch('services/updateSubSelectedEquipment', {
-            equipment_id: toRaw(selectedEquipment.value[selectedEquipment.value.length - 1]),
+            equipment_id: chosenEquipment,
             subEquipmentItem: data
         });
     }

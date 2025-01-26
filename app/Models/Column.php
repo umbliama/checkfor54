@@ -9,11 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Column extends Model
 {
-    protected $fillable = ['name', 'position', 'isArchive','type'];
+    protected $fillable = ['name', 'position', 'isArchive', 'type'];
 
-    // Each column has many blocks
     public function blocks(): HasMany
     {
-        return $this->hasMany(Block::class)->orderBy('position');
+        return $this->hasMany(Block::class, 'column_id');
     }
 }
