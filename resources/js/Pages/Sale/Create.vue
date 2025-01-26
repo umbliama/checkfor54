@@ -318,9 +318,9 @@ function submit() {
                                     @click="is_dialog_open = true"
                                 >Нажмите чтобы выбрать оборудование</button>
                                 <template v-else>
-                                    {{ selectedEquipmentService.category.name }}
-                                    {{ selectedEquipmentService.size.name }} {{
-                                        selectedEquipmentService.series
+                                    {{ selectedEquipmentService?.category?.name }}
+                                    {{ selectedEquipmentService?.size?.name }} {{
+                                        selectedEquipmentService?.series
                                     }}
                                 </template>
                             </div>
