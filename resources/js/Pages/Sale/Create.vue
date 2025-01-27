@@ -318,10 +318,10 @@ function submit() {
                                     @click="is_dialog_open = true"
                                 >Нажмите чтобы выбрать оборудование</button>
                                 <template v-else>
-                                    {{ selectedEquipmentService.category.name }}
+                                    <!-- {{ selectedEquipmentService.category.name }}
                                     {{ selectedEquipmentService.size.name }} {{
                                         selectedEquipmentService.series
-                                    }}
+                                    }} -->
                                 </template>
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">

@@ -51,7 +51,7 @@ const fillRequestObject = async (value) => {
         subEquipment: []
     });
 
-    await nextTick(); // Ensure Vue updates the reactivity system
+    await nextTick(); 
     console.log("Updated requestObject:", requestObject);
 };
 
