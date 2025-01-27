@@ -99,12 +99,15 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
         Route::delete('/column/{column}', [IncidentController::class, 'deleteColumn'])->name('constructor.deleteColumn');
         Route::post('/columns/reorder', [IncidentController::class, 'reorderColumns'])->name('constructor.reorderColumns');
         Route::put('/columns/{column}', [IncidentController::class, 'archiveColumn'])->name('constructor.archiveColumn');
+        Route::delete('/columns/{column}/block/{blockId}/image/{imageIndex}', [IncidentController::class, 'deleteImageFromBlock'])->name('constructor.deleteImage');
+        Route::delete('/columns/{columnId}/blocks/{blockId}/delete-file/{fileIndex}', [IncidentController::class, 'deleteFile'])->name('constructor.deleteFile');
 
         Route::post('/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
         Route::delete('/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
         Route::post('/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks'])->name('constructor.reorderBlocks');
 
         Route::post('/block/{block}/save', [IncidentController::class, 'saveBlockInfo'])->name('constructor.saveBlock');
+        Route::get('/search', [IncidentController::class, 'index'])->name('incidents.index');
     });
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');

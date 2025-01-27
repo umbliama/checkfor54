@@ -17,12 +17,13 @@ return new class extends Migration
             $table->foreignId('column_id')->constrained()->onDelete('cascade');
             $table->string('type');
             $table->foreignId('contragent_id')->nullable()->constrained()->nullOnDelete(); 
-            $table->foreignId('equipment_id')->nullable()->constrained()->nullOnDelete(); 
+            $table->text('equipment')->nullable()->constrained()->nullOnDelete(); 
             $table->json('media_url')->nullable();
             $table->json('file_url')->nullable();
             $table->text('commentary')->nullable();
             $table->integer('position');
             $table->foreignId('employee_id')->nullable()->constrained('users');
+            $table->foreignId('creator_id')->constrained(('users'));
         });
         Schema::create('block_subequipment', function (Blueprint $table) {
             $table->id();

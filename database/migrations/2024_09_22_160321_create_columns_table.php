@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('name')->nullable(); 
             $table->integer('position'); 
             $table->boolean('isArchive')->default(0);
+            $table->timestamp('archive_date')->nullable();
+            $table->foreignId('creator_id')->constrained('users');
+            $table->foreignId('contragent_id')->nullable();
             $table->enum('type', ['adv','tasks']);
         });
     }

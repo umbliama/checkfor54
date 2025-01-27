@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\BlockSubequipment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-
+use App\Models\Column;
 class Block extends Model
 {
-    protected $fillable = ['column_id', 'type', 'commentary', 'file_url', 'employee_id', 'media_url', 'position', 'contragent_id', 'equipment_id'];
+    protected $fillable = ['column_id', 'type', 'commentary', 'file_url', 'employee_id', 'media_url', 'position', 'contragent_id', 'equipment','creator_id'];
 
     protected $casts = [
         'media_url' => 'array',
@@ -52,13 +52,12 @@ class Block extends Model
 
     public function equipment(): BelongsTo
     {
-        return $this->belongsTo(Equipment::class, 'equipment_id');
+        return $this->belongsTo(Equipment::class, 'equipment');
     }
 
     public function contragent(): BelongsTo
     {
         return $this->belongsTo(Contragents::class, 'contragent_id');
     }
-
 
 }
