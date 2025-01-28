@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 
 class ServiceEquip extends Model
 {
@@ -22,4 +25,14 @@ class ServiceEquip extends Model
         'income',
         'subequipment_id'
     ];
+
+    public function equipment():BelongsTo
+    {
+        return $this->belongsTo(Equipment::class,'equipment_id');
+    }
+
+    public function serviceSubs(): HasMany
+    {
+        return $this->hasMany(ServiceSub::class, 'service_equipment_id', 'id');
+    }
 }

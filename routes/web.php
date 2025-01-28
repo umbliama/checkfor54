@@ -117,6 +117,8 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
     Route::delete('/services/delete/{id}', [ServiceController::class, 'destroy'])->name('services.destroy');
     Route::post('/services/createIncident/{id}', [ServiceController::class, 'createIncident'])->name('services.createIncident');
+    Route::delete('/service-equip/{id}', [ServiceController::class, 'destroyServiceEquip'])->name('services.destroyServiceEquip');
+    
     Route::get('/incident', [IncidentController::class, 'index'])->name('incident.index');
     Route::get('/incident/history', [IncidentController::class, 'history'])->name('incident.history');
 

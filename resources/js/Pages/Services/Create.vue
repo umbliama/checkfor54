@@ -214,7 +214,7 @@ function submit() {
             commentary: sub.commentary || null,
             income: sub.income || null,
         }))
-    })).filter(equipment => equipment.equipment_id); // Remove invalid equipment entries
+    })).filter(equipment => equipment.equipment_id); 
 
     console.log("Formatted Request Object:", formattedRequestObject);
 
@@ -223,7 +223,7 @@ function submit() {
         service_number: form.service_number,
         service_date: form.service_date,
         active: form.active,
-        equipment: JSON.parse(JSON.stringify(formattedRequestObject)) // Deep clone for safety
+        equipment: JSON.parse(JSON.stringify(formattedRequestObject))
     });
 }
 </script>

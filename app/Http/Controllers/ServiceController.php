@@ -266,8 +266,8 @@ class ServiceController extends Controller
         }
 
         $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category','equipment.size'])->get();
-
-        return Inertia::render('Services/Edit', ['service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
+        $serviceEquip = ServiceEquip::where('service_id',$service->id)->with('equipment','equipment.category','equipment.size','serviceSubs.equipment','serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
+        return Inertia::render('Services/Edit', ['serviceEquip'=>$serviceEquip,'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
     }
 
     public function createIncident($id)
@@ -323,7 +323,6 @@ class ServiceController extends Controller
         }
 
 
-        // Validate the request data
         $request->validate([
             'equipment_id' => 'nullable|int',
             'contragent_id' => 'nullable|int',
@@ -417,7 +416,6 @@ class ServiceController extends Controller
                 
             }
         } else {
-            // Handle the case where subEquipment is not set or not an array
             echo "No subequipment data found.\n";
         }
 
@@ -437,4 +435,12 @@ class ServiceController extends Controller
         $subservice->delete();
     }
 
+    public function destroyServiceEquip($id)
+    {
+        $serviceEquip = ServiceEquip::findOrFail($id);
+    
+        $serviceEquip->serviceSubs()->delete();
+    
+        $serviceEquip->delete();
+    }
 }

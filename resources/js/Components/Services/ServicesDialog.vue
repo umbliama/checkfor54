@@ -73,6 +73,7 @@ const updateSelectedEquipment = async (value) => {
         store.dispatch('services/updateSubEquipmentArray', value);
         const response = await fetch(`/api/equipment/${value}`);
         const data = await response.json();
+        console.log(data)
         store.dispatch('services/updateSubSelectedEquipment', {
             equipment_id: chosenEquipment,
             subEquipmentItem: data
