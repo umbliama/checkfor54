@@ -21,6 +21,7 @@ return new class extends Migration
             $table->boolean('isAdmin')->default(false);
             $table->boolean('isApproved')->default(0);
             $table->rememberToken();
+            $table->string('avatar')->nullable();
             $table->timestamps();
         });
 

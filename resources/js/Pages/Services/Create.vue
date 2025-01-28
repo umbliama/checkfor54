@@ -36,7 +36,7 @@ const subRowsCount = computed(() => store.getters['services/getsubRowsCount']);
 const equipmentType = computed(() => store.getters['services/getEquipmentType']);
 const chosenEquipment = computed(() => store.getters['services/getChosenEquipment']);
 
-const requestObject = reactive([]);
+let requestObject = reactive([]);
 
 const fillRequestObject = async (value) => {
     if (!Array.isArray(requestObject)) {

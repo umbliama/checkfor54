@@ -21,13 +21,13 @@ class IncidentController extends Controller
     {
         $perPage = $request->input('perPage', 1);
         $page = request()->get('page', 1);
-        $tasksColumns = Column::with('blocks.contragent', 'blocks')
+        $tasksColumns = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
             ->paginate($perPage);
-        $advColumns = Column::with('blocks.equipment.category', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
+        $advColumns = Column::with('blocks.equipment.category', 'blocks.user', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
             ->orderBy('position')->where('type', 'adv')->where('isArchive', 0)
             ->paginate($perPage);
-        $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks')
+        $tasksColumnsArchived = Column::with('blocks.contragent',  'blocks.user', 'blocks')
             ->where('type', 'tasks')
             ->where('isArchive', 1)
             ->orderBy('position')
@@ -37,7 +37,7 @@ class IncidentController extends Controller
         $paginatedGroups = $tasksColumnsArchived->forPage($page, $perPage);
 
 
-        $advColumnsArchived = Column::with('blocks.contragent', 'blocks')
+        $advColumnsArchived = Column::with('blocks.contragent',  'blocks.user', 'blocks')
             ->where('type', 'adv')
             ->where('isArchive', 1)
             ->orderBy('position')

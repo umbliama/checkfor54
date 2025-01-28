@@ -24,12 +24,37 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateAvatar(Request $request) 
+    {
+        if ($request->hasFile('avatar')) 
+        {
+            $file = $request->file('avatar');
+    
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $shortUniqid = substr(uniqid(), 0, 6);
+            
+            $fileName = $originalName . '_' . time() . '_' . $shortUniqid . '.' . $extension;
+    
+            $file->move(public_path('files'), $fileName);
+    
+            $user = Auth::user();
+            $user->avatar = 'files/' . $fileName; 
+            $user->save();
+    
+            return response()->json(['message' => 'Avatar updated successfully', 'avatar' => asset('files/' . $fileName)]);
+        }
+    
+        return response()->json(['error' => 'No file uploaded'], 400);
+    }
+    
     /**
      * Update the user's profile information.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
+
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;

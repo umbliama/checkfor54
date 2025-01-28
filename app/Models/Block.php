@@ -60,4 +60,8 @@ class Block extends Model
         return $this->belongsTo(Contragents::class, 'contragent_id');
     }
 
+    public function user():BelongsTo
+    {
+        return $this->belongsTo(User::class,'creator_id');
+    }
 }

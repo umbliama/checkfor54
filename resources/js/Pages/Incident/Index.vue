@@ -50,7 +50,8 @@ const props = defineProps({
     contragents: Array,
     employees: Array,
     advColumnsArchivedCount:Number,
-    tasksColumnsArchivedCount:Number
+    tasksColumnsArchivedCount:Number,
+    userAvatar:String
 })
 
 
@@ -453,11 +454,9 @@ onBeforeMount(() => {
                                         label="Заказчик:" only-value v-model="block.contragent_id" />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -513,11 +512,9 @@ onBeforeMount(() => {
                                         label="Сотрудник:" only-value v-model="block.employee_id" />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -574,11 +571,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -635,11 +630,9 @@ onBeforeMount(() => {
                                     <UiField label="Оборудование" v-model="block.equipment" textarea />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -722,11 +715,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -850,11 +841,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1042,11 +1031,9 @@ onBeforeMount(() => {
                                         label="Заказчик:" only-value v-model="block.contragent_id" />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1102,11 +1089,9 @@ onBeforeMount(() => {
                                         label="Сотрудник:" only-value v-model="block.employee_id" />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1163,11 +1148,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1224,11 +1207,9 @@ onBeforeMount(() => {
                                     <UiField label="Оборудование" v-model="block.equipment" textarea />
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1311,11 +1292,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
@@ -1436,11 +1415,9 @@ onBeforeMount(() => {
 
                                     <div class="flex items-center justify-between">
                                         <ul class="flex mt-2 -space-x-2">
+  
                                             <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
-                                            </li>
-                                            <li>
-                                                <UiUserAvatar size="24px" class="border border-[#DDE1E6]" />
+                                                <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
                                             </li>
                                         </ul>
 
