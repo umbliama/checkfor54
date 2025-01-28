@@ -6,6 +6,8 @@ const $props = defineProps({
     label     : String,
     textarea  : Boolean,
     disabled  : Boolean,
+    error     : String,
+    hint      : String,
     size      : {
         type: String,
         default: 'default',
@@ -63,5 +65,7 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
                 @input="$emit('update:modelValue', $event.target.value)"
             />
         </div>
+        <div v-if="$props.hint" class="mt-1 text-xs text-gray1">{{ $props.hint }}</div>
+        <div v-if="$props.error" class="mt-1 text-xs text-red-warning">{{ $props.error }}</div>
     </div>
 </template>

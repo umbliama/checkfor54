@@ -6,6 +6,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import UiField from '@/Components/Ui/UiField.vue';
+import UiCheckbox from '@/Components/Ui/UiCheckbox.vue';
 
 defineProps({
     canResetPassword: {
@@ -35,68 +37,48 @@ const submit = () => {
     <GuestLayout>
         <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
-        </div>
+        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">{{ status }}</div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
+        <div class="font-bold text-2xl text-center lg:text-4xl">Вход</div>
+        <div class="mt-2 text-sm text-center lg:text-lg">Войдите, чтобы продолжить</div>
+        
+        <form class="mt-12 space-y-4 text-sm" @submit.prevent="submit">
+            <UiField
+                v-model="form.email"
+                :inp-attrs="{ required: true, autofocus: true, autocomplete: 'username', type: 'email' }"
+                :error="form.errors.email"
+                label="Адрес электронной почты"
+            />
+            <UiField
+                v-model="form.password"
+                :inp-attrs="{ required: true, autocomplete: 'current-password', type: 'password' }"
+                :error="form.errors.password"
+                hint="Длина пароля не менее 8 символов."
+                label="Пароль"
+            />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+            <div class="flex items-center justify-between">
+                <UiCheckbox v-model="form.remember" label="Запомнить меня" />
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
-
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    class="text-selected-blue"
                 >
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
-
-            </div>
-            <div class="flex mt-5" >
-                <Link :href="route('register')" class="mx-auto flex"  :disabled="form.processing">
-                Зарегистрироваться 
+                    Забыли пароль?
                 </Link>
             </div>
+
+            <button
+                :disabled="form.processing"
+                class="flex items-center justify-center w-full h-12 font-medium text-base text-white bg-[#0F62FE] disabled:pointer-events-none disabled:opacity-60"
+                type="submit"
+            >Авторизоваться</button>
+            
         </form>
+        <Link
+            :href="route('register')"
+            class="block mt-6 pt-6 text-sm text-center border-t border-t-[#DDE1E6] disabled:pointer-events-none disabled:opacity-60"
+        >Зарегистрироваться</Link>
     </GuestLayout>
 </template>

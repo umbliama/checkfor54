@@ -27,7 +27,7 @@ const is_checked = computed(() => {
 </script>
 
 <template>
-    <label class="inline-flex items-start cursor-pointer">
+    <label class="inline-flex items-center cursor-pointer">
         <input v-bind="inpAttrs" v-model="model_value" type="checkbox" hidden :required="$props.required" @change="$emit('change')">
         <span
             :class="{
