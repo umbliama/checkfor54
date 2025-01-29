@@ -32,7 +32,7 @@ import IncidentPagination from '@/Components/IncidentPagination.vue';
 
 const page = usePage()
 
-const user = computed(() => page.props.auth.user)
+const user = computed(() => page.props.auth.user);
 
 const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
 const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
@@ -130,7 +130,7 @@ const createBlock = (columnId, type) => {
     router.post(`/constructor/column/${columnId}/block`, { type })
 }
 
-const query = ref("");
+const query = ref((new URLSearchParams(window.location.search)).get('query') || '');
 
 
 
@@ -195,19 +195,37 @@ onBeforeMount(() => {
     const url_params = new URLSearchParams(window.location.search);
 
     nextTick(() => {
-
         if (
             !url_params.get('perPage') ||
             (url_params.get('perPage') !== '1' && window.innerWidth <= 1024)
         ) {
-            router.get(route('incident.index'), { perPage: 1});
+            const route_params = { perPage: 1 };
+
+            if (url_params.get('query')) route_params.query = url_params.get('query');
+
+            router.get(route('incident.index'), route_params);
             return;
         }
         if (
             !url_params.get('perPage') ||
-            (url_params.get('perPage') !== '3' && window.innerWidth > 1024)
+            (url_params.get('perPage') !== '3' && window.innerWidth <= 1536)
         ) {
-            router.get(route('incident.index'), { perPage: 3});
+            const route_params = { perPage: 3 };
+
+            if (url_params.get('query')) route_params.query = url_params.get('query');
+
+            router.get(route('incident.index'), route_params);
+            return;
+        }
+        if (
+            !url_params.get('perPage') ||
+            (url_params.get('perPage') !== '4' && window.innerWidth > 1536)
+        ) {
+            const route_params = { perPage: 4 };
+
+            if (url_params.get('query')) route_params.query = url_params.get('query');
+
+            router.get(route('incident.index'), route_params);
             return;
         }
     });
@@ -281,7 +299,7 @@ onBeforeMount(() => {
                     </li>
                 </ul>
                 <form class="w-full mt-5 lg:w-56 lg:mt-0">
-                    <UiField v-model="query" :inp-attrs="{ placeholder: 'Поиск...' }">
+                    <UiField v-model="query" :inp-attrs="{ placeholder: 'Поиск...', name: 'query' }">
                         <template #prepend>
                             <button type="submit">
                                 <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
