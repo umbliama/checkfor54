@@ -21,7 +21,10 @@ class Equipment extends Model
     {
         return $this->belongsTo(ServiceSub::class, 'subservice_id', 'id');
     }
-
+    public function serviceEquipment()
+    {
+        return $this->hasMany(ServiceEquip::class);
+    }
 
     protected $fillable = [
         'manufactor',

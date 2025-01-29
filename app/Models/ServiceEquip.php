@@ -26,13 +26,18 @@ class ServiceEquip extends Model
         'subequipment_id'
     ];
 
-    public function equipment():BelongsTo
+    public function equipment(): BelongsTo
     {
-        return $this->belongsTo(Equipment::class,'equipment_id');
+        return $this->belongsTo(Equipment::class, 'equipment_id');
     }
 
     public function serviceSubs(): HasMany
     {
         return $this->hasMany(ServiceSub::class, 'service_equipment_id', 'id');
+    }
+
+    public function services()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
     }
 }

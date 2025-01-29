@@ -159,8 +159,8 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         $user_id = Auth::id();
-        $user = User::find($user_id); 
-    
+        $user = User::find($user_id);
+
         // Validate request data
         $request->validate([
             'contragent_id' => 'required|int|exists:contragents,id',
@@ -169,7 +169,7 @@ class ServiceController extends Controller
             'active' => 'required|boolean',
             'hyperlink' => 'nullable|string',
             'equipment' => 'required|array',
-            'equipment.*.equipment_id' => 'required|int|exists:equipment,id',
+            'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
             'equipment.*.commentary' => 'nullable|string',
             'equipment.*.period_start_date' => 'nullable|date',
             'equipment.*.return_date' => 'nullable|date',
@@ -178,7 +178,7 @@ class ServiceController extends Controller
             'equipment.*.operating' => 'nullable|string',
             'equipment.*.income' => 'nullable|numeric',
             'equipment.*.subEquipment' => 'array|nullable',
-            'equipment.*.subEquipment.*.subequipment_id' => 'required|int',
+            'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
             'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
             'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
             'equipment.*.subEquipment.*.return_date' => 'nullable|date',
@@ -193,7 +193,7 @@ class ServiceController extends Controller
             'service_number' => $request->service_number,
             'active' => $request->active,
         ]);
-    
+
         // Loop through Equipment List
         foreach ($request->equipment as $equipmentData) {
             // Create ServiceEquipment
@@ -209,13 +209,13 @@ class ServiceController extends Controller
                 'commentary' => $equipmentData['commentary'] ?? null,
                 'income' => $equipmentData['income'] ?? null,
             ]);
-    
+
             // Loop through SubEquipment (if exists)
             if (!empty($equipmentData['subEquipment'])) {
                 foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
                     ServiceSub::create([
                         'service_id' => $service->id,
-                        'service_equipment_id' => $serviceEquipment->id, 
+                        'service_equipment_id' => $serviceEquipment->id,
                         'subequipment_id' => $subEquipmentData['subequipment_id'],
                         'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
                         'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
@@ -227,17 +227,17 @@ class ServiceController extends Controller
                 }
             }
         }
-    
+
         // Create Notification
         Notification::create([
             'type' => "Пользователь {$user->name} создал новую аренду №{$service->id}",
             'data' => ['service_id' => $service->id],
             'user_id' => $user_id
         ]);
-    
+
         return redirect()->route('services.index')->with('success', 'Service created successfully.');
     }
-    
+
 
     public function storeHyperLink(Request $request, $id)
     {
@@ -265,9 +265,9 @@ class ServiceController extends Controller
             $equipment->size_name = $equipment->size ? $equipment->size->name : null;
         }
 
-        $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category','equipment.size'])->get();
-        $serviceEquip = ServiceEquip::where('service_id',$service->id)->with('equipment','equipment.category','equipment.size','serviceSubs.equipment','serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
-        return Inertia::render('Services/Edit', ['serviceEquip'=>$serviceEquip,'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
+        $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
+        $serviceEquip = ServiceEquip::where('service_id', $service->id)->with('equipment', 'equipment.category', 'equipment.size', 'serviceSubs.equipment', 'serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
+        return Inertia::render('Services/Edit', ['serviceEquip' => $serviceEquip, 'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents]);
     }
 
     public function createIncident($id)
@@ -301,57 +301,38 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $user_id = Auth::id();
-
-        $equipment_id = $request->get('equipment_id');
-        $category = Equipment::where('id', $equipment_id)->value('category_id');
-        $size = Equipment::where('id', $equipment_id)->value('size_id');
-        $store_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('store_price');
-        $operation_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('operation_price');
         $fullIncome = 0;
-    
-        $operating = $request->get('operating', 0);
-        $store = $request->get('store', 0);
-
-        if ($operating == 0) {
-            $income = $store * $store_price;
-        } else {
-            $days = ceil($operating / 24);
-
-
-            $income = ($operating * $operation_price) + ($store * $store_price);
-
-        }
-
 
         $request->validate([
-            'equipment_id' => 'nullable|int',
-            'contragent_id' => 'nullable|int',
-            'shipping_date' => 'nullable|date',
-            'service_number' => "nullable|string",
-            'service_date' => "nullable|date",
-            'period_start_date' => 'nullable|date',
-            'return_date' => 'nullable|date',
-            'period_end_date' => 'nullable|date',
-            'store' => 'nullable|numeric',
-            'operating' => 'nullable|numeric',
-            'return_reason' => 'nullable',
-            'active' => 'required|boolean',
-            'income' => 'nullable|int',
-            'subEquipment' => 'array|nullable',
-            'subEquipment.*.subequipment_id' => 'nullable|int|exists:equipment,id',
-            'subEquipment.*.shipping_date' => 'nullable|date',
-            'subEquipment.*.period_start_date' => 'nullable|date',
-            'subEquipment.*.return_date' => 'nullable|date',
-            'subEquipment.*.period_end_date' => 'nullable|date',
-            'subEquipment.*.income' => 'nullable|int'
+            'contragent_id' => 'nullable|int|exists:contragents,id',
+            'service_number' => 'nullable|string',
+            'service_date' => 'nullable|date',
+            'active' => 'nullable|boolean',
+            'hyperlink' => 'nullable|string',
+            'equipment' => 'nullable|array',
+            'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
+            'equipment.*.commentary' => 'nullable|string',
+            'equipment.*.period_start_date' => 'nullable|date',
+            'equipment.*.return_date' => 'nullable|date',
+            'equipment.*.period_end_date' => 'nullable|date',
+            'equipment.*.store' => 'nullable|string',
+            'equipment.*.operating' => 'nullable|string',
+            'equipment.*.income' => 'nullable|numeric',
+            'equipment.*.subEquipment' => 'array|nullable',
+            'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
+            'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.return_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.period_end_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.commentary' => 'nullable|string',
+            'equipment.*.subEquipment.*.income' => 'nullable|numeric'
         ]);
 
         $isChangingToInactive = $service->active && !$request->get('active', true);
 
-        // Update the main service record
+        // Update Service Record
         $service->update(array_merge(
             $request->only([
-                'equipment_id',
                 'contragent_id',
                 'shipping_date',
                 'service_number',
@@ -364,7 +345,7 @@ class ServiceController extends Controller
                 'return_reason',
                 'active'
             ]),
-            ['income' => $income]
+            ['full_income' => 0] 
         ));
 
         if ($isChangingToInactive) {
@@ -373,59 +354,66 @@ class ServiceController extends Controller
                 'data' => ['service_id' => $service->id],
                 'user_id' => $user_id
             ]);
-            
         }
 
-        
+        foreach ($request->equipment as $equipmentData) {
+            $equipment_id = $equipmentData['equipment_id'];
+            $category = Equipment::where('id', $equipment_id)->value('category_id');
+            $size = Equipment::where('id', $equipment_id)->value('size_id');
 
-        if ($request->has('subEquipment') && is_array($request->subEquipment)) {
-            foreach ($request->subEquipment as $subEquipmentData) {
-                // Access the necessary values
-                $subOperating = $subEquipmentData['operating'];
-                $subStore = $subEquipmentData['store'];
-        
-                // Calculate income
-                if ($subOperating == 0) {
-                    $subincome = $subStore * $store_price;
-                } else {
-                    $days = ceil($subOperating / 24);
-                    $subincome = ($subOperating * $operation_price) + ($subStore * $store_price);
-                }
+            $store_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('store_price');
+            $operation_price = EquipmentPrice::where('category_id', $category)->where('size_id', $size)->where('archive', false)->value('operation_price');
 
-                // Update or create sub-equipment records
-                if (isset($subEquipmentData['subequipment_id'])) {
-                    // Update existing sub-equipment
-                    $subService = ServiceSub::find($subEquipmentData['id']);
-                    if ($subService) {
-                        $subService->update(array_merge(
-                            [
-                                'subequipment_id' => $subEquipmentData['subequipment_id'],
-                                'shipping_date' => $subEquipmentData['shipping_date'],
-                                'period_start_date' => $subEquipmentData['period_start_date'],
-                                'commentary' => $subEquipmentData['commentary'] ?? "",
-                                'return_date' => $subEquipmentData['return_date'],
-                                'operating' => $subEquipmentData['operating'],
-                                'store' => $subEquipmentData['store'],
-                                'period_end_date' => $subEquipmentData['period_end_date'],
-                            ],
-                            ['income' => $subincome]
-                        ));
-                    }
+            $operating = $equipmentData['operating'] ?? 0;
+            $store = $equipmentData['store'] ?? 0;
+            $income = ($operating == 0) ? ($store * $store_price) : (($operating * $operation_price) + ($store * $store_price));
+
+            $serviceEquipment = ServiceEquip::updateOrCreate([
+                'service_id' => $service->id,
+                'equipment_id' => $equipment_id
+            ], [
+                'commentary' => $equipmentData['commentary'] ?? "",
+                'period_start_date' => $equipmentData['period_start_date'] ?? null,
+                'return_date' => $equipmentData['return_date'] ?? null,
+                'period_end_date' => $equipmentData['period_end_date'] ?? null,
+                'store' => $store,
+                'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                'operating' => $operating,
+                'income' => $income
+            ]);
+
+            $fullIncome += $income;
+
+            if (!empty($equipmentData['subEquipment']) && is_array($equipmentData['subEquipment'])) {
+                foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
+                    $subEquipment_id = $subEquipmentData['subequipment_id'];
+                    $subOperating = $subEquipmentData['operating'] ?? 0;
+                    $subStore = $subEquipmentData['store'] ?? 0;
+                    $subincome = ($subOperating == 0) ? ($subStore * $store_price) : (($subOperating * $operation_price) + ($subStore * $store_price));
+
+                    ServiceSub::firstOrCreate([
+                        'service_id' => $service->id,
+                        'subequipment_id' => $subEquipment_id,
+                        'service_equipment_id' => $serviceEquipment->id
+                    ], [
+                        'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
+                        'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
+                        'return_date' => $subEquipmentData['return_date'] ?? null,
+                        'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
+                        'operating' => $subOperating,
+                        'store' => $subStore,
+                        'income' => $subincome
+                    ]);
+
                     $fullIncome += $subincome;
                 }
-                
             }
-        } else {
-            echo "No subequipment data found.\n";
         }
 
-        $service->update([
-            'full_income' => $fullIncome + $income
-        ]);
-    
+        $service->update(['full_income' => $fullIncome]);
+
         return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
-
     public function destroy($id)
     {
         $service = Service::findOrFail($id);
@@ -438,9 +426,9 @@ class ServiceController extends Controller
     public function destroyServiceEquip($id)
     {
         $serviceEquip = ServiceEquip::findOrFail($id);
-    
+
         $serviceEquip->serviceSubs()->delete();
-    
+
         $serviceEquip->delete();
     }
 }

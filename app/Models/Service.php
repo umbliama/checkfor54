@@ -51,5 +51,10 @@ class Service extends Model
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
+
+    public function serviceEquipment()
+{
+    return $this->hasMany(ServiceEquip::class);
+}
     use HasFactory;
 }

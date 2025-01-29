@@ -26,10 +26,10 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-        $equipment_on_rent_count = Equipment::whereHas('services', function ($query) {
+        $equipment_on_rent_count = Equipment::whereHas('serviceEquipment', function ($query) {
             $query->where('active', true);
         })->count();
-        $activeEquipment = Equipment::whereHas('services', function ($query) {
+        $activeEquipment = Equipment::whereHas('serviceEquipment', function ($query) {
             $query->where('active', true);
         })->paginate($perPage);
 
@@ -74,7 +74,7 @@ class EquipmentController extends Controller
             }
         }
         if ($rentActive) {
-            $query->whereHas('services', function ($query) {
+            $query->whereHas('serviceEquipment', function ($query) {
                 $query->where('active', true);
             });
         }

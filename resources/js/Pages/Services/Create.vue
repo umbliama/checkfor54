@@ -269,7 +269,7 @@ function submit() {
 
                         <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
                             <span
-                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчик:</span>
+                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказч к:</span>
                             <span
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
@@ -546,12 +546,14 @@ function submit() {
                     <br> -->
 
                     <!-- для Макса -->
+
                     <div v-if="subRowsCount === 1 && selectedEquipmentService.length < 1"
-                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <button class=" text-side-gray-text px-4 py-2 rounded" @click="openDialog">
-                            Нажмите чтобы выбрать оборудование
-                        </button>
-                    </div>
+                                    class="shrink-0 flex items-center w-[15.84%] ">
+                                    <button class="block w-full h-full px-2 bg-transparent text-left"
+                                        @click="openDialog">
+                                        Нажмите чтобы выбрать оборудование 
+                                    </button>
+                                </div>
                     <div v-for="(equipment,index) in selectedEquipmentService">
                         <div
                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
