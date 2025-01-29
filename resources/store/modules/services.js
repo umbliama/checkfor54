@@ -19,6 +19,7 @@ export default {
         selectedActive: true,
         equipmentType: 0,
         chosenEquipment: null,
+
     }),
     mutations: {
         setChosenEquipment(state, value) {

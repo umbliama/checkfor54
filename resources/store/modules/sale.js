@@ -2,18 +2,20 @@ export default {
     namespaced: true,
     state: () => ({
         activeTab: "sale",
-        extraServices: [],
         currentIndex: 0,
+        rowsCount: 0,
         extraServicesModal: false,
-        selectedServices: [],
-        servicesRowsCount: 0,
+        selectedServices: [], 
+        selectedEquipment: [], 
+        activeMainEquipmentId: null,
+        activeSubEquipmentId: null,
     }),
     mutations: {
         incrementRowsCount(state) {
-            state.servicesRowsCount += 1;
+            state.rowsCount += 1;
         },
         decrementRowsCount(state) {
-            state.servicesRowsCount -= 1;
+            state.rowsCount -= 1;
         },
         setExtraServicesModal(state, value) {
             state.extraServicesModal = value;
@@ -24,65 +26,93 @@ export default {
         setCurrentIndex(state, value) {
             state.currentIndex = value;
         },
-        updateExtraService(state, service) {
-            state.extraServices = service;
+
+        addMainEquipment(state, equipment) {
+            state.selectedEquipment.push({
+                ...equipment,
+                rowsCount:0,
+                subEquipment: [
+                ]
+            });
         },
-        addExtraService(state, service) {
-            state.selectedServices.push(service);
-        },
-        setSelectedServicesObjectInfo(state, { index, field, value }) {
-            if (state.extraServicesModal[index]) {
-                state.extraServicesModal[index][field] = value;
+        incRowsInEquip(state,id) {
+            const row = state.selectedEquipment.find(eq => eq.id == id);
+
+            if(row) {
+                row.rowsCount+= 1
             }
         },
-        removeExtraService(state, index) {
+        addExtraEquipment(state, { mainEquipmentId, subEquipment }) {
+            const mainEquipment = state.selectedEquipment.find(eq => eq.id === mainEquipmentId);
+            if (mainEquipment) {
+                console.log(mainEquipment)
+                mainEquipment.subEquipment.push(subEquipment);
+            }
+        },
+        setActiveMainEquipment(state, equipmentId) {
+            state.activeMainEquipmentId = equipmentId;
+        },
+        setActiveSubEquipment(state, equipmentId) {
+            state.activeSubEquipmentId = equipmentId;
+        },
+        removeMainEquipment(state, index) {
             state.selectedServices.splice(index, 1);
+        },
+
+        removeExtraEquipment(state, { mainEquipmentId, extraEquipmentId }) {
+            const mainEquipment = state.selectedServices.find(
+                (eq) => eq.id === mainEquipmentId
+            );
+            if (mainEquipment) {
+                mainEquipment.additionalEquipment = mainEquipment.additionalEquipment.filter(
+                    (eq) => eq.id !== extraEquipmentId
+                );
+            }
         },
     },
     actions: {
-        removeExtraServiceAction({ commit }, index) {
-            commit("removeExtraService", index);
+        updateIncRowsInEquip({commit},id) {
+            commit('incRowsInEquip', id);
         },
-        updateExtraServicesModal({ commit }, value) {
-            try {
-                fetch("/api/getExtraServices")
-                    .then((res) => res.json())
-                    .then((data) => commit("updateExtraService", data));
-            } catch (e) {
-                console.error(e);
-            }
+        setIncrementRowsCount(state) {
+            state.rowsCount += 1;
         },
-        incCurrentIndex({ commit }) {
-            commit("setCurrentIndex", 1);
-        },
-        decCurrentIndex({ commit }) {
-            commit("setCurrentIndex", -1);
+        setDecrementRowsCount(state) {
+            state.rowsCount -= 1;
         },
         showModal({ commit }, value) {
             commit("setExtraServicesModal", value);
         },
-        updateExtraServices({ commit }, service) {
-            commit("addExtraService", service);
+        updateActiveMainEquipment({commit}, value) {
+            commit('setActiveMainEquipment', value)
         },
-        updateActiveTab({ commit }, payload) {
-            commit("setActiveTab", payload);
+        updateActiveSubEquipment({commit}, value) {
+            commit('setActiveSubEquipment', value)
         },
-        updateSelectedServicesObject({ commit }, { index, field, value }) {
-            commit("setSelectedServicesObjectInfo", { index, field, value });
+        addMainEquipmentAction({ commit }, equipment) {
+            commit("addMainEquipment", equipment);
         },
-        updateIncRowsCount({ commit }) {
-            commit("incrementRowsCount");
+
+        addExtraEquipmentAction({ commit }, { mainEquipmentId, subEquipment }) {
+            commit("addExtraEquipment", { mainEquipmentId, subEquipment });
         },
-        updateDecRowsCount({ commit }) {
-            commit("decrementRowsCount");
+
+        removeMainEquipmentAction({ commit }, index) {
+            commit("removeMainEquipment", index);
+        },
+
+        removeExtraEquipmentAction({ commit }, { mainEquipmentId, extraEquipmentId }) {
+            commit("removeExtraEquipment", { mainEquipmentId, extraEquipmentId });
         },
     },
     getters: {
-        getRowsCount: (state) => state.servicesRowsCount,
+        getActiveSubEquipment: (state) => state.activeSubEquipmentId,
+        getActiveMainEquipment: (state) => state.activeMainEquipmentId,
+        getSelectedEquipment: (state) => state.selectedEquipment,
         getSelectedServices: (state) => state.selectedServices,
+        getRowsCount: (state) => state.rowsCount,
         getExtraServicesModal: (state) => state.extraServicesModal,
         getCurrentIndex: (state) => state.currentIndex,
         getActiveTab: (state) => state.activeTab,
-        getExtraServices: (state) => state.extraServices,
     },
 };
