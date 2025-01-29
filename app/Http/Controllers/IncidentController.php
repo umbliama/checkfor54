@@ -115,18 +115,9 @@ class IncidentController extends Controller
         $column->delete();
     }
 
-    public function createBlock(Column $column, $typeOrRequest)
+    public function createBlock(Column $column, Request $request)
     {
-        if ($typeOrRequest instanceof Request) {
-            $typeOrRequest->validate([
-                'type' => 'required|string',
-            ]);
-            $type = $typeOrRequest->input('type');
-            $request = $typeOrRequest; 
-        } else {
-            $type = $typeOrRequest;
-            $request = new Request(); 
-        }
+        $type = $request->input('type');
     
         $content = $this->prepareBlockContent($type, $request);
     
@@ -139,7 +130,6 @@ class IncidentController extends Controller
             ...$content, 
         ]);
     
-        return $block;
     }
 
 
