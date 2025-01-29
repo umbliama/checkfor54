@@ -36,11 +36,11 @@ const submit = () => {
 
     <GuestLayout>
         <Head title="Log in" />
-
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">{{ status }}</div>
-
+        
         <div class="font-bold text-2xl text-center lg:text-4xl">Вход</div>
         <div class="mt-2 text-sm text-center lg:text-lg">Войдите, чтобы продолжить</div>
+        
+        <div v-if="status" class="mb-4 font-medium text-sm text-center text-green-600">{{ status }}</div>
         
         <form class="mt-12 space-y-4 text-sm" @submit.prevent="submit">
             <UiField
