@@ -115,23 +115,30 @@ class IncidentController extends Controller
         $column->delete();
     }
 
-    public function createBlock(Column $column, Request $request)
+    public function createBlock(Column $column, $typeOrRequest)
     {
-        $type = $request->input('type');
-    
+        if (is_string($typeOrRequest)) {
+            $type = $typeOrRequest;
+            $request = request();
+        }
+        elseif ($typeOrRequest instanceof Request) {
+            $request = $typeOrRequest;
+            $type = $request->input('type');
+        }
+        else {
+            throw new \InvalidArgumentException('Argument #2 must be a string or a Request object.');
+        }
+        $position = Column::max('position') + 1;
         $content = $this->prepareBlockContent($type, $request);
     
-        $position = $column->blocks()->max('position') + 1;
-    
-        $block = $column->blocks()->create([
+        Block::create([
+            'column_id' => $column->id,
             'type' => $type,
-            'position' => $position,
             'creator_id' => Auth::id(),
-            ...$content, 
+            'position' => $position,
+            'content' => json_encode($content), 
         ]);
-    
     }
-
 
 
 
