@@ -16,8 +16,6 @@ class DashboardController extends Controller
 {
     public function dashboard(Request $request)
     {
-<<<<<<< HEAD
-
         $searchTerm = $request->query('search');
         $perPage = $request->query('perPage');
         $equipment_categories = EquipmentCategories::all();
@@ -93,9 +91,6 @@ class DashboardController extends Controller
             'activeEquipment' => $activeEquipment,
             'contragents_count' => $contragents_count
         ]);
-=======
-        $categories = EquipmentCategories::all();
-        return Inertia::render("Dashboard/Dashboard",['categories' => $categories]);
     }
     
     public function rent()
@@ -113,6 +108,5 @@ class DashboardController extends Controller
     public function analysis()
     {
         return Inertia::render('Dashboard/Analysis');
->>>>>>> 02e3a88 (new pages)
     }
 }
