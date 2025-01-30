@@ -25,7 +25,17 @@ const updateUserId = () => {
 
 
 const props = defineProps({
-    categories: Array
+    equipment:Object,
+    equipment_categories:Array,
+    equipment_categories_counts:Number,
+    equipment_sizes_counts:Number,
+    equipment_sizes:Array,
+    equipment_location:Array,
+    selectedCategory:String,
+    location_counts:Object,
+    equipment_on_rent_count:Number,
+    activeEquipment:Object,
+    contragents_count:Number
 })
 
 onMounted(() => {
