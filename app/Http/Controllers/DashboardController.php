@@ -78,7 +78,7 @@ class DashboardController extends Controller
         $equipment = $query->paginate($perPage);
 
 
-        return Inertia::render("Dashboard", [
+        return Inertia::render("Dashboard/Dashboard", [
             'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
             'equipment_categories_counts' => $equipment_categories_counts,
