@@ -79,10 +79,28 @@ const updateActiveTab = (tab) => {
     store.dispatch('sale/updateActiveTab', tab)
 }
 
+const updateRequestDataEquipment = (id,field, data) => {
+    store.dispatch('sale/updateRequestDataInEquipment', {id,field, data});
+}
+const updateRequestDataSubEquipment = (mainId, id,field, data) => {
+    store.dispatch('sale/updateRequestDataInSubEquipment', {mainId, id,field, data});
+}
+
 const updateByKeyServices = (index, field, value) => {
     store.dispatch('sale/updateSelectedServicesObject', { index, field, value });
 
 }
+
+
+const updateActiveMainEquipment = (value) => {
+    store.dispatch('sale/updateActiveMainEquipment', value)
+}
+
+const staffEquipment = (value) => {
+    updateActiveMainEquipment(value);
+    incRowSubEquip(value)
+}
+
 
 const updateByKey = (index, field, value) => {
     store.dispatch('services/updateSubSelectedEquipmentObjectsByKey', { index, field, value });
@@ -527,7 +545,7 @@ function submit() {
                             </div>
                         </div>
                         <AccordionRoot type="multiple" :collapsible="true">
-                            <AccordionItem  v-for="equipment in selectedEquipment" :value="'item-'+equipment.id">
+                            <AccordionItem  v-for="(equipment,mainIndex) in selectedEquipment" :value="'item-'+equipment.id">
                                 <AccordionHeader>
                                     <div
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -556,15 +574,15 @@ function submit() {
                                             </AccordionTrigger>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input @change="updateRequestDataEquipment(equipment.id, 'shipping_date', $event.target.value)" type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input  @change="updateRequestDataEquipment(equipment.id, 'commentary', $event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input  @change="updateRequestDataEquipment(equipment.id, 'price', $event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -605,7 +623,7 @@ function submit() {
                                                             class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                             :side-offset="5" align="end">
                                                             <DropdownMenuItem>
-                                                                <button type="button" @click="incRowSubEquip(equipment.id)"
+                                                                <button type="button" @click="staffEquipment(equipment.id)"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                     Укомплектовать
                                                                     <svg class="block ml-2" width="16" height="16"
@@ -644,7 +662,7 @@ function submit() {
                                 </AccordionHeader>
                                 <AccordionContent 
                                     class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
-                                    <div  v-for="subEquipment in equipment.subEquipment"
+                                    <div  v-for="(subEquipment,index) in equipment.subEquipment"
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                         <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink v-if="selectedEquipmentService"
@@ -658,15 +676,15 @@ function submit() {
                                             </div>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'shipping_date',$event.target.value)" type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'commentary',$event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'price',$event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -756,7 +774,7 @@ function submit() {
                                             </div>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input  type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div

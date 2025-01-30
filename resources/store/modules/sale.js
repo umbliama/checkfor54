@@ -5,8 +5,8 @@ export default {
         currentIndex: 0,
         rowsCount: 0,
         extraServicesModal: false,
-        selectedServices: [], 
-        selectedEquipment: [], 
+        selectedServices: [],
+        selectedEquipment: [],
         activeMainEquipmentId: null,
         activeSubEquipmentId: null,
     }),
@@ -30,23 +30,39 @@ export default {
         addMainEquipment(state, equipment) {
             state.selectedEquipment.push({
                 ...equipment,
-                rowsCount:0,
+                rowsCount: 0,
+                requestData: {},
                 subEquipment: [
+                    
                 ]
             });
         },
-        incRowsInEquip(state,id) {
+        addRequestDataToEquipment(state, { id, field, data }) {
+            const equipment = state.selectedEquipment.find(eq => eq.id == id);
+
+            if (equipment) {
+                equipment.requestData[field] = data
+            }
+        },
+        addRequestDataToSubEquipment(state, { mainId, id, field, data }) {
+            const equipment = state.selectedEquipment[mainId].subEquipment[id];
+            console.log(state.selectedEquipment[mainId].subEquipment[id])
+            if (equipment) {
+                console.log(mainId,id,field,data)
+                equipment.requestData[field] = data
+            }
+        },
+        incRowsInEquip(state, id) {
             const row = state.selectedEquipment.find(eq => eq.id == id);
 
-            if(row) {
-                row.rowsCount+= 1
+            if (row) {
+                row.rowsCount += 1
             }
         },
         addExtraEquipment(state, { mainEquipmentId, subEquipment }) {
             const mainEquipment = state.selectedEquipment.find(eq => eq.id === mainEquipmentId);
             if (mainEquipment) {
-                console.log(mainEquipment)
-                mainEquipment.subEquipment.push(subEquipment);
+                mainEquipment.subEquipment.push({...subEquipment,requestData:{}});
             }
         },
         setActiveMainEquipment(state, equipmentId) {
@@ -74,10 +90,16 @@ export default {
         },
     },
     actions: {
-        updateIncRowsInEquip({commit},id) {
+        updateRequestDataInEquipment({ commit }, { id, field,data }) {
+            commit('addRequestDataToEquipment', { id, field,data })
+        },
+        updateRequestDataInSubEquipment({ commit }, { mainId, id, field,data }) {
+            commit('addRequestDataToSubEquipment', { mainId, id, field,data })
+        },
+        updateIncRowsInEquip({ commit }, id) {
             commit('incRowsInEquip', id);
         },
-        setIncrementRowsCount({commit}) {
+        setIncrementRowsCount({ commit }) {
             commit('incrementRowsCount');
         },
         setDecrementRowsCount(state) {
@@ -86,13 +108,13 @@ export default {
         showModal({ commit }, value) {
             commit("setExtraServicesModal", value);
         },
-        updateActiveMainEquipment({commit}, value) {
+        updateActiveMainEquipment({ commit }, value) {
             commit('setActiveMainEquipment', value)
         },
-        clearActiveMainEquipment({commit}, value) {
+        clearActiveMainEquipment({ commit }, value) {
             commit('clearActiveMainEquipment')
         },
-        updateActiveSubEquipment({commit}, value) {
+        updateActiveSubEquipment({ commit }, value) {
             commit('setActiveSubEquipment', value)
         },
         addMainEquipmentAction({ commit }, equipment) {
