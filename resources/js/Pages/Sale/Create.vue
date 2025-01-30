@@ -67,20 +67,8 @@ const incRowSubEquip = (id) => {
 }
 
 const incSubRow = () => {
-    store.dispatch('services/updateIncSubRowsCount');
     store.dispatch('sale/setIncrementRowsCount')
-    store.dispatch('services/updateSubSelectedEquipmentObjects', {
-        subequipment_id: '',
-        shipping_date: '',
-        period_start_date: '',
-        return_date: '',
-        period_end_date: '',
-        store: '',
-        operating: false,
-        return_reason: '',
-        commentary: '',
-
-    });
+    store.dispatch('sale/clearActiveMainEquipment');
 }
 
 const incServiceRow = () => {
@@ -533,9 +521,9 @@ function submit() {
                                 Нажмите, чтобы выбрать оборудование
                             </div>
                         </div>
-                        <div v-for="item in rowsCount" class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
+                        <div v-if="getRowsCount > 0" v-for="item in (getRowsCount + 1) - selectedEquipment.length" class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                             <div @click="is_dialog_open = true" class="flex py-2.5 px-2">
-                                Нажмите, чтобы выбрать оборудование
+                                Нажмите, чтобы выбрать оборудование  {{ (getRowsCount + 1) - selectedEquipment.length }}
                             </div>
                         </div>
                         <AccordionRoot type="multiple" :collapsible="true">

@@ -52,6 +52,9 @@ export default {
         setActiveMainEquipment(state, equipmentId) {
             state.activeMainEquipmentId = equipmentId;
         },
+        clearActiveMainEquipment(state) {
+            state.activeMainEquipmentId = null;
+        },
         setActiveSubEquipment(state, equipmentId) {
             state.activeSubEquipmentId = equipmentId;
         },
@@ -74,8 +77,8 @@ export default {
         updateIncRowsInEquip({commit},id) {
             commit('incRowsInEquip', id);
         },
-        setIncrementRowsCount(state) {
-            state.rowsCount += 1;
+        setIncrementRowsCount({commit}) {
+            commit('incrementRowsCount');
         },
         setDecrementRowsCount(state) {
             state.rowsCount -= 1;
@@ -85,6 +88,9 @@ export default {
         },
         updateActiveMainEquipment({commit}, value) {
             commit('setActiveMainEquipment', value)
+        },
+        clearActiveMainEquipment({commit}, value) {
+            commit('clearActiveMainEquipment')
         },
         updateActiveSubEquipment({commit}, value) {
             commit('setActiveSubEquipment', value)

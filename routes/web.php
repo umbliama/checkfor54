@@ -102,7 +102,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
         Route::delete('/columns/{column}/block/{blockId}/image/{imageIndex}', [IncidentController::class, 'deleteImageFromBlock'])->name('constructor.deleteImage');
         Route::delete('/columns/{columnId}/blocks/{blockId}/delete-file/{fileIndex}', [IncidentController::class, 'deleteFile'])->name('constructor.deleteFile');
 
-        Route::post('/column/{column}/block', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
+        Route::post('/column/{column}/block/{type}', [IncidentController::class, 'createBlock'])->name('constructor.createBlock');
         Route::delete('/block/{block}', [IncidentController::class, 'deleteBlock'])->name('constructor.deleteBlock');
         Route::post('/column/{column}/blocks/reorder', [IncidentController::class, 'reorderBlocks'])->name('constructor.reorderBlocks');
 
