@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SideMenu from '@/Layouts/SideMenu.vue';
 import Equipment from '@/Pages/Equip/Index.vue'
 import { usePage } from '@inertiajs/vue3';
-import store from '../../store';
+import store from '../../../store';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 
 
