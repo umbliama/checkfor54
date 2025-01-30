@@ -527,7 +527,7 @@ function submit() {
                             </div>
                         </div>
                         <AccordionRoot type="multiple" :collapsible="true">
-                            <AccordionItem  v-for="equipment in selectedEquipment" value="some-id-1">
+                            <AccordionItem  v-for="equipment in selectedEquipment" :value="'item-'+equipment.id">
                                 <AccordionHeader>
                                     <div
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
