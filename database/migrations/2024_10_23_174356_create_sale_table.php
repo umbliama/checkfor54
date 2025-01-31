@@ -13,18 +13,27 @@ return new class extends Migration {
         Schema::create('sale', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->unsignedBigInteger('equipment_id');
-            $table->foreign('equipment_id')->references('id')->on('equipment');
             $table->unsignedBigInteger('contragent_id');
             $table->foreign('contragent_id')->references('id')->on('contragents');
             $table->string('sale_number');
             $table->date('sale_date');
-            $table->date('shipping_date');
-            $table->string('commentary')->nullable();
             $table->enum('status', ['credit', 'full', 'pred'])->nullable();
             $table->integer('price')->nullable();
 
         });
+
+        Schema::create('sale_equipment', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->unsignedBigInteger('sale');
+            $table->foreign('sale')->references('id')->on('sale')->onDelete('cascade');
+            $table->unsignedBigInteger('equipment_id');
+            $table->foreign('equipment_id')->references('id')->on('equipment')->onDelete('cascade');
+            $table->date('shipping_date')->nullable();
+            $table->string('commentary')->nullable();
+            $table->float('price')->nullable();
+        });
+
         Schema::create('sale_subequipment', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
@@ -34,6 +43,9 @@ return new class extends Migration {
             $table->foreign('sale_id')->references('id')->on('sale')->onDelete('cascade');
             $table->date('shipping_date');
             $table->string('commentary')->nullable();
+            $table->unsignedBigInteger('sale_equipment_id');
+            $table->foreign('sale_equipment_id')->references('id')->on('sale_equipment')->onDelete('cascade');
+
             $table->integer('price')->nullable();
         });
         Schema::create('sale_extra', function (Blueprint $table) {

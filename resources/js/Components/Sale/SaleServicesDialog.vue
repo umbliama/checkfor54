@@ -24,7 +24,7 @@ const fetchEquipmentSizes = () => {
     store.dispatch('services/fetchEquipmentSizesCount')
 }
 const addService = (service) => {
-    store.dispatch('sale/updateExtraServices', service)
+    store.dispatch('sale/updateSelectedServices', service)
 
     showModal(false)
 }
@@ -84,7 +84,8 @@ const showModal = (value) => {
 onMounted(() => {
     store.dispatch('services/fetchEquipmentCategories')
     store.dispatch('services/fetchEquipmentCategoriesCount')
-    store.dispatch('sale/updateExtraServicesModal')
+    store.dispatch('sale/updateExtraServices')
+
 
 });
 
@@ -113,7 +114,7 @@ onMounted(() => {
                     class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[85vh] w-[90vw] max-w-[300px] p-6 rounded bg-white overflow-y-auto z-[100]"
                 >
                     <DialogTitle class="flex items-center justify-between font-semibold">
-                        Выбрать локацию
+                        Выбрать услугу
 
                         <DialogClose class="shrink-0 ml-3" @click="showModal(false)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -127,7 +128,7 @@ onMounted(() => {
                         <li
                             v-for="(key,item) in extraServices"
                             class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-1.5 cursor-pointer"
-                            @click="addService({item:{value:key,item:item}})"
+                            @click="addService({value:key,item:item})"
                         >
                             {{ key }}
                         </li>

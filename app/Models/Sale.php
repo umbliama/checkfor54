@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
@@ -21,18 +23,24 @@ class Sale extends Model
         'subequipment_ids'
     ];
 
-    public function equipment()
+    public function saleEquipment()
     {
-        return $this->belongsTo(Equipment::class, 'equipment_id', 'id'); 
+        return $this->hasMany(SaleEquip::class, 'sale', 'id'); 
     }
-
-    public function subservices()
+    
+    public function saleSubequipment(): HasMany
     {
         return $this->hasMany(SaleSub::class, 'sale_id', 'id');
     }
-    public function subequipment()
+    
+    public function extraServices(): HasMany
     {
-        return $this->belongsToMany(Equipment::class, 'sale_subequipment', 'sale_number', 'subequipment_id');
+        return $this->hasMany(SaleExtra::class, 'sale_id', 'id');
+    }
+    
+    public function contragent(): BelongsTo
+    {
+        return $this->belongsTo(Contragents::class, 'contragent_id', 'id');
     }
 
     public static function getStatusesMapping(): array

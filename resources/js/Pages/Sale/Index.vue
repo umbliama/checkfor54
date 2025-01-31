@@ -1,10 +1,10 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import SideMenu from '@/Layouts/SideMenu.vue';
-import {MenuItem, MenuItems, Menu, MenuButton} from '@headlessui/vue';
-import {Link, router, usePage} from '@inertiajs/vue3';
+import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import {computed, onMounted, ref, toRaw} from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import store from '../../../store/index';
 import SaleNav from "@/Components/Sale/SaleNav.vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
@@ -28,7 +28,6 @@ const props = defineProps({
     sales: Object,
     contragents_names: Array,
     contragents: Array,
-
     formatted_data_months: Object
 })
 
@@ -48,35 +47,6 @@ const selectActive = (value) => {
     store.dispatch('services/updateSelectedActive', value)
 }
 
-const filterDatesActive = () => {
-    const raw = toRaw(props.sales.data)
-    return raw.filter(sale => {
-        const saleDate = new Date(sale.sale_date);
-
-        const isYearMatch = saleDate.getFullYear() == getYear.value;
-
-        const isMonthMatch = getMonth.value === 'all' || saleDate.getMonth() === getMonthNumber(getMonth.value)
-
-
-        return isYearMatch && isMonthMatch
-
-    })
-}
-const filterDatesInActive = () => {
-    const raw = toRaw(props.sales.data)
-
-    return raw.filter(service => {
-        const serviceDate = new Date(service.service_date);
-
-        const isYearMatch = serviceDate.getFullYear() == getYear.value;
-
-        const isMonthMatch = getMonth.value === 'all' || serviceDate.getMonth() === getMonthNumber(getMonth.value)
-
-        const isActive = service.active === 0
-        return isYearMatch && isMonthMatch;
-
-    })
-}
 
 const months = {
     all: 'Все',
@@ -122,8 +92,8 @@ const toggleSubservice = (index) => {
     showSubservices.value[index] = !showSubservices.value[index];
 };
 
-const nameContragent = (contragents_names, id) => {
-    return contragents_names[id]
+const nameContragent = (id) => {
+    return props.contragents_names[id].name
 }
 
 const getMonth = computed(() => store.getters['services/getSelectedMonth']);
@@ -140,7 +110,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
         <div class="p-6">
             <div class="relative text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-                <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                <ul
+                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li v-for="(value, key) in months" :class="{ '!border-[#001D6C] text-[#001D6C]': getMonth === key }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="updateMonth(key)">
@@ -156,17 +127,17 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     <div @click.prevent="minusYear" class="flex ">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_2051_7507)">
-                                <rect x="24" width="24" height="24" rx="5" transform="rotate(90 24 0)" fill="#F7F9FC"/>
+                                <rect x="24" width="24" height="24" rx="5" transform="rotate(90 24 0)" fill="#F7F9FC" />
                                 <path
                                     d="M10.686 11.929L15.636 16.879C15.8182 17.0676 15.919 17.3202 15.9167 17.5824C15.9144 17.8446 15.8092 18.0954 15.6238 18.2808C15.4384 18.4662 15.1876 18.5714 14.9254 18.5737C14.6632 18.576 14.4106 18.4752 14.222 18.293L8.565 12.636C8.37753 12.4485 8.27221 12.1942 8.27221 11.929C8.27221 11.6639 8.37753 11.4095 8.565 11.222L14.222 5.56502C14.4106 5.38286 14.6632 5.28207 14.9254 5.28434C15.1876 5.28662 15.4384 5.39179 15.6238 5.5772C15.8092 5.76261 15.9144 6.01342 15.9167 6.27562C15.919 6.53781 15.8182 6.79042 15.636 6.97902L10.686 11.929Z"
-                                    fill="#697077"/>
+                                    fill="#697077" />
                             </g>
                             <rect x="23.5" y="0.5" width="23" height="23" rx="4.5" transform="rotate(90 23.5 0.5)"
-                                  stroke="#697077"/>
+                                stroke="#697077" />
                             <defs>
                                 <clipPath id="clip0_2051_7507">
                                     <rect x="24" width="24" height="24" rx="5" transform="rotate(90 24 0)"
-                                          fill="white"/>
+                                        fill="white" />
                                 </clipPath>
                             </defs>
                         </svg>
@@ -175,20 +146,20 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                         <div @click.prevent="plusYear" class="flex">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_2051_7512)">
                                     <rect y="24" width="24" height="24" rx="5" transform="rotate(-90 0 24)"
-                                          fill="#F7F9FC"/>
+                                        fill="#F7F9FC" />
                                     <path
                                         d="M13.314 12.071L8.36399 7.12098C8.18184 6.93238 8.08104 6.67978 8.08332 6.41758C8.0856 6.15538 8.19077 5.90457 8.37618 5.71916C8.56158 5.53375 8.8124 5.42859 9.07459 5.42631C9.33679 5.42403 9.58939 5.52482 9.77799 5.70698L15.435 11.364C15.6225 11.5515 15.7278 11.8058 15.7278 12.071C15.7278 12.3361 15.6225 12.5905 15.435 12.778L9.77799 18.435C9.58939 18.6171 9.33679 18.7179 9.07459 18.7157C8.8124 18.7134 8.56158 18.6082 8.37618 18.4228C8.19077 18.2374 8.0856 17.9866 8.08332 17.7244C8.08104 17.4622 8.18184 17.2096 8.36399 17.021L13.314 12.071Z"
-                                        fill="#697077"/>
+                                        fill="#697077" />
                                 </g>
                                 <rect x="0.5" y="23.5" width="23" height="23" rx="4.5" transform="rotate(-90 0.5 23.5)"
-                                      stroke="#697077"/>
+                                    stroke="#697077" />
                                 <defs>
                                     <clipPath id="clip0_2051_7512">
                                         <rect y="24" width="24" height="24" rx="5" transform="rotate(-90 0 24)"
-                                              fill="white"/>
+                                            fill="white" />
                                     </clipPath>
                                 </defs>
                             </svg>
@@ -197,77 +168,111 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </div>
             </div>
 
-            <div v-if="filterDatesActive().length" class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
+            <div class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
                 <div class="min-w-[1050px] text-xs">
-                    <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                    <div
+                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                         <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
                             Заказчик
                             <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
-                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
                         </div>
                         <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
                             Дата отгрузки
                             <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
-                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
                         </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">Комментарий</div>
+                        <div
+                            class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
+                            Комментарий</div>
                         <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Цена продажи</div>
                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z" fill="#21272A"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z" fill="#21272A"/>
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z" fill="#21272A"/>
-                                <path d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z" fill="#21272A"/>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                    fill="#21272A" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                    fill="#21272A" />
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                    fill="#21272A" />
+                                <path
+                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                    fill="#21272A" />
                             </svg>
                         </div>
                     </div>
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <template v-for="(service, index) in filterDatesActive()" :key="service.id">
+                        <template v-for="(service, index) in sales.data" :key="service.id">
                             <AccordionItem :value="service.id">
-                                <AccordionHeader class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                <AccordionHeader
+                                    class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                     <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                        <UiHyperlink :item-id="service.id" :hyperlink="service.hyperlink" endpoint="/equipment" />
+                                        <UiHyperlink :item-id="service.id" :hyperlink="service.hyperlink"
+                                            endpoint="/equipment" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
-                                        {{ service.equipment.category.name }} {{
-                                                service.equipment.size.name
-                                            }} {{ service.equipment.series }}
-
+                                        {{ nameContragent(index) }}
                                         <AccordionTrigger class="shrink-0 group ml-3">
-                                            <svg class="group-data-[state=open]:hidden" width="24" height="24" viewBox="0 0 24 24"
-                                                 fill="none"
-                                                 xmlns="http://www.w3.org/2000/svg">
+                                            <svg class="group-data-[state=open]:hidden" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd"
-                                                      d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
-                                                      fill="#242533"/>
+                                                    d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
+                                                    fill="#242533" />
                                             </svg>
-                                            <svg class="group-data-[state=closed]:hidden" width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.27198 9.29127C2.27198 8.9599 2.54061 8.69127 2.87198 8.69127H14.6285C14.9599 8.69127 15.2285 8.9599 15.2285 9.29127C15.2285 9.62265 14.9599 9.89127 14.6285 9.89127H2.87198C2.54061 9.89127 2.27198 9.62265 2.27198 9.29127Z" fill="#242533"/>
+                                            <svg class="group-data-[state=closed]:hidden" width="20" height="20"
+                                                viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                    d="M2.27198 9.29127C2.27198 8.9599 2.54061 8.69127 2.87198 8.69127H14.6285C14.9599 8.69127 15.2285 8.9599 15.2285 9.29127C15.2285 9.62265 14.9599 9.89127 14.6285 9.89127H2.87198C2.54061 9.89127 2.27198 9.62265 2.27198 9.29127Z"
+                                                    fill="#242533" />
                                             </svg>
                                         </AccordionTrigger>
                                     </div>
-                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.shipping_date ?? "Не задано" }}</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ service.commentary ?? "Не задано" }}</div>
-                                    <div class="shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 font-bold"><span>Итого:</span>{{ service.price ?? "Не задано" }}</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
+                                        service.shipping_date ?? "Не задано" }}</div>
+                                    <div
+                                        class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
+                                        {{ service.commentary ?? "Не задано" }}</div>
+                                    <div
+                                        class="shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 font-bold">
+                                        <span>Итого:</span>{{ service.price ?? "Не задано" }}
+                                    </div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                        <Link :href="'/directory/equipment/'+service.id" class="mr-3">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
-                                            </svg>
+                                        <Link :href="'/directory/equipment/' + service.id" class="mr-3">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z"
+                                                fill="#21272A" />
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z"
+                                                fill="#21272A" />
+                                        </svg>
                                         </Link>
                                         <DropdownMenuRoot>
                                             <DropdownMenuTrigger aria-label="Customise options">
@@ -291,9 +296,10 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                         :side-offset="5" align="end">
                                                         <DropdownMenuItem>
+                                                            <Link :href="route('sale.edit', service.id)">
                                                             <button type="button"
                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                Укомплектовать
+                                                                Редактировать
                                                                 <svg class="block ml-2" width="16" height="16"
                                                                     viewBox="0 0 16 16" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -305,6 +311,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                         fill="#21272A" />
                                                                 </svg>
                                                             </button>
+                                                            </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
                                                             <Link :href="'/'" method="DELETE"
@@ -326,28 +333,36 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                     </div>
                                 </AccordionHeader>
                                 <AccordionContent
-                                    class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden"
-                                >
-                                    <div class="" v-if="service.subservices.length > 0">
-                                        <div v-for="subservice in service.subservices" :key="subservice.id" class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
+                                    <div class="">
+                                        <div v-for="subservice in service" :key="subservice.id"
+                                            class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                <UiHyperlink :item-id="subservice.id" :hyperlink="subservice.hyperlink" endpoint="/equipment" />
+                                                <UiHyperlink :item-id="subservice.id" :hyperlink="subservice.hyperlink"
+                                                    endpoint="/equipment" />
                                             </div>
-                                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                {{ subservice.equipment_info.category.name }}
-                                                {{ subservice.equipment_info.size.name }} {{
-                                                    subservice.equipment_info.series
-                                                }}
+                                            <div
+                                                class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                Продажа №{{ subservice.sale_number }}
                                             </div>
-                                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ subservice.shipping_date ?? "Не задано" }}</div>
-                                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">{{ subservice.commentary ?? "Не задано" }}</div>
-                                            <div class="shrink-0 flex items-center justify-end w-[14.08%] py-2.5 px-2">{{ subservice.price ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
+                                                subservice.sale_date ?? "Не задано" }}</div>
+                                            <div
+                                                class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
+                                                {{ subservice.commentary ?? "Не задано" }}</div>
+                                            <div class="shrink-0 flex items-center justify-end w-[14.08%] py-2.5 px-2">
+                                                {{ subservice.price ?? "Не задано" }}</div>
                                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                <Link :href="'/directory/equipment/'+subservice.id" class="mr-3">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
-                                                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
-                                                    </svg>
+                                                <Link :href="'/directory/equipment/' + subservice.id" class="mr-3">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z"
+                                                        fill="#21272A" />
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z"
+                                                        fill="#21272A" />
+                                                </svg>
                                                 </Link>
                                                 <DropdownMenuRoot>
                                                     <DropdownMenuTrigger aria-label="Customise options">
@@ -371,20 +386,25 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                 class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                 :side-offset="5" align="end">
                                                                 <DropdownMenuItem>
+                                                                    <Link :href="route('sale.edit',subservice.id)"> 
+ 
                                                                     <button type="button"
                                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                        Укомплектовать
+                                                                        Редактировать
                                                                         <svg class="block ml-2" width="16" height="16"
                                                                             viewBox="0 0 16 16" fill="none"
                                                                             xmlns="http://www.w3.org/2000/svg">
-                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            <path fill-rule="evenodd"
+                                                                                clip-rule="evenodd"
                                                                                 d="M10 3.5C10 3.36739 9.94732 3.24021 9.85355 3.14645C9.75979 3.05268 9.63261 3 9.5 3H1.5C1.36739 3 1.24021 3.05268 1.14645 3.14645C1.05268 3.24021 1 3.36739 1 3.5V12.5C1 12.6326 1.05268 12.7598 1.14645 12.8536C1.24021 12.9473 1.36739 13 1.5 13H9.5C9.63261 13 9.75979 12.9473 9.85355 12.8536C9.94732 12.7598 10 12.6326 10 12.5V10.5C10 10.3674 10.0527 10.2402 10.1464 10.1464C10.2402 10.0527 10.3674 10 10.5 10C10.6326 10 10.7598 10.0527 10.8536 10.1464C10.9473 10.2402 11 10.3674 11 10.5V12.5C11 12.8978 10.842 13.2794 10.5607 13.5607C10.2794 13.842 9.89782 14 9.5 14H1.5C1.10218 14 0.720644 13.842 0.43934 13.5607C0.158035 13.2794 0 12.8978 0 12.5L0 3.5C0 3.10218 0.158035 2.72064 0.43934 2.43934C0.720644 2.15804 1.10218 2 1.5 2H9.5C9.89782 2 10.2794 2.15804 10.5607 2.43934C10.842 2.72064 11 3.10218 11 3.5V5.5C11 5.63261 10.9473 5.75979 10.8536 5.85355C10.7598 5.94732 10.6326 6 10.5 6C10.3674 6 10.2402 5.94732 10.1464 5.85355C10.0527 5.75979 10 5.63261 10 5.5V3.5Z"
                                                                                 fill="#21272A" />
-                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            <path fill-rule="evenodd"
+                                                                                clip-rule="evenodd"
                                                                                 d="M4.14592 8.35402C4.09935 8.30758 4.06241 8.2524 4.0372 8.19165C4.012 8.13091 3.99902 8.06579 3.99902 8.00002C3.99902 7.93425 4.012 7.86913 4.0372 7.80839C4.06241 7.74764 4.09935 7.69247 4.14592 7.64602L7.14592 4.64602C7.2398 4.55213 7.36714 4.49939 7.49992 4.49939C7.63269 4.49939 7.76003 4.55213 7.85392 4.64602C7.9478 4.73991 8.00055 4.86725 8.00055 5.00002C8.00055 5.1328 7.9478 5.26013 7.85392 5.35402L5.70692 7.50002H14.4999C14.6325 7.50002 14.7597 7.5527 14.8535 7.64647C14.9472 7.74024 14.9999 7.86741 14.9999 8.00002C14.9999 8.13263 14.9472 8.25981 14.8535 8.35358C14.7597 8.44734 14.6325 8.50002 14.4999 8.50002H5.70692L7.85392 10.646C7.90041 10.6925 7.93728 10.7477 7.96244 10.8084C7.9876 10.8692 8.00055 10.9343 8.00055 11C8.00055 11.0658 7.9876 11.1309 7.96244 11.1916C7.93728 11.2523 7.90041 11.3075 7.85392 11.354C7.80743 11.4005 7.75224 11.4374 7.6915 11.4625C7.63076 11.4877 7.56566 11.5007 7.49992 11.5007C7.43417 11.5007 7.36907 11.4877 7.30833 11.4625C7.24759 11.4374 7.19241 11.4005 7.14592 11.354L4.14592 8.35402Z"
                                                                                 fill="#21272A" />
                                                                         </svg>
                                                                     </button>
+                                                                    </Link>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
                                                                     <Link :href="'/'" method="DELETE"
@@ -406,14 +426,12 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                             </div>
                                         </div>
                                     </div>
-                                    <div v-else class="p-2 bg-red-50 text-red-500">
-                                        Нет добавленного оборудования
-                                    </div>
+
                                 </AccordionContent>
                             </AccordionItem>
                         </template>
                     </AccordionRoot>
-<!--                    <template v-for="(service, index) in filterDatesActive()" :key="service.id">
+                    <!--                    <template v-for="(service, index) in filterDatesActive()" :key="service.id">
                         <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                 <UiHyperlink :item-id="service.id" :hyperlink="service.hyperlink" endpoint="/equipment" />
@@ -485,19 +503,13 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </div>
             </div>
 
-            <pagination
-                :current-page="props.sales.current_page"
-                :total-pages="props.sales.last_page"
-                :total-count="props.sales.total"
-                :next-page-url="props.sales.next_page_url"
-                :links="props.sales.links"
-                :prev-page-url="props.sales.prev_page_url"
-                class="mt-5 bg-bg1"
-            />
+            <pagination :current-page="props.sales.current_page" :total-pages="props.sales.last_page"
+                :total-count="props.sales.total" :next-page-url="props.sales.next_page_url" :links="props.sales.links"
+                :prev-page-url="props.sales.prev_page_url" class="mt-5 bg-bg1" />
         </div>
 
         <div class="flex-1 2xl:w-[1184px] md:w-full sm:w-full">
-<!--            <div class="">
+            <!--            <div class="">
                 <nav class="bg-my-gray ">
                     <div class="max-w-screen-xl px-4 py-3">
                         <div
@@ -529,7 +541,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </nav>
             </div>-->
 
-<!--            <nav class="lg:px-4 md:bg-white sm:bg-my-gray rounded-lg mt-4">
+            <!--            <nav class="lg:px-4 md:bg-white sm:bg-my-gray rounded-lg mt-4">
                 <div class="max-w-screen-xl py-2">
                     <div class="mt-6 flex items-center">
                         <ul
@@ -605,7 +617,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
             </nav>-->
 
 
-<!--            <div class="lg:hidden md:hidden flex bg-my-gray mt-4 p-4">
+            <!--            <div class="lg:hidden md:hidden flex bg-my-gray mt-4 p-4">
 
                 <select v-model="seriesActive" class="text-gray-500 border-gray-200" name="" id="">
                     <option value="">Номер</option>
@@ -695,7 +707,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
 
 
-<!--            <div class="overflow-x-auto lg:px-4 pb-20">
+            <!--            <div class="overflow-x-auto lg:px-4 pb-20">
                 &lt;!&ndash; Table header &ndash;&gt;
                 <div class="min-w-full whitespace-nowrap grid grid-cols-5 gap-52 bg-gray-100 font-bold p-2 rounded-md">
                     <div>Заказчик</div>

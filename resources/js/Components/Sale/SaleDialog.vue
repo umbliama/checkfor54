@@ -72,17 +72,23 @@ const updateSelectedEquipment = (value) => {
 
 
 watch(activeMainEquipmentId, async (newValue) => {
-    if (newValue) {
-        try {
-            const response = await fetch(`/api/equipment/${newValue}`);
-            const data = await response.json();
+    const equipment = selectedEquipment.value.find(eq => eq.id === newValue)
+    if (equipment) {
+        return
+    } else {
+        if (newValue) {
+            try {
+                const response = await fetch(`/api/equipment/${newValue}`);
+                const data = await response.json();
 
-            store.dispatch('sale/addMainEquipmentAction', data);
+                store.dispatch('sale/addMainEquipmentAction', data);
 
-        } catch (error) {
-            console.error("Ошибка загрузки оборудования:", error);
+            } catch (error) {
+                console.error("Ошибка загрузки оборудования:", error);
+            }
         }
     }
+
 }, { deep: true });
 
 
@@ -270,7 +276,7 @@ onMounted(() => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                             item.zahodnost ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ??
                                             '-' }}
@@ -281,21 +287,21 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.stator_rotor ??
                                             '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[6.11%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.narabotka_ds ??
                                             '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.56%] py-2.5 px-2">{{
                                             item.manufactor_date ??
                                             '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -308,7 +314,7 @@ onMounted(() => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -390,12 +396,12 @@ onMounted(() => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.manufactor_date
                                             ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -409,7 +415,7 @@ onMounted(() => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -498,23 +504,23 @@ onMounted(() => {
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.diameter ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.length ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.73%] py-2.5 px-2">{{
                                             item.length_rezba ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.rezbi ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                            }}
+                                        }}
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center justify-center text-center w-[8.56%] py-2.5 px-2">
@@ -533,7 +539,7 @@ onMounted(() => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"

@@ -23,7 +23,8 @@ const fetchEquipmentSizes = () => {
     store.dispatch('services/fetchEquipmentSizesCount')
 }
 const addService = (service) => {
-    store.dispatch('sale/updateExtraServices',service)
+    console.log(service)
+    store.dispatch('sale/updateSelectedServies',service)
 
     showModal(false)
 }
@@ -100,7 +101,7 @@ onMounted(() => {
 
         <div class="w-full overflow-x-auto  md:overflow-x-auto sm:overflow-x-auto">
             <ul class="p-4">
-                <li @click="addService({item:{value:key,item:item}})" v-for="(key,item) in extraServices">{{ key }}</li>
+                <li @click="addService({item:{value:key,item:item,}})" v-for="(key,item) in extraServices">{{ key }}</li>
             </ul>
         </div>
 

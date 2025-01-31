@@ -45,6 +45,7 @@ const selectedEquipmentService = computed(() => store.getters['services/getSelec
 const subRowsCount = computed(() => store.getters['services/getsubRowsCount']);
 const activeTab = computed(() => store.getters['sale/getActiveTab']);
 const getExtraServices = computed(() => store.getters['sale/getExtraServices']);
+const servicesRows = computed(() => store.getters['sale/getServicesRows']);
 const getCurrentIndex = computed(() => store.getters['sale/getCurrentIndex']);
 const getSelectedServices = computed(() => store.getters['sale/getSelectedServices']);
 const getRowsCount = computed(() => store.getters['sale/getRowsCount']);
@@ -79,16 +80,20 @@ const updateActiveTab = (tab) => {
     store.dispatch('sale/updateActiveTab', tab)
 }
 
-const updateRequestDataEquipment = (id,field, data) => {
-    store.dispatch('sale/updateRequestDataInEquipment', {id,field, data});
+const updateRequestDataEquipment = (id, field, data) => {
+    store.dispatch('sale/updateRequestDataInEquipment', { id, field, data });
 }
-const updateRequestDataSubEquipment = (mainId, id,field, data) => {
-    store.dispatch('sale/updateRequestDataInSubEquipment', {mainId, id,field, data});
+const updateRequestDataSubEquipment = (mainId, id, field, data) => {
+    store.dispatch('sale/updateRequestDataInSubEquipment', { mainId, id, field, data });
 }
 
 const updateByKeyServices = (index, field, value) => {
     store.dispatch('sale/updateSelectedServicesObject', { index, field, value });
+}
 
+const updateSelectedServicesData = (id, field, value) => {
+    console.log(id,field,value)
+    store.dispatch('sale/updateSelectedServicesData', { id, field, value });
 }
 
 
@@ -159,20 +164,33 @@ function submit() {
         return sub.subequipment_id && sub.shipping_date && sub.price && sub.commentary
     });
     const cleanedServices = getSelectedServices.value.filter(sub => {
-        return sub.item.item && sub.shipping_date && sub.price && sub.commentary
+        return sub;
     });
     console.log(selectedSubEquipmentArray.value)
     console.log(cleanedServices)
+    const formattedRequestObject = selectedEquipment.value.map(equipment => ({
+        equipment_id: equipment.id, 
+        shipping_date: equipment.requestData.shipping_date || null,
+        period_start_date: equipment.requestData.period_start_date || null,
+        commentary: equipment.requestData.commentary || null,
+        price: equipment.requestData.price || null,
+        subEquipment: (equipment.subEquipment || []).filter(sub => sub
+        ).map(sub => ({
+            equipment_id: sub.requestData.equipment_id,
+            shipping_date: sub.requestData.shipping_date || null,
+            commentary: sub.requestData.commentary || null,
+            price: sub.requestData.price || null,
+        }))
+    })).filter(equipment => equipment.equipment_id); 
+
+    console.log(formattedRequestObject)
     router.post('/sales', {
-        equipment_id: form.equipment_id,
         contragent_id: form.contragent_id,
-        shipping_date: form.shipping_date,
         sale_number: form.sale_number,
         sale_date: form.sale_date,
-        commentary: form.commentary,
         status: form.status,
         price: form.price,
-        subEquipment: JSON.parse(JSON.stringify(cleanedSubEquipment)),
+        equipment: formattedRequestObject,
         extraServices: cleanedServices,
         onSuccess: () => {
             store.dispatch("services/clearSubEquipmentArray")
@@ -246,7 +264,7 @@ function submit() {
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
-                                <select v-model="form.active"
+                                <select v-model="form.status"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
                                     <option v-for="(key, value) in saleStatuses" :value="value">{{ key }}</option>
                                 </select>
@@ -534,18 +552,21 @@ function submit() {
 </div> -->
 
                         <!-- для Макса -->
-                        <div v-if="selectedEquipment.length === 0" class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
+                        <div v-if="selectedEquipment.length === 0"
+                            class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                             <div @click="is_dialog_open = true" class="flex py-2.5 px-2">
                                 Нажмите, чтобы выбрать оборудование
                             </div>
                         </div>
-                        <div v-if="getRowsCount > 0" v-for="item in (getRowsCount + 1) - selectedEquipment.length" class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
+                        <div v-if="getRowsCount > 0" v-for="item in (getRowsCount + 1) - selectedEquipment.length"
+                            class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                             <div @click="is_dialog_open = true" class="flex py-2.5 px-2">
-                                Нажмите, чтобы выбрать оборудование  {{ (getRowsCount + 1) - selectedEquipment.length }}
+                                Нажмите, чтобы выбрать оборудование {{ (getRowsCount + 1) - selectedEquipment.length }}
                             </div>
                         </div>
                         <AccordionRoot type="multiple" :collapsible="true">
-                            <AccordionItem  v-for="(equipment,mainIndex) in selectedEquipment" :value="'item-'+equipment.id">
+                            <AccordionItem v-for="(equipment, mainIndex) in selectedEquipment"
+                                :value="'item-' + equipment.id">
                                 <AccordionHeader>
                                     <div
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -574,15 +595,21 @@ function submit() {
                                             </AccordionTrigger>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input @change="updateRequestDataEquipment(equipment.id, 'shipping_date', $event.target.value)" type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input
+                                                @change="updateRequestDataEquipment(equipment.id, 'shipping_date', $event.target.value)"
+                                                type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input  @change="updateRequestDataEquipment(equipment.id, 'commentary', $event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input
+                                                @change="updateRequestDataEquipment(equipment.id, 'commentary', $event.target.value)"
+                                                type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input  @change="updateRequestDataEquipment(equipment.id, 'price', $event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input
+                                                @change="updateRequestDataEquipment(equipment.id, 'price', $event.target.value)"
+                                                type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -623,7 +650,8 @@ function submit() {
                                                             class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                             :side-offset="5" align="end">
                                                             <DropdownMenuItem>
-                                                                <button type="button" @click="staffEquipment(equipment.id)"
+                                                                <button type="button"
+                                                                    @click="staffEquipment(equipment.id)"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                     Укомплектовать
                                                                     <svg class="block ml-2" width="16" height="16"
@@ -639,8 +667,7 @@ function submit() {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link
-                                                                    method="DELETE"
+                                                                <Link method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить
                                                                 <svg class="block ml-2" width="16" height="16"
@@ -658,11 +685,11 @@ function submit() {
                                             </DropdownMenuRoot>
                                         </div>
                                     </div>
-                                    
+
                                 </AccordionHeader>
-                                <AccordionContent 
+                                <AccordionContent
                                     class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
-                                    <div  v-for="(subEquipment,index) in equipment.subEquipment"
+                                    <div v-for="(subEquipment, index) in equipment.subEquipment"
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                         <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink v-if="selectedEquipmentService"
@@ -672,19 +699,26 @@ function submit() {
                                         <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                                             <div class="flex py-2.5 px-2">
                                                 {{ subEquipment.category.name }} {{ subEquipment.size.name }} {{
-                                                subEquipment.series }}
+                                                    subEquipment.series }}
                                             </div>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'shipping_date',$event.target.value)" type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input
+                                            @input="updateRequestDataSubEquipment(mainIndex,index,'equipment_id', subEquipment.id)"
+                                                @change="updateRequestDataSubEquipment(mainIndex, index, 'shipping_date', $event.target.value)"
+                                                type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'commentary',$event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input
+                                                @change="updateRequestDataSubEquipment(mainIndex, index, 'commentary', $event.target.value)"
+                                                type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input @change="updateRequestDataSubEquipment(mainIndex, index,'price',$event.target.value)" type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input
+                                                @change="updateRequestDataSubEquipment(mainIndex, index, 'price', $event.target.value)"
+                                                type="text" class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -761,20 +795,21 @@ function submit() {
                                             </DropdownMenuRoot>
                                         </div>
                                     </div>
-                                    <div v-for="item in equipment.rowsCount - equipment.subEquipment.length" 
+                                    <div v-for="item in equipment.rowsCount - equipment.subEquipment.length"
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                         <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink v-if="selectedEquipmentService"
                                                 :hyperlink="selectedEquipmentService?.hyperlink"
                                                 :item-id="selectedEquipmentService?.id" endpoint="/services" />
                                         </div>
-                                        <div   @click="is_dialog_open = true"  class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
+                                        <div @click="is_dialog_open = true"
+                                            class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                                             <div class="flex py-2.5 px-2">
-                                                Нажмите, чтобы выбрать оборудование 
+                                                Нажмите, чтобы выбрать оборудование
                                             </div>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input  type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input type="date" class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
@@ -904,7 +939,20 @@ function submit() {
                                 </svg>
                             </div>
                         </div>
-                        <div v-if="getSelectedServices.length > 0" v-for="(item, index) in getSelectedServices"
+                        <div v-if="getSelectedServices.length === 0"
+                            class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <button class=" text-side-gray-text px-4 py-2 rounded" @click="showModalServices(true)">
+                                Нажмите чтобы выбрать услугу 
+                            </button>
+                        </div>
+                        <div v-if="servicesRows > 0" v-for="item in (servicesRows + 1)- getSelectedServices.length"
+                            class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <button class=" text-side-gray-text px-4 py-2 rounded" @click="showModalServices(true)">
+                                Нажмите чтобы выбрать услугу 
+                            </button>
+                        </div>
+
+                        <div  v-for="(item, index) in getSelectedServices"
                             :key="index"
                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
@@ -913,24 +961,21 @@ function submit() {
                                     :item-id="selectedEquipmentService?.id" endpoint="/services" />
                             </div>
                             <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
-                                <button v-if="!getSelectedServices" type="button" @click="showModalServices(true)">
-                                    Нажмите чтобы выбрать оборудование
-                                </button>
-                                <template v-else>{{ item.item.value }}</template>
+                                {{ item.value }} 
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
                                 <input v-model="item.shipping_date" type="date"
                                     class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()"
-                                    @change="updateByKeyServices(index, 'shipping_date', $event.target.value)" />
+                                    @change="updateSelectedServicesData(index, 'shipping_date', $event.target.value)" />
                             </div>
                             <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
                                 <input type="text" class="block w-full h-full px-2 bg-transparent"
                                     v-model="item.commentary"
-                                    @input="updateByKeyServices(index, 'commentary', $event.target.value)" />
+                                    @change="updateSelectedServicesData(index, 'commentary', $event.target.value)" />
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%]">
                                 <input v-model="item.price" type="text" class="block w-full h-full px-2 bg-transparent"
-                                    @input="updateByKeyServices(index, 'price', $event.target.value)" />
+                                    @change="updateSelectedServicesData(index, 'price', $event.target.value)" />
                             </div>
                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -1005,12 +1050,8 @@ function submit() {
                                 </DropdownMenuRoot>
                             </div>
                         </div>
-                        <div v-if="getRowsCount > 0" v-for="item in getRowsCount"
-                            class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                            <button class=" text-side-gray-text px-4 py-2 rounded" @click="showModalServices(true)">
-                                Нажмите чтобы выбрать услугу
-                            </button>
-                        </div>
+
+
                     </template>
                 </div>
             </div>

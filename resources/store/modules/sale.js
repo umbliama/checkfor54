@@ -1,16 +1,35 @@
+import axios from "axios";
+
 export default {
     namespaced: true,
     state: () => ({
         activeTab: "sale",
         currentIndex: 0,
         rowsCount: 0,
+        servicesRows:0,
         extraServicesModal: false,
+        extraServices:[],
         selectedServices: [],
         selectedEquipment: [],
         activeMainEquipmentId: null,
         activeSubEquipmentId: null,
     }),
     mutations: {
+        setSelectedServices(state, value ) {
+            state.selectedServices.push({...value, requestData:{}})
+        },
+        
+        setSelectedServicesData(state, { id, field, value }) {
+            const service = state.selectedServices.find(eq => eq.id === id);
+            if (service) {
+                service.requestData[field] =  value
+                console.log(service.requestData)
+
+            }
+        },
+        setExtraServices(state,value) {
+            axios.get('/api/getExtraServices').then(response => response.data).then(data => state.extraServices =  data)
+        },
         incrementRowsCount(state) {
             state.rowsCount += 1;
         },
@@ -19,6 +38,9 @@ export default {
         },
         setExtraServicesModal(state, value) {
             state.extraServicesModal = value;
+        },
+        setIncServicesRows(state) {
+            state.servicesRows += 1;
         },
         setActiveTab(state, activeTab) {
             state.activeTab = activeTab;
@@ -46,9 +68,7 @@ export default {
         },
         addRequestDataToSubEquipment(state, { mainId, id, field, data }) {
             const equipment = state.selectedEquipment[mainId].subEquipment[id];
-            console.log(state.selectedEquipment[mainId].subEquipment[id])
             if (equipment) {
-                console.log(mainId,id,field,data)
                 equipment.requestData[field] = data
             }
         },
@@ -74,6 +94,7 @@ export default {
         setActiveSubEquipment(state, equipmentId) {
             state.activeSubEquipmentId = equipmentId;
         },
+
         removeMainEquipment(state, index) {
             state.selectedServices.splice(index, 1);
         },
@@ -90,6 +111,19 @@ export default {
         },
     },
     actions: {
+        updateSelectedServicesData({commit}, {id, field, value}) {
+            console.log({id, field, value})
+            commit('setSelectedServicesData', {id,field,value} )
+        },
+        updateSelectedServices({commit}, value) {
+            commit('setSelectedServices', value)
+        },
+        updateExtraServices({commit}) {
+            commit('setExtraServices')
+        },
+        updateIncRowsCount({commit}) {
+            commit('setIncServicesRows');
+        },
         updateRequestDataInEquipment({ commit }, { id, field,data }) {
             commit('addRequestDataToEquipment', { id, field,data })
         },
@@ -132,8 +166,13 @@ export default {
         removeExtraEquipmentAction({ commit }, { mainEquipmentId, extraEquipmentId }) {
             commit("removeExtraEquipment", { mainEquipmentId, extraEquipmentId });
         },
+        updateActiveTab({ commit }, tab) {
+            commit("setActiveTab", tab);
+        },
     },
     getters: {
+        getExtraServices: state => state.extraServices,
+        getServicesRows: state => state.servicesRows,
         getActiveSubEquipment: (state) => state.activeSubEquipmentId,
         getActiveMainEquipment: (state) => state.activeMainEquipmentId,
         getSelectedEquipment: (state) => state.selectedEquipment,
