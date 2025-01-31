@@ -63,7 +63,7 @@ function setValue(v) {
         >
             <SelectTrigger
                 :class="stateClasses"
-                class="inline-flex items-center justify-between w-full py-3 px-4 bg-bg1 border"
+                class="inline-flex items-center justify-between w-full py-2 px-3 bg-bg1 border lg:py-3 lg:px-4"
                 v-bind="triggerAttrs"
                 aria-label="Customise options"
             >
