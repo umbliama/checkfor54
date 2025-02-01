@@ -132,8 +132,9 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/sale', [SaleController::class, 'index'])->name('sale.index');
     Route::get('/sale/create', [SaleController::class, 'create'])->name('sale.create');
     Route::post('/sales', [SaleController::class, 'store'])->name('sale.store');
-    Route::delete('/sales/delete/{id}', [SaleController::class, 'destroy'])->name('sale.destroy');
+    Route::delete('/sale/delete/{id}', [SaleController::class, 'destroy'])->name('sale.destroy');
     Route::get('/sale/edit/{id}', [SaleController::class, 'edit'])->name('sale.edit');
+    Route::put('/sale/update/{id}', [SaleController::class, 'update'])->name('sale.update');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

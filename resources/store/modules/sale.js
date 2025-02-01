@@ -13,8 +13,17 @@ export default {
         selectedEquipment: [],
         activeMainEquipmentId: null,
         activeSubEquipmentId: null,
+        addingMainEquipment: null,
+        editorMode:false
     }),
     mutations: {
+        setEditorMode(state,value) {
+            state.editorMode = value
+        },
+        setAddingMainEquipment(state,value) {
+            state.addingMainEquipment = value
+            console.log(value)
+        },
         setSelectedServices(state, value ) {
             state.selectedServices.push({...value, requestData:{}})
         },
@@ -111,6 +120,12 @@ export default {
         },
     },
     actions: {
+        updateEditorMode({commit}, value) {
+            commit('setEditorMode', value);
+        },
+        updateAddingEquipment({commit}, value) {
+            commit('setAddingMainEquipment', value)
+        },
         updateSelectedServicesData({commit}, {id, field, value}) {
             console.log({id, field, value})
             commit('setSelectedServicesData', {id,field,value} )
@@ -171,6 +186,8 @@ export default {
         },
     },
     getters: {
+        getEditorMode: state => state.editorMode,
+        getAddingMainEquipment: state => state.addingMainEquipment,
         getExtraServices: state => state.extraServices,
         getServicesRows: state => state.servicesRows,
         getActiveSubEquipment: (state) => state.activeSubEquipmentId,

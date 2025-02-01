@@ -314,7 +314,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
-                                                            <Link :href="'/'" method="DELETE"
+                                                            <Link method="DELETE"
                                                                 class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                             Удалить
                                                             <svg class="block ml-2" width="16" height="16"
@@ -407,7 +407,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                     </Link>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
-                                                                    <Link :href="'/'" method="DELETE"
+                                                                    <Link :href="`/sale/delete/${subservice.id}`"  method="DELETE"
                                                                         class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                     Удалить
                                                                     <svg class="block ml-2" width="16" height="16"

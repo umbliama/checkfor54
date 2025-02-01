@@ -44,6 +44,8 @@ Route::post('/notifications/read-all/{id}', [NotificationController::class, 'mar
 
 Route::get('/getExtraServices', [SaleController::class, 'getExtraServices']);
 
+Route::get('/equipmentExtra/{id}', [EquipmentController::class,'getEquipmentWithExtraData']);
+
 Route::middleware('auth:sanctum')->get('/check-auth', function () {
     return response()->json(['user' => auth()->user()]);
 });

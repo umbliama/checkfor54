@@ -291,4 +291,14 @@ class EquipmentController extends Controller
 
         return response()->json($equipment);
     }
+
+    public function getEquipmentWithExtraData($id)
+    {
+        $equipment = Equipment::with('category','size')->findOrFail($id);
+
+        return response()->json([
+            'equipment' => $equipment,
+            'equipment_id' => $id
+        ]);
+    }
 }

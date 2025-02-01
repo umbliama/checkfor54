@@ -24,38 +24,38 @@ class SaleController extends Controller
     public function index()
     {
         $sales = Sale::with([
-            'saleEquipment.equipment', 
-            'saleEquipment.equipment.category', 
-            'saleEquipment.equipment.size', 
-            'saleEquipment.subequipment', 
+            'saleEquipment.equipment',
+            'saleEquipment.equipment.category',
+            'saleEquipment.equipment.size',
+            'saleEquipment.subequipment',
         ])->get(); // Fetch all records first
-    
+
         $contragents_names = Contragents::all();
         $groupedSales = $sales->groupBy('contragent_id');
         $perPage = 10;
         $currentPage = request()->get('page', 1);
         $pagedData = $groupedSales->forPage($currentPage, $perPage);
-    
+
         // Manually create paginator
         $paginatedSales = new LengthAwarePaginator(
-            $pagedData, 
-            $groupedSales->count(), 
-            $perPage, 
-            $currentPage, 
+            $pagedData,
+            $groupedSales->count(),
+            $perPage,
+            $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-    
+
         $saleStatuses = Sale::getStatusesMapping();
         $extraServices = Sale::getExtraServices();
-    
+
         return Inertia::render('Sale/Index', [
             'sales' => $paginatedSales,
             'saleStatuses' => $saleStatuses,
-            'extraServices' => $extraServices, 
+            'extraServices' => $extraServices,
             'contragents_names' => $contragents_names
         ]);
     }
-    
+
     public function getExtraServices()
     {
         $saleStatuses = Sale::getExtraServices();
@@ -197,7 +197,23 @@ class SaleController extends Controller
      */
     public function edit(string $id)
     {
-        return Inertia::render('Sale/Edit');
+        $sale = Sale::findOrFail($id);
+        $contragents = Contragents::all();
+        $saleStatuses = Sale::getStatusesMapping();
+        $subsales = SaleSub::where('sale_id', '=', $sale->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
+        $saleEquip = SaleEquip::where('sale', $sale->id)->with('equipment', 'equipment.category', 'equipment.size', 'subequipment', 'subequipment.equipment', 'subequipment.equipment.size', 'subequipment.equipment.category')->get();
+        $extraServices = SaleExtra::where('sale_id', $sale->id)->get()->map(function ($service) {
+            $serviceMapping = Sale::getExtraServices();
+            $service->value = $serviceMapping[$service->type] ?? $service->type;
+            return $service;
+        });
+        return Inertia::render('Sale/Edit', [
+            'sale' => $sale,
+            'contragents' => $contragents,
+            'saleEquip' => $saleEquip,
+            'extraServices' => $extraServices,
+            'saleStatuses' => $saleStatuses
+        ]);
     }
 
     /**
@@ -205,7 +221,108 @@ class SaleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'contragent_id' => 'nullable|int',
+            'sale_number' => "nullable|string",
+            'sale_date' => "nullable|date",
+            'status' => "in:credit,full,pred",
+            'equipment' => 'nullable|array',
+            'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
+            'equipment.*.commentary' => 'nullable|string',
+            'equipment.*.shipping_date' => 'nullable|date',
+            'equipment.*.price' => 'nullable|numeric',
+            'equipment.*.subEquipment' => 'array|nullable',
+            'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
+            'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
+            'equipment.*.subEquipment.*.commentary' => 'nullable|string',
+            'equipment.*.subEquipment.*.price' => 'nullable|numeric'
+
+        ]);
+
+        $sale = Sale::findOrFail($id);
+        $sale->update($request->only([
+            'contragent_id',
+            'sale_number',
+            'sale_date',
+            'status',
+            'price'
+        ]));
+
+        foreach ($request->equipment as $equipmentData) {
+            $saleEquipment = SaleEquip::where('sale', $sale->id)
+                ->where('equipment_id', $equipmentData['equipment_id'])
+                ->first();
+            if ($saleEquipment) {
+
+                $saleEquipment->update([
+                    'sale' => $sale->id,
+                    'equipment_id' => $equipmentData['equipment_id'],
+                    'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                    'commentary' => $equipmentData['commentary'] ?? null,
+                    'price' => $equipmentData['price'] ?? null,
+                ]);
+            } else {
+                $saleEquipment = SaleEquip::create([
+                    'sale' => $sale->id,
+                    'equipment_id' => $equipmentData['equipment_id'],
+                    'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                    'commentary' => $equipmentData['commentary'] ?? null,
+                    'price' => $equipmentData['price'] ?? null,
+                ]);
+            }
+
+            if (!empty($equipmentData['subEquipment'])) {
+                foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
+                    $saleSub = SaleSub::where('sale_equipment_id', $saleEquipment->id)
+                        ->where('equipment_id', $subEquipmentData['equipment_id'])
+                        ->first();
+                    if ($saleSub) {
+                        $saleSub->update([
+                            'equipment_id' => $subEquipmentData['equipment_id'],
+                            'sale_id' => $sale->id,
+                            'sale_equipment_id' => $saleEquipment->id,
+                            'shipping_date' => $subEquipmentData['shipping_date'],
+                            'commentary' => $subEquipmentData['commentary'] ?? null,
+                            'price' => $subEquipmentData['price'] ?? null,
+                        ]);
+                    } else {
+                        // If no existing SaleSub, create a new one
+                        SaleSub::create([
+                            'equipment_id' => $subEquipmentData['equipment_id'],
+                            'sale_id' => $sale->id,
+                            'sale_equipment_id' => $saleEquipment->id,
+                            'shipping_date' => $subEquipmentData['shipping_date'],
+                            'commentary' => $subEquipmentData['commentary'] ?? null,
+                            'price' => $subEquipmentData['price'] ?? null,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if ($request->extraServices) {
+            foreach ($request->extraServices as $extraService) {
+                if (isset($extraService['id'])) {
+                    SaleExtra::where('id', $extraService['id'])->update([
+                        'shipping_date' => $extraService['shipping_date'],
+                        'type' => $extraService['type'],
+                        'commentary' => $extraService['commentary'],
+                        'price' => $extraService['price'],
+                    ]);
+                } else {
+                    SaleExtra::create([
+                        'shipping_date' => $extraService['shipping_date'],
+                        'sale_id' => $sale->id,
+                        'type' => $extraService['item'],
+                        'commentary' => $extraService['commentary'],
+                        'price' => $extraService['price'],
+                    ]);
+                }
+            }
+        }
+        
+
+
     }
 
     /**
