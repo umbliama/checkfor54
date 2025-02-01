@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             EquipmentSeeder::class,
             ContragentsTableSeeder::class,
-
+            SaleSeeder::class,
+            ServiceSeeder::class
         ]);
     }
 }

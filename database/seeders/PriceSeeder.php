@@ -41,45 +41,7 @@ class PriceSeeder extends Seeder
                 'operation_price' => $faker->numberBetween(10, 100),
             ]);
         }
-        $equipmentList = Equipment::whereIn('category_id', [1, 2, 3])
-            ->whereIn('size_id', [1, 13, 19])
-            ->get();
 
-        $contragent = Contragents::inRandomOrder()->first();
-
-        if ($equipmentList->isEmpty() || !$contragent) {
-            $this->command->error('No Equipment or Contragent records found matching the criteria. Please seed these tables first.');
-            return;
-        }
-
-        foreach ($equipmentList as $equipment) {
-            for ($i = 0; $i < 20; $i++) {
-                $saleId = DB::table('sale')->insertGetId([
-                    'equipment_id' => $equipment->id,
-                    'contragent_id' => rand(1,5),
-                    'sale_number' => 'SN-' . Str::random(5),
-                    'sale_date' => now(),
-                    'shipping_date' => now()->addDays(rand(1, 30)),
-                    'commentary' => Str::random(10),
-                    'status' => ['credit', 'full', 'pred'][rand(0, 2)],
-                    'price' => rand(1000, 5000),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                for ($j = 0; $j < 3; $j++) {
-                    DB::table('sale_subequipment')->insert([
-                        'equipment_id' => rand(1, 20),
-                        'sale_id' => $saleId,
-                        'shipping_date' => now()->addDays(rand(1, 30)),
-                        'commentary' => Str::random(10),
-                        'price' => rand(100, 1000),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-        }
 
 
         
