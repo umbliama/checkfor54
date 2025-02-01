@@ -19,7 +19,9 @@ return new class extends Migration {
             $table->date('sale_date');
             $table->enum('status', ['credit', 'full', 'pred'])->nullable();
             $table->integer('price')->nullable();
-
+            $table->text('commentary')->nullable();
+            $table->date('shipping_date')->nullable();
+            $table->text('hyperlink')->nullable();
         });
 
         Schema::create('sale_equipment', function (Blueprint $table) {

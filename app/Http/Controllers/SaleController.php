@@ -334,4 +334,20 @@ class SaleController extends Controller
 
         $sale->delete();
     }
+
+
+    public function storeHyperlink(Request $request, $id)
+    {
+        $request->validate([
+
+            'hyperlink' => 'required|string'
+        ]);
+
+        $repair = Sale::find($id);
+
+        $repair->hyperlink = $request->input('hyperlink');
+
+        $repair->save();
+
+    }
 }

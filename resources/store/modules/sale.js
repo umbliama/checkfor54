@@ -13,7 +13,7 @@ export default {
         selectedEquipment: [],
         activeMainEquipmentId: null,
         activeSubEquipmentId: null,
-        addingMainEquipment: null,
+        addingMainEquipment: true,
         editorMode:false
     }),
     mutations: {
@@ -22,7 +22,6 @@ export default {
         },
         setAddingMainEquipment(state,value) {
             state.addingMainEquipment = value
-            console.log(value)
         },
         setSelectedServices(state, value ) {
             state.selectedServices.push({...value, requestData:{}})

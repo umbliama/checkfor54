@@ -62,7 +62,7 @@ const fetchEquipmentSizes = () => {
 const updateSelectedEquipment = (value) => {
 
     if (!getEditorMode.value) {
-        if (!activeMainEquipmentId.value) {
+        if (addingMainEquipment.value) {
             store.dispatch('sale/updateActiveMainEquipment', value)
             store.dispatch('sale/updateActiveSubEquipment', null);
         } else {
