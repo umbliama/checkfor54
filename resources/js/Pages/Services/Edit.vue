@@ -327,13 +327,19 @@ function submit() {
         equipment_id: equipment.equipment.id,
         shipping_date: equipment.shipping_date || null,
         period_start_date: equipment.period_start_date || null,
-        commentary: equipment.commentary || null,
-        subEquipment: (equipment.subequipment || []).filter(sub => sub
+        store: equipment.store || null,
+        operating: equipment.operating || null,
+        period_end_date: equipment.period_end_date || null,
+        return_date: equipment.return_date || null,
+        subEquipment: (equipment.service_subs || []).filter(sub => sub
         ).map(sub => ({
-            subequipment_id: sub.equipment_id,
+            subequipment_id: sub.equipment.id,
             shipping_date: sub.shipping_date || null,
             period_start_date: sub.period_start_date || null,
-            commentary: sub.commentary || null,
+            store: sub.store || null,
+            operating: sub.operating || null,
+            period_end_date: sub.period_end_date || null,
+            return_date: sub.return_date || null,
         }))
     })).filter(equipment => equipment.equipment_id);
 

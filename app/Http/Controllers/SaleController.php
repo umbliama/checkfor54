@@ -31,7 +31,7 @@ class SaleController extends Controller
             'saleEquipment.subequipment.equipment',
             'saleEquipment.subequipment.equipment.category',
             'saleEquipment.subequipment.equipment.size',
-        ])->get(); // Fetch all records first
+        ])->get(); 
 
         $contragents_names = Contragents::all();
         $groupedSales = $sales->groupBy('contragent_id');
@@ -39,7 +39,6 @@ class SaleController extends Controller
         $currentPage = request()->get('page', 1);
         $pagedData = $groupedSales->forPage($currentPage, $perPage);
 
-        // Manually create paginator
         $paginatedSales = new LengthAwarePaginator(
             $pagedData,
             $groupedSales->count(),

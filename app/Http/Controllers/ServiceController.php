@@ -64,16 +64,20 @@ class ServiceController extends Controller
         $inActiveServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
+            'service.equipment.category',
+            'service.equipment.size',
             'equipment.category',
             'equipment.size'
         ])->where('active', 0)->get()->groupBy('contragent_id');
     
         $activeServices = Service::with([
-            'subservices.equipment.category',
-            'subservices.equipment.size',
+            'mainServices.serviceSubs.equipment.category',
+            'mainServices.serviceSubs.equipment.size',
+            'mainServices.equipment.category',
+            'mainServices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->where('active', 1)->get()->groupBy('contragent_id');
+                ])->where('active', 1)->get()->groupBy('contragent_id');
     
         $paginatedInactive = $this->paginateCollection($inActiveServices, $perPage, $request);
         $paginatedActive = $this->paginateCollection($activeServices, $perPage, $request);
@@ -295,7 +299,6 @@ class ServiceController extends Controller
 
         $isChangingToInactive = $service->active && !$request->get('active', true);
 
-        // Update Service Record
         $service->update(array_merge(
             $request->only([
                 'contragent_id',
@@ -356,7 +359,7 @@ class ServiceController extends Controller
                     $subStore = $subEquipmentData['store'] ?? 0;
                     $subincome = ($subOperating == 0) ? ($subStore * $store_price) : (($subOperating * $operation_price) + ($subStore * $store_price));
 
-                    ServiceSub::firstOrCreate([
+                    ServiceSub::updateOrCreate([
                         'service_id' => $service->id,
                         'subequipment_id' => $subEquipment_id,
                         'service_equipment_id' => $serviceEquipment->id

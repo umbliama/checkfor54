@@ -19,60 +19,91 @@ class IncidentController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('perPage', 1);
+        $perPage = $request->input('perPage', 10);
         $page = request()->get('page', 1);
-        $tasksColumns = Column::with('blocks.contragent', 'blocks', 'blocks.user')
-            ->orderBy('position')->where('type', 'tasks')->where('isArchive', 0)
-            ->paginate($perPage);
-        $advColumns = Column::with('blocks.equipment.category', 'blocks.user', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
-            ->orderBy('position')->where('type', 'adv')->where('isArchive', 0)
-            ->paginate($perPage);
-        $tasksColumnsArchived = Column::with('blocks.contragent',  'blocks.user', 'blocks')
+        $search = $request->input('search', null);
+    
+        // Query for Tasks
+        $tasksQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
+            ->where('type', 'tasks')
+            ->where('isArchive', 0);
+    
+        // Query for Advertisements
+        $advQuery = Column::with('blocks.equipment.category', 'blocks.user', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
+            ->where('type', 'adv')
+            ->where('isArchive', 0);
+    
+        // Apply search filter if provided
+        if ($search) {
+            $tasksQuery->whereHas('blocks', function ($query) use ($search) {
+                $query->where('commentary', 'LIKE', "%{$search}%")
+                      ->orWhere('equipment', 'LIKE', "%{$search}%");
+            });
+    
+            $advQuery->whereHas('blocks', function ($query) use ($search) {
+                $query->where('commentary', 'LIKE', "%{$search}%")
+                      ->orWhere('equipment', 'LIKE', "%{$search}%");
+            });
+        }
+    
+        $tasksColumns = $tasksQuery->orderBy('position')->paginate($perPage);
+        $advColumns = $advQuery->orderBy('position')->paginate($perPage);
+    
+        // Archived Queries
+        $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
             ->where('type', 'tasks')
             ->where('isArchive', 1)
             ->orderBy('position')
             ->get()
             ->groupBy('contragent_id');
-        
+    
         $paginatedGroups = $tasksColumnsArchived->forPage($page, $perPage);
-
-
-        $advColumnsArchived = Column::with('blocks.contragent',  'blocks.user', 'blocks')
+    
+        $advColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
             ->where('type', 'adv')
             ->where('isArchive', 1)
             ->orderBy('position')
             ->get()
             ->groupBy('contragent_id');
+    
         $advPaginatedGroups = $advColumnsArchived->forPage($page, $perPage);
-
+    
+        // Pagination for Archived Data
         $tasksColumnsArchivedCount = $tasksColumnsArchived->count();
         $advColumnsArchivedCount = $advColumnsArchived->count();
-
-        $total = $tasksColumnsArchived->count();
-        $totalAdv = $tasksColumnsArchived->count();
+    
         $paginator = new LengthAwarePaginator(
             $paginatedGroups,
-            $total,
+            $tasksColumnsArchivedCount,
             $perPage,
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
         );
+    
         $advPaginator = new LengthAwarePaginator(
             $advPaginatedGroups,
-            $totalAdv,
+            $advColumnsArchivedCount,
             $perPage,
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-        
+    
+        // Additional Data
         $contragents = Contragents::all();
         $employees = User::where('isAdmin', 0)->get();
-
-
-
-        return Inertia::render('Incident/Index', ['advColumnsArchivedCount' => $advColumnsArchivedCount,'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount ,'tasksColumns' => $tasksColumns, 'advColumns' => $advColumns, 'tasksColumnsArchived' => $paginator,  'advColumnsArchived' => $advPaginator, 'contragents' => $contragents, 'employees' => $employees]);
+    
+        return Inertia::render('Incident/Index', [
+            'advColumnsArchivedCount' => $advColumnsArchivedCount,
+            'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount,
+            'tasksColumns' => $tasksColumns,
+            'advColumns' => $advColumns,
+            'tasksColumnsArchived' => $paginator,
+            'advColumnsArchived' => $advPaginator,
+            'contragents' => $contragents,
+            'employees' => $employees
+        ]);
     }
-
+    
     public function history(Request $request)
     {
         $perPage = $request->input("perPage");

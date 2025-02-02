@@ -51,10 +51,14 @@ class Service extends Model
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
-
+    public function mainServices()
+    {
+        return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
+    }
+    
     public function serviceEquipment()
 {
-    return $this->hasMany(ServiceEquip::class);
+    return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
 }
     use HasFactory;
 }

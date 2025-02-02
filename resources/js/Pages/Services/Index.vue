@@ -163,11 +163,6 @@ const toggleSubservice = (index) => {
         subservicesEls.value[index].style.height = '0px';
     }
 };
-
-const nameContragent = (contragents_names, id) => {
-    return contragents_names[id]
-}
-
 const getMonth = computed(() => store.getters['services/getSelectedMonth']);
 const getYear = computed(() => store.getters['services/getSelectedYear']);
 const selectedActive = computed(() => store.getters['services/getSelectedActive']);
@@ -182,6 +177,13 @@ watch(() => props.services.current_page, () => {
     subservicesEls.value = [];
     subservicesHeights.value = {};
 });
+
+
+const nameContragent = (id) => {
+    return props.contragents_names[id]
+}
+
+
 
 </script>
 
@@ -610,7 +612,7 @@ watch(() => props.services.current_page, () => {
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem :value="'item-'+1">
+                        <AccordionItem v-for="(service, index) in activeServices.data" :value="'item-'+service.id">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
@@ -618,7 +620,7 @@ watch(() => props.services.current_page, () => {
                                         endpoint="/equipment" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
-                                    someee
+                                    {{ nameContragent(index) }}
                                     <AccordionTrigger class="shrink-0 group ml-3">
                                         <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -733,13 +735,13 @@ watch(() => props.services.current_page, () => {
                             <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                 <!-- 2 уровень -->
                                 <AccordionRoot type="multiple" :collapsible="true">
-                                    <AccordionItem :value="'item-1'+1">
+                                    <AccordionItem v-for="(service_item, index) in service" :value="'item-'+service.id">
                                         <AccordionHeader class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                             </div>
                                             <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                Продажа № 123123123
+                                                Аренда №{{ service_item.service_number }}
 
                                                 <AccordionTrigger class="shrink-0 group ml-3">
                                                     <svg class="group-data-[state=open]:hidden" width="24" height="24"
@@ -853,14 +855,13 @@ watch(() => props.services.current_page, () => {
                                         <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                             <!-- 3 уровень -->
                                             <AccordionRoot type="multiple" :collapsible="true">
-                                                <AccordionItem  :value="'item-1-1-'+2">
+                                                <AccordionItem v-for="(subservice, index) in service_item.main_services" :value="'item-'+subservice.id">
                                                     <AccordionHeader class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                             <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                            asd asd 12
-
+                                                           {{subservice.equipment.category.name }} {{subservice.equipment.size.name }} {{subservice.equipment.series }}
                                                             <AccordionTrigger class="shrink-0 group ml-3">
                                                                 <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -972,12 +973,12 @@ watch(() => props.services.current_page, () => {
                                                     </AccordionHeader>
                                                     <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                                         <!-- 4 уровень -->
-                                                        <div class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                        <div  v-for="(sub, index) in subservice.service_subs" :value="'item-'+service.id" class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                                             </div>
                                                             <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                                asd 12 s1
+                                                                {{ sub.equipment.category.name }} {{ sub.equipment.size.name }} {{ sub.equipment.series}} 
                                                             </div>
                                                             <div class="shrink-0 flex items-center w-[14.08%]">
                                                                 <input type="date" class="block w-full h-full px-2 bg-transparent" />
