@@ -27,6 +27,8 @@ const equipment_sizes_counts = computed(() => store.getters['services/getEquipme
 const equipment = computed(() => store.getters['services/getEquipment']);
 const equipmentType = computed(() => store.getters['services/getEquipmentType']);
 const chosenEquipment = computed(() => store.getters['services/getChosenEquipment']);
+const activeEquipmentId = computed(() => store.getters['services/getActiveEquipmentId']);
+const activeSubEquipmentId = computed(() => store.getters['services/getActiveSubEquipmentId']);
 
 const statuses = {
     'new': 'Новое',
@@ -67,17 +69,9 @@ const updateSubSelectedEquipment = (equipment_id, subEquipmentItem) => {
 
 const updateSelectedEquipment = async (value) => {
     if (equipmentType.value === 0) {
-        console.log(value)
-        store.dispatch('services/updateSelectedEquipment', value);
+        store.dispatch('services/updateActiveEquipmentId', value);
     } else {
-        store.dispatch('services/updateSubEquipmentArray', value);
-        const response = await fetch(`/api/equipment/${value}`);
-        const data = await response.json();
-        console.log(data)
-        store.dispatch('services/updateSubSelectedEquipment', {
-            equipment_id: chosenEquipment,
-            subEquipmentItem: data
-        });
+        store.dispatch('services/updateActiveSubEquipmentId', value);
     }
 
     model.value = false;

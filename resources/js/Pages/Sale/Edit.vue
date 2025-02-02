@@ -152,7 +152,6 @@ const addSubRow = (id) => {
 
 const addSubEquipment = (id, data) => {
     const equipment = props.saleEquip[id];
-    console.log('sub'+id, data)
     if (equipment) {
         equipment.subequipment.push(data)
     }

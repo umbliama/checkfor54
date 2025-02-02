@@ -44,6 +44,8 @@ const selectedEquipmentService = computed(() => store.getters['services/getSelec
 const subRowsCount = computed(() => store.getters['services/getsubRowsCount']);
 const equipmentType = computed(() => store.getters['services/getEquipmentType']);
 const chosenEquipment = computed(() => store.getters['services/getChosenEquipment']);
+const getActiveEquipmentId = computed(() => store.getters['services/getActiveEquipmentId']);
+const getActiveSubEquipmentId = computed(() => store.getters['services/getActiveSubEquipmentId']);
 
 
 const additionalEquipment = ref([]);
@@ -152,6 +154,11 @@ const incSubRowMain = () => {
     store.dispatch('services/updateEquipmentType', 0)
 }
 
+const addRows = () => {
+    const equipment = selectedEquipment.value;
+    store.dispatch('services/updateEquipmentType', 0);
+    rows.value += 1
+}
 
 
 onMounted(() => {
@@ -184,6 +191,12 @@ const showModal = (value) => {
 function openDialog() {
     is_dialog_open.value = true;
 }
+const addSubEquipment = (id, data) => {
+    const equipment = props.serviceEquip[id];
+    if (equipment) {
+        equipment.subequipment.push(data)
+    }
+}
 
 watch(selectedEquipment, async (newValue, oldValue) => {
     if (newValue) {
@@ -210,6 +223,48 @@ watch(subEquipmentArray, async (newValue, oldValue) => {
         }
     }
 }, { deep: true });
+
+watch(getActiveEquipmentId, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            const response = await fetch(`/api/equipmentExtra/${newValue}`);
+            const data = await response.json();
+            const extendedEquipment = {
+                ...data,
+                shipping_date: null,
+                period_start_date: null,
+                commentary: null,
+                subequipment: [],
+                subRows: 0
+            }
+            props.serviceEquip.push(extendedEquipment)
+
+            console.log(newValue,props.serviceEquip)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
+
+watch(getActiveSubEquipmentId, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            const response = await fetch(`/api/equipmentExtra/${newValue}`);
+            const data = await response.json();
+            const subequipment = {
+                ...data,
+                commentary: null,
+                shipping_date: null,
+                period_start_date: null,
+            }
+            addSubEquipment(chosenEquipmentId.value, subequipment)
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
+
 
 let dateResult = ref(0)
 
@@ -266,67 +321,31 @@ const form = reactive({
 
 })
 
-async function submit() {
-    const formattedRequestObject = requestObject.map(equipment => ({
-        equipment_id: equipment.id, 
+function submit() {
+    console.log(selectedEquipment.value)
+    const formattedRequestObject = props.serviceEquip.map(equipment => ({
+        equipment_id: equipment.equipment.id,
         shipping_date: equipment.shipping_date || null,
         period_start_date: equipment.period_start_date || null,
-        return_date: equipment.return_date || null,
-        period_end_date: equipment.period_end_date || null,
-        store: equipment.store || null,
-        operating: equipment.operating || null,
         commentary: equipment.commentary || null,
-        income: equipment.income || null,
-        subEquipment: (equipment.subEquipment || []).filter(sub => sub).map(sub => ({
-            subequipment_id: sub.subequipment_id,
+        subEquipment: (equipment.subequipment || []).filter(sub => sub
+        ).map(sub => ({
+            subequipment_id: sub.equipment_id,
             shipping_date: sub.shipping_date || null,
             period_start_date: sub.period_start_date || null,
-            return_date: sub.return_date || null,
-            period_end_date: sub.period_end_date || null,
-            operating: sub.operating || null,
-            income: sub.income || null,
-            store: sub.store || null
+            commentary: sub.commentary || null,
         }))
     })).filter(equipment => equipment.equipment_id);
 
     console.log("Formatted Request Object:", formattedRequestObject);
 
-    const newEquipment = [];
-    const updatedEquipment = [];
-
-    formattedRequestObject.forEach(equipment => {
-        const existingEquipment = props.serviceEquip.find(eq => eq.id === equipment.equipment_id);
-
-        if (!existingEquipment) {
-            newEquipment.push(equipment);
-        } else {
-            const hasChanges = JSON.stringify(existingEquipment) !== JSON.stringify(equipment);
-            if (hasChanges) {
-                updatedEquipment.push(equipment);
-            }
-        }
+    router.put(`/services/${props.service.id}`, {
+        contragent_id: props.service.contragent_id,
+        service_number: props.service.service_number,
+        service_date: props.service.service_date,
+        active: props.service.active,
+        equipment: JSON.parse(JSON.stringify(formattedRequestObject))
     });
-
-    try {
-        await router.put(`/services/${props.service.id}`, {
-            contragent_id: form.contragent_id || props.service.contragent_id,
-            shipping_date: form.shipping_date || props.service.shipping_date,
-            service_number: form.service_number || props.service.service_number,
-            service_date: form.service_date || props.service.service_date,
-            period_start_date: form.period_start_date || props.service.period_start_date,
-            return_date: form.return_date || props.service.return_date,
-            period_end_date: form.period_end_date || props.service.period_end_date,
-            store: form.store || props.service.store,
-            operating: form.operating || props.service.operating,
-            return_reason: form.return_reason || props.service.return_reason,
-            active: form.active || props.service.active,
-            equipment: formattedRequestObject
-        });
-
-        console.log("Service updated successfully");
-    } catch (error) {
-        console.error("Error submitting equipment:", error);
-    }
 }
 
 const test_rows = ref([
@@ -1149,19 +1168,7 @@ const test_rows = ref([
                                                         </svg>
                                                     </button>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <Link :href="route('services.destroyServiceEquip', equip.id)"
-                                                        method="DELETE"
-                                                        class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
-                                                    Удалить
-                                                    <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                            d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
-                                                            fill="currentColor" />
-                                                    </svg>
-                                                    </Link>
-                                                </DropdownMenuItem>
+
                                             </DropdownMenuContent>
                                         </transition>
                                     </DropdownMenuPortal>
@@ -1181,25 +1188,25 @@ const test_rows = ref([
                                     }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                    <input v-model="subequip.shipping_date" type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                    <input v-model="subequip.period_start_date" type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" />
+                                    <input v-model="subequip.store" type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" />
+                                    <input v-model="subequip.operating" type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                    <input v-model="subequip.period_end_date" type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                    <input v-model="subequip.return_date" type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%] ">

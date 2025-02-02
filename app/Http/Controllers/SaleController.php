@@ -28,6 +28,9 @@ class SaleController extends Controller
             'saleEquipment.equipment.category',
             'saleEquipment.equipment.size',
             'saleEquipment.subequipment',
+            'saleEquipment.subequipment.equipment',
+            'saleEquipment.subequipment.equipment.category',
+            'saleEquipment.subequipment.equipment.size',
         ])->get(); // Fetch all records first
 
         $contragents_names = Contragents::all();

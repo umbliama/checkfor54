@@ -19,9 +19,17 @@ export default {
         selectedActive: true,
         equipmentType: 0,
         chosenEquipment: null,
+        activeEquipmentId:null,
+        activeSubEquipmentId:null
 
     }),
     mutations: {
+        setActiveSubEquipmentId(state,value) {
+            state.activeSubEquipmentId = value
+        },
+        setActiveEquipmentId(state,value) {
+            state.activeEquipmentId = value
+        },
         setChosenEquipment(state, value) {
             state.chosenEquipment = value;
         },
@@ -111,6 +119,12 @@ export default {
         },
     },
     actions: {
+        async updateActiveEquipmentId({commit}, value) {
+            commit('setActiveEquipmentId', value)
+        },
+        async updateActiveSubEquipmentId({commit}, value) {
+            commit('setActiveSubEquipmentId', value)
+        },
         async updateChosenEquipment({commit}, value) {
             commit("setChosenEquipment", value)
         },
@@ -253,6 +267,8 @@ export default {
         },
     },
     getters: {
+        getActiveSubEquipmentId: (state) => state.activeSubEquipmentId,
+        getActiveEquipmentId: (state) => state.activeEquipmentId,
         getChosenEquipment: (state) => state.chosenEquipment,
         getEquipmentType: (state) => state.equipmentType,
         getSelectedActive: (state) => state.selectedActive,

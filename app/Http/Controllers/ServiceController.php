@@ -14,12 +14,13 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\ServiceModel;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class ServiceController extends Controller
 {
     private function formatServicesByYearMonth($services_by_year_month)
     {
-        // Define a map for converting month numbers to month names
         $month_names = [
             '01' => 'jan',
             '02' => 'feb',
@@ -35,16 +36,13 @@ class ServiceController extends Controller
             '12' => 'dec',
         ];
 
-        // Initialize an empty array to hold the formatted data
         $formatted_data = [];
 
-        // Loop through the raw data and format it
         foreach ($services_by_year_month as $service) {
             $year = $service->year;
-            $month = $month_names[$service->month] ?? $service->month; // Convert month number to month name
+            $month = $month_names[$service->month] ?? $service->month; 
             $count = $service->count;
 
-            // Initialize the year if it doesn't exist in the array yet
             if (!isset($formatted_data[$year])) {
                 $formatted_data[$year] = [
                     'year' => $year,
@@ -56,89 +54,56 @@ class ServiceController extends Controller
             $formatted_data[$year]['months'][$month] = $count;
         }
 
-        // Return the formatted data as an array
-        return array_values($formatted_data); // Use array_values to reset the keys
+        return array_values($formatted_data); 
     }
 
     public function index(Request $request)
     {
-
-        $perPage = $request->input('perPage');
+        $perPage = $request->input('perPage', 10);
+    
         $inActiveServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->where('active', 0)->paginate($perPage);
-
+        ])->where('active', 0)->get()->groupBy('contragent_id');
+    
         $activeServices = Service::with([
             'subservices.equipment.category',
             'subservices.equipment.size',
             'equipment.category',
             'equipment.size'
-        ])->where('active', 1)->paginate($perPage);
-
-        $groupedServices = $activeServices->groupBy('contragent_id');
-
-        // Retrieve all subservices and group them by service_id
-        $subservices = ServiceSub::with(['equipment.category', 'equipment.size'])->get();
-        $grouped_subservices = $subservices->groupBy('service_id');
-
-        // Count active and inactive services/subservices
+        ])->where('active', 1)->get()->groupBy('contragent_id');
+    
+        $paginatedInactive = $this->paginateCollection($inActiveServices, $perPage, $request);
+        $paginatedActive = $this->paginateCollection($activeServices, $perPage, $request);
+    
         $count_services_active = Service::where('active', 1)->count();
         $count_services_inactive = Service::where('active', 0)->count();
-
-        $services_by_year_month = Service::selectRaw('strftime("%Y", service_date) as year, strftime("%m", service_date) as month, COUNT(*) as count')
-            ->groupBy('year', 'month')
-            ->get();
-
-        // Format the data into the desired structure
-        $formatted_data_months = $this->formatServicesByYearMonth($services_by_year_month);
-
-        // Transform the services collection
-        $inActiveServices->getCollection()->transform(function ($service) use ($grouped_subservices) {
-            // Attach subservices to the service
-            $service->subservices = collect($grouped_subservices->get($service->id) ?? []);
-
-
-
-            $service->subservices = $service->subservices->map(function ($subservice) {
-                if ($subservice->subequipment_id) {
-                    $subservice->equipment_info = Equipment::with(['category', 'size'])->find($subservice->subequipment_id);
-                } else {
-                    $subservice->equipment_info = null;
-                }
-                return $subservice;
-            });
-
-            $service->equipment_info = $service->equipment;
-
-            if ($service->equipment) {
-                $service->equipment_info->category_name = $service->equipment->category->name ?? null;
-                $service->equipment_info->size_name = $service->equipment->size->name ?? null;
-            } else {
-                $service->equipment_info = null;
-            }
-
-
-            return $service;
-        });
-
-
-
-
         $contragents_names = Contragents::pluck('name', 'id');
-
+    
         return Inertia::render('Services/Index', [
-            'services' => $inActiveServices,
-            'activeServices' => $activeServices,
-            'groupedServices' => $groupedServices,
+            'services' => $paginatedInactive,
+            'activeServices' => $paginatedActive,
             'contragents_names' => $contragents_names,
             'count_services_active' => $count_services_active,
-            'count_services_inactive' => $count_services_inactive,
-            'formatted_data_months' => $formatted_data_months
+            'count_services_inactive' => $count_services_inactive
         ]);
     }
+    
+    private function paginateCollection(Collection $collection, $perPage, $request)
+    {
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $items = $collection->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        return new LengthAwarePaginator(
+            $items,
+            $collection->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+    }
+    
 
     public function create()
     {
@@ -412,7 +377,6 @@ class ServiceController extends Controller
 
         $service->update(['full_income' => $fullIncome]);
 
-        return redirect()->route('services.index')->with('success', 'Service updated successfully.');
     }
     public function destroy($id)
     {

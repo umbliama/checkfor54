@@ -237,6 +237,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     </div>
                     <!-- <AccordionRoot type="multiple" :collapsible="true">
                         <template v-for="(service, index) in sales.data" :key="service.id">
+                            
                             <AccordionItem :value="service.id">
                                 <AccordionHeader
                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
@@ -444,15 +445,15 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem  value="item-1">
+                        <AccordionItem v-for="(service, index) in sales.data" :value="'item-'+service.id">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
                                     <UiHyperlink :item-id="2" :hyperlink="'some.ru'"
                                         endpoint="/equipment" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
-                                    Someee
+                                    {{ nameContragent(index) }}
                                     <AccordionTrigger class="shrink-0 group ml-3">
                                         <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -567,13 +568,13 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                             <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                 <!-- 2 уровень -->
                                 <AccordionRoot type="multiple" :collapsible="true">
-                                    <AccordionItem>
+                                    <AccordionItem v-for="subservice in service" :value="'item-'+subservice.id">
                                         <AccordionHeader class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                             </div>
                                             <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                Продажа №12312
+                                                Продажа № {{ subservice.sale_number }}
 
                                                 <AccordionTrigger class="shrink-0 group ml-3">
                                                     <svg class="group-data-[state=open]:hidden" width="24" height="24"
@@ -687,13 +688,13 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                         <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                             <!-- 3 уровень -->
                                             <AccordionRoot type="multiple" :collapsible="true">
-                                                <AccordionItem value="item-1-1-1">
+                                                <AccordionItem v-for="equip in subservice.sale_equipment" :value="'item-'+equip.id">
                                                     <AccordionHeader class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                             <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                            Продажа №222222
+                                                            {{ equip.equipment.category.name }} {{ equip.equipment.size.name }} {{ equip.equipment.series }}
 
                                                             <AccordionTrigger class="shrink-0 group ml-3">
                                                                 <svg class="group-data-[state=open]:hidden" width="24" height="24"
@@ -806,12 +807,12 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                     </AccordionHeader>
                                                     <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                                         <!-- 4 уровень -->
-                                                        <div class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                        <div v-for="subequip in equip.subequipment":value="'item-'+subequip.id" class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />
                                                             </div>
                                                             <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                                Продажа №222222
+                                                                {{ subequip.equipment.category.name }} {{ subequip.equipment.size.name }} {{ subequip.equipment.series }}
                                                             </div>
                                                             <div class="shrink-0 flex items-center w-[14.08%]">
                                                                 <input type="date" class="block w-full h-full px-2 bg-transparent" />

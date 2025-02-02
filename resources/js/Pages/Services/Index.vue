@@ -136,7 +136,6 @@ const showSubservices = ref({});
 const subservicesEls = ref([]);
 const subservicesHeights = ref({});
 
-// Toggle subservices display
 const toggleSubservice = (index) => {
     showSubservices.value[index] = !showSubservices.value[index];
 
@@ -402,7 +401,6 @@ watch(() => props.services.current_page, () => {
                                     </DropdownMenuRoot>
                                 </div>
                             </div>
-
                             <div v-if="service.subservices.length" ref="subservicesEls" style="transition: .3s;"
                                 class="h-0 overflow-hidden">
                                 <div
