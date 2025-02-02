@@ -5,6 +5,7 @@ import Equipment from '@/Pages/Equip/Index.vue'
 import { usePage } from '@inertiajs/vue3';
 import store from '../../../store';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
+import DashboardToolbar from '@/Components/Dashboard/DashboardToolbar.vue';
 
 
 const page = usePage()
@@ -48,29 +49,7 @@ onMounted(() => {
 <template>
 
     <AuthenticatedLayout>
-        <nav class="bg-white-50 bg-my-gray pt-5 sm:overflow-x-auto">
-                <div class=" sm:overflow-x-auto flex items-center px-4 py-3 mx-auto">
-                    <div class="flex items-center sm:overflow-x-auto ">
-                        <ul
-                            class="flex flex-row font-medium  mt-0 space-x-8 whitespace-nowrap rtl:space-x-reverse text-sm">
-                            <li @click="updateActive('rent')">
-                                <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline"
-                                    aria-current="page">В
-                                    аренде</a>
-                            </li>
-                            <li>
-                                <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline">Свободно</a>
-                            </li>
-                            <li>
-                                <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline">На сервисе</a>
-                            </li>
-                            <li>
-                                <a href="#" class="text-my-nav-text text-lg sm:text-md hover:underline">Анализ</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+        <DashboardToolbar dashboard-page-type="rent" />
 
         <div class="bg-my-gray grid p-4 gap-4 lg:grid-cols-6">
             <div class="flex py-2 ">
