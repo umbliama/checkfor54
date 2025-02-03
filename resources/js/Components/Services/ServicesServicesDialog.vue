@@ -6,7 +6,7 @@ import {computed, onMounted, ref, watch} from 'vue';
 import {DialogClose, DialogContent, DialogPortal, DialogRoot, DialogTitle, DialogOverlay} from "radix-vue";
 
 const addService = (service) => {
-    store.dispatch('sale/updateSelectedServices', service)
+    store.dispatch('services/updateSelectedServices', service)
 
     showModal(false)
 }

@@ -29,21 +29,23 @@ class EquipmentController extends Controller
         $equipment_on_rent_count = Equipment::whereHas('serviceEquipment.services', function ($query) {
             $query->where('active', 1);
         })
-        ->whereDoesntHave('serviceEquipment.services', function ($query) {
-            $query->where('active', 0);
-        })
-        ->count();
-        
-        
+            ->whereDoesntHave('serviceEquipment.services', function ($query) {
+                $query->where('active', 0);
+            })
+            ->count();
+
+
         $activeEquipment = Equipment::whereHas('serviceEquipment.services', function ($query) {
             $query->where('active', 1);
-        })->with(['serviceEquipment.services' => function ($query) {
-            $query->where('active', 1);
-        }]) ->whereDoesntHave('serviceEquipment.services', function ($query) {
-            $query->where('active', 0);
-        })->paginate($perPage);
-        
-  
+        })->with([
+                    'serviceEquipment.services' => function ($query) {
+                        $query->where('active', 1);
+                    }
+                ])->whereDoesntHave('serviceEquipment.services', function ($query) {
+                    $query->where('active', 0);
+                })->paginate($perPage);
+
+
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
@@ -85,14 +87,11 @@ class EquipmentController extends Controller
             }
         }
         if ($rentActive) {
-            $query->where(function ($query) {
-                $query->whereHas('serviceEquipment.services', function ($query) {
-                    $query->where('active', 1);
-                })->orWhereHas('subequipment', function ($query) {
-                    $query->where('active', 1);
-                });
+            $query->whereHas('serviceEquipment.services', function ($query) {
+                $query->where('active', 1);
             });
         }
+
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }

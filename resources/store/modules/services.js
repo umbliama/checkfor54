@@ -19,16 +19,19 @@ export default {
         selectedActive: true,
         equipmentType: 0,
         chosenEquipment: null,
-        activeEquipmentId:null,
-        activeSubEquipmentId:null
-
+        activeEquipmentId: null,
+        activeSubEquipmentId: null,
+        selectedServices: [],
     }),
     mutations: {
-        setActiveSubEquipmentId(state,value) {
-            state.activeSubEquipmentId = value
+        setSelectedServices(state, value) {
+            state.selectedServices.push({ ...value, requestData: {} });
         },
-        setActiveEquipmentId(state,value) {
-            state.activeEquipmentId = value
+        setActiveSubEquipmentId(state, value) {
+            state.activeSubEquipmentId = value;
+        },
+        setActiveEquipmentId(state, value) {
+            state.activeEquipmentId = value;
         },
         setChosenEquipment(state, value) {
             state.chosenEquipment = value;
@@ -119,14 +122,17 @@ export default {
         },
     },
     actions: {
-        async updateActiveEquipmentId({commit}, value) {
-            commit('setActiveEquipmentId', value)
+        async updateSelectedServices({ commit }, value) {
+            commit("setSelectedServices", value);
         },
-        async updateActiveSubEquipmentId({commit}, value) {
-            commit('setActiveSubEquipmentId', value)
+        async updateActiveEquipmentId({ commit }, value) {
+            commit("setActiveEquipmentId", value);
         },
-        async updateChosenEquipment({commit}, value) {
-            commit("setChosenEquipment", value)
+        async updateActiveSubEquipmentId({ commit }, value) {
+            commit("setActiveSubEquipmentId", value);
+        },
+        async updateChosenEquipment({ commit }, value) {
+            commit("setChosenEquipment", value);
         },
         async fetchServices({ state }) {
             const { selectedMonth, selectedYear } = state;
@@ -289,5 +295,7 @@ export default {
             state.equipmentCategoriesCounts,
         getEquipmentSizes: (state) => state.equipmentSizes,
         getEquipmentSizesCounts: (state) => state.equipmentSizesCounts,
+        getSelectedServices: (state) => state.selectedServices,
+
     },
 };

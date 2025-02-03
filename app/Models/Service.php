@@ -55,10 +55,25 @@ class Service extends Model
     {
         return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
     }
-    
+
     public function serviceEquipment()
-{
-    return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
-}
+    {
+        return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
+    }
+
+    public static function getExtraServices(): array
+    {
+        return [
+            'transfer' => 'Перевозка оборудования',
+            'repair_vzd' => 'Ремонт ВЗД',
+            'repair_yss' => 'Ремонт ЯСС',
+            'test_vzd' => 'Испытание ВЗД',
+            'test_yss' => 'Испытание ЯСС',
+            'replace_vzd' => 'Замена ЗИП ВЗД',
+            'replace_yss' => 'Замена ЗИП ЯСС',
+            'kern' => 'Отбор керна'
+        ];
+    }
+
     use HasFactory;
 }

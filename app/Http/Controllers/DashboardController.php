@@ -92,10 +92,32 @@ class DashboardController extends Controller
             'contragents_count' => $contragents_count
         ]);
     }
-    
-    public function rent()
+
+    public function rent(Request $request)
     {
-        return Inertia::render('Dashboard/Rent');
+        $equipment_categories = EquipmentCategories::all();
+        $perPage = $request->input('perPage', 10);
+        $equipment_categories_counts_all = 0;
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
+        }
+
+        $contragents = Contragents::all();
+
+        $rented_equipment = Equipment::whereHas('serviceEquipment.services', function ($query) {
+            $query->where('active', 1);
+        })->with([
+                    'serviceEquipment.services' => function ($query) {
+                        $query->where('active', 1);
+                    }
+                ])->whereDoesntHave('serviceEquipment.services', function ($query) {
+                    $query->where('active', 0);
+                })->paginate($perPage);
+
+        return Inertia::render('Dashboard/Rent', ['equipment_categories' => $equipment_categories, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_categories_counts_all' => $equipment_categories_counts_all, 'contragents' => $contragents, 'rented_equipment' => $rented_equipment]);
     }
     public function free()
     {

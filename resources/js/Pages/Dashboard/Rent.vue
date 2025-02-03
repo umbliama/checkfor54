@@ -35,6 +35,14 @@ const selected_series = ref();
 const start_date      = ref();
 const end_date        = ref();
 
+
+const props = defineProps({
+    equipment_categories: Array,
+    equipment_categories_counts: Array,
+    equipment_categories_counts_all:Number,
+    contragents:Array,
+    rented_equipment: Array
+})
 </script>
 
 <template>
@@ -53,74 +61,21 @@ const end_date        = ref();
                             <span class="absolute right-0 top-2.5 w-px h-[calc(100%-20px)] bg-gray1"></span>
                             <div class="flex items-center justify-between">
                                 Все
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">10</span>
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{equipment_categories_counts_all}}</span>
                             </div>
                         </li>
                         
                         
-                        <li
+                        <li v-for="category in equipment_categories"
                             :class="{ '!border-[#001D6C] text-[#001D6C]': true }"
                             class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                         >
                             <div class="flex items-center justify-between">
-                                ВЗД
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
+                                {{ category.name }}
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_categories_counts[category.id] }}</span>
                             </div>
                         </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                ЯСС
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                ФД
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                КО
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                ПК
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                ХОМУТ
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
-                        <li
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                        >
-                            <div class="flex items-center justify-between">
-                                ПЕРЕВОДНИК
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
-                            </div>
-                        </li>
+                  
                     </ul>
                 </div>
                 <div class="relative mt-4">
@@ -262,23 +217,11 @@ const end_date        = ref();
             
             <div class="flex w-full mt-5">
                 <ul class="hidden w-[168px] mr-3.5 lg:block">
-                    <li
+                    <li v-for="agent in contragents"
                         :class="{ 'pointer-events-none bg-my-gray': true }"
                         class="py-3 px-2 font-medium text-sm cursor-pointer border-b border-b-my-gray"
                     >
-                        ООО Азалмеган
-                    </li>
-                    <li
-                        :class="{ 'pointer-events-none bg-my-gray': false }"
-                        class="py-3 px-2 font-medium text-sm cursor-pointer border-b border-b-my-gray"
-                    >
-                        ООО Бабила баъ
-                    </li>
-                    <li
-                        :class="{ 'pointer-events-none bg-my-gray': false }"
-                        class="py-3 px-2 font-medium text-sm cursor-pointer border-b border-b-my-gray"
-                    >
-                        ООО Гаршаган
+                        {{ agent.name }}
                     </li>
                 </ul>
                 

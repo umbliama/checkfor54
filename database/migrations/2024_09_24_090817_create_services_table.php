@@ -59,6 +59,16 @@ return new class extends Migration {
             $table->unsignedBigInteger('service_id');
             $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');        });
         
+            Schema::create('services_extra', function (Blueprint $table) {
+                $table->id();
+                $table->date('shipping_date');
+                $table->enum('type', ['transfer','repair_vzd','repair_yss', 'test_vzd', 'test_yss','replace_vzd','replace_yss', 'kern']);
+                $table->string('commentary');
+                $table->unsignedBigInteger('service_id');
+                $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
+                $table->integer('price')->nullable();
+                $table->timestamps();
+            });
     }
     
 

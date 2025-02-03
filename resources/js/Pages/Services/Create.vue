@@ -18,6 +18,7 @@ import {
     DropdownMenuRoot,
     DropdownMenuTrigger,
 } from 'radix-vue';
+import ServicesServicesDialog from "@/Components/Services/ServicesServicesDialog.vue";
 
 
 const props = defineProps({
@@ -26,7 +27,7 @@ const props = defineProps({
 })
 
 const selectedEquipment = ref([]);
-
+const selectedServices = ref([]);
 const is_dialog_open = ref(false);
 
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
@@ -40,7 +41,9 @@ const chosenEquipment = computed(() => store.getters['services/getChosenEquipmen
 const getActiveEquipmentId = computed(() => store.getters['services/getActiveEquipmentId']);
 const getActiveSubEquipmentId = computed(() => store.getters['services/getActiveSubEquipmentId']);
 const chosenEquipmentId = ref(null)
-
+const modalShownServices = computed(() => store.getters['sale/getExtraServicesModal']);
+const getSelectedServices = computed(() => store.getters['services/getSelectedServices']);
+const servicesRow = ref(0);
 
 let requestObject = reactive([]);
 
@@ -60,7 +63,7 @@ const fillRequestObject = async (value) => {
     await nextTick();
     console.log("Updated requestObject:", requestObject);
 };
-
+const activeTab = ref('services')
 const updateEquipmentByKey = (index, field, value) => {
     console.log("Before update:", requestObject);
 
@@ -78,6 +81,9 @@ const updateEquipmentByKey = (index, field, value) => {
 
     console.log("After update:", requestObject);
 };
+const showModalServices = (value) => {
+    store.dispatch('sale/showModal', value)
+}
 const incSubRow = (value) => {
     store.dispatch('services/updateIncSubRowsCount');
     store.dispatch('services/updateEquipmentType', 1)
@@ -134,7 +140,9 @@ const updateSubEquipmentByIndex = (parentIndex, subIndex, data) => {
 
     console.log(`Updated requestObject[${parentIndex}].subEquipment:`, requestObject[parentIndex].subEquipment);
 };
-
+const addService = (service) => {
+    selectedServices.value.push(service);
+}
 const incSubRowMain = () => {
     store.dispatch('services/updateIncSubRowsCount');
     store.dispatch('services/updateEquipmentType', 0)
@@ -145,6 +153,10 @@ const addSubEquipment = (id, data) => {
     if (equipment) {
         equipment.subequipment.push(data)
     }
+}
+
+const updateActiveTab = (tab) => {
+    activeTab.value = tab
 }
 
 const updateByKey = (index, field, value) => {
@@ -169,10 +181,25 @@ function openDialog() {
 const deleteMainEquipment = (id) => {
     const equipment = selectedEquipment.value[id];
 
-    if(equipment) {
-        equipment.slice(0,id);
+    if (equipment) {
+        equipment.slice(0, id);
     }
 }
+
+watch(getSelectedServices, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            selectedServices.value.push({
+                ...toRaw(newValue[0]),
+                price:null,
+                commentary:null,
+                shipping_date:null
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
 
 watch(getActiveEquipmentId, async (newValue, oldValue) => {
     if (newValue) {
@@ -238,6 +265,9 @@ const form = reactive({
 
 function submit() {
     console.log(selectedEquipment.value)
+    const cleanedServices = selectedServices.value.filter(sub => {
+        return sub;
+    });
     const formattedRequestObject = selectedEquipment.value.map(equipment => ({
         equipment_id: equipment.equipment.id,
         shipping_date: equipment.shipping_date || null,
@@ -259,6 +289,7 @@ function submit() {
         service_number: form.service_number,
         service_date: form.service_date,
         active: form.active,
+        extraServices: cleanedServices,
         equipment: JSON.parse(JSON.stringify(formattedRequestObject))
     });
 }
@@ -267,6 +298,7 @@ function submit() {
 <template>
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
+        <ServicesServicesDialog v-if="modalShownServices" />
 
         <div class="p-5">
             <ServicesNav2 title="Новая аренда" />
@@ -305,8 +337,7 @@ function submit() {
 
                         <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
                             <span
-                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказч
-                                к:</span>
+                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчк:</span>
                             <span
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
@@ -353,428 +384,90 @@ function submit() {
                     </div>
                 </div>
             </div>
-
+            <div class="relative text-sm">
+                <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
+                <ul
+                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                    <li :class="{ '!border-[#001D6C] text-[#001D6C]': activeTab === 'services' }"
+                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
+                        @click="updateActiveTab('services')">
+                        Продажа
+                    </li>
+                    <li :class="{ '!border-[#001D6C] text-[#001D6C]': activeTab === 'extra' }"
+                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
+                        @click="updateActiveTab('extra')">
+                        Доп. услуги
+                    </li>
+                </ul>
+            </div>
             <div class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
+
                 <div class="min-w-[1136px] text-xs">
-                    <div
-                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <button type="button" class="shrink-0 flex items-center w-[44px] py-2.5 px-2 bg-violet-full/5"
-                            @click.prevent="addRows">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M14.9444 8.69444C14.9444 8.31091 14.6335 8 14.25 8C13.8665 8 13.5556 8.31091 13.5556 8.69444V13.5556H8.69444C8.31091 13.5556 8 13.8665 8 14.25C8 14.6335 8.31091 14.9444 8.69444 14.9444H13.5556V19.8056C13.5556 20.1891 13.8665 20.5 14.25 20.5C14.6335 20.5 14.9444 20.1891 14.9444 19.8056V14.9444H19.8056C20.1891 14.9444 20.5 14.6335 20.5 14.25C20.5 13.8665 20.1891 13.5556 19.8056 13.5556H14.9444V8.69444Z"
-                                    fill="#484964" />
-                                <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
-                            </svg>
-                        </button>
-                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">Оборудование</div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">Дата отгрузки
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Начало периода</div>
+                    <template v-if="activeTab == 'services'">
                         <div
-                            class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
-                            Комментарий</div>
-                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-                                    fill="#21272A" />
-                                <path
-                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-                                    fill="#21272A" />
-                            </svg>
-                        </div>
-                    </div>
-                    <!-- <div
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
-                            <UiHyperlink v-if="selectedEquipmentService"
-                                :hyperlink="selectedEquipmentService?.hyperlink" :item-id="selectedEquipmentService?.id"
-                                endpoint="/services" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
-                            <button v-if="!selectedEquipmentService.length" type="button" @click="openDialog">Нажмите
-                                чтобы выбрать оборудование</button>
-                            <template v-for="item in selectedEquipmentService">
-
-                                {{ item.category.name }}
-                                {{ item.size.name }} {{
-                                    item.series
-                                }}
-                            </template>
-</div>
-<div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-    <input v-model="form.shipping_date" type="date" class="block w-full h-full px-2 bg-transparent"
-        onclick="this.showPicker()" />
-</div>
-<div class="shrink-0 flex items-center w-[14.08%]">
-    <input v-model="form.period_start_date" type="date" class="block w-full h-full px-2 bg-transparent"
-        onclick="this.showPicker()" />
-</div>
-<div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-    <input v-model="form.commentary" type="text" class="block w-full h-full px-2 bg-transparent" />
-</div>
-<div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-            fill="#21272A" />
-        <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-            fill="#21272A" />
-        <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-            fill="#21272A" />
-        <path
-            d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-            fill="#21272A" />
-    </svg>
-
-    <DropdownMenuRoot v-if="selectedEquipmentService">
-        <DropdownMenuTrigger aria-label="Customise options">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                    fill="#687182" />
-                <path
-                    d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                    fill="#687182" />
-                <path
-                    d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                    fill="#687182" />
-            </svg>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuPortal>
-            <transition name="fade">
-                <DropdownMenuContent
-                    class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                    :side-offset="5" align="end">
-                    <DropdownMenuItem>
-                        <button @click="incSubRow" type="button"
-                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                            Укомплектовать
-                            <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
-                                    fill="#464F60" />
-                                <path
-                                    d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
-                                    fill="#464F60" />
-                            </svg>
-                        </button>
-                    </DropdownMenuItem>
-
-                </DropdownMenuContent>
-            </transition>
-        </DropdownMenuPortal>
-    </DropdownMenuRoot>
-</div>
-</div> -->
-                    <!-- <div v-for="(item, index) in subEquipment" :key="index" v-if="subEquipment.length > 0"
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
-                            <UiHyperlink v-if="selectedEquipmentService"
-                                :hyperlink="selectedEquipmentService?.hyperlink" :item-id="selectedEquipmentService?.id"
-                                endpoint="/services" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
-                            <button v-if="!subEquipment" class="block w-full h-full px-2 bg-transparent"
-                                @click="openDialog">
-                                Нажмите чтобы выбрать оборудование
+                            class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <button type="button"
+                                class="shrink-0 flex items-center w-[44px] py-2.5 px-2 bg-violet-full/5"
+                                @click.prevent="addRows">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M14.9444 8.69444C14.9444 8.31091 14.6335 8 14.25 8C13.8665 8 13.5556 8.31091 13.5556 8.69444V13.5556H8.69444C8.31091 13.5556 8 13.8665 8 14.25C8 14.6335 8.31091 14.9444 8.69444 14.9444H13.5556V19.8056C13.5556 20.1891 13.8665 20.5 14.25 20.5C14.6335 20.5 14.9444 20.1891 14.9444 19.8056V14.9444H19.8056C20.1891 14.9444 20.5 14.6335 20.5 14.25C20.5 13.8665 20.1891 13.5556 19.8056 13.5556H14.9444V8.69444Z"
+                                        fill="#484964" />
+                                    <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
+                                </svg>
                             </button>
-
-                            <div v-else class="flex py-2.5 px-2">
-                                {{ item.category.name }} {{ item.size.name }} {{ item.series }}
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">Оборудование</div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">Дата отгрузки
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Начало периода</div>
+                            <div
+                                class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
+                                Комментарий</div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                        fill="#21272A" />
+                                    <path
+                                        d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                        fill="#21272A" />
+                                </svg>
                             </div>
                         </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" @change="updateByKey(index, 'subequipment_id', item.id)"
-                                @input="updateByKey(index, 'shipping_date', $event.target.value)" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%]">
-                            <input v-model="item.period_start_date" type="date"
-                                class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()"
-                                @input="updateByKey(index, 'period_start_date', $event.target.value)" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                            <input v-model="item.commentary"
-                                @input="updateByKey(index, 'commentary', $event.target.value)" type="text"
-                                class="block w-full h-full px-2 bg-transparent" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-                                    fill="#21272A" />
-                                <path
-                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-                                    fill="#21272A" />
-                            </svg>
 
-                            <DropdownMenuRoot>
-                                <DropdownMenuTrigger aria-label="Customise options">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                                            fill="#687182" />
-                                    </svg>
-                                </DropdownMenuTrigger>
+                        <!-- для Макса -->
 
-                                <DropdownMenuPortal>
-                                    <transition name="fade">
-                                        <DropdownMenuContent
-                                            class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                                            :side-offset="5" align="end">
-                                            <DropdownMenuItem>
-                                                <button @click="incSubRow" type="button"
-                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                    Укомплектовать
-                                                    <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
-                                                            fill="#464F60" />
-                                                        <path
-                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
-                                                            fill="#464F60" />
-                                                    </svg>
-                                                </button>
-                                            </DropdownMenuItem>
-
-                                        </DropdownMenuContent>
-                                    </transition>
-                                </DropdownMenuPortal>
-                            </DropdownMenuRoot>
-                        </div>
-                    </div> -->
-                    <!-- <div v-if="subRowsCount > 0" v-for="item in subRowsCount - subEquipment.length"
-                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <button class=" text-side-gray-text px-4 py-2 rounded" @click="openDialog">
-                            Нажмите чтобы выбрать оборудование
-                        </button>
-                    </div> -->
-                    <!-- <br>
-                    <br>
-                    <br> -->
-
-                    <!-- для Макса -->
-
-                    <div v-if="selectedEquipment.length === 0"
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
-                            <UiHyperlink v-if="selectedEquipmentService"
-                                :hyperlink="selectedEquipmentService?.hyperlink" :item-id="selectedEquipmentService?.id"
-                                endpoint="/services" />
-                        </div>
-                        <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
-                            class="shrink-0 flex items-center w-[15.84%] ">
-                            <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
-                                Нажмите чтобы выбрать оборудование 
-                            </button>
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%]">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-                                    fill="#21272A" />
-                                <path
-                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-                                    fill="#21272A" />
-                            </svg>
-
-                            <DropdownMenuRoot>
-                                <DropdownMenuTrigger aria-label="Customise options">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                                            fill="#687182" />
-                                    </svg>
-                                </DropdownMenuTrigger>
-
-                                <DropdownMenuPortal>
-                                    <transition name="fade">
-                                        <DropdownMenuContent
-                                            class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                                            :side-offset="5" align="end">
-                                            <DropdownMenuItem>
-                                                <button type="button"
-                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                    Укомплектовать
-                                                    <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
-                                                            fill="#464F60" />
-                                                        <path
-                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
-                                                            fill="#464F60" />
-                                                    </svg>
-                                                </button>
-                                            </DropdownMenuItem>
-
-                                        </DropdownMenuContent>
-                                    </transition>
-                                </DropdownMenuPortal>
-                            </DropdownMenuRoot>
-                        </div>
-                    </div>
-                    <div v-if="rows === selectedEquipment.length"
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
-                            <UiHyperlink v-if="selectedEquipmentService"
-                                :hyperlink="selectedEquipmentService?.hyperlink" :item-id="selectedEquipmentService?.id"
-                                endpoint="/services" />
-                        </div>
-                        <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
-                            class="shrink-0 flex items-center w-[15.84%] ">
-                            <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
-                                Нажмите чтобы выбрать оборудование {{ selectedEquipmentService.length +
-                                subEquipment.length + 2 }}
-                            </button>
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%]">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-                                    fill="#21272A" />
-                                <path
-                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-                                    fill="#21272A" />
-                            </svg>
-
-                            <DropdownMenuRoot>
-                                <DropdownMenuTrigger aria-label="Customise options">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                                            fill="#687182" />
-                                    </svg>
-                                </DropdownMenuTrigger>
-
-                                <DropdownMenuPortal>
-                                    <transition name="fade">
-                                        <DropdownMenuContent
-                                            class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                                            :side-offset="5" align="end">
-                                            <DropdownMenuItem>
-                                                <button type="button"
-                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                    Укомплектовать
-                                                    <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
-                                                            fill="#464F60" />
-                                                        <path
-                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
-                                                            fill="#464F60" />
-                                                    </svg>
-                                                </button>
-                                            </DropdownMenuItem>
-
-                                        </DropdownMenuContent>
-                                    </transition>
-                                </DropdownMenuPortal>
-                            </DropdownMenuRoot>
-                        </div>
-                    </div>
-
-                    <div v-for="(equipment, index) in selectedEquipment">
-                        <div
+                        <div v-if="selectedEquipment.length === 0"
                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                 <UiHyperlink v-if="selectedEquipmentService"
                                     :hyperlink="selectedEquipmentService?.hyperlink"
                                     :item-id="selectedEquipmentService?.id" endpoint="/services" />
                             </div>
-                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">{{ equipment.equipment.category.name }}
-                                {{ equipment.equipment.size.name }} {{ equipment.equipment.series }}</div>
+                            <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
+                                class="shrink-0 flex items-center w-[15.84%] ">
+                                <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
+                                    Нажмите чтобы выбрать оборудование
+                                </button>
+                            </div>
                             <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                <input v-model="equipment.shipping_date" type="date"
-                                    class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                    onclick="this.showPicker()" />
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%]">
-                                <input v-model="equipment.period_start_date" type="date"
-                                    class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                    onclick="this.showPicker()" />
                             </div>
                             <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                <input v-model="equipment.commentary" type="text"
-                                    class="block w-full h-full px-2 bg-transparent" />
+                                <input type="text" class="block w-full h-full px-2 bg-transparent" />
                             </div>
                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -793,7 +486,7 @@ function submit() {
                                         fill="#21272A" />
                                 </svg>
 
-                                <DropdownMenuRoot v-if="selectedEquipmentService">
+                                <DropdownMenuRoot>
                                     <DropdownMenuTrigger aria-label="Customise options">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -815,7 +508,7 @@ function submit() {
                                                 class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                 :side-offset="5" align="end">
                                                 <DropdownMenuItem>
-                                                    <button @click="incSubRow(index)" type="button"
+                                                    <button type="button"
                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                         Укомплектовать
                                                         <svg class="block ml-2" width="16" height="16"
@@ -837,35 +530,114 @@ function submit() {
                                 </DropdownMenuRoot>
                             </div>
                         </div>
-                        <div>
-                            <div v-for="(subEquipment, subindex) in equipment.subequipment"
+                        <div v-if="rows === selectedEquipment.length"
+                            class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
+                                <UiHyperlink v-if="selectedEquipmentService"
+                                    :hyperlink="selectedEquipmentService?.hyperlink"
+                                    :item-id="selectedEquipmentService?.id" endpoint="/services" />
+                            </div>
+                            <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
+                                class="shrink-0 flex items-center w-[15.84%] ">
+                                <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
+                                    Нажмите чтобы выбрать оборудование {{ selectedEquipmentService.length +
+                                        subEquipment.length + 2 }}
+                                </button>
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
+                                <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                    onclick="this.showPicker()" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%]">
+                                <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                    onclick="this.showPicker()" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                        fill="#21272A" />
+                                    <path
+                                        d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                        fill="#21272A" />
+                                </svg>
+
+                                <DropdownMenuRoot>
+                                    <DropdownMenuTrigger aria-label="Customise options">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                fill="#687182" />
+                                        </svg>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuPortal>
+                                        <transition name="fade">
+                                            <DropdownMenuContent
+                                                class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                :side-offset="5" align="end">
+                                                <DropdownMenuItem>
+                                                    <button type="button"
+                                                        class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                        Укомплектовать
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                fill="#464F60" />
+                                                            <path
+                                                                d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                fill="#464F60" />
+                                                        </svg>
+                                                    </button>
+                                                </DropdownMenuItem>
+
+                                            </DropdownMenuContent>
+                                        </transition>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuRoot>
+                            </div>
+                        </div>
+
+                        <div v-for="(equipment, index) in selectedEquipment">
+                            <div
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                 <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                     <UiHyperlink v-if="selectedEquipmentService"
                                         :hyperlink="selectedEquipmentService?.hyperlink"
                                         :item-id="selectedEquipmentService?.id" endpoint="/services" />
                                 </div>
-                                <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
-                                    <div class="flex py-2.5 px-2">
-                                        {{ subEquipment.equipment.category.name }} {{ subEquipment.equipment.size.name }} {{
-                                            subEquipment.equipment.series }}
-                                    </div>
-                                </div>
+                                <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">{{
+                                    equipment.equipment.category.name }}
+                                    {{ equipment.equipment.size.name }} {{ equipment.equipment.series }}</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                    <input
-                                        v-model="subEquipment.shipping_date"
-                                        type="date" class="block w-full h-full px-2 bg-transparent"
-                                        onclick="this.showPicker()" />
+                                    <input v-model="equipment.shipping_date" type="date"
+                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[14.08%]">
-                                    <input
-                                        v-model="subEquipment.period_start_date"
-                                        type="date" class="block w-full h-full px-2 bg-transparent"
-                                        onclick="this.showPicker()" />
+                                    <input v-model="equipment.period_start_date" type="date"
+                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                    <input type="text"
-                                        v-model="subEquipment.commentary"
+                                    <input v-model="equipment.commentary" type="text"
                                         class="block w-full h-full px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
@@ -885,7 +657,7 @@ function submit() {
                                             fill="#21272A" />
                                     </svg>
 
-                                    <DropdownMenuRoot>
+                                    <DropdownMenuRoot v-if="selectedEquipmentService">
                                         <DropdownMenuTrigger aria-label="Customise options">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -907,7 +679,7 @@ function submit() {
                                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                     :side-offset="5" align="end">
                                                     <DropdownMenuItem>
-                                                        <button type="button"
+                                                        <button @click="incSubRow(index)" type="button"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                             Укомплектовать
                                                             <svg class="block ml-2" width="16" height="16"
@@ -929,93 +701,420 @@ function submit() {
                                     </DropdownMenuRoot>
                                 </div>
                             </div>
-                            <div  v-for="item in equipment.subRows - equipment.subequipment.length"
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                        <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
-                            <UiHyperlink v-if="selectedEquipmentService"
-                                :hyperlink="selectedEquipmentService?.hyperlink" :item-id="selectedEquipmentService?.id"
-                                endpoint="/services" />
+                            <div>
+                                <div v-for="(subEquipment, subindex) in equipment.subequipment"
+                                    class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                                    <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
+                                        <UiHyperlink v-if="selectedEquipmentService"
+                                            :hyperlink="selectedEquipmentService?.hyperlink"
+                                            :item-id="selectedEquipmentService?.id" endpoint="/services" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
+                                        <div class="flex py-2.5 px-2">
+                                            {{ subEquipment.equipment.category.name }} {{
+                                            subEquipment.equipment.size.name }} {{
+                                                subEquipment.equipment.series }}
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
+                                        <input v-model="subEquipment.shipping_date" type="date"
+                                            class="block w-full h-full px-2 bg-transparent"
+                                            onclick="this.showPicker()" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%]">
+                                        <input v-model="subEquipment.period_start_date" type="date"
+                                            class="block w-full h-full px-2 bg-transparent"
+                                            onclick="this.showPicker()" />
+                                    </div>
+                                    <div
+                                        class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                        <input type="text" v-model="subEquipment.commentary"
+                                            class="block w-full h-full px-2 bg-transparent" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                                fill="#21272A" />
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                                fill="#21272A" />
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                                fill="#21272A" />
+                                            <path
+                                                d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                                fill="#21272A" />
+                                        </svg>
+
+                                        <DropdownMenuRoot>
+                                            <DropdownMenuTrigger aria-label="Customise options">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                        fill="#687182" />
+                                                </svg>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuPortal>
+                                                <transition name="fade">
+                                                    <DropdownMenuContent
+                                                        class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                        :side-offset="5" align="end">
+                                                        <DropdownMenuItem>
+                                                            <button type="button"
+                                                                class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                Укомплектовать
+                                                                <svg class="block ml-2" width="16" height="16"
+                                                                    viewBox="0 0 16 16" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                        fill="#464F60" />
+                                                                    <path
+                                                                        d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                        fill="#464F60" />
+                                                                </svg>
+                                                            </button>
+                                                        </DropdownMenuItem>
+
+                                                    </DropdownMenuContent>
+                                                </transition>
+                                            </DropdownMenuPortal>
+                                        </DropdownMenuRoot>
+                                    </div>
+                                </div>
+                                <div v-for="item in equipment.subRows - equipment.subequipment.length"
+                                    class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                                    <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
+                                        <UiHyperlink v-if="selectedEquipmentService"
+                                            :hyperlink="selectedEquipmentService?.hyperlink"
+                                            :item-id="selectedEquipmentService?.id" endpoint="/services" />
+                                    </div>
+                                    <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
+                                        class="shrink-0 flex items-center w-[15.84%] ">
+                                        <button class="block w-full h-full px-2 bg-transparent text-left"
+                                            @click="openDialog">
+                                            Нажмите чтобы выбрать оборудование
+                                        </button>
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
+                                        <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                            onclick="this.showPicker()" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[14.08%]">
+                                        <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                            onclick="this.showPicker()" />
+                                    </div>
+                                    <div
+                                        class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                        <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                                    </div>
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                                fill="#21272A" />
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                                fill="#21272A" />
+                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                                fill="#21272A" />
+                                            <path
+                                                d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                                fill="#21272A" />
+                                        </svg>
+
+                                        <DropdownMenuRoot>
+                                            <DropdownMenuTrigger aria-label="Customise options">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                        fill="#687182" />
+                                                    <path
+                                                        d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                        fill="#687182" />
+                                                </svg>
+                                            </DropdownMenuTrigger>
+
+                                            <DropdownMenuPortal>
+                                                <transition name="fade">
+                                                    <DropdownMenuContent
+                                                        class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                        :side-offset="5" align="end">
+                                                        <DropdownMenuItem>
+                                                            <button type="button"
+                                                                class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                Укомплектовать
+                                                                <svg class="block ml-2" width="16" height="16"
+                                                                    viewBox="0 0 16 16" fill="none"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                        fill="#464F60" />
+                                                                    <path
+                                                                        d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                        fill="#464F60" />
+                                                                </svg>
+                                                            </button>
+                                                        </DropdownMenuItem>
+
+                                                    </DropdownMenuContent>
+                                                </transition>
+                                            </DropdownMenuPortal>
+                                        </DropdownMenuRoot>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
-                        <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
-                            class="shrink-0 flex items-center w-[15.84%] ">
-                            <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
-                                Нажмите чтобы выбрать оборудование 
+                    </template>
+                    <template v-if="activeTab == 'extra'">
+                        <div
+                            class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <button type="button"
+                                class="shrink-0 flex items-center w-[44px] py-2.5 px-2 bg-violet-full/5"
+                                @click.prevent="incServiceRow">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M14.9444 8.69444C14.9444 8.31091 14.6335 8 14.25 8C13.8665 8 13.5556 8.31091 13.5556 8.69444V13.5556H8.69444C8.31091 13.5556 8 13.8665 8 14.25C8 14.6335 8.31091 14.9444 8.69444 14.9444H13.5556V19.8056C13.5556 20.1891 13.8665 20.5 14.25 20.5C14.6335 20.5 14.9444 20.1891 14.9444 19.8056V14.9444H19.8056C20.1891 14.9444 20.5 14.6335 20.5 14.25C20.5 13.8665 20.1891 13.5556 19.8056 13.5556H14.9444V8.69444Z"
+                                        fill="#484964" />
+                                    <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
+                                </svg>
                             </button>
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">Услуга</div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">Дата перевозки
+                            </div>
+                            <div
+                                class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
+                                Комментарий</div>
+                            <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Цена без НДС</div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                        fill="#21272A" />
+                                    <path
+                                        d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                        fill="#21272A" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[14.08%]">
-                            <input type="date" class="block w-full h-full px-2 bg-transparent"
-                                onclick="this.showPicker()" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                            <input type="text" class="block w-full h-full px-2 bg-transparent" />
-                        </div>
-                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
-                                    fill="#21272A" />
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
-                                    fill="#21272A" />
-                                <path
-                                    d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
-                                    fill="#21272A" />
-                            </svg>
 
-                            <DropdownMenuRoot>
-                                <DropdownMenuTrigger aria-label="Customise options">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
-                                            fill="#687182" />
-                                        <path
-                                            d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
-                                            fill="#687182" />
-                                    </svg>
-                                </DropdownMenuTrigger>
+                        <div
+                            class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
+                                <UiHyperlink v-if="selectedEquipmentService"
+                                    :hyperlink="selectedEquipmentService?.hyperlink"
+                                    :item-id="selectedEquipmentService?.id" endpoint="/services" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
+                                <button @click="showModalServices(true)" type="button">
+                                    Нажмите чтобы выбрать услугу
+                                </button>
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
+                                <input type="date" class="block w-full h-full px-2 bg-transparent"
+                                    onclick="this.showPicker()" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%]">
+                                <input type="text" class="block w-full h-full px-2 bg-transparent" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                        fill="#21272A" />
+                                    <path
+                                        d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                        fill="#21272A" />
+                                </svg>
 
-                                <DropdownMenuPortal>
-                                    <transition name="fade">
-                                        <DropdownMenuContent
-                                            class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                                            :side-offset="5" align="end">
-                                            <DropdownMenuItem>
-                                                <button type="button"
-                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                    Укомплектовать
-                                                    <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
-                                                            fill="#464F60" />
-                                                        <path
-                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
-                                                            fill="#464F60" />
-                                                    </svg>
-                                                </button>
-                                            </DropdownMenuItem>
+                                <DropdownMenuRoot>
+                                    <DropdownMenuTrigger aria-label="Customise options">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                fill="#687182" />
+                                        </svg>
+                                    </DropdownMenuTrigger>
 
-                                        </DropdownMenuContent>
-                                    </transition>
-                                </DropdownMenuPortal>
-                            </DropdownMenuRoot>
+                                    <DropdownMenuPortal>
+                                        <transition name="fade">
+                                            <DropdownMenuContent
+                                                class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                :side-offset="5" align="end">
+                                                <DropdownMenuItem>
+                                                    <button type="button"
+                                                        class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                        Редактировать
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                fill="#464F60" />
+                                                            <path
+                                                                d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                fill="#464F60" />
+                                                        </svg>
+                                                    </button>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <button
+                                                        class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
+                                                        Удалить
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                fill="currentColor" />
+                                                        </svg>
+                                                    </button>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </transition>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuRoot>
+                            </div>
                         </div>
-                    </div>
+                        <div v-for="(item, index) in selectedServices" :key="index"
+                            class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                            <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
+                                <UiHyperlink v-if="selectedEquipmentService"
+                                    :hyperlink="selectedEquipmentService?.hyperlink"
+                                    :item-id="selectedEquipmentService?.id" endpoint="/services" />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
+                                {{ item.value }}
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
+                                <input v-model="item.shipping_date" type="date"
+                                    class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()"/>
+                            </div>
+                            <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                <input type="text" class="block w-full h-full px-2 bg-transparent"
+                                    v-model="item.commentary"
+                                   />
+                            </div>
+                            <div class="shrink-0 flex items-center w-[14.08%]">
+                                <input v-model="item.price" type="text" class="block w-full h-full px-2 bg-transparent"/>
+                            </div>
+                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M2.25 11.625C2.25 6.44782 6.44782 2.25 11.625 2.25C16.8022 2.25 21 6.44782 21 11.625C21 16.8022 16.8022 21 11.625 21C6.44782 21 2.25 16.8022 2.25 11.625ZM11.625 3.75C7.27624 3.75 3.75 7.27624 3.75 11.625C3.75 15.9738 7.27624 19.5 11.625 19.5C15.9738 19.5 19.5 15.9738 19.5 11.625C19.5 7.27624 15.9738 3.75 11.625 3.75Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9.5625 10.3125C9.5625 9.89829 9.89829 9.5625 10.3125 9.5625H11.8125C12.2267 9.5625 12.5625 9.89829 12.5625 10.3125V15.75C12.5625 16.1642 12.2267 16.5 11.8125 16.5C11.3983 16.5 11.0625 16.1642 11.0625 15.75V11.0625H10.3125C9.89829 11.0625 9.5625 10.7267 9.5625 10.3125Z"
+                                        fill="#21272A" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M9 15.9375C9 15.5233 9.33579 15.1875 9.75 15.1875H13.875C14.2892 15.1875 14.625 15.5233 14.625 15.9375C14.625 16.3517 14.2892 16.6875 13.875 16.6875H9.75C9.33579 16.6875 9 16.3517 9 15.9375Z"
+                                        fill="#21272A" />
+                                    <path
+                                        d="M11.625 6.09375C11.384 6.09375 11.1483 6.16523 10.9479 6.29915C10.7475 6.43306 10.5913 6.62341 10.499 6.8461C10.4068 7.0688 10.3826 7.31385 10.4297 7.55027C10.4767 7.78668 10.5928 8.00384 10.7632 8.17429C10.9337 8.34473 11.1508 8.46081 11.3872 8.50783C11.6236 8.55486 11.8687 8.53072 12.0914 8.43848C12.3141 8.34623 12.5044 8.19002 12.6384 7.9896C12.7723 7.78918 12.8438 7.55355 12.8438 7.3125C12.8438 6.98927 12.7153 6.67927 12.4868 6.45071C12.2582 6.22215 11.9482 6.09375 11.625 6.09375Z"
+                                        fill="#21272A" />
+                                </svg>
 
+                                <DropdownMenuRoot>
+                                    <DropdownMenuTrigger aria-label="Customise options">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                fill="#687182" />
+                                            <path
+                                                d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                fill="#687182" />
+                                        </svg>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuPortal>
+                                        <transition name="fade">
+                                            <DropdownMenuContent
+                                                class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                :side-offset="5" align="end">
+                                                <DropdownMenuItem>
+                                                    <button type="button"
+                                                        class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                        Редактировать
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                fill="#464F60" />
+                                                            <path
+                                                                d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                fill="#464F60" />
+                                                        </svg>
+                                                    </button>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <button
+                                                        class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
+                                                        Удалить
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                fill="currentColor" />
+                                                        </svg>
+                                                    </button>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </transition>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuRoot>
+                            </div>
                         </div>
-                    </div>
+
+                    </template>
 
                 </div>
             </div>
