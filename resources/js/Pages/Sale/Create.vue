@@ -721,7 +721,7 @@ function submit() {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <button @click="deleteMainEquipment(mainIndex)">
+                                                                <button class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all" @click="deleteMainEquipment(mainIndex)">
                                                                     Удалить
                                                                     <svg class="block ml-2" width="16" height="16"
                                                                         viewBox="0 0 16 16" fill="none"
