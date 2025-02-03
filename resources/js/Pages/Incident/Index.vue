@@ -964,13 +964,13 @@ onBeforeMount(() => {
                                             <Link
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST" @click="createBlock(column.id, 'customer')"
-                                                :href="route('constructor.createBlock', column.id, 'customer')">
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'customer' })">
                                             Заказчик
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'employee')"
-                                                :href="route('constructor.createBlock', column.id, 'employee')"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'employee' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Сотрудник
@@ -978,7 +978,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'equipment')"
-                                                :href="route('constructor.createBlock', column.id, 'equipment')"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'equipment' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Оборудование
@@ -986,7 +986,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'commentary')"
-                                                :href="route('constructor.createBlock', column.id, 'commentary')"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'commentary' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Комментарий
@@ -994,7 +994,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'mediafiles')"
-                                                :href="route('constructor.createBlock', column.id, 'mediafiles')"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'mediafiles' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Медиа
@@ -1002,7 +1002,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'files')"
-                                                :href="route('constructor.createBlock', column.id, 'files')"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'files' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Файлы

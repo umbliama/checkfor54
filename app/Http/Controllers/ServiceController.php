@@ -249,32 +249,45 @@ class ServiceController extends Controller
             $serviceMapping = Service::getExtraServices();
             $service->value = $serviceMapping[$service->type] ?? $service->type;
             return $service;
-        });        if ($equipment) {
+        });
+        if ($equipment) {
             $equipment->category_name = $equipment->category ? $equipment->category->name : null;
             $equipment->size_name = $equipment->size ? $equipment->size->name : null;
         }
 
         $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
         $serviceEquip = ServiceEquip::where('service_id', $service->id)->with('equipment', 'equipment.category', 'equipment.size', 'serviceSubs.equipment', 'serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
-        return Inertia::render('Services/Edit', ['serviceEquip' => $serviceEquip, 'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents,'extraServices' => $extraServices]);
+        return Inertia::render('Services/Edit', ['serviceEquip' => $serviceEquip, 'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents, 'extraServices' => $extraServices]);
     }
 
     public function createIncident($id)
     {
-        $service = Service::findOrFail($id);
+        $service = Service::with([
+            'mainServices.serviceSubs.equipment.category',
+            'mainServices.serviceSubs.equipment.size',
+            'mainServices.equipment.category',
+            'mainServices.equipment.size',
+            'equipment.category',
+            'equipment.size'
+        ])->findOrFail($id);
         $user_id = Auth::id();
-        $equipment = Equipment::findOrFail($service->equipment_id)->value('id');
         $contragent_id = Contragents::findOrFail($service->contragent_id)->value('id');
         $position = Column::max('position') + 1;
-        $column = Column::create(['position' => $position, 'type' => 'adv']);
+        $column = Column::create([
+            'position' => $position,
+            'type' => 'adv',
+            'creator_id' => $user_id
+
+        ]);
 
         $position = $column->blocks()->max('position') + 1;
 
         $block = $column->blocks()->create([
             'type' => 'customer',
             'contragent_id' => $contragent_id,
-            'equipment_id' => $equipment,
-            'position' => $position
+            'position' => $position,
+            'creator_id' => $user_id
+
         ]);
         if ($service->subequiment_id !== null) {
             $block_subequipment = $block->subequipment()->create([
@@ -356,13 +369,13 @@ class ServiceController extends Controller
                 $conditions = [
                     'service_id' => $service->id,
                 ];
-        
+
                 if (isset($extraService['type'])) {
                     $conditions['type'] = $extraService['type'];
                 }
-        
+
                 ServiceExtra::updateOrCreate(
-                    $conditions, 
+                    $conditions,
                     [
                         'shipping_date' => $extraService['shipping_date'] ?? null,
                         'commentary' => $extraService['commentary'] ?? null,

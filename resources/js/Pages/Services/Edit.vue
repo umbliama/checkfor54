@@ -798,7 +798,8 @@ const test_rows = ref([
                                                         </button>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
-                                                        <button type="button"
+                                                        <Link method="POST" :href="route('services.createIncident', service.id)">
+                                                            <button type="button"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                             Инцидент
                                                             <svg class="block ml-2" width="16" height="16"
@@ -809,6 +810,22 @@ const test_rows = ref([
                                                                     fill="#464F60" />
                                                             </svg>
                                                         </button>
+</Link>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <Link method="DELETE" :href="route('services.destroyServiceEquip',equip.id)">
+                                                            <button type="button" 
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                            Удалить
+                                                            <svg class="block ml-2" width="16" height="16"
+                                                                viewBox="0 0 16 16" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path
+                                                                    d="M9.82776 0.722047C9.89347 0.721929 9.95855 0.734763 10.0193 0.759815C10.08 0.784867 10.1352 0.821645 10.1818 0.868047L15.1318 5.81805C15.2255 5.91181 15.2782 6.03896 15.2782 6.17155C15.2782 6.30413 15.2255 6.43128 15.1318 6.52505C14.6518 7.00505 14.0598 7.11305 13.6288 7.11305C13.4518 7.11305 13.2938 7.09505 13.1688 7.07405L10.0348 10.208C10.1173 10.5405 10.1708 10.8794 10.1948 11.221C10.2408 11.923 10.1628 12.908 9.47476 13.596C9.381 13.6898 9.25384 13.7424 9.12126 13.7424C8.98868 13.7424 8.86152 13.6898 8.76776 13.596L5.93876 10.768L2.75676 13.95C2.56176 14.145 1.53776 14.852 1.34276 14.657C1.14776 14.462 1.85476 13.437 2.04976 13.243L5.23176 10.061L2.40376 7.23205C2.31002 7.13828 2.25737 7.01113 2.25737 6.87855C2.25737 6.74596 2.31002 6.61881 2.40376 6.52505C3.09176 5.83705 4.07676 5.75805 4.77876 5.80505C5.12042 5.82899 5.45936 5.88252 5.79176 5.96505L8.92576 2.83205C8.8996 2.67976 8.88622 2.52556 8.88576 2.37105C8.88576 1.94105 8.99376 1.34905 9.47476 0.868047C9.56847 0.774578 9.69541 0.722075 9.82776 0.722047Z"
+                                                                    fill="#464F60" />
+                                                            </svg>
+                                                        </button>
+</Link>
                                                     </DropdownMenuItem>
 
                                                 </DropdownMenuContent>
