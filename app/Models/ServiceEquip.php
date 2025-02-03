@@ -38,6 +38,6 @@ class ServiceEquip extends Model
 
     public function services()
     {
-        return $this->belongsTo(Service::class, 'service_id');
+        return $this->belongsTo(Service::class, 'service_id', 'id');
     }
 }

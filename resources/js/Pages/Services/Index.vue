@@ -612,7 +612,7 @@ const nameContragent = (id) => {
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(service, index) in activeServices.data" :value="'item-'+service.id">
+                        <AccordionItem v-for="(service, index) in selectedActive ? activeServices.data : services.data" :value="'item-'+index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
@@ -734,8 +734,8 @@ const nameContragent = (id) => {
                             </AccordionHeader>
                             <AccordionContent class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                 <!-- 2 уровень -->
-                                <AccordionRoot type="multiple" :collapsible="true">
-                                    <AccordionItem v-for="(service_item, index) in service" :value="'item-'+service.id">
+                                <AccordionRoot type="multiple" :collapsible="false">
+                                    <AccordionItem v-for="(service_item, index) in service" :value="'item-'+service_item.id">
                                         <AccordionHeader class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'" endpoint="/equipment" />

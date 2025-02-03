@@ -238,7 +238,7 @@ class IncidentController extends Controller
     protected function handleFileUpload(Request $request, $folder)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:20480',
+            'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:50480',
             'caption' => 'nullable|string|max:255',
         ]);
 

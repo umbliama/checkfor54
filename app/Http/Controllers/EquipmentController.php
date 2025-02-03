@@ -26,13 +26,24 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-        $equipment_on_rent_count = Equipment::whereHas('serviceEquipment', function ($query) {
-            $query->where('active', true);
-        })->count();
-        $activeEquipment = Equipment::whereHas('serviceEquipment', function ($query) {
-            $query->where('active', true);
+        $equipment_on_rent_count = Equipment::whereHas('serviceEquipment.services', function ($query) {
+            $query->where('active', 1);
+        })
+        ->whereDoesntHave('serviceEquipment.services', function ($query) {
+            $query->where('active', 0);
+        })
+        ->count();
+        
+        
+        $activeEquipment = Equipment::whereHas('serviceEquipment.services', function ($query) {
+            $query->where('active', 1);
+        })->with(['serviceEquipment.services' => function ($query) {
+            $query->where('active', 1);
+        }]) ->whereDoesntHave('serviceEquipment.services', function ($query) {
+            $query->where('active', 0);
         })->paginate($perPage);
-
+        
+  
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
@@ -74,8 +85,12 @@ class EquipmentController extends Controller
             }
         }
         if ($rentActive) {
-            $query->whereHas('serviceEquipment', function ($query) {
-                $query->where('active', true);
+            $query->where(function ($query) {
+                $query->whereHas('serviceEquipment.services', function ($query) {
+                    $query->where('active', 1);
+                })->orWhereHas('subequipment', function ($query) {
+                    $query->where('active', 1);
+                });
             });
         }
         if ($categoryId) {
@@ -770,25 +785,25 @@ class EquipmentController extends Controller
     }
 
     public function changeLocation(Request $request)
-    {   
-        
+    {
+
         $request->validate([
             'id' => 'required|integer',
             'locationId' => 'required|integer',
         ]);
-    
+
         $id = $request->input('id');
         $locationId = $request->input('locationId');
-    
+
         try {
             $equipment = Equipment::findOrFail($id);
             $location = EquipmentLocation::findOrFail($locationId);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Equipment or Location not found'], 404);
         }
-    
+
         $equipment->location_id = $location->id;
         $equipment->save();
-    
+
     }
 }

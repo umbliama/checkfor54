@@ -49,9 +49,9 @@ const props = defineProps({
     blocks: Array,
     contragents: Array,
     employees: Array,
-    advColumnsArchivedCount:Number,
-    tasksColumnsArchivedCount:Number,
-    userAvatar:String
+    advColumnsArchivedCount: Number,
+    tasksColumnsArchivedCount: Number,
+    userAvatar: String
 })
 
 
@@ -150,7 +150,7 @@ const handleMediaFileUpload = async (event, columnId, blockId) => {
 
         await saveBlock(blockId, {
             media_file: selectedFiles,
-            existing_media_urls: existingFiles, 
+            existing_media_urls: existingFiles,
         });
     } else {
         console.error(`Block with ID ${blockId} not found in column ${columnId}`);
@@ -172,7 +172,7 @@ const handleFileUpload = async (event, columnId, blockId) => {
 
         await saveBlock(blockId, {
             files: selectedFiles,
-            existing_file_urls: existingFiles, 
+            existing_file_urls: existingFiles,
         });
     } else {
         console.error(`Block with ID ${blockId} not found in column ${columnId}`);
@@ -333,7 +333,7 @@ onBeforeMount(() => {
                         Рекламация
                         <span
                             class="flex items-center justify-center w-auto h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            {{advColumnsArchivedCount}}
+                            {{ advColumnsArchivedCount }}
                         </span>
                     </li>
                 </ul>
@@ -375,13 +375,13 @@ onBeforeMount(() => {
                                             <Link
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST" @click="createBlock(column.id, 'customer')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'customer'})">
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'customer' })">
                                             Заказчик
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'employee')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'employee'})"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'employee' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Сотрудник
@@ -389,7 +389,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'equipment')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'equipment'})"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'equipment' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Оборудование
@@ -397,7 +397,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'commentary')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'commentary'})"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'commentary' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Комментарий
@@ -405,7 +405,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'mediafiles')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'mediafiles'})"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'mediafiles' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Медиа
@@ -413,7 +413,7 @@ onBeforeMount(() => {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Link @click="createBlock(column.id, 'files')"
-                                                :href="route('constructor.createBlock',{ column: column.id, type: 'files'})"
+                                                :href="route('constructor.createBlock', { column: column.id, type: 'files' })"
                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                 method="POST">
                                             Файлы
@@ -473,14 +473,16 @@ onBeforeMount(() => {
                                             label="Заказчик:" only-value v-model="block.contragent_id" />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -531,14 +533,16 @@ onBeforeMount(() => {
                                             label="Сотрудник:" only-value v-model="block.employee_id" />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -590,14 +594,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -649,14 +655,16 @@ onBeforeMount(() => {
                                         <UiField label="Оборудование" v-model="block.equipment" textarea />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -705,15 +713,20 @@ onBeforeMount(() => {
                                     <template v-if="block.type == 'mediafiles'">
                                         <label class="block mb-2">Медиа:</label>
                                         <!-- в ключ swiper_refs нужно передать уникальный id блока медиа -->
-                                        <Swiper :slides-per-view="1" @swiper="swiper => swiper_refs['1'] = swiper" class="!z-[unset] [&>.swiper-wrapper]:z-[unset]">
-                                            <SwiperSlide v-for="(n, i) in block.media_url" class="" style="height:240px">
-                                                <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                        <Swiper :slides-per-view="1" @swiper="swiper => swiper_refs['1'] = swiper"
+                                            class="!z-[unset] [&>.swiper-wrapper]:z-[unset]">
+                                            <SwiperSlide v-for="(n, i) in block.media_url" class=""
+                                                style="height:240px">
+                                                <img :src="'/storage/' + n"
+                                                    class="block w-full h-full object-center object-cover" />
                                             </SwiperSlide>
                                         </Swiper>
                                         <div class="grid grid-cols-6 gap-2.5 mt-2 p-2 bg-bg1">
                                             <div class="relative" v-for="(n, i) in block.media_url">
-                                                <button class="block w-full h-full" type="button" @click="swiper_refs['1'].slideTo(i)" style="height: 40px">
-                                                    <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                                <button class="block w-full h-full" type="button"
+                                                    @click="swiper_refs['1'].slideTo(i)" style="height: 40px">
+                                                    <img :src="'/storage/' + n"
+                                                        class="block w-full h-full object-center object-cover" />
                                                 </button>
 
                                                 <Link method="DELETE"
@@ -734,14 +747,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -794,7 +809,8 @@ onBeforeMount(() => {
                                     <template v-if="block.type == 'files'">
                                         <label class="block mb-2">Файлы:</label>
                                         <ul class="py-1 px-3 space-y-3 text-xs bg-bg1">
-                                            <div v-for="(file,i) in block.file_url" class="flex items-center max-w-full">
+                                            <div v-for="(file, i) in block.file_url"
+                                                class="flex items-center max-w-full">
                                                 <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file
                                                     }}</span>
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -829,8 +845,8 @@ onBeforeMount(() => {
                                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                         Скачать
                                                                         <svg class="block ml-2"
-                                                                            xmlns="http://www.w3.org/2000/svg" width="16"
-                                                                            height="16" viewBox="0 0 24 24">
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16" height="16" viewBox="0 0 24 24">
                                                                             <path fill="none" stroke="#464F60"
                                                                                 stroke-linecap="round"
                                                                                 stroke-linejoin="round" stroke-width="2"
@@ -839,7 +855,9 @@ onBeforeMount(() => {
                                                                     </a>
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem>
-                                                                    <Link :href="route('constructor.deleteFile', [column.id, block.id, i])" method="DELETE" 
+                                                                    <Link
+                                                                        :href="route('constructor.deleteFile', [column.id, block.id, i])"
+                                                                        method="DELETE"
                                                                         class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                     Удалить
                                                                     <svg class="block ml-2" width="16" height="16"
@@ -860,14 +878,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -896,6 +916,8 @@ onBeforeMount(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
+                                                                <Link method="DELETE"
+                                                                    :href="route('constructor.deleteBlock', block.id)">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                     Удалить блок
@@ -907,6 +929,7 @@ onBeforeMount(() => {
                                                                             fill="currentColor" />
                                                                     </svg>
                                                                 </button>
+                                                                </Link>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </transition>
@@ -1052,14 +1075,16 @@ onBeforeMount(() => {
                                             label="Заказчик:" only-value v-model="block.contragent_id" />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1110,14 +1135,16 @@ onBeforeMount(() => {
                                             label="Сотрудник:" only-value v-model="block.employee_id" />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1169,14 +1196,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1228,14 +1257,16 @@ onBeforeMount(() => {
                                         <UiField label="Оборудование" v-model="block.equipment" textarea />
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1284,15 +1315,20 @@ onBeforeMount(() => {
                                     <template v-if="block.type == 'mediafiles'">
                                         <label class="block mb-2">Медиа:</label>
                                         <!-- в ключ swiper_refs нужно передать уникальный id блока медиа -->
-                                        <Swiper :slides-per-view="1" @swiper="swiper => swiper_refs['1'] = swiper" class="!z-[unset] [&>.swiper-wrapper]:z-[unset]">
-                                            <SwiperSlide v-for="(n, i) in block.media_url" class="" style="height:240px">
-                                                <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                        <Swiper :slides-per-view="1" @swiper="swiper => swiper_refs['1'] = swiper"
+                                            class="!z-[unset] [&>.swiper-wrapper]:z-[unset]">
+                                            <SwiperSlide v-for="(n, i) in block.media_url" class=""
+                                                style="height:240px">
+                                                <img :src="'/storage/' + n"
+                                                    class="block w-full h-full object-center object-cover" />
                                             </SwiperSlide>
                                         </Swiper>
                                         <div class="grid grid-cols-6 gap-2.5 mt-2 p-2 bg-bg1">
                                             <div class="relative" v-for="(n, i) in block.media_url">
-                                                <button class="block w-full h-full" type="button" @click="swiper_refs['1'].slideTo(i)" style="height: 40px">
-                                                    <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                                <button class="block w-full h-full" type="button"
+                                                    @click="swiper_refs['1'].slideTo(i)" style="height: 40px">
+                                                    <img :src="'/storage/' + n"
+                                                        class="block w-full h-full object-center object-cover" />
                                                 </button>
 
                                                 <Link method="DELETE"
@@ -1313,14 +1349,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1405,8 +1443,8 @@ onBeforeMount(() => {
                                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                         Скачать
                                                                         <svg class="block ml-2"
-                                                                            xmlns="http://www.w3.org/2000/svg" width="16"
-                                                                            height="16" viewBox="0 0 24 24">
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16" height="16" viewBox="0 0 24 24">
                                                                             <path fill="none" stroke="#464F60"
                                                                                 stroke-linecap="round"
                                                                                 stroke-linejoin="round" stroke-width="2"
@@ -1436,14 +1474,16 @@ onBeforeMount(() => {
 
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
-    
+
                                                 <li>
-                                                    <UiUserAvatar :image="block.user.avatar" size="24px" class="border border-[#DDE1E6]" />
+                                                    <UiUserAvatar :image="block.user.avatar" size="24px"
+                                                        class="border border-[#DDE1E6]" />
                                                 </li>
                                             </ul>
 
                                             <DropdownMenuRoot>
-                                                <DropdownMenuTrigger aria-label="Customise options" class="shrink-0 ml-2">
+                                                <DropdownMenuTrigger aria-label="Customise options"
+                                                    class="shrink-0 ml-2">
                                                     <svg class="block" width="24" height="24" viewBox="0 0 24 24"
                                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path
@@ -1461,7 +1501,7 @@ onBeforeMount(() => {
                                                                 <label
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all cursor-pointer">
                                                                     <input type="file" hidden multiple
-                                                                        @change="handleFileUpload($event, column.id , block.id)" />
+                                                                        @change="handleFileUpload($event, column.id, block.id)" />
                                                                     Добавить файл
                                                                 </label>
                                                             </DropdownMenuItem>
@@ -1523,10 +1563,10 @@ onBeforeMount(() => {
                                         </AccordionTrigger>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.created_at)
-                                            }}</span>
+                                        }}</span>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.archive_date)
-                                            }}</span>
+                                        }}</span>
                                         <DropdownMenuRoot>
                                             <!-- DropdownMenuTrigger and content as before -->
                                         </DropdownMenuRoot>
@@ -1557,8 +1597,11 @@ onBeforeMount(() => {
                                                     <Swiper :slides-per-view="1"
                                                         class="!z-[unset] [&>.swiper-wrapper]:z-[unset]"
                                                         @swiper="swiper => swiper_refs['1'] = swiper">
-                                                        <SwiperSlide v-for="(n, i) in block.media_url" class="!z-[unset] [&>.swiper-wrapper]:z-[unset]" style="height:240px" :key="i">
-                                                            <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                                        <SwiperSlide v-for="(n, i) in block.media_url"
+                                                            class="!z-[unset] [&>.swiper-wrapper]:z-[unset]"
+                                                            style="height:240px" :key="i">
+                                                            <img :src="'/storage/' + n"
+                                                                class="block w-full h-full object-center object-cover" />
                                                         </SwiperSlide>
                                                     </Swiper>
                                                     <div class="grid grid-cols-5 gap-2.5 mt-2 p-2 bg-bg1">
@@ -1603,10 +1646,10 @@ onBeforeMount(() => {
                                         </AccordionTrigger>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.created_at)
-                                            }}</span>
+                                        }}</span>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.archive_date)
-                                            }}</span>
+                                        }}</span>
                                         <DropdownMenuRoot>
                                             <!-- DropdownMenuTrigger and content as before -->
                                         </DropdownMenuRoot>
@@ -1637,8 +1680,10 @@ onBeforeMount(() => {
                                                     <Swiper :slides-per-view="1"
                                                         class="!z-[unset] [&>.swiper-wrapper]:z-[unset]"
                                                         @swiper="swiper => swiper_refs['1'] = swiper">
-                                                        <SwiperSlide v-for="(n, i) in block.media_url" class="" style="height:240px" :key="i">
-                                                            <img :src="'/storage/' + n" class="block w-full h-full object-center object-cover" />
+                                                        <SwiperSlide v-for="(n, i) in block.media_url" class=""
+                                                            style="height:240px" :key="i">
+                                                            <img :src="'/storage/' + n"
+                                                                class="block w-full h-full object-center object-cover" />
                                                         </SwiperSlide>
                                                     </Swiper>
                                                     <div class="grid grid-cols-5 gap-2.5 mt-2 p-2 bg-bg1">
@@ -1659,14 +1704,14 @@ onBeforeMount(() => {
 
 
             </div>
-            <IncidentPagination v-if="getMenuActiveItem === 'tasks'" v-model="tasksColumns.current_page" :total-pages="tasksColumns.last_page"
-                class="mt-5" />
-            <IncidentPagination v-if="getMenuActiveItem === 'adv'" v-model="advColumns.current_page" :total-pages="advColumns.last_page"
-                class="mt-5" />
-            <IncidentPagination v-if="getMenuActiveItem === 'history_tasks'" v-model="tasksColumnsArchived.current_page" :total-pages="tasksColumnsArchived.last_page"
-                class="mt-5" />
-            <IncidentPagination v-if="getMenuActiveItem === 'history_adv'" v-model="advColumnsArchived.current_page" :total-pages="advColumnsArchived.last_page"
-                class="mt-5" />
+            <IncidentPagination v-if="getMenuActiveItem === 'tasks'" v-model="tasksColumns.current_page"
+                :total-pages="tasksColumns.last_page" class="mt-5" />
+            <IncidentPagination v-if="getMenuActiveItem === 'adv'" v-model="advColumns.current_page"
+                :total-pages="advColumns.last_page" class="mt-5" />
+            <IncidentPagination v-if="getMenuActiveItem === 'history_tasks'" v-model="tasksColumnsArchived.current_page"
+                :total-pages="tasksColumnsArchived.last_page" class="mt-5" />
+            <IncidentPagination v-if="getMenuActiveItem === 'history_adv'" v-model="advColumnsArchived.current_page"
+                :total-pages="advColumnsArchived.last_page" class="mt-5" />
 
 
         </div>

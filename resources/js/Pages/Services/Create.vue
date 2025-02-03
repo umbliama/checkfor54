@@ -166,6 +166,14 @@ function openDialog() {
     is_dialog_open.value = true;
 }
 
+const deleteMainEquipment = (id) => {
+    const equipment = selectedEquipment.value[id];
+
+    if(equipment) {
+        equipment.slice(0,id);
+    }
+}
+
 watch(getActiveEquipmentId, async (newValue, oldValue) => {
     if (newValue) {
         try {

@@ -445,7 +445,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(service, index) in sales.data" :value="'item-'+service.id">
+                        <AccordionItem v-for="(service, index) in sales.data" :value="'item-'+index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
@@ -667,7 +667,20 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                 class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                 :side-offset="5" align="end">
                                                                 <DropdownMenuItem>
-                                                                    <Link :href="`/sale/delete/${2}`"  method="DELETE"
+                                                                    <Link :href="`/sale/edit/${subservice.id}`" 
+                                                                        class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
+                                                                    Редактировать
+                                                                    <svg class="block ml-2" width="16" height="16"
+                                                                        viewBox="0 0 16 16" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                            fill="currentColor" />
+                                                                    </svg>
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem>
+                                                                    <Link :href="`/sale/delete/${subservice.id}`"  method="DELETE"
                                                                         class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                     Удалить
                                                                     <svg class="block ml-2" width="16" height="16"

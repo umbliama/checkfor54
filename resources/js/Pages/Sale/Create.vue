@@ -134,7 +134,15 @@ const incServiceRow = () => {
 const addRows = () => {
     const equipment = saleEquip.value;
     store.dispatch('sale/updateAddingEquipment', true);
-    rows.value += 1
+    if (rows.value < 0) {
+        rows.value = 1
+        console.log(rows)
+    } else {
+        console.log(rows)
+
+        rows.value += 1
+
+    }
 }
 
 const updateActiveTab = (tab) => {
@@ -164,7 +172,7 @@ const updateActiveMainEquipment = (value) => {
 
 const staffEquipment = (value) => {
     updateActiveMainEquipment(value);
-    store.dispatch('sale/updateAddingEquipment',false )
+    store.dispatch('sale/updateAddingEquipment', false)
     incRowSubEquip(value)
 }
 
@@ -211,9 +219,9 @@ watch(activeMainEquipmentId, async (newValue) => {
                 const equipment = {
                     ...data,
                     subequipment: [],
-                    price:null,
-                    commentary:null,
-                    shipping_date:null,
+                    price: null,
+                    commentary: null,
+                    shipping_date: null,
                     subRows: 0
                 }
                 saleEquip.value.push(equipment)
@@ -236,9 +244,9 @@ watch(activeSubEquipmentId, async (newValue) => {
             console.log("Загруженные данные дополнительного оборудования:", data);
             const subequipment = {
                 ...data,
-                price:null,
-                commentary:null,
-                shipping_date:null,
+                price: null,
+                commentary: null,
+                shipping_date: null,
             }
             addSubEquipment(chosenEquipmentId.value, subequipment)
 
@@ -250,6 +258,10 @@ watch(activeSubEquipmentId, async (newValue) => {
     }
 }, { deep: true });
 
+const deleteMainEquipment = (id) => {
+    saleEquip.value.splice(id, 1);
+    rows.value -= 1;
+}
 
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
@@ -813,8 +825,7 @@ function submit() {
                             </div>
                         </div>
                         <AccordionRoot type="multiple" :collapsible="true">
-                            <AccordionItem v-for="(equipment, mainIndex) in saleEquip"
-                                :value="'item-' + equipment.id">
+                            <AccordionItem v-for="(equipment, mainIndex) in saleEquip" :value="'item-' + equipment.id">
                                 <AccordionHeader>
                                     <div
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -824,7 +835,9 @@ function submit() {
                                                 :item-id="selectedEquipmentService?.id" endpoint="/services" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
-                                            {{ equipment.equipment.category.name }} {{ equipment.equipment.size.name }} {{ equipment.equipment.series }}
+                                            {{ equipment.equipment.category.name }} {{ equipment.equipment.size.name }}
+                                            {{
+                                            equipment.equipment.series }}
 
                                             <AccordionTrigger class="shrink-0 group ml-3">
                                                 <svg class="group-data-[state=open]:hidden" width="24" height="24"
@@ -842,21 +855,18 @@ function submit() {
                                             </AccordionTrigger>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input
-                                                v-model="equipment.shipping_date"
-                                                type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input v-model="equipment.shipping_date" type="date"
+                                                class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input
-                                                v-model="equipment.commentary"
-                                                type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input v-model="equipment.commentary" type="text"
+                                                class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input
-                                               v-model="equipment.price"
-                                                type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input v-model="equipment.price" type="text"
+                                                class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -897,8 +907,7 @@ function submit() {
                                                             class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                             :side-offset="5" align="end">
                                                             <DropdownMenuItem>
-                                                                <button type="button"
-                                                                    @click="staffEquipment(mainIndex)"
+                                                                <button type="button" @click="staffEquipment(mainIndex)"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                     Укомплектовать
                                                                     <svg class="block ml-2" width="16" height="16"
@@ -914,17 +923,16 @@ function submit() {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link method="DELETE"
-                                                                    class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
-                                                                Удалить
-                                                                <svg class="block ml-2" width="16" height="16"
-                                                                    viewBox="0 0 16 16" fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg">
-                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                        d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
-                                                                        fill="currentColor" />
-                                                                </svg>
-                                                                </Link>
+                                                                <button @click="deleteMainEquipment(mainIndex)">
+                                                                    Удалить
+                                                                    <svg class="block ml-2" width="16" height="16"
+                                                                        viewBox="0 0 16 16" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                                                            fill="currentColor" />
+                                                                    </svg>
+                                                                </button>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </transition>
@@ -945,25 +953,24 @@ function submit() {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                                             <div class="flex py-2.5 px-2">
-                                                {{ subEquipment.equipment.category.name }} {{ subEquipment.equipment.size.name }} {{ subEquipment.equipment.series}}
+                                                {{ subEquipment.equipment.category.name }} {{
+                                                subEquipment.equipment.size.name }} {{
+                                                subEquipment.equipment.series}}
                                             </div>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
-                                            <input
-                                                v-model="subEquipment.shipping_date"
-                                                type="date" class="block w-full h-full px-2 bg-transparent"
+                                            <input v-model="subEquipment.shipping_date" type="date"
+                                                class="block w-full h-full px-2 bg-transparent"
                                                 onclick="this.showPicker()" />
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                            <input
-                                               v-model="subEquipment.commentary"
-                                                type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input v-model="subEquipment.commentary" type="text"
+                                                class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                            <input
-                                                v-model="subEquipment.price"
-                                                type="text" class="block w-full h-full px-2 bg-transparent" />
+                                            <input v-model="subEquipment.price" type="text"
+                                                class="block w-full h-full px-2 bg-transparent" />
                                         </div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -1140,7 +1147,7 @@ function submit() {
                                         </div>
                                     </div>
                                 </AccordionContent>
-              
+
 
                             </AccordionItem>
 
@@ -1161,7 +1168,7 @@ function submit() {
                                     <rect width="28" height="28" rx="14" fill="#644DED" fill-opacity="0.08" />
                                 </svg>
                             </button>
-                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">Оборудование</div>
+                            <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">Услуга</div>
                             <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">Дата перевозки
                             </div>
                             <div

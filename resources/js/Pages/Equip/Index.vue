@@ -83,17 +83,14 @@ const sumLocs = () => {
 }
 
 const sortedEquipment = computed(() => {
-    // Clone the array to avoid mutating the original array
 
 
     return props.equipment.data.slice().sort((a, b) => {
         let result = 0;
-        // Determine which property to sort by (e.g., 'name' or 'status')
         if (sortBy.value === 'series') {
             result = a.series.localeCompare(b.series);
         }
 
-        // Apply sort order (ascending or descending)
         if (sortOrder.value === 'desc') {
             result = result * -1;
         }

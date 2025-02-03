@@ -25,6 +25,7 @@ class Equipment extends Model
     {
         return $this->hasMany(ServiceEquip::class);
     }
+    
 
     protected $fillable = [
         'manufactor',
