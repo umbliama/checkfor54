@@ -18,6 +18,10 @@ class DashboardController extends Controller
     {
         $searchTerm = $request->query('search');
         $perPage = $request->query('perPage');
+        $categoryId = $request->query('category_id', 1);
+        $sizeId = $request->query('size_id');
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+        $query = Equipment::query();
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $equipment_on_rent_count = Equipment::whereHas('serviceEquipment', function ($query) {
@@ -32,7 +36,6 @@ class DashboardController extends Controller
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
-        $query = Equipment::query();
         $locationId = $request->query('location_id');
         $rentActive = $request->query('isRentActive');
         $equipment_categories_counts = [];
@@ -96,18 +99,27 @@ class DashboardController extends Controller
     public function rent(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
-        $perPage = $request->input('perPage', 10);
+
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
+
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
             $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
         }
 
+
         $contragents = Contragents::all();
 
-        $rented_equipment = Equipment::whereHas('serviceEquipment.services', function ($query) {
+        $category_id = $request->input('category_id');
+        $size_id = $request->input('size_id');
+        $perPage = $request->input('perPage', 10);
+
+
+        $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
+
+        $rented_equipment_query = Equipment::whereHas('serviceEquipment.services', function ($query) {
             $query->where('active', 1);
         })->with([
                     'serviceEquipment.services' => function ($query) {
@@ -115,9 +127,24 @@ class DashboardController extends Controller
                     }
                 ])->whereDoesntHave('serviceEquipment.services', function ($query) {
                     $query->where('active', 0);
-                })->paginate($perPage);
+                });
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)
+                ->where('category_id', $category_id) 
+                ->count();
+        }
+        if ($category_id) {
+            $rented_equipment_query->where('category_id', $category_id);
+        }
 
-        return Inertia::render('Dashboard/Rent', ['equipment_categories' => $equipment_categories, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_categories_counts_all' => $equipment_categories_counts_all, 'contragents' => $contragents, 'rented_equipment' => $rented_equipment]);
+        if ($size_id) {
+            $rented_equipment_query->where('size_id', $size_id);
+        }
+
+        $rented_equipment = $rented_equipment_query->paginate($perPage);
+        return Inertia::render('Dashboard/Rent', ['equipment_sizes_counts' => $equipment_sizes_counts, 'equipment_sizes' => $equipment_sizes, 'equipment_categories' => $equipment_categories, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_categories_counts_all' => $equipment_categories_counts_all, 'contragents' => $contragents, 'rented_equipment' => $rented_equipment]);
     }
     public function free()
     {
