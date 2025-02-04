@@ -42,8 +42,8 @@ const selectMenu = (menuState) => {
         <div class="lg:hidden sticky bottom-0 left-0 z-50 w-full h-16 mt-auto bg-white border-t border-gray-200">
             <div class="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                 <Link
-                    :href="route('dashboard')"
-                    :class="{ 'bg-my-gray': $page.url.startsWith('/dashboard') }"
+                    :href="route('rent')"
+                    :class="{ 'bg-my-gray': $page.url.startsWith('/rent') }"
                     class="flex flex-col justify-center items-center text-center text-xs"
                 >
                     <svg class="block mb-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -146,75 +146,6 @@ const selectMenu = (menuState) => {
                     </DropdownMenuPortal>
                 </DropdownMenuRoot>
 
-<!--                <Menu as="div" class="relative h-full inline-block text-left">
-                    <div class="sm:overflow-x-visible h-full flex">
-                        <MenuButton class="inline-flex w-full justify-center gap-x-1.5 mt-1 text-sm font-semibold text-gray-900 ">
-                            <button
-                                type="button"
-                                class="inline-flex flex-col items-center justify-center px-1 hover:bg-gray-50 group"
-                            >
-                                <svg width="14" height="10" viewBox="0 0 14 10" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M1 0H6C6.26522 0 6.51957 0.105357 6.70711 0.292893C6.89464 0.48043 7 0.734784 7 1C7 1.26522 6.89464 1.51957 6.70711 1.70711C6.51957 1.89464 6.26522 2 6 2H1C0.734784 2 0.48043 1.89464 0.292893 1.70711C0.105357 1.51957 0 1.26522 0 1C0 0.734784 0.105357 0.48043 0.292893 0.292893C0.48043 0.105357 0.734784 0 1 0V0ZM8 8H13C13.2652 8 13.5196 8.10536 13.7071 8.29289C13.8946 8.48043 14 8.73478 14 9C14 9.26522 13.8946 9.51957 13.7071 9.70711C13.5196 9.89464 13.2652 10 13 10H8C7.73478 10 7.48043 9.89464 7.29289 9.70711C7.10536 9.51957 7 9.26522 7 9C7 8.73478 7.10536 8.48043 7.29289 8.29289C7.48043 8.10536 7.73478 8 8 8ZM1 4H13C13.2652 4 13.5196 4.10536 13.7071 4.29289C13.8946 4.48043 14 4.73478 14 5C14 5.26522 13.8946 5.51957 13.7071 5.70711C13.5196 5.89464 13.2652 6 13 6H1C0.734784 6 0.48043 5.89464 0.292893 5.70711C0.105357 5.51957 0 5.26522 0 5C0 4.73478 0.105357 4.48043 0.292893 4.29289C0.48043 4.10536 0.734784 4 1 4Z"
-                                        fill="#21272A"
-                                    />
-                                </svg>
-
-                                <span class="text-sm text-gray-500 dark:text-gray-400  ">Меню</span>
-                            </button>
-                        </MenuButton>
-                    </div>
-
-                    <transition
-                        enter-active-class="transition ease-out duration-100"
-                        enter-from-class="transform opacity-0 scale-95"
-                        enter-to-class="transform opacity-100 scale-100"
-                        leave-active-class="transition ease-in duration-75"
-                        leave-from-class="transform opacity-100 scale-100"
-                        leave-to-class="transform opacity-0 scale-95"
-                    >
-                        <MenuItems
-                            class="absolute -top-32 z-200 right-0 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                        >
-                            <div class="py-1">
-                                <MenuItem>
-                                    <Link
-                                        :href="route('contragents.create')" @click="selectMenu(SideMenuMenuStates.SALE)"
-                                        :class="['block px-4 py-2 text-sm']"
-                                        class="flex items-center justify-between"
-                                    >
-                                        Продажа
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 1V23" stroke="#21272A" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                            <path
-                                                d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"
-                                                stroke="#21272A" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round" />
-                                        </svg>
-                                    </Link>
-                                </MenuItem>
-                                <MenuItem>
-                                    <Link
-                                        :href="route('contragents.create')"
-                                        :class="['block px-4 py-2 text-sm']"
-                                        class="flex items-center justify-between"
-                                    >
-                                        Разбор инцидентов
-                                        <svg width="20" height="18" viewBox="0 0 20 18" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M12.8 1.61301L19.501 12.774C20.464 14.377 19.991 16.486 18.444 17.484C17.9248 17.8202 17.3196 17.9994 16.701 18H3.298C1.477 18 0 16.47 0 14.581C0 13.942 0.173 13.317 0.498 12.774L7.2 1.61301C8.162 0.010011 10.196 -0.480989 11.743 0.517011C12.171 0.793011 12.533 1.16801 12.8 1.61301ZM10.58 2.45201C10.4576 2.37327 10.3205 2.32016 10.1769 2.29589C10.0334 2.27162 9.88647 2.2767 9.74496 2.31081C9.60346 2.34492 9.47033 2.40737 9.35364 2.49437C9.23694 2.58138 9.13909 2.69113 9.066 2.81701L2.365 13.98C2.25615 14.1619 2.19877 14.37 2.199 14.582C2.199 15.212 2.691 15.722 3.299 15.722H16.7C16.906 15.722 17.107 15.662 17.281 15.55C17.5307 15.3841 17.7067 15.1283 17.7725 14.8358C17.8383 14.5434 17.7886 14.2368 17.634 13.98L10.933 2.81701C10.8451 2.67003 10.7247 2.54517 10.581 2.45201H10.58ZM10 14C9.73478 14 9.48043 13.8947 9.29289 13.7071C9.10536 13.5196 9 13.2652 9 13C9 12.7348 9.10536 12.4804 9.29289 12.2929C9.48043 12.1054 9.73478 12 10 12C10.2652 12 10.5196 12.1054 10.7071 12.2929C10.8946 12.4804 11 12.7348 11 13C11 13.2652 10.8946 13.5196 10.7071 13.7071C10.5196 13.8947 10.2652 14 10 14ZM10 5.00001C10.2652 5.00001 10.5196 5.10537 10.7071 5.2929C10.8946 5.48044 11 5.73479 11 6.00001V10C11 10.2652 10.8946 10.5196 10.7071 10.7071C10.5196 10.8947 10.2652 11 10 11C9.73478 11 9.48043 10.8947 9.29289 10.7071C9.10536 10.5196 9 10.2652 9 10V6.00001C9 5.73479 9.10536 5.48044 9.29289 5.2929C9.48043 5.10537 9.73478 5.00001 10 5.00001Z"
-                                                fill="#21272A" />
-                                        </svg>
-                                    </Link>
-                                </MenuItem>
-                            </div>
-                        </MenuItems>
-                    </transition>
-                </Menu>-->
             </div>
         </div>
     </div>
