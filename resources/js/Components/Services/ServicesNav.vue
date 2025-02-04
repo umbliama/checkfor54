@@ -48,7 +48,7 @@ function resetDates() {
                     @click="selectActive(true)"
                 >
                     Открытые аренды
-                    <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                    <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                         {{ $props.countServicesActive }}
                     </span>
                 </li>
@@ -58,7 +58,7 @@ function resetDates() {
                     @click="selectActive(false)"
                 >
                     Закрытые аренды
-                    <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                    <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                         {{ $props.countServicesInactive }}
                     </span>
                 </li>

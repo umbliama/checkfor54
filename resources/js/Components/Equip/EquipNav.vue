@@ -74,8 +74,7 @@ onMounted(() => {
                     >
                         Оборудование
                         <span
-                            :class="[equipment_count === 1 ? 'w-[30px]' : 'w-auto']"
-                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count }}
                         </span>
@@ -89,8 +88,7 @@ onMounted(() => {
                     >
                         Ремонт
                         <span
-                            :class="[equipment_count_repair === 1 ? 'w-[30px]' : 'w-auto']"
-                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count_repair }}
                         </span>
@@ -104,8 +102,7 @@ onMounted(() => {
                     >
                         Испытания
                         <span
-                            :class="[equipment_count_test === 1 ? 'w-[30px]' : 'w-auto']"
-                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
+                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ equipment_count_test }}
                         </span>
