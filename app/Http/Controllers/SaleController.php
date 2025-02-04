@@ -31,7 +31,13 @@ class SaleController extends Controller
             'saleEquipment.subequipment.equipment',
             'saleEquipment.subequipment.equipment.category',
             'saleEquipment.subequipment.equipment.size',
-        ])->get(); 
+            'directory'
+        ])->get()->map(function ($sale) {
+            if (isset($sale->directory['files'])) {
+                $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+            }
+            return $sale;
+        });
 
         $contragents_names = Contragents::all();
         $groupedSales = $sales->groupBy('contragent_id');
@@ -81,6 +87,7 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
+        $full_income = 0;
         $request->validate([
             'contragent_id' => 'required|int',
             'sale_number' => "required|string",
@@ -115,6 +122,8 @@ class SaleController extends Controller
                 'commentary' => $equipmentData['commentary'] ?? null,
                 'price' => $equipmentData['price'] ?? null,
             ]);
+
+            $full_income += $equipmentData['price'];
             if (!empty($equipmentData['subEquipment'])) {
                 foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
                     SaleSub::create([
@@ -125,6 +134,7 @@ class SaleController extends Controller
                         'commentary' => $subEquipmentData['commentary'] ?? null,
                         'price' => $subEquipmentData['price'] ?? null,
                     ]);
+                    $full_income += $subEquipmentData['price'];
                 }
             }
         }
@@ -139,6 +149,7 @@ class SaleController extends Controller
                 'commentary' => $extraService['commentary'],
                 'price' => $extraService['price'],
             ]);
+            $full_income += $extraService['price'];
         }
 
         foreach (User::all() as $user) {
@@ -148,6 +159,13 @@ class SaleController extends Controller
                 'user_id' => $user->id
             ]);
         }
+
+        $sale->price = $full_income;
+
+        $sale->save();
+
+        
+
 
         return redirect()->route('sale.index')->with('success', 'Service created successfully.');
 
@@ -352,4 +370,6 @@ class SaleController extends Controller
         $repair->save();
 
     }
+    
+
 }

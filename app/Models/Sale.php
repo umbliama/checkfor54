@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 
 class Sale extends Model
 {
@@ -41,6 +43,10 @@ class Sale extends Model
     public function contragent(): BelongsTo
     {
         return $this->belongsTo(Contragents::class, 'contragent_id', 'id');
+    }
+    public function directory(): HasOne
+    {
+        return $this->hasOne(Directory::class, 'sale_id', 'id');
     }
 
     public static function getStatusesMapping(): array
