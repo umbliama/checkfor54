@@ -632,7 +632,7 @@ function submit() {
                                                 :hyperlink="selectedEquipmentService?.hyperlink"
                                                 :item-id="selectedEquipmentService?.id" endpoint="/services" />
                                         </div>
-                                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2">
+                                        <div class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2">
                                             {{ equipment.equipment.category.name }} {{ equipment.equipment.size.name }}
                                             {{
                                             equipment.equipment.series }}
