@@ -113,7 +113,7 @@ onMounted(() => {
 
 <template>
     <AuthenticatedLayout bg="gray">
-        <DashboardToolbar dashboard-page-type="analysis" />
+        <DashboardToolbar dashboard-page-type="analysis" filter />
 
         <div class="p-4 lg:p-6">
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-6 lg:gap-6">

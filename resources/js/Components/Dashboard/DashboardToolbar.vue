@@ -62,7 +62,7 @@ const end_date   = ref();
                 </li>
             </ul>
 
-            <div v-if="$props.filter" class="hidden w-full mt-4 lg:w-auto lg:mt-0 lg:flex">
+            <div v-if="$props.filter" class="flex w-full mt-4 lg:w-auto lg:mt-0">
                 <UiFieldDate v-model="start_date" :inp-attrs="{ placeholder: 'Начало', class: 'bg-white' }" class="w-[calc(100%/2-12px)] lg:w-[178px]" />
                 <button
                     class="flex items-center justify-center w-6 h-12 bg-[#DDE1E6] text-gray1 lg:w-12"

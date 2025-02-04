@@ -1,8 +1,9 @@
 <script setup>
 import { usePage } from '@inertiajs/inertia-vue3';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import store from '../../../store';
+import UiFieldDate from '@/Components/Ui/UiFieldDate.vue';
 
 
 
@@ -23,6 +24,9 @@ const page = usePage()
 
 const user = computed(() => page.props.auth.user)
 const userId = computed(() => store.getters['getUserId']);
+
+const start_date = ref();
+const end_date   = ref();
 
 
 
@@ -71,28 +75,107 @@ const readNotification = (id,userId) => {
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <AuthenticatedLayout bg="gray">
+        <div class="py-6 px-5">
+            <div class="relative flex items-center flex-col lg:flex-row">
+                <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
+                
+                <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto text-nowrap lg:overflow-x-visible">
+                    <li
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': true }"
+                        class="flex items-center py-3 border-b-2 border-transparent cursor-pointer"
+                    >
+                        Новые
+                        <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                            23
+                        </span>
+                    </li>
+                    <li
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
+                        class="flex items-center py-3 border-b-2 border-transparent cursor-pointer"
+                    >
+                        Просмотренные
+                        <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                            371
+                        </span>
+                    </li>
+                </ul>
 
-        <div class="min-h-screen bg-gray-100 p-6">
-            <div class="max-w-4xl mx-auto bg-white rounded-lg shadow">
-                <div class="border-b p-4">
-                    <h1 class="text-xl font-bold">Уведомления</h1>
+                <div class="flex w-full mt-4 lg:w-auto lg:mt-0">
+                    <UiFieldDate v-model="start_date" :inp-attrs="{ placeholder: 'Начало', class: 'bg-white' }" class="w-[calc(100%/2-12px)] lg:w-[178px]" />
+                    <button
+                        class="flex items-center justify-center w-6 h-12 bg-[#DDE1E6] text-gray1 lg:w-12"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18.75 6.81984L17.1802 5.25L12 10.4302L6.81984 5.25L5.25 6.81984L10.4302 12L5.25 17.1802L6.81984 18.75L12 13.5698L17.1802 18.75L18.75 17.1802L13.5698 12L18.75 6.81984Z" fill="#697077"/>
+                        </svg>
+                    </button>
+                    <UiFieldDate v-model="end_date" :inp-attrs="{ placeholder: 'Завершение', class: 'bg-white' }" class="w-[calc(100%/2-12px)] lg:w-[178px]" />
                 </div>
-                <div v-if="unreadNotifications" class="divide-y">
+            </div>
 
-                        <div v-for="(notification, index) in unreadNotifications" :key="index"
-                        class="p-4 hover:bg-gray-50 flex justify-between items-center">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-800">{{ notification.user }}</p>
-                            <p class="text-sm text-gray-600">{{ notification.type }}</p>
+            <div class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
+                <div class="min-w-[1050px] text-xs">
+                    <div
+                        class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
+                            Дата
+                            <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.5654 16.5594L17.2083 18.9165L14.8512 16.5594" stroke="#644DED"
+                                        stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M17.2083 10.6667L17.2083 18.9166" stroke="#644DED" stroke-width="1.2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
                         </div>
-                        <p class="text-sm text-gray-500">{{ formatDate(notification.created_at) }}</p>
-                        <button @click="readNotification(notification.id, user_id)">Прочитать</button>
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2">
+                            Пользователь
+                        </div>
+                        <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2">Уведомление</div>
+                    </div>
+
+
+                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
+                            23.01.2025 в 12:47
+                        </div>
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 text-danger">
+                            Администратор:
+                        </div>
+                        <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2 text-danger">
+                            Добавлен новый пользователь admin@admin.ru
+                        </div>
+                    </div>
+                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
+                            23.01.2025 в 12:47
+                        </div>
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2">
+                            Руслан Шакиров:
+                        </div>
+                        <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2">
+                            Добавил(а) новое оборудование: ВЗД 172 ДР-1245
+                        </div>
+                    </div>
+                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
+                            23.01.2025 в 12:47
+                        </div>
+                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2">
+                            Руслан Шакиров:
+                        </div>
+                        <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2">
+                            <span class="text-danger">ВНИМАНИЕ!</span> ВЗД 43 ДР-1333 выведено из обращения. Причина: продано
+                        </div>
                     </div>
                 </div>
-                <div>Уведомлений нет</div>
             </div>
-            <button  v-if="unreadNotifications" @click="readAllNotifications">Прочитать всё</button>
         </div>
     </AuthenticatedLayout>
 
