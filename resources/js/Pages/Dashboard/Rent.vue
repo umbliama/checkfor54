@@ -67,6 +67,10 @@ const updateUrl = () => {
     Object.keys(params).length && router.get(route('rent', params));
 };
 
+const removeParams = () => {
+    router.get(route('rent'))
+}
+
 const setCategoryId = (categoryId) => {
     if (filters.category_id) setSizeId(null);
     filters.category_id = categoryId
@@ -121,7 +125,7 @@ onMounted(() => {
                     <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
                         <li
                             :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="relative flex items-center border-b-2 border-transparent py-3 pr-6 cursor-pointer"
+                            class="relative flex items-center border-b-2 border-transparent py-3 pr-6 cursor-pointer" @click="removeParams"
                         >
                             <span class="absolute right-0 top-2.5 w-px h-[calc(100%-20px)] bg-gray1"></span>
                             <div class="flex items-center justify-between">
@@ -148,7 +152,7 @@ onMounted(() => {
                     <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
                         <li
                             :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                            class="relative flex items-center border-b-2 border-transparent py-3 pr-6 cursor-pointer"
+                            class="relative flex items-center border-b-2 border-transparent py-3 pr-6 cursor-pointer" @click="removeParams"
                         >
                             <span class="absolute right-0 top-2.5 w-px h-[calc(100%-20px)] bg-gray1"></span>
                             <div class="flex items-center justify-between">
