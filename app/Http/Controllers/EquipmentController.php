@@ -49,7 +49,7 @@ class EquipmentController extends Controller
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
-        $query = Equipment::query();
+        $query = Equipment::query()->with('directory');
         $locationId = $request->query('location_id');
         $rentActive = $request->query('isRentActive');
 
@@ -108,7 +108,13 @@ class EquipmentController extends Controller
 
         $equipment = $query->paginate($perPage);
 
-
+        $equipment->getCollection()->map(function ($sale) {
+            if (isset($sale->directory['files'])) {
+                $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+            }
+            return $sale;
+        });
+        
 
         return Inertia::render('Equip/Index', [
             'equipment' => $equipment,
@@ -227,7 +233,12 @@ class EquipmentController extends Controller
                 return $query->where('size_id', $sizeId);
             })
             ->where('series', $series)
-            ->get();
+            ->with('directory')->get()->map(function ($sale) {
+                if (isset($sale->directory['files'])) {
+                    $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+                }
+                return $sale;
+            });
         return Inertia::render('Equip/Repair', [
             'equipmentSeries' => $equipment_series,
             'equipment_location' => $equipment_location,
@@ -319,7 +330,15 @@ class EquipmentController extends Controller
                 return $query->where('size_id', $sizeId);
             })
             ->where('series', $series)
-            ->get();
+            ->get()->map(function ($sale) {
+                if (isset($sale->directory['files'])) {
+                    $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+                }
+                return $sale;
+            });
+    
+
+            
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
         $equipment_tests = Equipment::where('category_id', $categoryId)
 

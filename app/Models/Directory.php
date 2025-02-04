@@ -15,4 +15,24 @@ class Directory extends Model
         'commentary',
         'files'
     ];
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class);
+    }
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class);
+    }
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+    public function repair()
+    {
+        return $this->belongsTo(EquipmentRepair::class);
+    }
+    public function test()
+    {
+        return $this->belongsTo(EquipmentTest::class);
+    }
 }

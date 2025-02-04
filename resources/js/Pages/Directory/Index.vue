@@ -25,7 +25,7 @@ const handleFileUpload = (event) => {
 
 
 const form = reactive({
-    commentary: null,
+    commentary:  props.directory?.commentary || null,
     service_id: null,
     equipment_id: null,
     sale_id: null,

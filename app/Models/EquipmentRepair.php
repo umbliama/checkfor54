@@ -9,5 +9,9 @@ class EquipmentRepair extends Model
 {
     use HasFactory;
 
+    public function directory()
+    {
+        return $this->hasOne(Directory::class, 'repair_id', 'id');
+    }
     protected $fillable = ['repair_date', 'location_id', 'expense', 'description', 'category_id', 'size_id', 'series', 'hyperlink'];
 }

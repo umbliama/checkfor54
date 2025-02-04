@@ -25,11 +25,20 @@ class EquipmentController extends Controller
 
         $repairs = EquipmentRepair::when($category, function ($query, $category) {
             return $query->where('category_id', $category);
-        })->when($size, function ($query, $size) {
-            return $query->where('size_id', $size);
-        })->when($series, function ($query, $series) {
-            return $query->where('series', $series);
-        })->get();
+        })
+            ->when($size, function ($query, $size) {
+                return $query->where('size_id', $size);
+            })
+            ->when($series, function ($query, $series) {
+                return $query->where('series', $series);
+            })
+            ->with('directory')
+            ->get()->map(function ($repair) {
+                if(isset($repair->directory['files'])){
+                    $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
+                }
+                return $repair;
+            });
 
         return response()->json($repairs);
     }
@@ -61,7 +70,14 @@ class EquipmentController extends Controller
             return $query->where('size_id', $size);
         })->when($series, function ($query, $series) {
             return $query->where('series', $series);
-        })->get();
+        })->with('directory')
+        ->get()->map(function ($repair) {
+            if(isset($repair->directory['files'])){
+                $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
+            }
+            return $repair;
+        });
+
 
 
         return response()->json($reports);
@@ -294,7 +310,7 @@ class EquipmentController extends Controller
 
     public function getEquipmentWithExtraData($id)
     {
-        $equipment = Equipment::with('category','size')->findOrFail($id);
+        $equipment = Equipment::with('category', 'size')->findOrFail($id);
 
         return response()->json([
             'equipment' => $equipment,

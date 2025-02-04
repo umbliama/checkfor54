@@ -44,51 +44,51 @@ class DirectoryController extends Controller
      */
     public function store(Request $request, $type, $id)
     {
-        $allowedTypes = ['equipment', 'service', 'sale','test','repair'];
+        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair','price'];
         if (!in_array($type, $allowedTypes)) {
             return response()->json(['error' => 'Invalid directory type'], 400);
         }
-
+    
         $directory = Directory::where($type . '_id', $id)->first();
-
-
+    
         $validatedData = $request->validate([
             'files.*' => 'nullable|file',
             'commentary' => 'required',
         ]);
-
+    
         $fileUrls = [];
-
+    
         if ($request->hasFile('files')) {
-            $uploadedFiles = $request->file('files'); 
-
+            $uploadedFiles = $request->file('files');
+    
             foreach ($uploadedFiles as $file) {
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('files'), $fileName);
-                $fileUrls[] = 'files/' . $fileName; 
+                $fileUrls[] = 'files/' . $fileName;
             }
         }
+    
         if ($directory) {
+            $existingFiles = json_decode($directory->files, true) ?? [];
+    
+            $allFiles = array_merge($existingFiles, $fileUrls);
+    
             $directory->update(array_merge($validatedData, [
                 $type . '_id' => $id,
-                'files' => json_encode($fileUrls), 
+                'files' => json_encode($allFiles),
             ]));
-
+    
             return redirect()->back()->with('success', 'Directory updated successfully!');
-
         } else {
             $directory = Directory::create(array_merge($validatedData, [
                 $type . '_id' => $id,
-                'files' => json_encode($fileUrls), 
+                'files' => json_encode($fileUrls),
             ]));
-
+    
             return redirect()->back()->with('success', 'Directory created successfully!');
-
         }
-
-
     }
-
+    
     /**
      * Display the specified resource.
      */

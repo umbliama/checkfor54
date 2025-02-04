@@ -26,6 +26,9 @@ class Equipment extends Model
         return $this->hasMany(ServiceEquip::class);
     }
     
+    public function directory(){
+        return $this->hasOne(Directory::class,'equipment_id', 'id');
+    }
 
     protected $fillable = [
         'manufactor',
@@ -65,4 +68,5 @@ class Equipment extends Model
     {
         return $this->hasMany(Service::class);
     }
+
 }
