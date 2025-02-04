@@ -7,6 +7,20 @@ import ProgressBar from 'progressbar.js'
 import { duration } from 'moment/moment';
 import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
 
+const props = defineProps({
+    contragents_count:Number,
+    contragents_inactive:Number,
+    recent_contragents_count:Number,
+    recent_contragents_percentage: Number,
+    contragents_with_active_services_count: Number,
+    active_contragents_percentage: Number,
+    equipment_count:Number,
+    recent_equipment_count:Number,
+    equipment_in_active_services_count:Number,
+    equipment_count_active_sum_percent:Number,
+    equipment_categories:Array
+})
+
 onMounted(() => {
     const semi_cricle = new ProgressBar.Circle('.progress-bar-bg', {
         color: '#DDE1E6',
@@ -106,47 +120,47 @@ onMounted(() => {
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Всего заказчиков</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">104</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{contragents_count}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-danger"></span>
-                            -2
+                            {{ contragents_inactive }}
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Новых заказчиков</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">16</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{recent_contragents_count}}</div>
                         <div class="flex items-center h-6 px-3 rounded-full text-sm border border-gray1 bg-gray1 text-white">
-                            +18,1%
+                            +{{recent_contragents_percentage}}%
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Активных заказчиков</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">53</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ contragents_with_active_services_count }}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
-                            50,9%
+                            {{Number(active_contragents_percentage).toFixed(1)}}%
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Всего оборудования</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">303</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{equipment_count}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#0F62FE]"></span>
-                            +21
+                            +{{ recent_equipment_count }}
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">В аренде</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">107</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{equipment_in_active_services_count}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
-                            35,3%
+                            {{equipment_count_active_sum_percent}}%
                         </div>
                     </div>
                 </div>
@@ -165,13 +179,7 @@ onMounted(() => {
             <div class="grid grid-cols-1 gap-4 mt-6 xl:grid-cols-2 lg:gap-6">
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <ul class="flex space-x-5 text-sm text-nowrap overflow-x-auto">
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-[#001D6C] text-[#001D6C] cursor-pointer">ВЗД</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">ЯСС</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">ФД</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">КО</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">ПК</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">ХОМУТ</li>
-                        <li class="shrink-0 py-2 font-medium border-b-2 border-b-transparent cursor-pointer">ПЕРЕВОДНИК</li>
+                        <li v-for="category in equipment_categories" class="shrink-0 py-2 font-medium border-b-2 border-b-[#001D6C] text-[#001D6C] cursor-pointer">{{category.name}}</li>
                     </ul>
 
                     <div class="flex itms-center space-x-4 mt-2.5">

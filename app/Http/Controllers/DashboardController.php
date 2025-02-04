@@ -7,6 +7,8 @@ use App\Models\Equipment;
 use App\Models\EquipmentCategories;
 use App\Models\EquipmentLocation;
 use App\Models\EquipmentSize;
+use App\Models\Service;
+use App\Models\ServiceSub;
 use Illuminate\Http\Request;
 
 use Inertia\Inertia;
@@ -132,7 +134,7 @@ class DashboardController extends Controller
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)
-                ->where('category_id', $category_id) 
+                ->where('category_id', $category_id)
                 ->count();
         }
         if ($category_id) {
@@ -159,19 +161,56 @@ class DashboardController extends Controller
         $contragents_count = Contragents::count();
         $contragents_inactive = Contragents::where('status', false)->count();
         $recent_contragents = Contragents::where('created_at', '>=', now()->subMonths(3))
-        ->get();
+            ->get();
 
         $recent_contragents_count = $recent_contragents->count();
 
-        return Inertia::render('Dashboard/Analysis',[
+        $recent_contragents_percentage = $contragents_count > 0 ? ($recent_contragents_count / $contragents_count) * 100 : 0;
+
+        $contragents_with_active_services_count = Contragents::whereHas('services', function ($query) {
+            $query->where('active', true);
+        })->count();
+
+        $active_contragents_percentage = $contragents_count > 0 ? ($contragents_with_active_services_count / $contragents_count) * 100 : 0;
+
+        $equipment_count = Equipment::count();
+
+        $recent_equipment = Equipment::where('created_at', '>=', now()->subMonths(3))
+            ->get();
+        $recent_equipment_count = $recent_equipment->count();
+
+        $equipment_in_active_services_count = Service::where('active', true)->with('serviceEquipment')->count();
+        $equipment_in_active_subservices_count = ServiceSub::whereHas('service', function ($query) {
+            $query->where('active', true);
+        })->count();
+
+
+        $equipment_count_active_sum = $equipment_in_active_services_count + $equipment_in_active_subservices_count;
+        $equipment_count_active_sum_percent = $equipment_count_active_sum > 0 ? ($equipment_count_active_sum / $equipment_count) * 100 : 0;
+
+
+        $equipment_categories = EquipmentCategories::all();
+
+        return Inertia::render('Dashboard/Analysis', [
             'contragents_count' => $contragents_count,
             'contragents_inactive' => $contragents_inactive,
             'recent_contragents_count' => $recent_contragents_count,
+            'recent_contragents_percentage' => $recent_contragents_percentage,
+            'contragents_with_active_services_count' => $contragents_with_active_services_count,
+            'active_contragents_percentage' => $active_contragents_percentage,
+            'equipment_count' => $equipment_count,
+            'recent_equipment_count' => $recent_equipment_count,
+            'equipment_in_active_services_count' => $equipment_count_active_sum,
+            'equipment_count_active_sum_percent' => $equipment_count_active_sum_percent,
+            'equipment_categories' => $equipment_categories
         ]);
     }
 
-    public function commercial() 
+    public function commercial()
     {
         return Inertia::render('Dashboard/Commercial');
     }
+
+
+
 }
