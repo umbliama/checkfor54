@@ -454,6 +454,40 @@ onMounted(() => {
                                                         d="M7.5 17.25C7.5 16.8358 7.83579 16.5 8.25 16.5H15.75C16.1642 16.5 16.5 16.8358 16.5 17.25C16.5 17.6642 16.1642 18 15.75 18H8.25C7.83579 18 7.5 17.6642 7.5 17.25Z"
                                                         fill="#697077"/>
                                                 </svg>
+                                                <DropdownMenuRoot>
+                                                    <DropdownMenuTrigger aria-label="Customise options">
+                                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
+                                                                fill="#687182"/>
+                                                            <path
+                                                                d="M13.5 12C13.5 12.8284 12.8284 13.5 12 13.5C11.1716 13.5 10.5 12.8284 10.5 12C10.5 11.1716 11.1716 10.5 12 10.5C12.8284 10.5 13.5 11.1716 13.5 12Z"
+                                                                fill="#687182"/>
+                                                            <path
+                                                                d="M13.5 18C13.5 18.8284 12.8284 19.5 12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18Z"
+                                                                fill="#687182"/>
+                                                        </svg>
+                                                    </DropdownMenuTrigger>
+
+                                                    <DropdownMenuPortal>
+                                                        <transition name="fade">
+                                                            <DropdownMenuContent
+                                                                class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                                                :side-offset="5" align="end">
+                                                                <DropdownMenuItem>
+                                                                    <Link :href="'/'"
+                                                                        class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                        Скачать
+                                                                        <svg class="block ml-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                                                            <path fill="none" stroke="#464F60" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12"/>
+                                                                        </svg>
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </transition>
+                                                    </DropdownMenuPortal>
+                                                </DropdownMenuRoot>
                                             </div>
                                         </div>
                                         <Link

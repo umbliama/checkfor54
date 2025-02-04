@@ -52,6 +52,14 @@ const end_date   = ref();
                         Анализ
                     </Link>
                 </li>
+                <li
+                    :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'commercial' }"
+                    class="border-b-2 border-transparent cursor-pointer"
+                >
+                    <Link :href="route('commercial')" class="flex items-center py-3">
+                        КП
+                    </Link>
+                </li>
             </ul>
 
             <div v-if="$props.filter" class="hidden w-full mt-4 lg:w-auto lg:mt-0 lg:flex">
