@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Contragents;
+use App\Models\ContrSale;
 use App\Models\SaleExtra;
 use App\Models\SaleSub;
 use App\Models\Equipment;
@@ -38,6 +39,8 @@ class SaleController extends Controller
             }
             return $sale;
         });
+
+    
 
         $contragents_names = Contragents::all();
         $groupedSales = $sales->groupBy('contragent_id');
@@ -159,6 +162,11 @@ class SaleController extends Controller
                 'user_id' => $user->id
             ]);
         }
+
+        ContrSale::create([
+            'contragent_id' => $sale->contragent_id,
+            'sale_id' => $sale->id
+        ]);
 
         $sale->price = $full_income;
 
@@ -342,6 +350,20 @@ class SaleController extends Controller
         }
         
 
+
+    }
+
+    public function setContSale(Request $request,$saleId)
+    {
+        $contrSale = ContrSale::where('sale_id', $saleId)->get();
+
+        $commentary = $request->input('commentary');
+        $shipping_date = $request->input('shipping_date');
+
+        $contrSale->commentary = $commentary;
+        $contrSale->shipping_date = $shipping_date;
+
+        $contrSale->save();
 
     }
 
