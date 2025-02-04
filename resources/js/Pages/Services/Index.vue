@@ -1019,6 +1019,10 @@ const nameContragent = (id) => {
                 </div>
             </div>
 
+            <div class="flex justify-end mt-6">
+                <button class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text"> Сохранить </button>
+            </div>
+
             <pagination ref="pagination_el"
                 :current-page="selectedActive ? props.activeServices.current_page : props.services.current_page"
                 :total-pages="selectedActive ? props.activeServices.last_page : props.services.last_page"

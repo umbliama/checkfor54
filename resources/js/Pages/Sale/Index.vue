@@ -946,6 +946,10 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 </div>
             </div>
 
+            <div class="flex justify-end mt-6">
+                <button class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text"> Сохранить </button>
+            </div>
+
             <pagination :current-page="props.sales.current_page" :total-pages="props.sales.last_page"
                 :total-count="props.sales.total" :next-page-url="props.sales.next_page_url" :links="props.sales.links"
                 :prev-page-url="props.sales.prev_page_url" class="mt-5 bg-bg1" />
