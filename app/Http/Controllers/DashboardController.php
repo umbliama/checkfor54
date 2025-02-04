@@ -156,6 +156,22 @@ class DashboardController extends Controller
     }
     public function analysis()
     {
-        return Inertia::render('Dashboard/Analysis');
+        $contragents_count = Contragents::count();
+        $contragents_inactive = Contragents::where('status', false)->count();
+        $recent_contragents = Contragents::where('created_at', '>=', now()->subMonths(3))
+        ->get();
+
+        $recent_contragents_count = $recent_contragents->count();
+
+        return Inertia::render('Dashboard/Analysis',[
+            'contragents_count' => $contragents_count,
+            'contragents_inactive' => $contragents_inactive,
+            'recent_contragents_count' => $recent_contragents_count,
+        ]);
+    }
+
+    public function commercial() 
+    {
+        return Inertia::render('Dashboard/Commercial');
     }
 }
