@@ -269,8 +269,20 @@ onMounted(() => {
             
             <div class="flex w-full mt-5">
                 <ul class="hidden w-[168px] mr-3.5 lg:block">
+                    <li class="flex items-center justify-between py-3 px-2 font-medium text-sm cursor-pointer bg-bg1">
+                        Весь список
+
+                        <svg class="block ml-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 6H20" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.80005 5.79999L4.60005 6.59998L6.60004 4.59999" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.80005 11.8L4.60005 12.6L6.60004 10.6" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.80005 17.8L4.60005 18.6L6.60004 16.6" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12H20" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 18H20" stroke="#21272A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </li>
                     <li v-for="agent in contragents"
-                        :class="{ 'pointer-events-none bg-my-gray': true }"
+                        :class="{ 'bg-my-gray': true }"
                         class="py-3 px-2 font-medium text-sm cursor-pointer border-b border-b-my-gray"
                     >
                         {{ agent.name }}
