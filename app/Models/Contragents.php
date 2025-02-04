@@ -67,7 +67,10 @@ class Contragents extends Model
             'individual' => 'ИП',
         ];
     }
-
+    public function services()
+    {
+        return $this->hasMany(Service::class, 'contragent_id');
+    }
 
 
     public function getFormattedCountryAttribute()

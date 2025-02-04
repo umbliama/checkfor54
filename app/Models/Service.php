@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 
 class Service extends Model
 {
@@ -31,6 +31,7 @@ class Service extends Model
         'hyperlink'
     ];
 
+    
 
     public function subequipment()
     {
@@ -59,6 +60,16 @@ class Service extends Model
     public function serviceEquipment()
     {
         return $this->hasMany(ServiceEquip::class, 'service_id', 'id');
+    }
+
+    public function directory()
+    {
+        return $this->hasOne(Directory::class, 'service_id', 'id');
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        return $query->where('active', true);
     }
 
     public static function getExtraServices(): array

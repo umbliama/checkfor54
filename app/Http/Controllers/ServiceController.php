@@ -76,15 +76,24 @@ class ServiceController extends Controller
             'equipment.category',
             'equipment.size'
         ])->where('active', 0)->get()->groupBy('contragent_id');
-
         $activeServices = Service::with([
             'mainServices.serviceSubs.equipment.category',
             'mainServices.serviceSubs.equipment.size',
             'mainServices.equipment.category',
             'mainServices.equipment.size',
             'equipment.category',
-            'equipment.size'
-        ])->where('active', 1)->get()->groupBy('contragent_id');
+            'equipment.size',
+            'directory'
+        ])->where('active', 1)->get()->groupBy('contragent_id')
+          ->map(function ($services) {
+              return $services->map(function ($service) {
+                  if (isset($service->directory['files'])) {
+                      $service->directory['files'] = json_decode($service->directory['files'], true) ?? [];
+                  }
+                  return $service;
+              });
+          });
+    
 
         $paginatedInactive = $this->paginateCollection($inActiveServices, $perPage, $request);
         $paginatedActive = $this->paginateCollection($activeServices, $perPage, $request);
