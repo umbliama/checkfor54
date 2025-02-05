@@ -1,6 +1,6 @@
 <script setup>
 import { PopoverAnchor, PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue';
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { Link, router } from '@inertiajs/vue3'
 import UiField from "@/Components/Ui/UiField.vue";
 
@@ -12,10 +12,18 @@ const $props = defineProps({
 
 const local_hyperlink = ref('');
 
+const modified_hyperlink = computed(() => {
+    return $props.hyperlink.includes('https://') || $props.hyperlink.includes('http://') ? $props.hyperlink : 'https://'+$props.hyperlink;
+})
+
 function submit() {
     router.post($props.endpoint + `/${$props.itemId}/hyperlink`, {
         hyperlink: local_hyperlink.value
     });
+}
+
+function openExternalLink(url) {
+    window.open(url, '_blank');
 }
 
 </script>
@@ -44,9 +52,10 @@ function submit() {
                         <ul>
                             <li>
                                 <a
-                                    :href="$props.hyperlink"
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
+                                    @click.prevent="openExternalLink(modified_hyperlink)"
                                 >
                                     Открыть
                                     <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

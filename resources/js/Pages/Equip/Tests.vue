@@ -224,15 +224,10 @@ onMounted(() => {
                         <div class="min-w-[1050px] text-xs">
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                    ремонта</div>
+                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата испытания</div>
                                 <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
-                                <div
-                                    class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">
-                                    Описание
-                                </div>
-                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
-                                </div>
+                                <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">Описание</div>
+                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход</div>
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -303,7 +298,8 @@ onMounted(() => {
                     <div class="flex justify-end">
                         <button
                             class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text"
-                            @click="submit">
+                            @click="submit"
+                        >
                             Сохранить
                         </button>
                     </div>
@@ -314,12 +310,9 @@ onMounted(() => {
                             <div class="min-w-[1050px] text-xs">
                                 <div
                                     class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                        ремонта</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата испытания</div>
                                     <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
-                                    <div
-                                        class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-100px)] py-2.5 px-2">
-                                        Описание</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-100px)] py-2.5 px-2">Описание</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
                                     </div>
                                     <div class="shrink-0 flex items-center justify-center w-[100px] py-2.5 px-2">
