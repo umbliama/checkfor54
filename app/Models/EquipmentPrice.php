@@ -39,4 +39,9 @@ class EquipmentPrice extends Model
     {
         return $this->belongsTo(Contragents::class, 'contragent_id');
     }
+
+    public function directory()
+    {
+        return $this->hasOne(Directory::class, 'price_id', 'id');
+    }
 }

@@ -12,6 +12,7 @@ class Directory extends Model
         'service_id',
         'test_id',
         'repair_id',
+        'price_id',
         'commentary',
         'files'
     ];
@@ -34,5 +35,9 @@ class Directory extends Model
     public function test()
     {
         return $this->belongsTo(EquipmentTest::class);
+    }
+    public function price()
+    {
+        return $this->belongsTo(EquipmentPrice::class);
     }
 }

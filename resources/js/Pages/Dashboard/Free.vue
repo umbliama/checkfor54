@@ -37,6 +37,60 @@ const statuses_colors = {
     'off': 'bg-[#000000]',
     'unknown': 'bg-[#C0C0C0]'
 };
+const updateUrl = () => {
+    const params = {};
+
+    if (filters.category_id) params.category_id = filters.category_id;
+    if (filters.size_id) params.size_id = filters.size_id;
+
+    Object.keys(params).length && router.get(route('rent', params));
+};
+
+const removeParams = () => {
+    router.get(route('rent'))
+}
+
+const setCategoryId = (categoryId) => {
+    if (filters.category_id) setSizeId(null);
+    filters.category_id = categoryId
+    updateUrl();
+}
+
+
+const setSizeId = (sizeId) => {
+    if (filters.size_id)
+        console.log(sizeId)
+    filters.size_id = sizeId
+    updateUrl();
+}
+const updateFiltersAndFetchData = () => {
+    const { current_page, total, last_page } = props.rented_equipment;
+
+    pagination.currentPage = current_page;
+    pagination.totalPages = total;
+    currentPage.value = current_page;
+    lastPage.value = last_page;
+
+    const url_params = new URLSearchParams(window.location.search);
+
+    if (url_params.get('size_id')) {
+        filters.size_id = +url_params.get('size_id');
+    } else {
+        filters.size_id = null;
+    }
+
+    if (url_params.get('category_id')) {
+        filters.category_id = +url_params.get('category_id');
+    } else {
+        filters.category_id = 1;
+    }
+
+};
+
+
+onMounted(() => {
+    updateFiltersAndFetchData();
+});
 
 </script>
 

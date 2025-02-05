@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContrDocuments;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Contragents;
@@ -74,7 +75,7 @@ class ContragentsController extends Controller
         $countries = Contragents::getCountryMapping();
         $legalStatuses = Contragents::getLegalMapping();
 
-        return Inertia::render('Contragents/Create',['countries' => $countries, 'legalStatuses' => $legalStatuses]);
+        return Inertia::render('Contragents/Create', ['countries' => $countries, 'legalStatuses' => $legalStatuses]);
     }
 
 
@@ -112,6 +113,11 @@ class ContragentsController extends Controller
             'contact_person_commentary' => 'nullable',
             'status' => 'nullable',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+            'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
         ]);
 
 
@@ -128,19 +134,64 @@ class ContragentsController extends Controller
         }
 
 
+
+
         $contragent = Contragents::create($requestData);
+
+        $data = ['contragent_id' => $contragent->id];
+
+        $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
+
+        foreach ($docFields as $field) {
+            if ($request->hasFile($field)) {
+                $files = [];
+                foreach ($request->file($field) as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
+                    $files[] = "documents/{$contragent->id}/{$field}/" . $fileName;
+                }
+                $data[$field] = json_encode($files);
+            }
+        }
+
+        ContrDocuments::create($data);
+
         return redirect()->route('contragents.edit', parameters: $contragent->id)
             ->with('success', 'Профиль компании сохранен.');
     }
 
 
     public function edit($id)
-    {
-        $contragent = Contragents::findOrFail($id);
-        $countries = Contragents::getCountryMapping();
-        $legalStatuses = Contragents::getLegalMapping();
-        return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries ]);
-    }
+{
+    $contragent = Contragents::with('documents')->findOrFail($id);
+
+    $contragent->documents = $contragent->documents->map(function ($document) {
+        if (isset($document->contracts)) {
+            $document->contracts = json_decode($document->contracts, true) ?? [];
+        }
+        if (isset($document->financial)) {
+            $document->financial = json_decode($document->financial, true) ?? [];
+        }
+        if (isset($document->transport)) {
+            $document->transport = json_decode($document->transport, true) ?? [];
+        }
+        if (isset($document->commercials)) {
+            $document->commercials = json_decode($document->commercials, true) ?? [];
+        }
+        if (isset($document->adddocs)) {
+            $document->adddocs = json_decode($document->adddocs, true) ?? [];
+        }
+
+        $document->setRawAttributes($document->getAttributes());
+
+        return $document;
+    });
+
+    $countries = Contragents::getCountryMapping();
+    $legalStatuses = Contragents::getLegalMapping();
+
+    return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries]);
+}
 
     public function update(Request $request, $id)
     {
@@ -178,23 +229,39 @@ class ContragentsController extends Controller
             'contact_person_commentary' => 'nullable',
             'status' => 'nullable',
             'avatar' => 'nullable',
+            'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+
         ]);
         if ($request->hasFile('avatar')) {
-            // Handle avatar upload
             $avatar = $request->file('avatar');
             $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
             $avatar->move(public_path('avatars'), $avatarName);
-    
-            // Add avatar path to the validated array
+
             $validated['avatar'] = 'avatars/' . $avatarName;
         }
-    
+        $data = [];
 
 
-        // Fetch the client by ID and update it
+        $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
+
+        foreach ($docFields as $field) {
+            if ($request->hasFile($field)) {
+                $files = [];
+                foreach ($request->file($field) as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $file->move(public_path("documents/{$field}"), $fileName);
+                    $files[] = "documents/{$contragent->id}/{$field}/" . $fileName;
+                }
+                $data[$field] = json_encode($files);
+            }
+        }
+        ContrDocuments::where('contragent_id', $id)->update($data);
         $contragent->update($validated);
 
-        // Redirect back with a success message
         return redirect()->route('contragents.edit', $contragent->id)->with('success', 'Профиль компании успешно сохранен.');
 
 
@@ -210,7 +277,7 @@ class ContragentsController extends Controller
         $countries = Contragents::getCountryMapping();
         $legalStatuses = Contragents::getLegalMapping();
 
-        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries,'legalStatuses' => $legalStatuses]);
+        return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries, 'legalStatuses' => $legalStatuses]);
     }
 
 
@@ -221,7 +288,46 @@ class ContragentsController extends Controller
 
         $contragent->delete();
     }
+    public function deleteDocumentFileByContragent(Request $request)
+    {
+        $contragentId = $request->query('contragentId');
+        $fileName = $request->query('fileName');
+        $document = ContrDocuments::where('contragent_id', $contragentId)->first();
+    
+        if (!$document) {
+            return response()->json(['message' => 'Document not found for this contragent.'], 404);
+        }
+    
+        $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
+        $fileFound = false;
+    
+        foreach ($docFields as $field) {
+            if (!empty($document->$field)) {
+                $files = json_decode($document->$field, true) ?? [];
+                $fileIndex = array_search($fileName, $files);
+                if ($fileIndex !== false) {
+                    
+                    $filePath = public_path($files[$fileIndex]);
 
+                    if (file_exists($filePath)) {
 
-
+                        unlink($filePath);
+    
+                        unset($files[$fileIndex]);
+                        $document->$field = json_encode(array_values($files));
+                        $document->save();
+                        $fileFound = true;
+                    }
+                    break; 
+                }
+            }
+        }
+    
+        if (!$fileFound) {
+            return response()->json(['message' => 'File not found in any document field.'], 404);
+        }
+    
+        return response()->json(['message' => 'File deleted successfully']);
+    }
+    
 }

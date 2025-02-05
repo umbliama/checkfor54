@@ -16,6 +16,7 @@ import EquipFilter from "@/Components/Equip/EquipFilter.vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import Pagination from "@/Components/Pagination.vue";
 import EquipPriceEditDialog from "@/Components/Equip/EquipPriceEditDialog.vue";
+import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
 
 
 const props = defineProps({
@@ -412,7 +413,7 @@ onMounted(() => {
                             {{ price.operation_price }} ₽
                         </div>
                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                            <Link v-if="true" :href="'/directory/price/' + price.id" class="mr-3.5">
+                            <Link v-if="price.directory === null" :href="'/directory/price/' + price.id" class="mr-3.5">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -435,10 +436,10 @@ onMounted(() => {
                                 <PopoverPortal>
                                     <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                         <div>Комментарий:</div>
-                                        <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                        <div class="mt-3 p-4 bg-bg1 text-xs">
+                                        <p class="mt-2.5 text-xs">{{ price.directory.commentary }}</p>
+                                        <div v-for="file in price.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                             <div class="flex items-center max-w-full">
-                                                <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file }}</span>
                                                 <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" clip-rule="evenodd"

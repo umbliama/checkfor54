@@ -7,6 +7,7 @@ use App\Models\EquipmentCategories;
 use App\Models\EquipmentPrice;
 use App\Models\EquipmentSize;
 use App\Models\Service;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -211,7 +212,6 @@ class EquipmentController extends Controller
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
         }
 
-        // Count the number of equipment per size
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
@@ -256,17 +256,30 @@ class EquipmentController extends Controller
 
     public function storeRepair(Request $request)
     {
-        $request->validate([
-            'repair_date' => 'required|date',
-            'location_id' => 'required|int',
-            'expense' => 'required|int',
-            'description' => 'required|min:3|max:200',
-            'category_id' => 'required|int',
-            'size_id' => 'required|int',
-            'series' => 'required|string '
-        ]);
+        try{
+            $request->validate([
+                'repair_date' => 'required|date',
+                'location_id' => 'required|int',
+                'expense' => 'required|int',
+                'description' => 'required|min:3|max:200',
+                'category_id' => 'required|int',
+                'size_id' => 'required|int',
+                'series' => 'required|string '
+            ]);
+            if(!$request->has('size_id')){
+                return back()->with('message', 'Вы не выбрали размер.');
+            }else {
+    
+                EquipmentRepair::create($request->all());
+    
+                return back()->with('message', 'Запись успешно добавлена.');            
+            }
+    
+        }catch(Exception $e ) {
+            return back()->with('error', $e->getMessage());
 
-        EquipmentRepair::create($request->all());
+        }
+        
     }
 
 
@@ -415,17 +428,25 @@ class EquipmentController extends Controller
 
     public function storeTest(Request $request)
     {
-        $request->validate([
-            'test_date' => 'required|date',
-            'location_id' => 'required|int',
-            'expense' => 'required|int',
-            'description' => 'required|min:3|max:200',
-            'category_id' => 'required|int',
-            'size_id' => 'required|int',
-            'series' => 'required|string '
-        ]);
 
-        EquipmentTest::create($request->all());
+        try{
+
+            $request->validate([
+                'test_date' => 'required|date',
+                'location_id' => 'required|int',
+                'expense' => 'required|int',
+                'description' => 'required|min:3|max:200',
+                'category_id' => 'required|int',
+                'size_id' => 'required|int',
+                'series' => 'required|string '
+            ]);
+    
+            EquipmentTest::create($request->all());
+            return back()->with('message', 'Запись успешно добавлена');
+
+        }catch(Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
 
@@ -459,9 +480,16 @@ class EquipmentController extends Controller
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
         $perPage = $request->input('perPage');
-        $prices = EquipmentPrice::with(['category', 'size', 'contragent'])->where('archive', 0)->paginate($perPage);
-        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent'])->where('archive', 1)->paginate($perPage);
+        $prices = EquipmentPrice::with(['category', 'size', 'contragent','directory'])->where('archive', 0)->paginate($perPage);
+        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent','directory'])->where('archive', 1)->paginate($perPage);
 
+        $prices->getCollection()->transform(function ($sale) {
+            if (isset($sale->directory['files'])) {
+                $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+            }
+            return $sale;
+        });
+        
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $series = $request->query('series');

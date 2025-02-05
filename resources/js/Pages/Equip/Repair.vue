@@ -18,6 +18,7 @@ import {
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import EquipRepairEditDialog from "@/Components/Equip/EquipRepairEditDialog.vue";
 import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
@@ -77,6 +78,10 @@ const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
     })
 }
 
+// watch(count, (newValue, oldValue) => {
+//       console.log(`count changed from ${oldValue} to ${newValue}`);
+//     });
+
 const updateUrl = () => {
     const params = {};
 
@@ -132,8 +137,9 @@ function submit() {
         expense: form.expense,
         description: form.description,
         category_id: selectedCategory.value ?? 1,
-        size_id: selectedSize.value ?? 1,
+        size_id: selectedSize.value ?? null,
         series: seriesActive.value
+    },{
     })
     updateRepairTable(selectedCategory.value, selectedSize?.value, seriesActive.value);
 }
@@ -187,7 +193,8 @@ onMounted(() => {
 <template>
     <AuthenticatedLayout>
         <EquipNav />
-
+        <UiNotification type="message" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model=" $page.props.flash.error" />
         <div class="p-5">
             <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
                 :categories-counts="equipment_categories_counts" :sizes-counts="equipment_sizes_counts"

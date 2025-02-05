@@ -21,6 +21,10 @@ import {
 } from 'radix-vue'
 import { ref } from 'vue';
 
+const props = defineProps({
+    equipment: Object
+})
+
 const statuses = {
     'new': 'Новое',
     'good': 'Хорошее',

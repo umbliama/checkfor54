@@ -35,7 +35,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'flash' => [
-                'search_results' => fn () => $request->session()->get('search_results')
+                'search_results' => fn () => $request->session()->get('search_results'),
+                'message' => fn () => $request->session()->get('message'),
+                'error' => fn () => $request->session()->get('error')
             ],
         ];
     }

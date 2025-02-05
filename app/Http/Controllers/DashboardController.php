@@ -6,10 +6,14 @@ use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\EquipmentCategories;
 use App\Models\EquipmentLocation;
+use App\Models\EquipmentRepair;
 use App\Models\EquipmentSize;
+use App\Models\EquipmentTest;
+use App\Models\Sale;
 use App\Models\Service;
 use App\Models\ServiceSub;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use Inertia\Inertia;
 
@@ -152,9 +156,43 @@ class DashboardController extends Controller
     {
         return Inertia::render('Dashboard/Free');
     }
-    public function serviced()
+    public function serviced(Request $request)
     {
-        return Inertia::render('Dashboard/Serviced');
+        $equipment_categories = EquipmentCategories::all();
+    
+        $equipment_categories_counts_all = 0;
+        $equipment_categories_counts = [];
+    
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
+        }
+    
+        $contragents = Contragents::all();
+    
+        $category_id = $request->input('category_id');
+        $size_id = $request->input('size_id');
+        $perPage = $request->input('perPage', 10);
+    
+        $equipment = Equipment::whereExists(function ($query) use ($category_id, $size_id) {
+            $query->select(DB::raw(1))
+                ->from('equipment_repairs as er')
+                ->whereColumn('equipment.category_id', 'er.category_id')
+                ->whereColumn('equipment.size_id', 'er.size_id')
+                ->whereColumn('equipment.series', 'er.series')
+                ->where('er.category_id', $category_id)
+                ->where('er.size_id', $size_id);
+        })
+        ->distinct()
+        ->paginate($perPage);
+        return Inertia::render('Dashboard/Serviced', [
+            'equipment' => $equipment,
+            'equipment_categories' => $equipment_categories,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_categories_counts_all' => $equipment_categories_counts_all,
+            'contragents' => $contragents,
+        ]);
     }
     public function analysis()
     {
@@ -189,7 +227,65 @@ class DashboardController extends Controller
         $equipment_count_active_sum_percent = $equipment_count_active_sum > 0 ? ($equipment_count_active_sum / $equipment_count) * 100 : 0;
 
 
+        $equipment_on_repair = EquipmentRepair::count();
+        $equipment_on_test = EquipmentTest::count();
+
+        $unavailable = $equipment_in_active_services_count + $equipment_on_repair + $equipment_on_test;
+        $on_store = $equipment_count - $unavailable;
+
+        $categoryData = EquipmentCategories::select(
+            'equipment_categories.id',
+            'equipment_categories.name',
+            DB::raw('COUNT(DISTINCT equipment.id) as total_equipment'),
+            DB::raw('SUM(CASE WHEN service_equipment.id IS NOT NULL THEN 1 ELSE 0 END) + SUM(CASE WHEN service_subequipment.id IS NOT NULL THEN 1 ELSE 0 END) as total_service_count')
+        )
+            ->leftJoin('equipment', 'equipment.category_id', '=', 'equipment_categories.id')
+            ->leftJoin('service_equipment', function ($join) {
+                $join->on('equipment.id', '=', 'service_equipment.equipment_id');
+            })
+            ->leftJoin('service_subequipment', function ($join) {
+            $join->on('equipment.id', '=', 'service_subequipment.subequipment_id');
+            })
+            ->groupBy('equipment_categories.id', 'equipment_categories.name')
+            ->get();
+        
+        $serviceIncome = Service::select(
+            'contragent_id',
+            DB::raw('SUM(full_income) as total_income')
+        )
+            ->groupBy('contragent_id');
+
+        $saleIncome = Sale::select(
+            'contragent_id',
+            DB::raw('SUM(price) as total_income')
+        )
+            ->groupBy('contragent_id');
+        $combinedIncome = $serviceIncome->unionAll($saleIncome);
+        $finalIncome = DB::table(DB::raw("({$combinedIncome->toSql()}) as incomes"))
+            ->mergeBindings($combinedIncome->getQuery()) 
+            ->select(
+                'contragent_id',
+                DB::raw('SUM(total_income) as full_income')
+            )
+            ->groupBy('contragent_id')
+            ->get();
+
+        $totalIncomeSum = $finalIncome->sum('full_income');
+
+        $contragentincome = $finalIncome->map(function ($item) use ($totalIncomeSum) {
+            $contragent = Contragents::find($item->contragent_id);
+
+            return [
+                'id' => $item->contragent_id,
+                'fullincome' => $item->full_income,
+                'contragentname' => $contragent->name ?? 'Unknown',
+                'percent' => $totalIncomeSum > 0 ? round(($item->full_income / $totalIncomeSum) * 100, 2) : 0,
+            ];
+        });
+
         $equipment_categories = EquipmentCategories::all();
+
+
 
         return Inertia::render('Dashboard/Analysis', [
             'contragents_count' => $contragents_count,
@@ -202,6 +298,10 @@ class DashboardController extends Controller
             'recent_equipment_count' => $recent_equipment_count,
             'equipment_in_active_services_count' => $equipment_count_active_sum,
             'equipment_count_active_sum_percent' => $equipment_count_active_sum_percent,
+            'on_store' => $on_store,
+            'unavailable' => $unavailable,
+            'categoryData' => $categoryData,
+            'contragentincome' => $contragentincome,
             'equipment_categories' => $equipment_categories
         ]);
     }

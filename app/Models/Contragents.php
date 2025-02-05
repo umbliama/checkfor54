@@ -95,4 +95,9 @@ class Contragents extends Model
         ];
     }
 
+    public function documents()
+    {
+        return $this->hasMany(ContrDocuments::class,'contragent_id', 'id');
+    }
+
 }

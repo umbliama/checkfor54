@@ -43,6 +43,11 @@ const page = usePage()
 
 const user = computed(() => page.props.auth.user)
 
+const chosenContragent = ref(null);
+
+const setChosenContragent = (id) => {
+    chosenContragent.value = id
+}
 
 const minusYear = () => {
     store.dispatch('services/updateDecSelectedYear')
@@ -491,7 +496,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                     class="block w-full h-full px-2 bg-transparent" />
                                             </div>
                                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                <Link v-if="directory" :href="'/directory/sale/' + subservice.id"
+                                                <Link v-if="subservice.directory === null" :href="'/directory/sale/' + subservice.id"
                                                     class="mr-3.5">
                                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -583,7 +588,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                     </DropdownMenuRoot>
                                                                 </div>
                                                             </div>
-                                                            <Link :href="'/directory/service/' + 2"
+                                                            <Link :href="'/directory/sale/' + subservice.id"
                                                                 class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                             Редактировать
 

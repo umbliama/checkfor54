@@ -13,7 +13,7 @@ class DirectoryController extends Controller
      */
     public function index(Request $request, $type, $id)
     {
-        $allowedTypes = ['equipment', 'service', 'sale','test','repair'];
+        $allowedTypes = ['equipment', 'service', 'sale','test','repair','price'];
 
         if (!in_array($type, $allowedTypes)) {
             return redirect()->back()->withErrors(['error' => 'Invalid directory type']);

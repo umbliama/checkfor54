@@ -14,6 +14,7 @@
         "fakerphp/faker": "^1.23"
     },
     "require-dev": {
+        "laravel-lang/lang": "^15.12",
         "laravel/breeze": "^2.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",

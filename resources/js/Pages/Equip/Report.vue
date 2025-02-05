@@ -441,7 +441,7 @@ onMounted(() => {
                                             <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] || '-' }}</span>
                                         </div>
-                                        <Link v-if="true" :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                        <Link v-if="item.directory === null" :href="'/directory/equipment/'+item.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
@@ -459,10 +459,10 @@ onMounted(() => {
                                             <PopoverPortal>
                                                 <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                     <div>Комментарий:</div>
-                                                    <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                                    <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                    <p class="mt-2.5 text-xs">{{ item.commentary }}</p>
+                                                    <div v-for="file in item.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                         <div class="flex items-center max-w-full">
-                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">{{file}}</span>
                                                             <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -708,7 +708,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ repair.repair_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">{{ repair.description || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ repair.expense || '-' }} ₽</div>
-                                        <Link v-if="true" :href="'/directory/repair/'+repair.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                        <Link v-if="repair.directory === null" :href="'/directory/repair/'+repair.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
@@ -726,10 +726,10 @@ onMounted(() => {
                                             <PopoverPortal>
                                                 <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                     <div>Комментарий:</div>
-                                                    <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                                    <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                    <p class="mt-2.5 text-xs">{{ repair.directory.commentary }}</p>
+                                                    <div v-for="file in repair.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                         <div class="flex items-center max-w-full">
-                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file }}</span>
                                                             <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -949,7 +949,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[calc(14.86%-44px)] py-2.5 px-2">{{ test.test_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-14.86%-8.9%-50px)] py-2.5 px-2">{{ test.description || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[8.9%] py-2.5 px-2">{{ test.expense || '-' }} ₽</div>
-                                        <Link v-if="true" :href="'/directory/tests/'+test.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                        <Link v-if="test.directory === null" :href="'/directory/tests/'+test.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
@@ -967,10 +967,10 @@ onMounted(() => {
                                             <PopoverPortal>
                                                 <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                     <div>Комментарий:</div>
-                                                    <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                                    <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                    <p class="mt-2.5 text-xs">{{ test.directory.commentary }}</p>
+                                                    <div v-for="file in test.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                         <div class="flex items-center max-w-full">
-                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">{{file}}</span>
                                                             <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1080,7 +1080,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.return_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-14.86%-10.2%-11.46%-10%-10%-10%-50px)] py-2.5 px-2">{{ history_item.contragent.reason || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[10%] py-2.5 px-2">{{ history_item.service.income || '-' }}</div>
-                                        <Link v-if="true" :href="'/directory/services/'+history_item.service.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
+                                        <Link v-if="history_item.directory === null" :href="'/directory/services/'+history_item.service.id" class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
                                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
@@ -1098,10 +1098,10 @@ onMounted(() => {
                                             <PopoverPortal>
                                                 <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                     <div>Комментарий:</div>
-                                                    <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                                    <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                    <p class="mt-2.5 text-xs">{{ history_item.directory.commentary }}</p>
+                                                    <div v-for="file in history_item.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                         <div class="flex items-center max-w-full">
-                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                            <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ files }}</span>
                                                             <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                 <path fill-rule="evenodd" clip-rule="evenodd"
