@@ -12,6 +12,7 @@ import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
 import UiField from '@/Components/Ui/UiField.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 import ContragentsCreateOrEditForm from '@/Components/Contragents/ContragentsCreateOrEditForm.vue';
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 
 const page = usePage()
@@ -182,7 +183,8 @@ const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
                     class="min-w-44 ml-3 lg:hidden"
                 />
             </div>
-            
+            <UiNotification :description="$page.props.flash.messsage" v-model="$page.props.flash.message" type="message" />
+            <UiNotification :description="$page.props.flash.error" v-model="$page.props.flash.error" type="error" />
             <ContragentsCreateOrEditForm :countries="props.countries" :legal-statuses="props.legalStatuses" />
             
             <!-- <div class="flex sm:justify-center sm:w-full">

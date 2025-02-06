@@ -9,7 +9,7 @@ class EquipmentTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['test_date', 'location_id', 'expense','description','category_id','size_id','series'];
+    protected $fillable = ['on_test_date','test_date', 'location_id', 'expense','description','category_id','size_id','series'];
 
     public function directory()
     {

@@ -113,6 +113,7 @@ const get_equipmentSeries = computed(() => {
 });
 
 const form = reactive({
+    'on_repair_date': null,
     'repair_date': null,
     'location_id': null,
     'expense': null,
@@ -132,6 +133,7 @@ watch(localSeriesActive, ({ value: seriesId }) => {
 
 function submit() {
     router.post('/equip/repair', {
+        on_repair_date: form.on_repair_date,
         repair_date: form.repair_date,
         location_id: form.location_id,
         expense: form.expense,
@@ -249,6 +251,7 @@ onMounted(() => {
                         <div class="min-w-[1050px] text-xs">
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
+                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">На сервисе</div>
                                 <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
                                     ремонта</div>
                                 <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
@@ -290,6 +293,10 @@ onMounted(() => {
                                         <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
+                                </div>
+                                <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)]">
+                                    <input v-model="form.on_repair_date" type="date"
+                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)]">
                                     <input v-model="form.repair_date" type="date"

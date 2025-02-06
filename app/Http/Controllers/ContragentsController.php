@@ -81,117 +81,112 @@ class ContragentsController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'agentTypeLegal' => 'required',
-            'country' => 'required',
-            'name' => 'required',
-            'fullname' => 'nullable',
-            'inn' => 'required',
-            'kpp' => 'nullable',
-            'ogrn' => 'nullable',
-            'reason' => 'nullable',
-            'notes' => 'nullable',
-            'commentary' => 'nullable',
-            'group' => 'nullable',
-            'bankname' => 'nullable',
-            'bank_bik' => 'nullable',
-            'bank_inn' => 'nullable',
-            'bank_rs' => 'nullable',
-            'bank_kpp' => 'nullable',
-            'bank_ca' => 'nullable',
-            'bank_commnetary' => 'nullable',
-            'supplier' => 'nullable',
-            'customer' => 'nullable',
-            'address' => 'nullable',
-            'site' => 'nullable',
-            'phone' => 'nullable',
-            'email' => 'nullable',
-            'contact_person' => 'nullable',
-            'contact_person_phone' => 'nullable',
-            'contact_person_email' => 'nullable',
-            'contact_person_notes' => 'nullable',
-            'contact_person_commentary' => 'nullable',
-            'status' => 'nullable',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-            'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-            'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-            'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-            'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-            'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-        ]);
-
-
-        if ($request->hasFile('avatar')) {
-            $avatar = $request->file('avatar');
-            $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
-            $avatar->move(public_path('avatars'), $avatarName);
-
-            // Save the avatar path to the request data
-            $requestData = $request->all();
-            $requestData['avatar'] = 'avatars/' . $avatarName;
-        } else {
-            $requestData = $request->all();
-        }
-
-
-
-
-        $contragent = Contragents::create($requestData);
-
-        $data = ['contragent_id' => $contragent->id];
-
-        $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
-
-        foreach ($docFields as $field) {
-            if ($request->hasFile($field)) {
-                $files = [];
-                foreach ($request->file($field) as $file) {
-                    $fileName = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
-                    $files[] = "documents/{$contragent->id}/{$field}/" . $fileName;
-                }
-                $data[$field] = json_encode($files);
+        try {
+            $validatedData = $request->validate([
+                'agentTypeLegal' => 'required|string',
+                'country' => 'required|string',
+                'name' => 'required|string',
+                'fullname' => 'nullable|string',
+                'inn' => 'required|string',
+                'kpp' => 'nullable|string',
+                'ogrn' => 'nullable|string',
+                'reason' => 'nullable|string',
+                'notes' => 'nullable|string',
+                'commentary' => 'nullable|string',
+                'group' => 'nullable|string',
+                'bankname' => 'nullable|string',
+                'bank_bik' => 'nullable|string',
+                'bank_inn' => 'nullable|string',
+                'bank_rs' => 'nullable|string',
+                'bank_kpp' => 'nullable|string',
+                'bank_ca' => 'nullable|string',
+                'bank_commnetary' => 'nullable|string',
+                'supplier' => 'nullable|boolean',
+                'customer' => 'nullable|boolean',
+                'address' => 'nullable|string',
+                'site' => 'nullable|url',
+                'phone' => 'nullable|string',
+                'email' => 'nullable|email',
+                'contact_person' => 'nullable|string',
+                'contact_person_phone' => 'nullable|string',
+                'contact_person_email' => 'nullable|email',
+                'contact_person_notes' => 'nullable|string',
+                'contact_person_commentary' => 'nullable|string',
+                'status' => 'nullable|string',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+                'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            ]);
+    
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+                $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move(public_path('avatars'), $avatarName);
+                $validatedData['avatar'] = 'avatars/' . $avatarName;
             }
+    
+            $contragent = Contragents::create($validatedData);
+    
+            $data = ['contragent_id' => $contragent->id];
+            $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
+    
+            foreach ($docFields as $field) {
+                if ($request->hasFile($field)) {
+                    $files = [];
+                    foreach ($request->file($field) as $file) {
+                        $fileName = time() . '_' . $file->getClientOriginalName();
+                        $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
+                        $files[] = "documents/{$contragent->id}/{$field}/" . $fileName;
+                    }
+                    $data[$field] = json_encode($files);
+                }
+            }
+    
+            ContrDocuments::create($data);
+    
+            return back()->with('message', 'Профиль компании сохранен.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->with('error', $e->errors())->withInput();
+        } catch (\Exception $e) {
+            return back()->with('error', 'Ошибка: ' . $e->getMessage());
         }
-
-        ContrDocuments::create($data);
-
-        return redirect()->route('contragents.edit', parameters: $contragent->id)
-            ->with('success', 'Профиль компании сохранен.');
     }
-
+    
 
     public function edit($id)
-{
-    $contragent = Contragents::with('documents')->findOrFail($id);
+    {
+        $contragent = Contragents::with('documents')->findOrFail($id);
 
-    $contragent->documents = $contragent->documents->map(function ($document) {
-        if (isset($document->contracts)) {
-            $document->contracts = json_decode($document->contracts, true) ?? [];
-        }
-        if (isset($document->financial)) {
-            $document->financial = json_decode($document->financial, true) ?? [];
-        }
-        if (isset($document->transport)) {
-            $document->transport = json_decode($document->transport, true) ?? [];
-        }
-        if (isset($document->commercials)) {
-            $document->commercials = json_decode($document->commercials, true) ?? [];
-        }
-        if (isset($document->adddocs)) {
-            $document->adddocs = json_decode($document->adddocs, true) ?? [];
-        }
+        $contragent->documents = $contragent->documents->map(function ($document) {
+            if (isset($document->contracts)) {
+                $document->contracts = json_decode($document->contracts, true) ?? [];
+            }
+            if (isset($document->financial)) {
+                $document->financial = json_decode($document->financial, true) ?? [];
+            }
+            if (isset($document->transport)) {
+                $document->transport = json_decode($document->transport, true) ?? [];
+            }
+            if (isset($document->commercials)) {
+                $document->commercials = json_decode($document->commercials, true) ?? [];
+            }
+            if (isset($document->adddocs)) {
+                $document->adddocs = json_decode($document->adddocs, true) ?? [];
+            }
 
-        $document->setRawAttributes($document->getAttributes());
+            $document->setRawAttributes($document->getAttributes());
 
-        return $document;
-    });
+            return $document;
+        });
 
-    $countries = Contragents::getCountryMapping();
-    $legalStatuses = Contragents::getLegalMapping();
+        $countries = Contragents::getCountryMapping();
+        $legalStatuses = Contragents::getLegalMapping();
 
-    return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries]);
-}
+        return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries]);
+    }
 
     public function update(Request $request, $id)
     {
@@ -293,41 +288,41 @@ class ContragentsController extends Controller
         $contragentId = $request->query('contragentId');
         $fileName = $request->query('fileName');
         $document = ContrDocuments::where('contragent_id', $contragentId)->first();
-    
+
         if (!$document) {
             return response()->json(['message' => 'Document not found for this contragent.'], 404);
         }
-    
+
         $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
         $fileFound = false;
-    
+
         foreach ($docFields as $field) {
             if (!empty($document->$field)) {
                 $files = json_decode($document->$field, true) ?? [];
                 $fileIndex = array_search($fileName, $files);
                 if ($fileIndex !== false) {
-                    
+
                     $filePath = public_path($files[$fileIndex]);
 
                     if (file_exists($filePath)) {
 
                         unlink($filePath);
-    
+
                         unset($files[$fileIndex]);
                         $document->$field = json_encode(array_values($files));
                         $document->save();
                         $fileFound = true;
                     }
-                    break; 
+                    break;
                 }
             }
         }
-    
+
         if (!$fileFound) {
             return response()->json(['message' => 'File not found in any document field.'], 404);
         }
-    
+
         return response()->json(['message' => 'File deleted successfully']);
     }
-    
+
 }

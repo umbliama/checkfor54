@@ -18,6 +18,8 @@ import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import { EquipMenuItems } from "../../../constants/index.js";
 import EquipTestEditDialog from "@/Components/Equip/EquipTestEditDialog.vue";
 import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
+import UiNotification from '@/Components/Ui/UiNotification.vue';
+
 
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
@@ -93,6 +95,7 @@ const props = defineProps({
 })
 
 const form = reactive({
+    'on_test_date': null,
     'test_date': null,
     'location_id': null,
     'expense': null,
@@ -104,6 +107,7 @@ const form = reactive({
 
 function submit() {
     router.post('/equip/tests', {
+        on_test_date: form.on_test_date,
         test_date: form.test_date,
         location_id: form.location_id,
         expense: form.expense,
@@ -163,7 +167,8 @@ onMounted(() => {
 <template>
     <AuthenticatedLayout>
         <EquipNav></EquipNav>
-
+        <UiNotification type="message" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
         <div class="p-5">
             <EquipFilter
                 :selected-category="selectedCategory"
@@ -225,6 +230,7 @@ onMounted(() => {
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                 <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата испытания</div>
+                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Испытания</div>
                                 <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
                                 <div class="shrink-0 flex items-center w-[calc(100%-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">Описание</div>
                                 <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход</div>
@@ -260,6 +266,10 @@ onMounted(() => {
                                         <path d="M10.6666 13.3333L17.9999 6" stroke="#808192" stroke-width="1.2"
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
+                                </div>
+                                <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)]">
+                                    <input v-model="form.on_test_date" type="date"
+                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)]">
                                     <input v-model="form.test_date" type="date"

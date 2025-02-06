@@ -258,10 +258,11 @@ class EquipmentController extends Controller
     {
         try{
             $request->validate([
-                'repair_date' => 'required|date',
-                'location_id' => 'required|int',
-                'expense' => 'required|int',
-                'description' => 'required|min:3|max:200',
+                'on_repair_date' => 'required|date',
+                'repair_date' => 'nullable|date',
+                'location_id' => 'nullable|int',
+                'expense' => 'nullable|int',
+                'description' => 'nullable|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
                 'series' => 'required|string '
@@ -269,10 +270,15 @@ class EquipmentController extends Controller
             if(!$request->has('size_id')){
                 return back()->with('message', 'Вы не выбрали размер.');
             }else {
-    
-                EquipmentRepair::create($request->all());
-    
-                return back()->with('message', 'Запись успешно добавлена.');            
+                $foundedEquipment = Equipment::where('category_id', $request->category_id)->where('size_id', $request->size_id)->where('series', $request->series)->value('location_id');
+                
+                if($foundedEquipment !== $request->location_id){
+                    return back()->with('error', 'Локации не совпадают.');            
+                }else {
+                    EquipmentRepair::create($request->all());
+                    return back()->with('message', 'Запись успешно добавлена.');            
+                }
+                
             }
     
         }catch(Exception $e ) {
@@ -432,17 +438,25 @@ class EquipmentController extends Controller
         try{
 
             $request->validate([
-                'test_date' => 'required|date',
-                'location_id' => 'required|int',
-                'expense' => 'required|int',
-                'description' => 'required|min:3|max:200',
+                'on_test_date' => 'required|date',
+                'test_date' => 'nullable|date',
+                'location_id' => 'nullable|int',
+                'expense' => 'nullable|int',
+                'description' => 'nullable|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
                 'series' => 'required|string '
             ]);
+
+            $foundedEquipment = Equipment::where('category_id',$request->category_id)->where('size_id',$request->size_id)->where('series',$request->series)->value('location_id');
     
-            EquipmentTest::create($request->all());
-            return back()->with('message', 'Запись успешно добавлена');
+            if($foundedEquipment !== $request->location_id) {
+                return back()->with('error', 'Локации не совпадают.');
+            }else {
+                EquipmentTest::create($request->all());
+                return back()->with('message', 'Запись успешно добавлена');
+    
+            }
 
         }catch(Exception $e) {
             return back()->with('error', $e->getMessage());

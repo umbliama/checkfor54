@@ -243,7 +243,8 @@ function submit() {
         forceFormData: true,
         headers: {
             'Content-Type': 'multipart/form-data',
-        }
+        },
+        onError: error => console.log(error)
     });
 }
 

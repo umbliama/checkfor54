@@ -152,46 +152,192 @@ class DashboardController extends Controller
         $rented_equipment = $rented_equipment_query->paginate($perPage);
         return Inertia::render('Dashboard/Rent', ['equipment_sizes_counts' => $equipment_sizes_counts, 'equipment_sizes' => $equipment_sizes, 'equipment_categories' => $equipment_categories, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_categories_counts_all' => $equipment_categories_counts_all, 'contragents' => $contragents, 'rented_equipment' => $rented_equipment]);
     }
-    public function free()
-    {
-        return Inertia::render('Dashboard/Free');
-    }
-    public function serviced(Request $request)
+    public function free(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
-    
+        $contragents = Contragents::all();
+        $equipment_location = EquipmentLocation::all();
+        $category_id = $request->input('category_id');
+        $size_id = $request->input('size_id');
+        $perPage = $request->input('perPage', 10);
+        $location_id = $request->input('location_id');
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
-    
+
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
             $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
         }
-    
+
+        $equipment_categories_counts = [];
+
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
+        }
+
+        $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)
+                ->where('category_id', $category_id)
+                ->count();
+        }
+
+        $equipment = Equipment::where('category_id', $category_id)
+            ->where('size_id', $size_id)
+            ->when($location_id != 0, function ($query) use ($location_id) {
+                $query->where('location_id', $location_id);
+            })
+            ->whereNotExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
+                $subQuery->select(DB::raw(1))
+                    ->from('equipment_repairs as er')
+                    ->whereColumn('equipment.category_id', 'er.category_id')
+                    ->whereColumn('equipment.size_id', 'er.size_id')
+                    ->whereColumn('equipment.series', 'er.series')
+                    ->where('er.category_id', $category_id)
+                    ->where('er.size_id', $size_id)
+                    ->whereNotNull('er.repair_date');
+
+                if ($location_id != 0) {
+                    $subQuery->where('er.location_id', $location_id);
+                }
+            })
+            ->whereNotExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
+                $subQuery->select(DB::raw(1))
+                    ->from('equipment_tests as et')
+                    ->whereColumn('equipment.category_id', 'et.category_id')
+                    ->whereColumn('equipment.size_id', 'et.size_id')
+                    ->whereColumn('equipment.series', 'et.series')
+                    ->where('et.category_id', $category_id)
+                    ->where('et.size_id', $size_id)
+                    ->whereNotNull('et.test_date');
+
+                if ($location_id != 0) {
+                    $subQuery->where('et.location_id', $location_id);
+                }
+            })
+            ->whereNotExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('service_equipment as se')
+                    ->join('services as s', 'se.service_id', '=', 's.id') // Ensure the service is active
+                    ->whereColumn('equipment.id', 'se.equipment_id')
+                    ->where('s.active', 1) // Only exclude equipment in active services
+                    ->whereNotNull('se.period_start_date')
+                    ->where(function ($q) {
+                        $q->whereNull('se.period_end_date') // Ongoing rental
+                            ->orWhere('se.period_end_date', '>', now()); // Future return date
+                    });
+            })
+            ->whereNotExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('service_subequipment as ss')
+                    ->join('services as s', 'ss.service_id', '=', 's.id') // Ensure the service is active
+                    ->whereColumn('equipment.id', 'ss.subequipment_id')
+                    ->where('s.active', 1) // Only exclude equipment in active services
+                    ->whereNotNull('ss.period_start_date')
+                    ->where(function ($q) {
+                        $q->whereNull('ss.period_end_date') // Ongoing rental
+                            ->orWhere('ss.period_end_date', '>', now()); // Future return date
+                    });
+            })
+            ->distinct()
+            ->paginate($perPage);
+
+
+        return Inertia::render('Dashboard/Free', [
+            'equipment' => $equipment,
+            'equipment_categories' => $equipment_categories,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_categories_counts_all' => $equipment_categories_counts_all,
+            'contragents' => $contragents,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location
+        ]);
+    }
+    public function serviced(Request $request)
+    {
+        $equipment_categories = EquipmentCategories::all();
         $contragents = Contragents::all();
-    
+        $equipment_location = EquipmentLocation::all();
         $category_id = $request->input('category_id');
         $size_id = $request->input('size_id');
         $perPage = $request->input('perPage', 10);
-    
-        $equipment = Equipment::whereExists(function ($query) use ($category_id, $size_id) {
-            $query->select(DB::raw(1))
-                ->from('equipment_repairs as er')
-                ->whereColumn('equipment.category_id', 'er.category_id')
-                ->whereColumn('equipment.size_id', 'er.size_id')
-                ->whereColumn('equipment.series', 'er.series')
-                ->where('er.category_id', $category_id)
-                ->where('er.size_id', $size_id);
+        $location_id = $request->input('location_id');
+        $equipment_categories_counts_all = 0;
+        $equipment_categories_counts = [];
+
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
+        }
+
+        $equipment_categories_counts = [];
+
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
+        }
+
+        $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)
+                ->where('category_id', $category_id)
+                ->count();
+        }
+
+        $equipment = Equipment::where(function ($query) use ($category_id, $size_id, $location_id) {
+            $query->whereExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
+                $subQuery->select(DB::raw(1))
+                    ->from('equipment_repairs as er')
+                    ->whereColumn('equipment.category_id', 'er.category_id')
+                    ->whereColumn('equipment.size_id', 'er.size_id')
+                    ->whereColumn('equipment.series', 'er.series')
+                    ->where('er.category_id', $category_id)
+                    ->where('er.size_id', $size_id);
+
+                if ($location_id != 0) {
+                    $subQuery->where('er.location_id', $location_id);
+                }
+
+                $subQuery->whereNotNull('er.repair_date'); // Ensure repair exists
+            })
+                ->orWhereExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('equipment_tests as et')
+                        ->whereColumn('equipment.category_id', 'et.category_id')
+                        ->whereColumn('equipment.size_id', 'et.size_id')
+                        ->whereColumn('equipment.series', 'et.series')
+                        ->where('et.category_id', $category_id)
+                        ->where('et.size_id', $size_id);
+
+                    if ($location_id != 0) {
+                        $subQuery->where('et.location_id', $location_id);
+                    }
+
+                    $subQuery->whereNotNull('et.test_date'); // Ensure test exists
+                });
         })
-        ->distinct()
-        ->paginate($perPage);
+            ->distinct()
+            ->paginate($perPage);
+
+
+
         return Inertia::render('Dashboard/Serviced', [
             'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_categories_counts_all' => $equipment_categories_counts_all,
             'contragents' => $contragents,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location
         ]);
     }
     public function analysis()
@@ -244,11 +390,11 @@ class DashboardController extends Controller
                 $join->on('equipment.id', '=', 'service_equipment.equipment_id');
             })
             ->leftJoin('service_subequipment', function ($join) {
-            $join->on('equipment.id', '=', 'service_subequipment.subequipment_id');
+                $join->on('equipment.id', '=', 'service_subequipment.subequipment_id');
             })
             ->groupBy('equipment_categories.id', 'equipment_categories.name')
             ->get();
-        
+
         $serviceIncome = Service::select(
             'contragent_id',
             DB::raw('SUM(full_income) as total_income')
@@ -262,7 +408,7 @@ class DashboardController extends Controller
             ->groupBy('contragent_id');
         $combinedIncome = $serviceIncome->unionAll($saleIncome);
         $finalIncome = DB::table(DB::raw("({$combinedIncome->toSql()}) as incomes"))
-            ->mergeBindings($combinedIncome->getQuery()) 
+            ->mergeBindings($combinedIncome->getQuery())
             ->select(
                 'contragent_id',
                 DB::raw('SUM(total_income) as full_income')
