@@ -257,7 +257,7 @@ const form = reactive({
     return_reason: null,
     commentary: null,
     income: null,
-    active: 0,
+    active: 1,
     contract: 0,
     equipment: null,
 
@@ -362,8 +362,8 @@ function submit() {
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select v-model="form.active"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
-                                    <option value="0">Аренда закрыта</option>
                                     <option value="1" selected>Аренда открыта</option>
+                                    <option value="0">Аренда закрыта</option>
                                 </select>
                             </div>
                         </label>
