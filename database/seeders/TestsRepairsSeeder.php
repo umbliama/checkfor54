@@ -39,6 +39,7 @@ class TestsRepairsSeeder extends Seeder
             $locationId = $faker->randomElement($locations);
 
             DB::table('equipment_tests')->insert([
+                'on_test_date' => $faker->date(),
                 'test_date' => $faker->date(),
                 'location_id' => $locationId,
                 'expense' => $faker->numberBetween(100, 10000),
@@ -62,6 +63,7 @@ class TestsRepairsSeeder extends Seeder
             $locationId = $faker->randomElement($locations);
 
             DB::table('equipment_repairs')->insert([
+                'on_repair_date' => $faker->date(),
                 'repair_date' => $faker->date(),
                 'location_id' => $locationId,
                 'expense' => $faker->numberBetween(100, 10000),
