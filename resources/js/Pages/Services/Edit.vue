@@ -26,6 +26,9 @@ import {
 } from "radix-vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import ServicesServicesDialog from "@/Components/Services/ServicesServicesDialog.vue";
+import UiNotification from '@/Components/Ui/UiNotification.vue';
+
+
 
 const props = defineProps({
     service: Object,
@@ -416,7 +419,8 @@ const test_rows = ref([
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
         <ServicesServicesDialog v-if="modalShownServices" />
-
+        <UiNotification v-model="$page.props.flash.message" :description="$page.props.flash.message" type="message" />
+        <UiNotification v-model="$page.props.flash.error" :description="$page.props.flash.error" type="error" />
         <div class="p-5">
             <ServicesNav2 title="Редактор аренды" />
 

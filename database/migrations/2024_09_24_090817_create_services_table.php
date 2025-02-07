@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->foreign('contragent_id')->references('id')->on('contragents')->onDelete('cascade');
             $table->string('service_number');
             $table->date('service_date');       
+            $table->text('commentary')->nullable();
             $table->float('full_income')->nullable();
             $table->boolean('active');
             $table->string('hyperlink')->nullable();

@@ -539,7 +539,7 @@ const nameContragent = (id) => {
                                                 </AccordionTrigger>
                                             </div>
                                             <div class="shrink-0 flex items-center w-[14.08%]">
-                                                <input type="date" class="block w-full h-full px-2 bg-transparent" />
+                                                <input v-model="service_item.service_date" type="date" class="block w-full h-full px-2 bg-transparent" />
                                             </div>
                                             <div
                                                 class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
@@ -757,12 +757,12 @@ const nameContragent = (id) => {
                                                             </AccordionTrigger>
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                                            <input type="date"
+                                                            <input v-model="subservice.shipping_date" type="date"
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div
                                                             class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                                            <input value="somee" type="text"
+                                                            <input v-model="subservice.commentary" type="text"
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center justify-end w-[14.08%]">
@@ -950,17 +950,17 @@ const nameContragent = (id) => {
                                                                     sub.equipment.series }}
                                                             </div>
                                                             <div class="shrink-0 flex items-center w-[14.08%]">
-                                                                <input type="date"
+                                                                <input v-model="sub.shipping_date" type="date"
                                                                     class="block w-full h-full px-2 bg-transparent" />
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                                                <input value="somee" type="text"
+                                                                <input v-model="sub.commentary" type="text"
                                                                     class="block w-full h-full px-2 bg-transparent" />
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-end w-[14.08%]">
-                                                                <input value="1232" type="text"
+                                                                <input v-model="sub.income" type="text"
                                                                     class="block w-full h-full px-2 bg-transparent" />
                                                             </div>
                                                             <div

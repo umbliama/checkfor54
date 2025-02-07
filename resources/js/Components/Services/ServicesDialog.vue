@@ -524,43 +524,6 @@ onMounted(() => {
                             </div>
                         </div>
                     </template>
-
-                    <div v-if="equipment" class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
-                        <div class="min-w-[900px] text-xs">
-                            <div
-                                class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                <div class="shrink-0 flex items-center w-[16%] py-2.5 px-2">Производитель</div>
-                                <div class="shrink-0 flex items-center w-[15%] py-2.5 px-2">Cерия</div>
-                                <div class="shrink-0 flex items-center w-[16%] py-2.5 px-2">Дата изготовления</div>
-                                <div class="shrink-0 flex items-center w-[12%] py-2.5 px-2">Состояние</div>
-                                <div class="shrink-0 flex items-center w-[12%] py-2.5 px-2">Стоимость</div>
-                                <div class="shrink-0 flex items-center w-[calc(100%-16%-15%-16%-12%-12%)] py-2.5 px-2">
-                                    Примечание</div>
-                            </div>
-                            <div v-for="item in equipment.data"
-                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 cursor-pointer hover:bg-slate-200"
-                                @click="updateSelectedEquipment(item.id)">
-                                <div class="shrink-0 flex items-center w-[16%] py-2.5 px-2">
-                                    {{ item.manufactor }}
-                                </div>
-                                <div class="shrink-0 flex items-center w-[15%] py-2.5 px-2">
-                                    {{ item.series }}
-                                </div>
-                                <div class="shrink-0 flex items-center w-[16%] py-2.5 px-2">
-                                    {{ item.manufactor_date }}
-                                </div>
-                                <div class="shrink-0 flex items-center w-[12%] py-2.5 px-2">
-                                    <span :class="statuses_colors[item.status]"
-                                        class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                    <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] ||
-                                        '-' }}</span>
-                                </div>
-                                <div class="shrink-0 flex items-center w-[12%] py-2.5 px-2">Стоимость</div>
-                                <div class="shrink-0 flex items-center w-[calc(100%-16%-15%-16%-12%-12%)] py-2.5 px-2">
-                                    Примечание</div>
-                            </div>
-                        </div>
-                    </div>
                 </DialogContent>
             </transition>
         </DialogPortal>

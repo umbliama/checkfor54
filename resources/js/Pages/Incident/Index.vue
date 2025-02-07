@@ -29,6 +29,7 @@ import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
 import 'swiper/css';
 import IncidentPagination from '@/Components/IncidentPagination.vue';
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 const page = usePage()
 
@@ -222,6 +223,8 @@ onBeforeMount(() => {
 
 <template>
     <AuthenticatedLayout>
+        <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error"  />
         <div class="p-5">
             <div class="relative flex items-center justify-between flex-col lg:flex-row">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
