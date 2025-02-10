@@ -23,7 +23,7 @@ class EquipmentFactory extends Factory
 
         return [
             'manufactor' => $this->faker->company,
-            'category_id' => $this->faker->randomElement([1, 2, 3]),
+            'category_id' => $this->faker->randomElement([1, 2, 3,4,5,6,7]),
             'size_id' => function (array $attributes) {
                 if ($attributes['category_id'] == 1) {
                     return $this->faker->numberBetween(1,1);
@@ -31,6 +31,14 @@ class EquipmentFactory extends Factory
                     return $this->faker->numberBetween(13, 18);
                 } elseif ($attributes['category_id'] == 3) {
                     return $this->faker->numberBetween(19, 30);
+                } elseif ($attributes['category_id'] == 4) {
+                    return $this->faker->numberBetween(31, 42);
+                } elseif ($attributes['category_id'] == 5) {
+                    return $this->faker->numberBetween(43, 54);
+                } elseif ($attributes['category_id'] == 6) {
+                    return $this->faker->numberBetween(55,  66);
+                } elseif ($attributes['category_id'] == 7) {
+                    return $this->faker->numberBetween(67, 78);
                 }
             },
             'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id ?? null,

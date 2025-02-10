@@ -115,7 +115,7 @@ class EquipmentController extends Controller
             }
             return $sale;
         });
-        
+
 
         return Inertia::render('Equip/Index', [
             'equipment' => $equipment,
@@ -256,7 +256,7 @@ class EquipmentController extends Controller
 
     public function storeRepair(Request $request)
     {
-        try{
+        try {
             $request->validate([
                 'on_repair_date' => 'required|date',
                 'repair_date' => 'nullable|date',
@@ -265,30 +265,32 @@ class EquipmentController extends Controller
                 'description' => 'nullable|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
-                'series' => 'required|string '
+                'series' => 'required|string',
             ]);
-            if(!$request->has('size_id')){
-                return back()->with('message', 'Вы не выбрали размер.');
-            }else {
-                $foundedEquipment = Equipment::where('category_id', $request->category_id)->where('size_id', $request->size_id)->where('series', $request->series)->value('location_id');
-                
-                if($foundedEquipment !== $request->location_id){
-                    return back()->with('error', 'Локации не совпадают.');            
-                }else {
-                    EquipmentRepair::create($request->all());
-                    return back()->with('message', 'Запись успешно добавлена.');            
-                }
-                
+
+            $foundedEquipment = Equipment::where('category_id', $request->category_id)
+                ->where('size_id', $request->size_id)
+                ->where('series', $request->series)
+                ->first();
+
+            if (!$foundedEquipment) {
+                return back()->with('error', 'Оборудование не найдено.');
             }
-    
-        }catch(Exception $e ) {
+
+            if ($foundedEquipment->location_id != $request->location_id) {
+                return back()->with('error', 'Локации не совпадают.');
+            }
+
+            EquipmentRepair::create(array_merge($request->all(), [
+                'equipment_id' => $foundedEquipment->id,
+            ]));
+
+            return back()->with('message', 'Запись успешно добавлена.');
+
+        } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
-
         }
-        
     }
-
-
     public function updateRepair(Request $request, $id)
     {
         $repair = EquipmentRepair::findOrFail($id);
@@ -355,9 +357,9 @@ class EquipmentController extends Controller
                 }
                 return $sale;
             });
-    
 
-            
+
+
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
         $equipment_tests = Equipment::where('category_id', $categoryId)
 
@@ -432,11 +434,10 @@ class EquipmentController extends Controller
         );
     }
 
+
     public function storeTest(Request $request)
     {
-
-        try{
-
+        try {
             $request->validate([
                 'on_test_date' => 'required|date',
                 'test_date' => 'nullable|date',
@@ -445,20 +446,29 @@ class EquipmentController extends Controller
                 'description' => 'nullable|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
-                'series' => 'required|string '
+                'series' => 'required|string',
             ]);
 
-            $foundedEquipment = Equipment::where('category_id',$request->category_id)->where('size_id',$request->size_id)->where('series',$request->series)->value('location_id');
-    
-            if($foundedEquipment !== $request->location_id) {
-                return back()->with('error', 'Локации не совпадают.');
-            }else {
-                EquipmentTest::create($request->all());
-                return back()->with('message', 'Запись успешно добавлена');
-    
+            $foundedEquipment = Equipment::where('category_id', $request->category_id)
+                ->where('size_id', $request->size_id)
+                ->where('series', $request->series)
+                ->first();
+
+            if (!$foundedEquipment) {
+                return back()->with('error', 'Оборудование не найдено.');
             }
 
-        }catch(Exception $e) {
+            if ($foundedEquipment->location_id != $request->location_id) {
+                return back()->with('error', 'Локации не совпадают.');
+            }
+
+            EquipmentTest::create(array_merge($request->all(), [
+                'equipment_id' => $foundedEquipment->id,
+            ]));
+
+            return back()->with('message', 'Запись успешно добавлена.');
+
+        } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
@@ -494,8 +504,8 @@ class EquipmentController extends Controller
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
         $perPage = $request->input('perPage');
-        $prices = EquipmentPrice::with(['category', 'size', 'contragent','directory'])->where('archive', 0)->paginate($perPage);
-        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent','directory'])->where('archive', 1)->paginate($perPage);
+        $prices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])->where('archive', 0)->paginate($perPage);
+        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])->where('archive', 1)->paginate($perPage);
 
         $prices->getCollection()->transform(function ($sale) {
             if (isset($sale->directory['files'])) {
@@ -503,7 +513,7 @@ class EquipmentController extends Controller
             }
             return $sale;
         });
-        
+
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $series = $request->query('series');

@@ -29,6 +29,9 @@ return new class extends Migration {
             $table->string('usilie')->nullable();
             $table->string('delay')->nullable();
             $table->string('hyperlink')->nullable();
+            $table->unsignedBigInteger('equipment_id');
+            $table->foreign('equipment_id')->references('id')->on('equipment')->onDelete('cascade');
+            $table->boolean('isLocked')->default(false);
         });
     }
 

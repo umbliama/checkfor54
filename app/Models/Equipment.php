@@ -11,7 +11,15 @@ class Equipment extends Model
 {
     use HasFactory;
 
-
+    public function tests()
+    {
+        return $this->hasMany(EquipmentTest::class, 'equipment_id', 'id');
+    }
+    
+    public function repairs()
+    {
+        return $this->hasMany(EquipmentRepair::class, 'equipment_id', 'id');
+    }
     public function service()
     {
         return $this->belongsTo(Service::class, 'service_id', 'id');
@@ -64,9 +72,10 @@ class Equipment extends Model
         return $this->belongsTo(EquipmentSize::class, 'size_id');
     }
     
-    public function services(): HasMany
+    public function services()
     {
-        return $this->hasMany(Service::class);
+        return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id');
     }
+    
 
 }

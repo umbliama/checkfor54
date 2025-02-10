@@ -9,7 +9,15 @@ class EquipmentTest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['on_test_date','test_date', 'location_id', 'expense','description','category_id','size_id','series'];
+    protected $fillable = [
+        'equipment_id', 'on_test_date', 'test_date', 'location_id', 
+        'expense', 'description', 'category_id', 'size_id', 'series', 'isLocked'
+    ];
+
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class, 'equipment_id', 'id');
+    }
 
     public function directory()
     {
