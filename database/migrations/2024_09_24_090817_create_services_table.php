@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('service_number');
             $table->date('service_date');       
             $table->text('commentary')->nullable();
-            $table->float('full_income')->nullable();
+            $table->decimal('full_income',20,2)->nullable();
             $table->boolean('active');
             $table->string('hyperlink')->nullable();
         });
@@ -34,11 +34,11 @@ return new class extends Migration {
             $table->date('period_start_date')->nullable();
             $table->date('return_date')->nullable();
             $table->date('period_end_date')->nullable();
-            $table->string('store')->nullable();
-            $table->string('operating')->nullable();
+            $table->decimal('store',20,2)->nullable();
+            $table->decimal('operating',20,2)->nullable();
             $table->string('commentary')->nullable();
             $table->enum('return_reason', ['project', 'rejected'])->nullable();
-            $table->float('income')->nullable();
+            $table->decimal('income',20,2)->nullable();
         });
         
         Schema::create('service_subequipment', function (Blueprint $table) {
@@ -49,9 +49,9 @@ return new class extends Migration {
             $table->string('commentary')->nullable();
             $table->date('return_date')->nullable();
             $table->date('period_end_date')->nullable();
-            $table->string('store')->nullable();
-            $table->string('operating')->nullable();
-            $table->float('income')->nullable();
+            $table->decimal('store',20,2)->nullable();
+            $table->decimal('operating',20,2)->nullable();
+            $table->decimal('income',20,2)->nullable();
             $table->enum('return_reason', ['project', 'rejected'])->nullable();
             $table->unsignedBigInteger('subequipment_id');
             $table->foreign('subequipment_id')->references('id')->on('equipment')->onDelete('cascade');
