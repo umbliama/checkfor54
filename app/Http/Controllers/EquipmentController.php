@@ -15,6 +15,9 @@ use App\Models\EquipmentLocation;
 use App\Models\Equipment;
 use App\Models\EquipmentRepair;
 use App\Models\EquipmentTest;
+use App\Models\ServiceSub;
+use App\Models\ServiceEquip;
+
 class EquipmentController extends Controller
 {
     /**
@@ -27,25 +30,57 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-        $equipment_on_rent_count = Equipment::whereHas('serviceEquipment.services', function ($query) {
+    
+        $serviceSubCount = ServiceSub::whereHas('service', function ($query) {
+            $query->where('active', 1);
+        })->count();
+    
+
+        $serviceEquipCount = ServiceEquip::whereHas('services', function ($query) {
+            $query->where('active', 1);
+        })->count();
+        
+
+        $equipment_on_rent_count = $serviceSubCount + $serviceEquipCount;
+
+        
+        $activeEquipment = ServiceEquip::with(['services', 'serviceSubs'])
+        ->whereHas('services', function($query) {
             $query->where('active', 1);
         })
-            ->whereDoesntHave('serviceEquipment.services', function ($query) {
-                $query->where('active', 0);
-            })
-            ->count();
-
-
-        $activeEquipment = Equipment::whereHas('serviceEquipment.services', function ($query) {
-            $query->where('active', 1);
-        })->with([
-                    'serviceEquipment.services' => function ($query) {
-                        $query->where('active', 1);
-                    }
-                ])->whereDoesntHave('serviceEquipment.services', function ($query) {
-                    $query->where('active', 0);
-                })->paginate($perPage);
-
+        ->get()
+        ->map(function($serviceEquip) {
+            $subs = $serviceEquip->serviceSubs->map(function($sub) {
+                return [
+                    'id' => $sub->id,
+                    'equipment_id' => $sub->subequipment_id,
+                    'shipping_date' => $sub->shipping_date,
+                    'period_start_date' => $sub->period_start_date,
+                    'return_date' => $sub->return_date,
+                    'period_end_date' => $sub->period_end_date,
+                    'store' => $sub->store,
+                    'operating' => $sub->operating,
+                    'income' => $sub->income,
+                    'type' => 'sub'
+                ];
+            });
+    
+            $mainEquip = [
+                'id' => $serviceEquip->id,
+                'equipment_id' => $serviceEquip->equipment_id,
+                'shipping_date' => $serviceEquip->shipping_date,
+                'period_start_date' => $serviceEquip->period_start_date,
+                'return_date' => $serviceEquip->return_date,
+                'period_end_date' => $serviceEquip->period_end_date,
+                'store' => $serviceEquip->store,
+                'operating' => $serviceEquip->operating,
+                'income' => $serviceEquip->income,
+                'type' => 'main'
+            ];
+    
+            return collect([$mainEquip])->concat($subs);
+        })
+        ->flatten(1);
 
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
@@ -88,11 +123,21 @@ class EquipmentController extends Controller
             }
         }
         if ($rentActive) {
-            $query->whereHas('serviceEquipment.services', function ($query) {
+            $equipment = $query->whereHas('serviceEquipment.services', function ($query) {
                 $query->where('active', 1);
+            })->with('serviceEquipment.serviceSubs')->get();
+        
+            $flattenedEquipment = $equipment->flatMap(function ($main) {
+                $items = collect([$main]);
+                foreach ($main->serviceEquipment as $serviceEquipment) {
+                    $items = $items->merge($serviceEquipment->serviceSubs);
+                }
+        
+                return $items;
             });
+        
         }
-
+        
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
@@ -573,6 +618,7 @@ class EquipmentController extends Controller
 
         EquipmentPrice::where('category_id', $validatedData['category_id'])
             ->where('size_id', $validatedData['size_id'])
+            ->where('contragent_id', $validatedData['contragent_id'])
             ->where('archive', false)
             ->update(['archive' => true]);
 

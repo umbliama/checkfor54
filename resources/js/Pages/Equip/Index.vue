@@ -292,7 +292,7 @@ onMounted(() => {
             </div>
 
             <div class="flex justify-between bg-my-gray mt-4 p-1 lg:hidden">
-                <form action="" method="GET" class="w-[calc(50%-10px)]">
+                <form method="GET" class="w-[calc(50%-10px)]">
                     <UiField :inp-attrs="{ placeholder: 'Поиск', class: 'bg-white' }" class="w-full">
                         <template #prepend>
                             <button type="submit">
@@ -459,7 +459,7 @@ onMounted(() => {
                                 </svg>
                             </div>
                         </div>
-                        <template v-for="item in sortedEquipment">
+                        <template v-for="item in sortedEquipment ">
                             <div
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
