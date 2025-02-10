@@ -188,7 +188,7 @@ function onFileDelete() {
 function submit() {
     updateForm();
 
-    const router_method = props.contragent ? 'put' : 'post';
+    const router_method = props.contragent ? 'post' : 'post';
     const router_url = props.contragent ? `/contragents/update/${props.contragent.id}` : '/contragents';
 
     let formData = new FormData();
@@ -240,9 +240,8 @@ function submit() {
     console.log([...formData.entries()]);
 
     router[router_method](router_url, formData, {
-        forceFormData: true,
         headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data'
         },
         onError: error => console.log(error)
     });
@@ -475,8 +474,9 @@ const setTab = (tab) => {
         <div class="shrink-0 w-full mt-4 space-y-4 lg:w-60 lg:mt-0 lg:space-y-1">
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Комм. предложения:</div>
+
                 <ul v-if="contragent" class="mt-2 space-y-3.5 bg-my-gray">
-                    <li v-if="form.commercials !== null || contragent.documents.some(doc => doc.commercials)"
+                    <li v-if="form.commercials !== null || contragent.documents.commercials !== null"
                         v-for="file in (form.commercials || contragent.documents.flatMap(doc => doc.commercials))"
                         class="flex items-center">
                         <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -496,7 +496,9 @@ const setTab = (tab) => {
                         </svg>
                         <span class="text-elipsis" v-if="form.commercials">{{ file.name }}</span>
                         <span class="text-elipsis" v-else>{{ file.split('/').pop() }}</span>
-                        <Link method="DELETE" :href="route('contragents.deleteFile',{contragentId: contragent.id, fileName: file})" class="shrink-0" type="button">
+                        <Link method="DELETE"
+                            :href="route('contragents.deleteFile', { contragentId: contragent.id, fileName: file })"
+                            class="shrink-0" type="button">
                         <button>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -536,8 +538,8 @@ const setTab = (tab) => {
                                         <label
                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                             Загрузить
-                                            <input type="file" multiple @change="handleFileUpload($event, 'commerical')"
-                                                hidden>
+                                            <input type="file" name="commercials[]" multiple
+                                                @change="handleFileUpload($event, 'commerical')" hidden>
                                         </label>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -567,8 +569,8 @@ const setTab = (tab) => {
                                 d="M7.5 17.25C7.5 16.8358 7.83579 16.5 8.25 16.5H15.75C16.1642 16.5 16.5 16.8358 16.5 17.25C16.5 17.6642 16.1642 18 15.75 18H8.25C7.83579 18 7.5 17.6642 7.5 17.25Z"
                                 fill="#697077" />
                         </svg>
-                        <span v-if="form.contracts">{{ file.name }}</span>
-                        <span v-else>{{ file.split('/').pop() }}</span>
+                        <span class="text-elipsis" v-if="form.contracts">{{ file.name }}</span>
+                        <span class="text-elipsis" v-else>{{ file.split('/').pop() }}</span>
                     </li>
                 </ul>
                 <div class="flex items-center justify-between mt-2">

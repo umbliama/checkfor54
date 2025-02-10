@@ -16,13 +16,13 @@ return new class extends Migration
             $table->timestamps();
             $table->unsignedBigInteger('contragent_id');
             $table->foreign('contragent_id')->references('id')->on('contragents')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->json('commercials')->nullable();
             $table->json('contracts')->nullable();
             $table->json('transport')->nullable();
             $table->json('financial')->nullable();
             $table->json('adddocs')->nullable();
-
-
         });
     }
 
