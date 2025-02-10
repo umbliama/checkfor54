@@ -29,7 +29,7 @@ const props = defineProps({
 });
 
 const page = usePage()
-
+const imageUrl = ref(null);
 const errors = computed(() => page.props.errors)
 const success = computed(() => page.props.flash.success)
 const country_list = computed(() => {
@@ -172,17 +172,34 @@ function updateForm() {
     });
 }
 
-function onFileChange(event) {
+const onFileChange = (event) => {
     const file = event.target.files[0];
-    console.log(file)
     if (file) {
-        form.avatar = file;
+        if (props.contragent) {
+            props.contragent.avatar = URL.createObjectURL(file);
+            form.avatar = file
+        } else {
+            imageUrl.value = URL.createObjectURL(file);
+            form.avatar = file
+        }
     }
 }
 
-function onFileDelete() {
-    if (form.avatar)
-        form.avatar = null
+function onFileDelete(id = null) {
+
+
+    if (props.contragent) {
+        router.delete(`/contragents/deleteAvatar/${props.contragent.id}`);
+
+    } else {
+        if (form.avatar) {
+            form.avatar = null
+            imageUrl.value = null
+        }
+    }
+
+
+
 }
 
 function submit() {
@@ -222,7 +239,7 @@ function submit() {
     formData.append('contact_person_email', form.contact_person_email);
     formData.append('contact_person_notes', form.contact_person_notes);
     formData.append('contact_person_commentary', form.contact_person_commentary);
-    formData.append('status', form.status ?? 0);
+    formData.append('status', form.status === true ? 1 :0);
 
     if (form.avatar) {
         formData.append('avatar', form.avatar);
@@ -311,7 +328,7 @@ const setTab = (tab) => {
                     <h3 class="font-bold text-lg lg:text-xl">Логотип</h3>
                     <div class="flex items-start mt-6">
                         <div class="flex items-center w-full lg:w-1/2">
-                            <UiUserAvatar :image="props.contragent?.avatar" size="96px" />
+                            <UiUserAvatar :image="props.contragent?.avatar || imageUrl" size="96px" />
 
                             <div class="flex flex-col pl-0 mx-auto lg:mx-0 lg:pl-6">
                                 <label
@@ -456,19 +473,7 @@ const setTab = (tab) => {
                     textarea />
             </div>
 
-            <!-- <div class="mt-8 lg:hidden md:hidden">
-                <label class="block font-roboto text-gray-700">Причина</label>
-                <textarea v-model="form.reason" class="w-full mt-2 p-2 border rounded" rows="3"
-                    placeholder=""></textarea>
-            </div> -->
 
-            <!-- Save button -->
-            <!-- <div class="mt-6 flex justify-end">
-                <button
-                    class="inline-flex items-center justify-center py-4 px-7 bg-my-gray"
-                    @click="submit"
-                >Сохранить</button>
-            </div> -->
         </div>
 
         <div class="shrink-0 w-full mt-4 space-y-4 lg:w-60 lg:mt-0 lg:space-y-1">

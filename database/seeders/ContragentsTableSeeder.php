@@ -17,7 +17,7 @@ class ContragentsTableSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-        foreach (range(1, 35) as $index) {
+        foreach (range(1, 18) as $index) {
             DB::table('contragents')->insert([
                 'agentTypeLegal' => $faker->randomElement(['OOO', 'OAO', 'ZAO', 'PAO', 'individual']),
                 'country' => 'RU',
@@ -48,7 +48,7 @@ class ContragentsTableSeeder extends Seeder
                 'contact_person_email' => $faker->email,
                 'contact_person_notes' => $faker->sentence,
                 'contact_person_commentary' => $faker->sentence,
-                'status' => $faker->boolean,
+                'status' => $faker->randomElement([0,1]),
                 'avatar' => $faker->imageUrl(100, 100, 'business', true, 'avatar'),
                 'created_at' => now(),
                 'updated_at' => now(),

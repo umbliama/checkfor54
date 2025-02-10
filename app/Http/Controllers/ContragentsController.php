@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ContrDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\Contragents;
 
@@ -14,15 +15,25 @@ class ContragentsController extends Controller
 
     public function index(Request $request)
     {
-        $searchTerm = $request->query('search');
+        $searchTerm = $request->query('query');
         $perPage = $request->query('perPage', 10);
 
         $query = Contragents::query();
 
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {
-                $query->where('fullname', 'LIKE', "%$searchTerm%")
-                    ->orWhere('inn', 'LIKE', "%$searchTerm%");
+                $query->where('name', 'LIKE', "%$searchTerm%")
+                    ->orWhere('inn', 'LIKE', "%$searchTerm%")
+                    ->orWhere('contact_person', 'LIKE', "%$searchTerm%")
+                    ->orWhere('contact_person_phone', 'LIKE', "%$searchTerm%")
+                    ->orWhere('contact_person_email', 'LIKE', "%$searchTerm%")
+                    ->orWhere('notes', 'LIKE', "%$searchTerm%");
+        
+                if (strtolower($searchTerm) === 'активный') {
+                    $query->orWhere('status', 1);
+                } elseif (strtolower($searchTerm) === 'неактивный' || strtolower($searchTerm) === 'не активный') {
+                    $query->orWhere('status', 0);
+                }
             });
         }
 
@@ -87,23 +98,19 @@ class ContragentsController extends Controller
         try {
 
             $request->merge([
-                // Boolean fields
                 'supplier' => filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN),
                 'customer' => filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN),
                 'status' => filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
 
-                // URL field
                 'site' => filter_var($request->input('site'), FILTER_VALIDATE_URL) ?:
                     ($request->input('site') ? 'https://' . ltrim($request->input('site'), 'http://') : null),
 
-                // Email fields
                 'email' => $request->input('email') === 'null' ? null :
                     (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ?:
                         ($request->input('email') ? strtolower(trim($request->input('email'))) : null)),
                 'contact_person_email' => $request->input('contact_person_email') === 'null' ? null :
                     (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ?:
                         ($request->input('contact_person_email') ? strtolower(trim($request->input('contact_person_email'))) : null)),
-                // Text fields - trim and convert null strings to actual null
                 'agentTypeLegal' => $request->input('agentTypeLegal') === 'null' ? null : trim($request->input('agentTypeLegal')),
                 'country' => $request->input('country') === 'null' ? null : trim($request->input('country')),
                 'name' => $request->input('name') === 'null' ? null : trim($request->input('name')),
@@ -177,7 +184,7 @@ class ContragentsController extends Controller
 
             $contragent = Contragents::create($validatedData);
 
-            $data = ['contragent_id' => $contragent->id];
+            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
             $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
 
             foreach ($docFields as $field) {
@@ -336,7 +343,28 @@ class ContragentsController extends Controller
         return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries, 'legalStatuses' => $legalStatuses]);
     }
 
+    public function destroyAvatar($id)
+    {
+        try {
+            $contragent = Contragents::findOrFail($id);
 
+            if ($contragent->avatar) {
+                $avatarPath = $contragent->avatar;
+
+                if (Storage::exists($avatarPath)) {
+                    Storage::delete($avatarPath);
+                }
+
+                $contragent->avatar = null;
+                $contragent->save();
+
+            }
+            return back()->with('message', 'Логотип удален');
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
 
     public function destroy($id)
     {
