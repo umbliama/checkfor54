@@ -2,7 +2,7 @@
 import DashboardToolbar from '@/Components/Dashboard/DashboardToolbar.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Chart } from 'chart.js/auto';
-import { onMounted } from 'vue';
+import { onMounted, ref, toRaw, watch } from 'vue';
 import ProgressBar from 'progressbar.js'
 import { duration } from 'moment/moment';
 import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
@@ -22,41 +22,56 @@ const props = defineProps({
     on_store: Number,
     unavailable: Number,
     categoryData: Number,
-    contragentincome: Array
+    contragentincome: Array,
+    categoryDataIncome: Array,
+    categoriesProgress: Array,
+    categoryPercentages: Array
 })
 
 const graphColors = ['bg-[#0F62FE]', 'bg-[#DAC41E]', 'bg-[#31C246]', 'bg-[#DA1E28]', 'bg-[#7300FF]', 'bg-[#DDE1E6]', 'bg-[#DDE1E6]'];
+const chosenCategory = ref(1);
+const percent = ref(0)
+let semi_circle2 = null; 
+const setCategory = (id) => {
+    chosenCategory.value = id;
+    percent.value = props.categoryPercentages[chosenCategory.value - 1]?.percent || 0;
+};
 onMounted(() => {
-    const semi_cricle = new ProgressBar.Circle('.progress-bar-bg', {
+
+    setCategory(1);
+    const semi_circle = new ProgressBar.Circle('.progress-bar-bg', {
         color: '#DDE1E6',
         easing: 'easeInOut',
         trailColor: 'transparent',
         strokeWidth: 10,
         duration: 0,
-        svgStyle: {
-            strokeLinecap: 'round'
-        }
+        svgStyle: { strokeLinecap: 'round' }
     });
 
-    semi_cricle.path.style.strokeLinecap = 'round';
+    semi_circle.path.style.strokeLinecap = 'round';
+    semi_circle.animate(0.7); 
 
-    semi_cricle.animate(0.7);
-
-    const semi_cricle2 = new ProgressBar.Circle('.progress-bar', {
+    semi_circle2 = new ProgressBar.Circle('.progress-bar', {
         color: '#878D96',
         easing: 'easeInOut',
         trailColor: 'transparent',
         strokeWidth: 10,
-        duration: 0,
-        svgStyle: {
-            strokeLinecap: 'round'
-        }
+        duration: 500, 
+        svgStyle: { strokeLinecap: 'round' }
     });
 
-    semi_cricle2.path.style.strokeLinecap = 'round';
+    semi_circle2.path.style.strokeLinecap = 'round';
+    semi_circle2.animate(percent.value / 100); 
 
-    semi_cricle2.animate(0.3);
 
+    watch(chosenCategory, (newValue) => {
+        percent.value = props.categoryPercentages[newValue - 1]?.percent || 0;
+
+        if (semi_circle2) {
+            const maxProgress = 0.7;
+            const progress = Math.min(percent.value / 100, maxProgress); 
+        }
+    });
 
     new Chart(document.querySelector('#rent-graphic'), {
         type: 'polarArea',
@@ -88,7 +103,7 @@ onMounted(() => {
             datasets: [
                 {
                     label: 'My First Dataset',
-                    data: [33, 17, 33, 17],
+                    data: Object.values(props.categoryData).map(category => category.total_service_count),
                     backgroundColor: [
                         '#0F62FE',
                         '#31C246',
@@ -98,7 +113,7 @@ onMounted(() => {
                 },
                 {
                     label: 'My Second Dataset',
-                    data: [10, 9, 20],
+                    data: Object.values(props.categoryData).map(category => category.total_service_count),
                     backgroundColor: [
                         '#7300FF',
                         '#041328',
@@ -119,7 +134,6 @@ onMounted(() => {
 <template>
     <AuthenticatedLayout bg="gray">
         <DashboardToolbar dashboard-page-type="analysis" filter />
-
         <div class="p-4 lg:p-6">
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-6 lg:gap-6">
                 <div class="p-4 border border-[#DDE1E6] bg-white">
@@ -152,6 +166,7 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
+
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Всего оборудования
                     </div>
@@ -187,8 +202,9 @@ onMounted(() => {
             <div class="grid grid-cols-1 gap-4 mt-6 xl:grid-cols-2 lg:gap-6">
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <ul class="flex space-x-5 text-sm text-nowrap overflow-x-auto">
-                        <li v-for="category in equipment_categories"
-                            class="shrink-0 py-2 font-medium border-b-2 border-b-[#001D6C] text-[#001D6C] cursor-pointer">
+                        <li v-for="category in equipment_categories" @click="setCategory(category.id)"
+                            class="shrink-0 py-2 font-medium border-b-2 text-[#001D6C] cursor-pointer"
+                            :class="{ 'border-b-[#001D6C]': chosenCategory === category.id }">
                             {{ category.name }}</li>
                     </ul>
 
@@ -207,24 +223,15 @@ onMounted(() => {
                         <div class="relative w-[170px] lg:mr-6">
                             <div class="progress-bar-bg rotate-[-127deg] w-[170px] h-[170px]"></div>
                             <div class="progress-bar rotate-[-127deg] absolute left-0 top-0 w-[170px] h-[170px]"></div>
-                            <span
-                                class="absolute left-1/2 -translate-x-1/2 bottom-0 font-bold text-3xl text-gray1">67%</span>
+                            <span class="absolute left-1/2 -translate-x-1/2 bottom-0 font-bold text-3xl text-gray1">{{
+                                categoryPercentages[chosenCategory - 1].percent }}%</span>
                         </div>
                         <div
                             class="w-full mt-10 pt-4 border-t border-t-gray1 text-gray1 lg:w-[calc(100%-170px-24px)] lg:mt-0 lg:pt-0 lg:border-t-0">
                             <ul class="grid grid-cols-2 gap-3 text-sm">
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
-                                <li><span class="font-medium">ДР 43:</span> 10 из 43</li>
+                                <li v-for="item in categoriesProgress[chosenCategory - 1]">{{ item.size }}<span
+                                        class="font-medium"></span> {{ item.numberOfSizeOnRent }} из {{
+                                            item.equipmentLeft }}</li>
                             </ul>
                         </div>
                     </div>
@@ -240,9 +247,11 @@ onMounted(() => {
 
                             <ul class="space-y-4 text-xs lg:text-sm">
                                 <li v-for="(item, index) in categoryData" class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full" :class="'' + graphColors[index]"></span>
+                                    <span class="block w-3 h-3 mr-1 rounded-full"
+                                        :class="'' + graphColors[index]"></span>
                                     <span class="block mr-auto">{{ item.name }}</span>
-                                    <span class="text-gray1">{{ item.total_service_count }} из {{ item.total_equipment }}</span>
+                                    <span class="text-gray1">{{ item.total_service_count }} из {{ item.total_equipment
+                                        }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -270,47 +279,12 @@ onMounted(() => {
                         <div
                             class="w-full mt-10 pt-4 border-t border-t-gray1 text-gray1 lg:w-[calc(100%-220px-24px)] lg:mt-0 lg:pt-0 lg:border-t-0">
                             <ul class="space-y-4 text-sm">
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#0F62FE]"></span>
-                                    <span class="block mr-auto">ВЗД</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽1.2M</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#DAC41E]"></span>
-                                    <span class="block mr-auto">ЯСС</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽800K</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#31C246]"></span>
-                                    <span class="block mr-auto">ФД</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽800K</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#DA1E28]"></span>
-                                    <span class="block mr-auto">КО</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽1.2M</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#7300FF]"></span>
-                                    <span class="block mr-auto">ПК</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽800K</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#041328]"></span>
-                                    <span class="block mr-auto">Хомут</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽800K</span>
-                                </li>
-                                <li class="flex items-center">
-                                    <span class="block w-3 h-3 mr-1 rounded-full bg-[#DDE1E6]"></span>
-                                    <span class="block mr-auto">Переводник</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">34%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽800K</span>
+                                <li v-for="(item, index) in categoryDataIncome" class="flex items-center">
+                                    <span class="block w-3 h-3 mr-1 rounded-full "
+                                        :class="'' + graphColors[index]"></span>
+                                    <span class="block mr-auto">{{ item.category }}</span>
+                                    <span class="w-10 lg:w-14 mr-3 text-gray1">{{ item.percent }}%</span>
+                                    <span class="w-10 lg:w-14 text-gray1">₽{{ item.income }}</span>
                                 </li>
                             </ul>
                         </div>
