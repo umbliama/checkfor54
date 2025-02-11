@@ -39,10 +39,24 @@ const props = defineProps({
 const changePage = (direction) => {
     let targetUrl = null;
 
+    // Get existing query params
+    const url_params = new URLSearchParams(window.location.search);
+
+    // Preserve existing parameters
     const queryParams = {
         perPage: perPageValue.value,
-        page: props.currentPage
+        page: props.currentPage,
     };
+
+    if (url_params.get('category_id')) {
+        queryParams.category_id = url_params.get('category_id');
+    }
+    if (url_params.get('size_id')) {
+        queryParams.size_id = url_params.get('size_id');
+    }
+    if (url_params.get('location_id')) {
+        queryParams.location_id = url_params.get('location_id');
+    }
 
     if (direction === 'next' && props.nextPageUrl) {
         targetUrl = props.nextPageUrl;

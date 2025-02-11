@@ -30,7 +30,8 @@ const props = defineProps({
     equipment_categories_counts: Array,
     equipment_sizes: Array,
     equipment_sizes_counts: Array,
-    equipment_location:Array
+    equipment_location:Array,
+    location_counts:Array
 })
 const filters = reactive({
     size_id: null,
@@ -43,7 +44,7 @@ const pagination = reactive({
 });
 const currentPage = ref(1);
 const lastPage = ref(1);
-const chosenCategory = ref(null);
+const chosenCategory = ref(1);
 const chosenSize = ref(null);
 const chosenLocation = ref(null);
 
@@ -97,6 +98,9 @@ const setSizeId = (sizeId) => {
     chosenSize.value = sizeId
     updateUrl();
 }
+
+
+
 const updateFiltersAndFetchData = () => {
     const { current_page, total, last_page } = props.equipment;
 
@@ -107,23 +111,16 @@ const updateFiltersAndFetchData = () => {
 
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('size_id')) {
-        filters.size_id = +url_params.get('size_id');
-    } else {
-        filters.size_id = null;
-    }
-
-    if (url_params.get('category_id')) {
-        filters.category_id = +url_params.get('category_id');
-    } else {
+    if (!url_params.has('category_id') && !filters.category_id) {
+        url_params.set('category_id', '1');
+        window.history.replaceState({}, '', `${window.location.pathname}?${url_params.toString()}`);
         filters.category_id = 1;
-    }
-    if (url_params.get('location_id')) {
-        filters.location_id = +url_params.get('location_id');
-    } else {
-        filters.location_id = 0;
+    } else if (url_params.has('category_id')) {
+        filters.category_id = +url_params.get('category_id');
     }
 
+    filters.size_id = url_params.has('size_id') ? +url_params.get('size_id') : null;
+    filters.location_id = url_params.has('location_id') ? +url_params.get('location_id') : 0;
 };
 
 
@@ -148,7 +145,7 @@ onMounted(() => {
                         >
                             <div class="flex items-center justify-between">
                                 {{category.name}}
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_categories_counts[category.id] }}</span>
                             </div>
                         </li>
                     </ul>
@@ -162,7 +159,7 @@ onMounted(() => {
                         >
                             <div class="flex items-center justify-between">
                                 {{ size.name }}
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">6</span>
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_sizes_counts[size.id] }}</span>
                             </div>
                         </li>
                     </ul>
@@ -180,7 +177,7 @@ onMounted(() => {
                         Все
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            12
+                            {{ Object.values(location_counts).reduce((acc, value) => acc + value, 0) }}
                         </span>
                     </li>
                     <li @click="setLocationId(item.id)" v-for="item in equipment_location"
@@ -190,7 +187,7 @@ onMounted(() => {
                     {{ item.name }}
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            10
+                            {{ location_counts[item.id] }}
                         </span>
                     </li>
 
@@ -525,9 +522,15 @@ onMounted(() => {
 
                     </div>
                 </div>
-                
-                <Pagination :links="[1,2,3]" current-page="1" total-pages="2" total-count="23" class="mt-6 bg-bg1" />
-                <!--                <pagination class="lg:m-5" :links="equipment.links" />-->
+                <pagination
+                    :current-page="props.equipment.current_page"
+                    :total-pages="props.equipment.last_page"
+                    :total-count="props.equipment.total"
+                    :next-page-url="props.equipment.next_page_url"
+                    :links="props.equipment.links"
+                    :prev-page-url="props.equipment.prev_page_url"
+                    class="mt-5 bg-bg1"
+                />
             </div>
         </div>
         
