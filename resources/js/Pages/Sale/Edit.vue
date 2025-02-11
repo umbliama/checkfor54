@@ -385,6 +385,19 @@ const updateActiveTab = (tab) => {
                         </label>
                     </div>
                 </div>
+                <label class="block items-center p-1 mt-4 bg-bg1 lg:flex lg:bg-transparent">
+                    <span class="
+                            block py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD]
+                            lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0
+                        ">Комментарий:</span>
+                    <div class="
+                            flex items-center mt-2 text-sm rounded-lg overflow-hidden bg-white
+                            lg:w-[calc(50%-9px)] lg:mt-0 lg:text-basew-auto lg:bg-[#F3F3F8]
+                        ">
+                        <input v-model="form.commentary" type="text"
+                            class="block grow p-2 w-[177px] h-9 rounded-lg bg-inherit" />
+                    </div>
+                </label>
             </div>
 
             <div class="relative text-sm">

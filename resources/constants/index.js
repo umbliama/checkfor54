@@ -23,4 +23,5 @@ export const EquipMenuItems = {
     REPAIR: 'repair',
     TESTS: 'tests',
     PRICE: 'price',
+    MOVE: 'move',
 }

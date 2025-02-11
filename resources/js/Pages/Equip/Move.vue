@@ -16,9 +16,9 @@ import {
     DropdownMenuTrigger,
 } from 'radix-vue';
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
-import EquipRepairEditDialog from "@/Components/Equip/EquipRepairEditDialog.vue";
-import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
 import UiNotification from '@/Components/Ui/UiNotification.vue';
+import EquipMoveEditDialog from '@/Components/Equip/EquipMoveEditDialog.vue';
 const props = defineProps({
     equipmentSeries: Array,
     equipment_locations: Array,
@@ -32,8 +32,7 @@ const props = defineProps({
 
 const selectedCategory = ref(null);
 const selectedSize = ref(null);
-const menuActive = ref(EquipMenuItems.REPAIR);
-const repairs = ref(props.equipment_moves);
+const moves = ref(props.equipment_moves);
 const seriesActive = ref(null);
 
 const localSeriesActive = ref({
@@ -42,7 +41,7 @@ const localSeriesActive = ref({
 });
 
 const is_dialog_open = ref(false);
-const repair_to_edit  = ref(null);
+const move_to_edit  = ref(null);
 
 const setCategoryId = (categoryId) => {
     if (selectedCategory.value) setSizeId(null);
@@ -71,7 +70,7 @@ const setSeriesId = (seriesId) => {
 }
 
 const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
-    repairs.value = props.equipment_moves
+    moves.value = props.equipment_moves
 }
 
 const updateUrl = () => {
@@ -97,34 +96,36 @@ const get_equipmentSeries = computed(() => {
 });
 
 const form = reactive({
-    'send_date': null,
-    'from': null,
-    'to': null,
-    'reason': null,
-    'expense': null,
-    'category_id': null,
-    'size_id': null,
-    'series': null,
-})
+    send_date     : null,
+    from          : null,
+    to            : null,
+    departure_date: null,
+    reason        : null,
+    expense       : null,
+    category_id   : null,
+    size_id       : null,
+    series        : null,
+});
 
 
 function submit() {
     router.post('/equip/move', {
-        send_date: form.send_date,
-        from: props.equipment_location_found.id,
-        to: form.to,
-        reason: form.reason,
-        expense: form.expense,
-        category_id: selectedCategory.value,
-        size_id: selectedSize.value,
-        series: seriesActive.value
+        send_date     : form.send_date,
+        from          : props.equipment_location_found.id,
+        to            : form.to,
+        departure_date: form.departure_date,
+        reason        : form.reason,
+        expense       : form.expense,
+        category_id   : selectedCategory.value,
+        size_id       : selectedSize.value,
+        series        : seriesActive.value
     },{
     })
     updateRepairTable(selectedCategory.value, selectedSize?.value, seriesActive.value);
 }
 
-function openDialog(repair_id) {
-    repair_to_edit.value = { ...repairs.value.find(r=>r.id==repair_id) };
+function openDialog(move_id) {
+    move_to_edit.value = { ...moves.value.find(m=>m.id==move_id) };
     is_dialog_open.value = true;
 }
 
@@ -162,7 +163,7 @@ onMounted(() => {
 
     updateRepairTable(fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
 
-    store.dispatch('equipment/updateMenuItem', EquipMenuItems.REPAIR);
+    store.dispatch('equipment/updateMenuItem', EquipMenuItems.MOVE);
 });
 </script>
 
@@ -225,17 +226,12 @@ onMounted(() => {
                         <div class="min-w-[1050px] text-xs">
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                    отправки</div>
-                                <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Откуда</div>
-                                <div
-                                    class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">
-                                    Куда
-                                </div>
-                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Причина вывоза
-                                </div>
-                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
-                                </div>
+                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата отправки</div>
+                                <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Откуда</div>
+                                <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Куда</div>
+                                <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Дата прибытия</div>
+                                <div class="shrink-0 flex items-center w-[calc(100%-12.14%-10.6%-10.6%-10.6%-8.94%-50px)] py-2.5 px-2">Причина вывоза</div>
+                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход</div>
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -268,15 +264,18 @@ onMounted(() => {
                                             stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </div>
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%]">
-                                    <input v-model="form.send_date" type="date"
-                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)]">
+                                    <input v-model="form.send_date" type="date" class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%]">
-                                    <input type="text" v-model="equipment_location_found.name"
-                                        class="block w-full h-full px-2 bg-transparent" />
+                                <div class="shrink-0 flex items-center justify-center w-[10.6%]">
+                                    <!-- <input type="text" v-model="equipment_location_found.name" class="block w-full h-full px-2 bg-transparent" /> -->
+                                    <select class="w-full h-full border-none rounded px-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                                        <option v-for="location in equipment_locations" :value="location.id">
+                                            {{ location.name }}
+                                        </option>
+                                    </select>
                                 </div>
-                                <div class="shrink-0 flex items-center w-[8.94%]">
+                                <div class="shrink-0 flex items-center w-[10.6%]">
                                     <select v-model="form.to"
                                         class="w-full h-full border-none rounded px-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
                                         <option v-for="location in equipment_locations" :value="location.id">
@@ -284,7 +283,10 @@ onMounted(() => {
                                         </option>
                                     </select>
                                 </div>
-                                <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-50px)]">
+                                <div class="shrink-0 flex items-center justify-center w-[10.6%]">
+                                    <input v-model="form.departure_date" type="date" class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                </div>
+                                <div class="shrink-0 flex items-center w-[calc(100%-12.14%-10.6%-10.6%-10.6%-8.94%-50px)]">
                                     <input v-model="form.reason" type="text"
                                         class="block w-full h-full px-2 bg-transparent">
                                 </div>
@@ -314,18 +316,18 @@ onMounted(() => {
                         </button>
                     </div>
 
-                    <template v-if="repairs?.length">
+                    <template v-if="moves?.length">
                         <div class="mt-20 font-bold text-gray1">История перемещний</div>
                         <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                    <div class="shrink-0 flex items-center justify-center w-[calc(12.14%+44px)] py-2.5 px-2">На сервисе</div>
-                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                        ремонта</div>
-                                    <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
-                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-110px)] py-2.5 px-2">Описание</div>
+                                    <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата отправки</div>
+                                    <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Откуда</div>
+                                    <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Куда</div>
+                                    <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">Дата прибытия</div>
+                                    <div class="shrink-0 flex items-center w-[calc(100%-12.14%-10.6%-10.6%-10.6%-8.94%-100px)] py-2.5 px-2">Причина вывоза</div>
                                     <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход</div>
-                                    <div class="shrink-0 flex items-center w-[110px] py-2.5 px-2">
+                                    <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -343,19 +345,18 @@ onMounted(() => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="repair in repairs">
+                                <template v-for="move in moves">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                            <UiHyperlink :item-id="repair.id" :hyperlink="repair.hyperlink" endpoint="/equipment/repair" />
+                                            <UiHyperlink :item-id="move.id" :hyperlink="move.hyperlink" endpoint="/equipment/move" />
                                         </div>
-                                        <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">
-                                            {{ repair.send_date || '-' }}</div>
-
-                                        <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">{{ getLocationName(repair.from) || '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-110px)] py-2.5 px-2">{{ getLocationName(repair.to) || '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ repair.reason || '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ repair.expense || '-' }} ₽</div>
-                                        <div class="shrink-0 flex items-center w-[110px] py-2.5 px-2">
+                                        <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ move.send_date || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">{{ getLocationName(move.from) || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">{{ getLocationName(move.to) || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">12.12.2024</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-10.6%-10.6%-10.6%-8.94%-100px)] py-2.5 px-2">{{ move.reason || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ move.expense || '-' }} ₽</div>
+                                        <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                             <button v-if="true" class="mr-3.5">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M4.66683 9.33334V13.3333H11.3335V9.33334H4.66683ZM11.3335 8.00001C11.6871 8.00001 12.0263 8.14049 12.2763 8.39053C12.5264 8.64058 12.6668 8.97972 12.6668 9.33334V13.3333C12.6668 13.687 12.5264 14.0261 12.2763 14.2762C12.0263 14.5262 11.6871 14.6667 11.3335 14.6667H4.66683C4.31321 14.6667 3.97407 14.5262 3.72402 14.2762C3.47397 14.0261 3.3335 13.687 3.3335 13.3333V9.33334C3.3335 8.97972 3.47397 8.64058 3.72402 8.39053C3.97407 8.14049 4.31321 8.00001 4.66683 8.00001V4.66668C4.66683 3.78262 5.01802 2.93478 5.64314 2.30965C6.26826 1.68453 7.11611 1.33334 8.00016 1.33334C8.88422 1.33334 9.73206 1.68453 10.3572 2.30965C10.9823 2.93478 11.3335 3.78262 11.3335 4.66668V8.00001ZM10.0002 8.00001V4.66668C10.0002 4.40403 9.94843 4.14396 9.84792 3.90131C9.74741 3.65866 9.60009 3.43818 9.41438 3.25246C9.22866 3.06675 9.00818 2.91943 8.76553 2.81892C8.52288 2.71841 8.26281 2.66668 8.00016 2.66668C7.73752 2.66668 7.47745 2.71841 7.2348 2.81892C6.99214 2.91943 6.77167 3.06675 6.58595 3.25246C6.40023 3.43818 6.25291 3.65866 6.1524 3.90131C6.05189 4.14396 6.00016 4.40403 6.00016 4.66668V8.00001H10.0002ZM8.00016 12.6667C7.64654 12.6667 7.3074 12.5262 7.05735 12.2762C6.80731 12.0261 6.66683 11.687 6.66683 11.3333C6.66683 10.9797 6.80731 10.6406 7.05735 10.3905C7.3074 10.1405 7.64654 10 8.00016 10C8.35379 10 8.69292 10.1405 8.94297 10.3905C9.19302 10.6406 9.3335 10.9797 9.3335 11.3333C9.3335 11.687 9.19302 12.0261 8.94297 12.2762C8.69292 12.5262 8.35379 12.6667 8.00016 12.6667Z" fill="#21272A"/>
@@ -366,7 +367,7 @@ onMounted(() => {
                                                     <path d="M4.66683 9.33334V13.3333H11.3335V9.33334H4.66683ZM10.0002 4.66668C10.0002 4.40403 9.94843 4.14396 9.84792 3.90131C9.74741 3.65866 9.60009 3.43818 9.41438 3.25246C9.22866 3.06675 9.00818 2.91943 8.76553 2.81892C8.52288 2.71841 8.26281 2.66668 8.00016 2.66668C7.73752 2.66668 7.47745 2.71841 7.2348 2.81892C6.99214 2.91943 6.77167 3.06675 6.58595 3.25246C6.40023 3.43818 6.25291 3.65866 6.1524 3.90131C6.05189 4.14396 6.00016 4.40403 6.00016 4.66668V8.00001H11.3335C11.6871 8.00001 12.0263 8.14049 12.2763 8.39053C12.5264 8.64058 12.6668 8.97972 12.6668 9.33334V13.3333C12.6668 13.687 12.5264 14.0261 12.2763 14.2762C12.0263 14.5262 11.6871 14.6667 11.3335 14.6667H4.66683C4.31321 14.6667 3.97407 14.5262 3.72402 14.2762C3.47397 14.0261 3.3335 13.687 3.3335 13.3333V9.33334C3.3335 8.97972 3.47397 8.64058 3.72402 8.39053C3.97407 8.14049 4.31321 8.00001 4.66683 8.00001V4.66668C4.66683 3.78262 5.01802 2.93478 5.64314 2.30965C6.26826 1.68453 7.11611 1.33334 8.00016 1.33334C8.88422 1.33334 9.73206 1.68453 10.3572 2.30965C10.9823 2.93478 11.3335 3.78262 11.3335 4.66668C11.3335 4.84349 11.2633 5.01306 11.1382 5.13808C11.0132 5.26311 10.8436 5.33334 10.6668 5.33334C10.49 5.33334 10.3204 5.26311 10.1954 5.13808C10.0704 5.01306 10.0002 4.84349 10.0002 4.66668ZM8.00016 12.6667C7.64654 12.6667 7.3074 12.5262 7.05735 12.2762C6.80731 12.0261 6.66683 11.687 6.66683 11.3333C6.66683 10.9797 6.80731 10.6406 7.05735 10.3905C7.3074 10.1405 7.64654 10 8.00016 10C8.35379 10 8.69292 10.1405 8.94297 10.3905C9.19302 10.6406 9.3335 10.9797 9.3335 11.3333C9.3335 11.687 9.19302 12.0261 8.94297 12.2762C8.69292 12.5262 8.35379 12.6667 8.00016 12.6667Z" fill="#21272A"/>
                                                 </svg>
                                             </button>
-                                            <Link v-if="repair.directory === null" :href="'/directory/repair/' + repair.id" class="mr-3.5">
+                                            <Link v-if="move.directory === null" :href="'/directory/move/' + move.id" class="mr-3.5">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -389,8 +390,8 @@ onMounted(() => {
                                                 <PopoverPortal>
                                                     <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                         <div>Комментарий:</div>
-                                                        <p class="mt-2.5 text-xs">{{ repair.directory.commentary }}</p>
-                                                        <div v-for="file in repair.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
+                                                        <p class="mt-2.5 text-xs">{{ move.directory.commentary }}</p>
+                                                        <div v-for="file in move.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                             <div class="flex items-center max-w-full">
                                                                 <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file }}</span>
                                                                 <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -445,7 +446,7 @@ onMounted(() => {
                                                             </div>
                                                         </div>
                                                         <Link
-                                                            :href="'/directory/repair/' + repair.id"
+                                                            :href="'/directory/move/' + move.id"
                                                             class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                         >
                                                             Редактировать
@@ -483,7 +484,7 @@ onMounted(() => {
                                                                 <button
                                                                     type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                                    @click="openDialog(repair.id)"
+                                                                    @click="openDialog(move.id)"
                                                                 >
                                                                 Редактировать
                                                                 <svg class="block ml-2" width="16" height="16"
@@ -499,7 +500,7 @@ onMounted(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link :href="route('repair.destroy', repair.id)"
+                                                                <Link :href="route('repair.destroy', move.id)"
                                                                       method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить
@@ -526,10 +527,10 @@ onMounted(() => {
             </div>
         </div>
 
-        <EquipRepairEditDialog
+        <EquipMoveEditDialog
             v-model="is_dialog_open"
-            :locations="props.equipment_location"
-            :repair="repair_to_edit"
+            :locations="props.equipment_locations"
+            :move="move_to_edit"
         />
     </AuthenticatedLayout>
 

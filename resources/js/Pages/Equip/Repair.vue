@@ -259,8 +259,6 @@ onMounted(() => {
                                     class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">
                                     Описание
                                 </div>
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                    прибытия</div>
                                 <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
@@ -306,7 +304,7 @@ onMounted(() => {
                                 <div class="shrink-0 flex items-center w-[8.94%]">
                                     <select v-model="form.location_id"
                                         class="w-full h-full border-none rounded px-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option v-for="location in equipment_location" :value="location.id">
+                                        <option v-for="(location, index) in equipment_location" :value="location.id" :selected="index===0">
                                             {{ location.name }}
                                         </option>
                                     </select>

@@ -31,6 +31,7 @@ import {
     PopoverTrigger
 } from 'radix-vue'
 import Pagination from "@/Components/Pagination.vue";
+import SaleContragentEditDialog from '@/Components/Sale/SaleContragentEditDialog.vue';
 
 const props = defineProps({
     sales: Object,
@@ -44,6 +45,9 @@ const page = usePage()
 const user = computed(() => page.props.auth.user)
 
 const chosenContragent = ref(null);
+
+const is_edit_dialog_open = ref(false);
+const contragent_to_edit  = ref(null);
 
 const setChosenContragent = (id) => {
     chosenContragent.value = id
@@ -60,6 +64,10 @@ const selectActive = (value) => {
     store.dispatch('services/updateSelectedActive', value)
 }
 
+function openDialog(contragent) {
+    contragent_to_edit .value = { ...contragent };
+    is_edit_dialog_open.value = true;
+}
 
 const months = {
     all: 'Все',
@@ -106,7 +114,7 @@ const toggleSubservice = (index) => {
 };
 
 const nameContragent = (id) => {
-    return props.contragents_names[id].name
+    return props.contragents_names[id]?.name
 }
 
 const calcFullIncome = () => {
@@ -297,6 +305,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                    {{ service }}
                                     <input value="some comment" type="text"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
@@ -431,6 +440,25 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                 <DropdownMenuContent
                                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                     :side-offset="5" align="end">
+                                                    <DropdownMenuItem>
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
+                                                            @click="openDialog({ contragent_id: 2, shipping_date: '2023-04-04', commentary: 'Some text' })"
+                                                        >
+                                                        Редактировать {{ service.contragent_id }}
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                fill="#464F60" />
+                                                            <path
+                                                                d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                fill="#464F60" />
+                                                        </svg>
+                                                        </button>
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <Link method="DELETE"
                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
@@ -1079,12 +1107,17 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 <button class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text"> Сохранить </button>
             </div>
 
+            {{ contragent_to_edit }}
+            
             <pagination :current-page="props.sales.current_page" :total-pages="props.sales.last_page"
                 :total-count="props.sales.total" :next-page-url="props.sales.next_page_url" :links="props.sales.links"
                 :prev-page-url="props.sales.prev_page_url" class="mt-5 bg-bg1" />
         </div>
 
-
+        <SaleContragentEditDialog
+            v-model="is_edit_dialog_open"
+            :contragent="contragent_to_edit"
+        />
 
     </AuthenticatedLayout>
 

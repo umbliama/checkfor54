@@ -98,6 +98,77 @@ const editKP = () => {
         <DashboardToolbar dashboard-page-type="commercial" filter />
 
         <div class="p-4 lg:p-6">
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-6 lg:gap-6">
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Всего КП</div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">104</div>
+                        <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-gray1 text-white">
+                            <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-danger"></span>
+                            -2
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Сделка сост.</div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">16</div>
+                        <div
+                            class="flex items-center h-6 px-3 rounded-full text-sm border border-gray1 bg-gray1 text-white">
+                            <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#31C246]"></span>
+                            +15,38%
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Переговоры
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">53</div>
+                        <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-gray1 text-white">
+                            <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#0F62FE]"></span>
+                            50,9%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Тендер
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">12</div>
+                        <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-[#F2F4F8]">
+                            <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#DAC41E]"></span>
+                            11,53%
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Исходящий</div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">46</div>
+                        <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
+                            <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8.78564 4.00004L4.78564 8.00004M8.78564 12.3334V4.00004V12.3334ZM8.78564 4.00004L12.7856 8.00004L8.78564 4.00004Z" stroke="#0F62FE" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            44,2%
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border border-[#DDE1E6] bg-white">
+                    <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Входящий</div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-xl lg:text-2xl">46</div>
+                        <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
+                            <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8.8811 12L12.8811 7.99996M8.8811 3.66663V12V3.66663ZM8.8811 12L4.8811 7.99996L8.8811 12Z" stroke="#DA1E28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            44,2%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                 <div class="min-w-[1144px] text-xs">
                     <div
