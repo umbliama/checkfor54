@@ -46,7 +46,9 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::get('/equip', [EquipmentController::class, 'index'])->name('equip.index');
     Route::get('/equip/report', [EquipmentController::class, 'report'])->name('equip.report');
-
+    
+    Route::get('/equip/move', [EquipmentController::class, 'move'])->name('equip.move');
+    Route::post('/equip/move', [EquipmentController::class, 'storeMove'])->name('equip.storeMove');
 
     Route::get('/equip/tests', [EquipmentController::class, 'tests'])->name('equip.tests');
     Route::post('/equip/tests', [EquipmentController::class, 'storeTest'])->name('equip.storeTest');

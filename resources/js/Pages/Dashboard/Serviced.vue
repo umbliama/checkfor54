@@ -19,7 +19,7 @@ import {
     PopoverRoot,
     PopoverTrigger
 } from 'radix-vue'
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 const props = defineProps({
     equipment: Object,
@@ -95,34 +95,28 @@ const setSizeId = (sizeId) => {
     chosenSize.value = sizeId
     updateUrl();
 }
+watch(() => filters.category_id, (newCategory) => {
+    console.log(newCategory)
+    if (newCategory) {
+        console.log(newCategory)
+        filters.size_id = null; 
+        updateUrl(); 
+    }
+});
+
+
 const updateFiltersAndFetchData = () => {
-    const { current_page, total, last_page } = props.equipment;
-
-    pagination.currentPage = current_page;
-    pagination.totalPages = total;
-    currentPage.value = current_page;
-    lastPage.value = last_page;
-
     const url_params = new URLSearchParams(window.location.search);
 
-    if (url_params.get('size_id')) {
-        filters.size_id = +url_params.get('size_id');
+    if (!url_params.has('category_id')) {
+        filters.category_id = 1; 
+        updateUrl();
     } else {
-        filters.size_id = null;
-    }
-
-    if (url_params.get('category_id')) {
         filters.category_id = +url_params.get('category_id');
-    } else {
-        filters.category_id = 1;
-    }
-    if (url_params.get('location_id')) {
-        filters.location_id = +url_params.get('location_id');
-    } else {
-        filters.location_id = 0;
     }
 
-};
+    filters.size_id = url_params.has('size_id') ? +url_params.get('size_id') : null;
+    filters.location_id = url_params.has('location_id') ? +url_params.get('location_id') : 0;};
 
 
 onMounted(() => {

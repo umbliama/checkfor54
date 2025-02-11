@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contragents;
 use App\Models\EquipmentCategories;
+use App\Models\EquipmentMove;
 use App\Models\EquipmentPrice;
 use App\Models\EquipmentSize;
 use App\Models\Service;
@@ -30,57 +31,57 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
-    
+
         $serviceSubCount = ServiceSub::whereHas('service', function ($query) {
             $query->where('active', 1);
         })->count();
-    
+
 
         $serviceEquipCount = ServiceEquip::whereHas('services', function ($query) {
             $query->where('active', 1);
         })->count();
-        
+
 
         $equipment_on_rent_count = $serviceSubCount + $serviceEquipCount;
 
-        
+
         $activeEquipment = ServiceEquip::with(['services', 'serviceSubs'])
-        ->whereHas('services', function($query) {
-            $query->where('active', 1);
-        })
-        ->get()
-        ->map(function($serviceEquip) {
-            $subs = $serviceEquip->serviceSubs->map(function($sub) {
-                return [
-                    'id' => $sub->id,
-                    'equipment_id' => $sub->subequipment_id,
-                    'shipping_date' => $sub->shipping_date,
-                    'period_start_date' => $sub->period_start_date,
-                    'return_date' => $sub->return_date,
-                    'period_end_date' => $sub->period_end_date,
-                    'store' => $sub->store,
-                    'operating' => $sub->operating,
-                    'income' => $sub->income,
-                    'type' => 'sub'
+            ->whereHas('services', function ($query) {
+                $query->where('active', 1);
+            })
+            ->get()
+            ->map(function ($serviceEquip) {
+                $subs = $serviceEquip->serviceSubs->map(function ($sub) {
+                    return [
+                        'id' => $sub->id,
+                        'equipment_id' => $sub->subequipment_id,
+                        'shipping_date' => $sub->shipping_date,
+                        'period_start_date' => $sub->period_start_date,
+                        'return_date' => $sub->return_date,
+                        'period_end_date' => $sub->period_end_date,
+                        'store' => $sub->store,
+                        'operating' => $sub->operating,
+                        'income' => $sub->income,
+                        'type' => 'sub'
+                    ];
+                });
+
+                $mainEquip = [
+                    'id' => $serviceEquip->id,
+                    'equipment_id' => $serviceEquip->equipment_id,
+                    'shipping_date' => $serviceEquip->shipping_date,
+                    'period_start_date' => $serviceEquip->period_start_date,
+                    'return_date' => $serviceEquip->return_date,
+                    'period_end_date' => $serviceEquip->period_end_date,
+                    'store' => $serviceEquip->store,
+                    'operating' => $serviceEquip->operating,
+                    'income' => $serviceEquip->income,
+                    'type' => 'main'
                 ];
-            });
-    
-            $mainEquip = [
-                'id' => $serviceEquip->id,
-                'equipment_id' => $serviceEquip->equipment_id,
-                'shipping_date' => $serviceEquip->shipping_date,
-                'period_start_date' => $serviceEquip->period_start_date,
-                'return_date' => $serviceEquip->return_date,
-                'period_end_date' => $serviceEquip->period_end_date,
-                'store' => $serviceEquip->store,
-                'operating' => $serviceEquip->operating,
-                'income' => $serviceEquip->income,
-                'type' => 'main'
-            ];
-    
-            return collect([$mainEquip])->concat($subs);
-        })
-        ->flatten(1);
+
+                return collect([$mainEquip])->concat($subs);
+            })
+            ->flatten(1);
 
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
@@ -126,18 +127,18 @@ class EquipmentController extends Controller
             $equipment = $query->whereHas('serviceEquipment.services', function ($query) {
                 $query->where('active', 1);
             })->with('serviceEquipment.serviceSubs')->get();
-        
+
             $flattenedEquipment = $equipment->flatMap(function ($main) {
                 $items = collect([$main]);
                 foreach ($main->serviceEquipment as $serviceEquipment) {
                     $items = $items->merge($serviceEquipment->serviceSubs);
                 }
-        
+
                 return $items;
             });
-        
+
         }
-        
+
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
@@ -921,5 +922,116 @@ class EquipmentController extends Controller
         $equipment->location_id = $location->id;
         $equipment->save();
 
+    }
+
+    public function move(Request $request)
+    {
+        $sizeId = $request->query('size_id');
+        $series = $request->query('series');
+        $equipment_locations = EquipmentLocation::all();
+        $categoryId = $request->query('category_id', 1);
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+        $equipment_categories = EquipmentCategories::all();
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+        }
+
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+        }
+
+
+
+        $equipment_series = Equipment::when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->pluck('series');
+
+        $equipment_location = Equipment::when($categoryId, function ($query, $categoryId) {
+            return $query->where('category_id', $categoryId);
+        })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->where('size_id', $sizeId);
+            })->when($series, function ($query, $series) {
+                return $query->where('series', $series);
+            })
+            ->value('location_id');
+
+        $equipment_location_found = EquipmentLocation::where('id',$equipment_location)->first();
+
+
+
+        $equipment_id = Equipment::where('category_id', $categoryId)
+
+            ->when($sizeId, function ($query) use ($sizeId) {
+                return $query->where('size_id', $sizeId);
+            })
+            ->where('series', $series)
+            ->with('directory')->get()->map(function ($sale) {
+                if (isset($sale->directory['files'])) {
+                    $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+                }
+                return $sale;
+            })->pluck('id');
+
+
+        $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->get();
+
+
+        return Inertia::render('Equip/Move', [
+            'equipmentSeries' => $equipment_series,
+            'equipment_locations' => $equipment_locations,
+            'equipment_moves' => $equipment_moves,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_categories' => $equipment_categories,
+            'equipment_sizes_counts' => $equipment_sizes_counts,
+            'equipment_location_found' => $equipment_location_found
+        ]);
+    }
+
+    public function storeMove(Request $request)
+    {
+        try {
+            $request->validate([
+                'send_date' => 'required|date',
+                'from' => 'nullable|int',
+                'to' => 'nullable|int',
+                'reason' => 'nullable|int',
+                'expense' => 'nullable|min:3|max:200',
+                'category_id' => 'required|int',
+                'size_id' => 'required|int',
+                'series' => 'required|string',
+            ]);
+
+            $foundedEquipment = Equipment::where('category_id', $request->category_id)
+                ->where('size_id', $request->size_id)
+                ->where('series', $request->series)
+                ->first();
+
+            if (!$foundedEquipment) {
+                return back()->with('error', 'Оборудование не найдено.');
+            }
+
+            if ($request->to === $foundedEquipment->location_id) {
+                return back()->with('error', 'Выбраны одинаковые локации.');
+            }
+
+            EquipmentMove::create(array_merge($request->all(), [
+                'equipment_id' => $foundedEquipment->id,
+            ]));
+
+            return back()->with('message', 'Запись успешно добавлена.');
+
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

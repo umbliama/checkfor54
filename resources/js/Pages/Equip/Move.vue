@@ -19,12 +19,22 @@ import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import EquipRepairEditDialog from "@/Components/Equip/EquipRepairEditDialog.vue";
 import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
 import UiNotification from '@/Components/Ui/UiNotification.vue';
+const props = defineProps({
+    equipmentSeries: Array,
+    equipment_locations: Array,
+    equipment_moves: Object,
+    equipment_sizes: Array,
+    equipment_categories_counts: Object,
+    equipment_sizes_counts: Object,
+    equipment_categories: Array,
+    equipment_location_found: Number
+})
 
-const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
-const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
-const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
-const repairs = computed(() => store.getters['equipment/getEquipmentRepairs'])
-const seriesActive = computed(() => store.getters['equipment/getSeriesActive'])
+const selectedCategory = ref(null);
+const selectedSize = ref(null);
+const menuActive = ref(EquipMenuItems.REPAIR);
+const repairs = ref(props.equipment_moves);
+const seriesActive = ref(null);
 
 const localSeriesActive = ref({
     title: seriesActive,
@@ -36,33 +46,23 @@ const repair_to_edit  = ref(null);
 
 const setCategoryId = (categoryId) => {
     if (selectedCategory.value) setSizeId(null);
-    store.dispatch('equipment/updateCategory', categoryId);
+    selectedCategory.value = categoryId;
     updateUrl();
 }
 
 const getLocationName = (id) => {
-    const location = props.equipment_location.find(loc => loc.id === id);
+    const location = props.equipment_locations.find(loc => loc.id === id);
     return location ? location.name : 'Location not found';
-
 }
 
 const setSizeId = (sizeId) => {
-    store.dispatch('equipment/updateSize', sizeId)
+    selectedSize.value = sizeId;
     setSeriesId(null);
     updateUrl();
 }
 
-/*const setSeriesId = (seriesId) => {
-    store.dispatch('equipment/updateSeriesId', seriesId)
-    if (selectedCategory.value && selectedSize.value && seriesActive.value) {
-        console.log(selectedSize.value, seriesActive.value)
-        updateUrl()
-        updateRepairTable(selectedCategory.value, selectedSize.value, seriesActive.value);
-    }
-}*/
-
 const setSeriesId = (seriesId) => {
-    store.dispatch('equipment/updateSeriesId', seriesId)
+    seriesActive.value = seriesId;
     updateUrl();
 
     if (!selectedCategory.value) return;
@@ -71,16 +71,8 @@ const setSeriesId = (seriesId) => {
 }
 
 const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
-    store.dispatch('equipment/updateEquipmentRepair', {
-        category_id: selectedCategory,
-        size_id: selectedSize,
-        series: seriesActive
-    })
+    repairs.value = props.equipment_moves
 }
-
-// watch(count, (newValue, oldValue) => {
-//       console.log(`count changed from ${oldValue} to ${newValue}`);
-//     });
 
 const updateUrl = () => {
     const params = {};
@@ -89,57 +81,42 @@ const updateUrl = () => {
     if (selectedSize.value) params.size_id = selectedSize.value;
     if (seriesActive.value) params.series = seriesActive.value;
 
-    Object.keys(params).length && router.get(route('equip.repair', params));
+    Object.keys(params).length && router.get(route('equip.move', params));
 };
 
-/*const updateUrl = () => {
-    if (selectedCategory.value && selectedSize.value) {
-        router.get(route('equip.repair', { category_id: selectedCategory.value, size_id: selectedSize.value, series: seriesActive.value }));
-    }
-};*/
-
-const props = defineProps({
-    equipmentSeries: Array,
-    equipment_location: Array,
-    equipment_repairs: Object,
-    equipment_sizes: Array,
-    equipment_categories_counts: Object,
-    equipment_sizes_counts: Object,
-    equipment_categories: Array
-})
-
-const get_equipmentSeries = computed(() => {
-    return props.equipmentSeries.map(s => ({ title: s, value: s }));
-});
-
-const form = reactive({
-    'on_repair_date': null,
-    'repair_date': null,
-    'location_id': null,
-    'expense': null,
-    'description': null,
-    'category_id': null,
-    'size_id': null,
-    'series': null
-})
-
 watch(localSeriesActive, ({ value: seriesId }) => {
-    store.dispatch('equipment/updateSeriesId', seriesId);
+    seriesActive.value = seriesId;
     updateUrl();
     if (!selectedCategory.value) return;
 
     updateRepairTable(selectedCategory.value, selectedSize.value, seriesActive.value);
 });
 
+const get_equipmentSeries = computed(() => {
+    return props.equipmentSeries.map(s => ({ title: s, value: s }));
+});
+
+const form = reactive({
+    'send_date': null,
+    'from': null,
+    'to': null,
+    'reason': null,
+    'expense': null,
+    'category_id': null,
+    'size_id': null,
+    'series': null,
+})
+
+
 function submit() {
-    router.post('/equip/repair', {
-        on_repair_date: form.on_repair_date,
-        repair_date: form.repair_date,
-        location_id: form.location_id,
+    router.post('/equip/move', {
+        send_date: form.send_date,
+        from: props.equipment_location_found.id,
+        to: form.to,
+        reason: form.reason,
         expense: form.expense,
-        description: form.description,
-        category_id: selectedCategory.value ?? 1,
-        size_id: selectedSize.value ?? null,
+        category_id: selectedCategory.value,
+        size_id: selectedSize.value,
         series: seriesActive.value
     },{
     })
@@ -152,11 +129,10 @@ function openDialog(repair_id) {
 }
 
 onMounted(() => {
-    store.dispatch('fetchLocations')
-    store.dispatch('equipment/updateEquipmentCategories', props.equipment_categories)
-    store.dispatch('equipment/updateEquipmentCategoriesCounts', props.equipment_categories_counts)
-    store.dispatch('equipment/updateEquipmentSizes', props.equipment_sizes)
-    store.dispatch('equipment/updateEquipmentSizesCounts', props.equipment_sizes_counts)
+   
+    selectedCategory.value = props.equipment_categories[0]?.id ?? null;
+    selectedSize.value = props.equipment_sizes[0]?.id ?? null;
+    seriesActive.value = props.equipmentSeries[0] ?? null;
 
     const url_params = new URLSearchParams(window.location.search);
 
@@ -164,26 +140,24 @@ onMounted(() => {
 
     if (url_params.get('size_id')) {
         fetch_by.size_id = +url_params.get('size_id');
-        store.dispatch('equipment/updateSize', fetch_by.size_id);
+        selectedSize.value = fetch_by.size_id;
     } else {
-        store.dispatch('equipment/updateSize', null);
+        selectedSize.value = null;
     }
-    if (url_params.get('series'))  {
-        fetch_by.series  = url_params.get('series');
-        store.dispatch('equipment/updateSeriesId', fetch_by.series);
+    if (url_params.get('series')) {
+        fetch_by.series = url_params.get('series');
+        seriesActive.value = fetch_by.series;
     } else {
-        store.dispatch('equipment/updateSeriesId', null);
+        seriesActive.value = null;
     }
 
     if (url_params.get('category_id')) {
         fetch_by.category_id = +url_params.get('category_id');
-        store.dispatch('equipment/updateCategory', +url_params.get('category_id'));
+        selectedCategory.value = +url_params.get('category_id');
 
-        /*if (+url_params.get('category_id') !== selectedCategory.value) setCategoryId(+url_params.get('category_id'));*/
     } else {
         fetch_by.category_id = 1;
-        store.dispatch('equipment/updateCategory', 1);
-        // updateUrl();
+        selectedCategory.value = 1;
     }
 
     updateRepairTable(fetch_by.category_id, fetch_by?.size_id, fetch_by?.series);
@@ -246,21 +220,20 @@ onMounted(() => {
                         @click="setSeriesId(series)" v-for="series in equipmentSeries">{{ series }}</li>
                 </ul>
                 <div v-if="seriesActive" class="w-full space-y-5 lg:w-[calc(100%-100px-14px)]">
-                    <div class="font-bold text-gray1">Добавить новую запись ремонта</div>
+                    <div class="font-bold text-gray1">Добавить новую запись перемещения</div>
                     <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                         <div class="min-w-[1050px] text-xs">
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
-                                <div class="shrink-0 flex items-center justify-center w-[calc(12.14%+44px)] py-2.5 px-2">На сервисе</div>
                                 <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                    ремонта</div>
-                                    <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Место проведения</div>
-                                    <div
+                                    отправки</div>
+                                <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">Откуда</div>
+                                <div
                                     class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-50px)] py-2.5 px-2">
-                                    Описание
+                                    Куда
                                 </div>
-                                <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">Дата
-                                    прибытия</div>
+                                <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Причина вывоза
+                                </div>
                                 <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">Расход
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
@@ -296,23 +269,23 @@ onMounted(() => {
                                     </svg>
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[12.14%]">
-                                    <input v-model="form.on_repair_date" type="date"
+                                    <input v-model="form.send_date" type="date"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[12.14%]">
-                                    <input v-model="form.repair_date" type="date"
-                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                    <input type="text" v-model="equipment_location_found.name"
+                                        class="block w-full h-full px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.94%]">
-                                    <select v-model="form.location_id"
+                                    <select v-model="form.to"
                                         class="w-full h-full border-none rounded px-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option v-for="location in equipment_location" :value="location.id">
+                                        <option v-for="location in equipment_locations" :value="location.id">
                                             {{ location.name }}
                                         </option>
                                     </select>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-50px)]">
-                                    <input v-model="form.description" type="text"
+                                    <input v-model="form.reason" type="text"
                                         class="block w-full h-full px-2 bg-transparent">
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[8.94%]">
@@ -342,7 +315,7 @@ onMounted(() => {
                     </div>
 
                     <template v-if="repairs?.length">
-                        <div class="mt-20 font-bold text-gray1">История ремонта</div>
+                        <div class="mt-20 font-bold text-gray1">История перемещний</div>
                         <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
                             <div class="min-w-[1050px] text-xs">
                                 <div class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -376,11 +349,11 @@ onMounted(() => {
                                             <UiHyperlink :item-id="repair.id" :hyperlink="repair.hyperlink" endpoint="/equipment/repair" />
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">
-                                            {{ repair.repair_date || '-' }}</div>
-                                        <div class="shrink-0 flex items-center justify-center w-[12.14%] py-2.5 px-2">
-                                            {{ repair.repair_date || '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">{{ getLocationName(repair.location_id) || '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-110px)] py-2.5 px-2">{{ repair.description || '-' }}</div>
+                                            {{ repair.send_date || '-' }}</div>
+
+                                        <div class="shrink-0 flex items-center w-[8.94%] py-2.5 px-2">{{ getLocationName(repair.from) || '-' }}</div>
+                                        <div class="shrink-0 flex items-center w-[calc(100%-12.14%-44px-12.14%-8.94%-8.94%-110px)] py-2.5 px-2">{{ getLocationName(repair.to) || '-' }}</div>
+                                        <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ repair.reason || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ repair.expense || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[110px] py-2.5 px-2">
                                             <button v-if="true" class="mr-3.5">

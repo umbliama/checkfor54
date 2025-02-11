@@ -108,6 +108,16 @@ onMounted(() => {
                         </span>
                     </Link>
                 </li>
+                <li>
+                    <Link
+                        :href="route('equip.move')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.MOVE }"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                    >
+                        Перемещение
+
+                    </Link>
+                </li>
                 <li
                     :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"

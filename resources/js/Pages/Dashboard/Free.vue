@@ -19,7 +19,7 @@ import {
     PopoverRoot,
     PopoverTrigger
 } from 'radix-vue'
-import { onMounted, ref,reactive } from 'vue';
+import { onMounted, ref,reactive, watch } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 
 
@@ -74,17 +74,24 @@ const updateUrl = () => {
 
     Object.keys(params).length && router.replace(route('free', params));
 };
-
+watch(() => filters.category_id, (newCategory) => {
+    console.log(newCategory)
+    if (newCategory) {
+        console.log(newCategory)
+        filters.size_id = null; 
+        updateUrl(); 
+    }
+});
 const removeParams = () => {
     router.get(route('free'))
 }
 
 const setCategoryId = (categoryId) => {
-    if (filters.category_id) setSizeId(null);
-    filters.category_id = categoryId
-    chosenCategory.value = categoryId
+    filters.category_id = categoryId;
+    chosenCategory.value = categoryId;
+    filters.size_id = null;
     updateUrl();
-}
+};
 
 const setLocationId = (locationId) => {
     filters.location_id = locationId
@@ -102,26 +109,17 @@ const setSizeId = (sizeId) => {
 
 
 const updateFiltersAndFetchData = () => {
-    const { current_page, total, last_page } = props.equipment;
-
-    pagination.currentPage = current_page;
-    pagination.totalPages = total;
-    currentPage.value = current_page;
-    lastPage.value = last_page;
-
     const url_params = new URLSearchParams(window.location.search);
 
-    if (!url_params.has('category_id') && !filters.category_id) {
-        url_params.set('category_id', '1');
-        window.history.replaceState({}, '', `${window.location.pathname}?${url_params.toString()}`);
-        filters.category_id = 1;
-    } else if (url_params.has('category_id')) {
+    if (!url_params.has('category_id')) {
+        filters.category_id = 1; 
+        updateUrl();
+    } else {
         filters.category_id = +url_params.get('category_id');
     }
 
     filters.size_id = url_params.has('size_id') ? +url_params.get('size_id') : null;
-    filters.location_id = url_params.has('location_id') ? +url_params.get('location_id') : 0;
-};
+    filters.location_id = url_params.has('location_id') ? +url_params.get('location_id') : 0;};
 
 
 onMounted(() => {
@@ -145,7 +143,7 @@ onMounted(() => {
                         >
                             <div class="flex items-center justify-between">
                                 {{category.name}}
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_categories_counts[category.id] }}</span>
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_categories_counts[category.id] ?? 0}}</span>
                             </div>
                         </li>
                     </ul>
@@ -159,7 +157,7 @@ onMounted(() => {
                         >
                             <div class="flex items-center justify-between">
                                 {{ size.name }}
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_sizes_counts[size.id] }}</span>
+                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_sizes_counts[size.id] ?? 0 }}</span>
                             </div>
                         </li>
                     </ul>
