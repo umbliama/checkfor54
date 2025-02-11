@@ -65,7 +65,6 @@ class DashboardController extends Controller
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->count();
             } else {
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
-
             }
         }
 
@@ -130,12 +129,12 @@ class DashboardController extends Controller
         $rented_equipment_query = Equipment::whereHas('serviceEquipment.services', function ($query) {
             $query->where('active', 1);
         })->with([
-                    'serviceEquipment.services' => function ($query) {
-                        $query->where('active', 1);
-                    }
-                ])->whereDoesntHave('serviceEquipment.services', function ($query) {
-                    $query->where('active', 0);
-                });
+            'serviceEquipment.services' => function ($query) {
+                $query->where('active', 1);
+            }
+        ])->whereDoesntHave('serviceEquipment.services', function ($query) {
+            $query->where('active', 0);
+        });
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
@@ -329,7 +328,7 @@ class DashboardController extends Controller
                 });
         })
             ->distinct()
-            ->pluck('id'); 
+            ->pluck('id');
 
         $equipment = Equipment::whereIn('id', $filtered_equipment_ids)->paginate($perPage);
 
@@ -544,10 +543,10 @@ class DashboardController extends Controller
                 ->count()
                 +
                 ServiceSub::whereIn('subequipment_id', $category->equipment->pluck('id'))
-                    ->whereHas('service', function ($query) {
-                        $query->where('active', 1);
-                    })
-                    ->count();
+                ->whereHas('service', function ($query) {
+                    $query->where('active', 1);
+                })
+                ->count();
 
             $percent = ($totalEquipment > 0) ? round(($totalOnRent / $totalEquipment) * 100, 2) : 0;
 
@@ -612,14 +611,27 @@ class DashboardController extends Controller
 
         $documents = ContrDocuments::with('contragent', 'user')->where('type', 'commercials')->get()->groupBy('contragent_id');
 
+        $KPcount = ContrDocuments::where('type', 'commercials')->count();
+
+        $dealsCount = ContrDocuments::where('type', 'commercials')->where('status', 1)->count();
+
+        $dialogueCount = ContrDocuments::where('type', 'commercials')->where('status', 2)->count();
+
+        $noDealCount = ContrDocuments::where('type', 'commercials')->where('status', 3)->count();
+
+        $percentDeals = ($dealsCount / $KPcount) * 100;
+
+        $documentCount = $documents->sum(fn($group) => $group->count());
 
 
-
-
-
-        return Inertia::render('Dashboard/Commercial', ['documents' => $documents, 'contragents' => $contragents]);
+        return Inertia::render('Dashboard/Commercial', [
+            'documents' => $documents,
+            'contragents' => $contragents,
+            'KPcount' => $KPcount,
+            'dealsCount' => $dealsCount,
+            'dialogueCount' => $dialogueCount,
+            'noDealCount' => $noDealCount,
+            'percentDeals' => $percentDeals
+        ]);
     }
-
-
-
 }
