@@ -22,33 +22,33 @@ class IncidentController extends Controller
         $perPage = $request->input('perPage', 10);
         $page = request()->get('page', 1);
         $search = $request->input('search', null);
-    
+
         // Query for Tasks
         $tasksQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->where('type', 'tasks')
             ->where('isArchive', 0);
-    
+
         // Query for Advertisements
         $advQuery = Column::with('blocks.equipment.category', 'blocks.user', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
             ->where('type', 'adv')
             ->where('isArchive', 0);
-    
+
         // Apply search filter if provided
         if ($search) {
             $tasksQuery->whereHas('blocks', function ($query) use ($search) {
                 $query->where('commentary', 'LIKE', "%{$search}%")
-                      ->orWhere('equipment', 'LIKE', "%{$search}%");
+                    ->orWhere('equipment', 'LIKE', "%{$search}%");
             });
-    
+
             $advQuery->whereHas('blocks', function ($query) use ($search) {
                 $query->where('commentary', 'LIKE', "%{$search}%")
-                      ->orWhere('equipment', 'LIKE', "%{$search}%");
+                    ->orWhere('equipment', 'LIKE', "%{$search}%");
             });
         }
-    
+
         $tasksColumns = $tasksQuery->orderBy('position')->paginate($perPage);
         $advColumns = $advQuery->orderBy('position')->paginate($perPage);
-    
+
         // Archived Queries
         $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
             ->where('type', 'tasks')
@@ -56,22 +56,22 @@ class IncidentController extends Controller
             ->orderBy('position')
             ->get()
             ->groupBy('contragent_id');
-    
+
         $paginatedGroups = $tasksColumnsArchived->forPage($page, $perPage);
-    
+
         $advColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
             ->where('type', 'adv')
             ->where('isArchive', 1)
             ->orderBy('position')
             ->get()
             ->groupBy('contragent_id');
-    
+
         $advPaginatedGroups = $advColumnsArchived->forPage($page, $perPage);
-    
+
         // Pagination for Archived Data
         $tasksColumnsArchivedCount = $tasksColumnsArchived->count();
         $advColumnsArchivedCount = $advColumnsArchived->count();
-    
+
         $paginator = new LengthAwarePaginator(
             $paginatedGroups,
             $tasksColumnsArchivedCount,
@@ -79,7 +79,7 @@ class IncidentController extends Controller
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-    
+
         $advPaginator = new LengthAwarePaginator(
             $advPaginatedGroups,
             $advColumnsArchivedCount,
@@ -87,11 +87,11 @@ class IncidentController extends Controller
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-    
+
         // Additional Data
         $contragents = Contragents::all();
         $employees = User::where('isAdmin', 0)->get();
-    
+
         return Inertia::render('Incident/Index', [
             'advColumnsArchivedCount' => $advColumnsArchivedCount,
             'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount,
@@ -103,7 +103,7 @@ class IncidentController extends Controller
             'employees' => $employees
         ]);
     }
-    
+
     public function history(Request $request)
     {
         $perPage = $request->input("perPage");
@@ -119,56 +119,76 @@ class IncidentController extends Controller
 
     public function createColumn(Request $request)
     {
-        $position = Column::max('position') + 1;
-        $user_id = Auth::id();
-        $column = Column::create(['position' => $position, 'type' => $request->input('type'), 'creator_id' => Auth::id()]);
-        Notification::create([
-            'type' => 'Создана новая колонка',
-            'data' => ['position' => $position],
-            'user_id' => $user_id
-        ]);
-        $this->createBlock($column, 'customer');
-        $this->createBlock($column, 'equipment');
+        try {
+            $position = Column::max('position') + 1;
+            $user_id = Auth::id();
+            $column = Column::create(['position' => $position, 'type' => $request->input('type'), 'creator_id' => Auth::id()]);
+            Notification::create([
+                'type' => 'Создана новая колонка',
+                'data' => ['position' => $position],
+                'user_id' => $user_id
+            ]);
+            $this->createBlock($column, 'customer');
+            $this->createBlock($column, 'equipment');
+            return back()->with('message', 'Колонка успешно создана');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function archiveColumn(Request $request, Column $column)
     {
-        $column->isArchive = 1;
+        try {
+            $column->isArchive = 1;
 
-        $column->archive_date = now();
+            $column->archive_date = now();
 
-        $column->save();
+            $column->save();
+            return back()->with('message', 'Колонка успешно архивирована');
 
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function deleteColumn(Column $column)
     {
-        $column->delete();
+        try {
+            $column->delete();
+            return back()->with('message', 'Колонка удалена');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function createBlock(Column $column, $typeOrRequest)
     {
-        if (is_string($typeOrRequest)) {
-            $type = $typeOrRequest;
-            $request = request();
+        try {
+            if (is_string($typeOrRequest)) {
+                $type = $typeOrRequest;
+                $request = request();
+            } elseif ($typeOrRequest instanceof Request) {
+                $request = $typeOrRequest;
+                $type = $request->input('type');
+            } else {
+                throw new \InvalidArgumentException('Argument #2 must be a string or a Request object.');
+            }
+            $position = Column::max('position') + 1;
+            $content = $this->prepareBlockContent($type, $request);
+
+            Block::create([
+                'column_id' => $column->id,
+                'type' => $type,
+                'creator_id' => Auth::id(),
+                'position' => $position,
+                'content' => json_encode($content),
+            ]);
+            return back()->with('message', 'Блок успешно создан');
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+
         }
-        elseif ($typeOrRequest instanceof Request) {
-            $request = $typeOrRequest;
-            $type = $request->input('type');
-        }
-        else {
-            throw new \InvalidArgumentException('Argument #2 must be a string or a Request object.');
-        }
-        $position = Column::max('position') + 1;
-        $content = $this->prepareBlockContent($type, $request);
-    
-        Block::create([
-            'column_id' => $column->id,
-            'type' => $type,
-            'creator_id' => Auth::id(),
-            'position' => $position,
-            'content' => json_encode($content), 
-        ]);
     }
 
 
@@ -191,14 +211,14 @@ class IncidentController extends Controller
                     'commentary' => $request->input('commentary'),
                 ];
             case 'mediafiles':
-                $existingMediaUrls = $request->input('existing_media_urls', []); 
+                $existingMediaUrls = $request->input('existing_media_urls', []);
                 if ($request->hasFile('media_file')) {
                     $uploadedFiles = $request->file('media_file');
 
                     foreach ($uploadedFiles as $mediaFile) {
                         $fileName = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
                         $filePath = $mediaFile->storeAs('media_files', $fileName, 'public');
-                        $existingMediaUrls[] = 'media_files/' . $fileName; 
+                        $existingMediaUrls[] = 'media_files/' . $fileName;
                     }
                 }
 
@@ -207,7 +227,7 @@ class IncidentController extends Controller
                 ];
 
             case 'files':
-                $existingFileUrls = $request->input('existing_file_urls', []); 
+                $existingFileUrls = $request->input('existing_file_urls', []);
                 if ($request->hasFile('files')) {
                     $uploadedFiles = $request->file('files');
 
@@ -217,7 +237,7 @@ class IncidentController extends Controller
                         $shortUniqid = substr(uniqid(), 0, 6);
                         $fileName = $originalName . '_' . time() . '_' . $shortUniqid . '.' . $extension;
                         $file->move(public_path('files'), $fileName);
-                        $existingFileUrls[] = 'files/' . $fileName; 
+                        $existingFileUrls[] = 'files/' . $fileName;
                     }
                 }
 
@@ -256,32 +276,44 @@ class IncidentController extends Controller
 
     public function deleteBlock(Block $block)
     {
-        $block->delete();
+        try {
+            $block->delete();
+            return back()->with('message', 'Блок успешно удален');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function saveBlockInfo(Request $request, Block $block)
     {
-        $type = $block->type;
+        try {
+            $type = $block->type;
 
-        $data = $this->prepareBlockContent($type, $request);
+            $data = $this->prepareBlockContent($type, $request);
 
-        $block->update([
-            'media_url' => $data['media_url'] ?? $block->media_url,
-            'file_url' => $data['file_url'] ?? $block->file_url,
-            'contragent_id' => $request->input('contragent_id', $block->contragent_id),
-            'commentary' => $request->input('commentary', $block->commentary),
-            'employee_id' => $request->input('employee_id', $block->employee_id),
-            'equipment' => $request->input('equipment', $block->equipment),
-        ]);
-
-        if ($block->type == 'customer') {
-            $block->column()->update([
-                'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),
+            $block->update([
+                'media_url' => $data['media_url'] ?? $block->media_url,
+                'file_url' => $data['file_url'] ?? $block->file_url,
+                'contragent_id' => $request->input('contragent_id', $block->contragent_id),
+                'commentary' => $request->input('commentary', $block->commentary),
+                'employee_id' => $request->input('employee_id', $block->employee_id),
+                'equipment' => $request->input('equipment', $block->equipment),
             ]);
-        }
 
-        if ($request->input('subEquipmentArray')) {
-            $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
+            if ($block->type == 'customer') {
+                $block->column()->update([
+                    'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),
+                ]);
+            }
+
+            if ($request->input('subEquipmentArray')) {
+                $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
+            }
+            return back()->with('message', 'Данные блока сохранены');
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+
         }
     }
     private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
@@ -347,35 +379,42 @@ class IncidentController extends Controller
     }
     public function deleteFile($columnId, $blockId, $fileIndex)
     {
-        $taskColumn = Column::find($columnId);
-        if (!$taskColumn) {
-            return response()->json(['message' => 'Task Column not found.'], 404);
-        }
-    
-        $block = Block::find($blockId);
-        if (!$block) {
-            return response()->json(['message' => 'Block not found.'], 404);
-        }
-    
-        if (is_array($block->file_url)) {
-            if (isset($block->file_url[$fileIndex])) {
-                $fileUrls = $block->file_url;
-                $fileToDelete = public_path('storage/' . $block->file_url[$fileIndex]);
-    
-                if (File::exists($fileToDelete)) {
-                    File::delete($fileToDelete);
-                }
-    
-                unset($fileUrls[$fileIndex]);
-    
-                $block->file_url = array_values($fileUrls); 
-                $block->save();
-    
-            } else {
-                return response()->json(['message' => 'File index not found.'], 404);
+        try {
+            $taskColumn = Column::find($columnId);
+            if (!$taskColumn) {
+                return response()->json(['message' => 'Task Column not found.'], 404);
             }
-        } else {
-            return response()->json(['message' => 'Invalid file list.'], 400);
+
+            $block = Block::find($blockId);
+            if (!$block) {
+                return response()->json(['message' => 'Block not found.'], 404);
+            }
+
+            if (is_array($block->file_url)) {
+                if (isset($block->file_url[$fileIndex])) {
+                    $fileUrls = $block->file_url;
+                    $fileToDelete = public_path('storage/' . $block->file_url[$fileIndex]);
+
+                    if (File::exists($fileToDelete)) {
+                        File::delete($fileToDelete);
+                    }
+
+                    unset($fileUrls[$fileIndex]);
+
+                    $block->file_url = array_values($fileUrls);
+                    $block->save();
+
+                } else {
+                    return response()->json(['message' => 'File index not found.'], 404);
+                }
+            } else {
+                return response()->json(['message' => 'Invalid file list.'], 400);
+            }
+
+            return back()->with('message', 'Файл успешно удален');
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 }

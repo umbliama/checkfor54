@@ -46,6 +46,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-
-
+    public function contrDocuments()
+    {
+        return $this->hasMany(ContrDocuments::class, 'user_id');
+    }
 }

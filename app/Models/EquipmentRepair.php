@@ -13,5 +13,5 @@ class EquipmentRepair extends Model
     {
         return $this->hasOne(Directory::class, 'repair_id', 'id');
     }
-    protected $fillable = ['on_repair_date','repair_date', 'location_id', 'expense', 'description', 'category_id', 'size_id', 'series', 'hyperlink'];
+    protected $fillable = ['equipment_id','isLocked','on_repair_date','repair_date', 'location_id', 'expense', 'description', 'category_id', 'size_id', 'series', 'hyperlink'];
 }

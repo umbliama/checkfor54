@@ -12,5 +12,11 @@ class EquipmentCategories extends Model
     {
         return $this->hasMany(Equipment::class, 'category_id');
     }
+
+    public function sizes()
+{
+    return $this->hasMany(EquipmentSize::class, 'category_id', 'id');
+}
+
     use HasFactory;
 }

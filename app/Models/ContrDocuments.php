@@ -14,11 +14,18 @@ class ContrDocuments extends Model
         'contracts',
         'transport',
         'financial',
-        'adddocs'
+        'adddocs',
+        'user_id'
+        
     ];
 
     public function contragent()
     {
         return $this->belongsTo(Contragents::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

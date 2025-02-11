@@ -25,6 +25,9 @@ return new class extends Migration {
             $table->foreign('size_id')->references('id')->on('equipment_sizes')->onDelete('cascade');
             $table->string('series');
             $table->string('hyperlink')->nullable();
+            $table->unsignedBigInteger('equipment_id');
+            $table->foreign('equipment_id')->references('id')->on('equipment')->onDelete('cascade');
+            $table->boolean('isLocked')->default(false);
         });
     }
 

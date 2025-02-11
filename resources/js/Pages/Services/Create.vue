@@ -19,16 +19,20 @@ import {
     DropdownMenuTrigger,
 } from 'radix-vue';
 import ServicesServicesDialog from "@/Components/Services/ServicesServicesDialog.vue";
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 
 const props = defineProps({
     contragents: Array,
     equipmentFormatted: Array,
+    contracts: Array,
 })
 
 const selectedEquipment = ref([]);
 const selectedServices = ref([]);
 const is_dialog_open = ref(false);
+
+
 
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
 const rows = ref(selectedEquipment.value.length - 1)
@@ -61,26 +65,34 @@ const fillRequestObject = async (value) => {
     });
 
     await nextTick();
-    console.log("Updated requestObject:", requestObject);
 };
+
+const chosenAgent = ref(null);
+const chosenContracts = ref([]);
+const setAgent = (id) => {
+    chosenAgent.value = id
+}
+
+const setContracts = (id) => {
+    const agent = props.contracts.find(eq => eq.contragent_id === id);
+
+    agent.contracts.forEach(doc => {
+
+        const fileName = doc.split('/').pop().split('.')[0];
+        chosenContracts.value.push(toRaw(fileName));
+    });
+}
+
+watch(chosenAgent, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            setContracts(newValue)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
 const activeTab = ref('services')
-const updateEquipmentByKey = (index, field, value) => {
-    console.log("Before update:", requestObject);
-
-    if (!requestObject || !Array.isArray(requestObject)) {
-        console.error("requestObject is not initialized properly.");
-        return;
-    }
-
-    if (index >= requestObject.length || requestObject[index] === undefined) {
-        console.error(`Invalid index: ${index}. Array length: ${requestObject.length}`);
-        return;
-    }
-
-    requestObject[index][field] = value;
-
-    console.log("After update:", requestObject);
-};
 const showModalServices = (value) => {
     store.dispatch('sale/showModal', value)
 }
@@ -179,21 +191,26 @@ function openDialog() {
 }
 
 const deleteMainEquipment = (id) => {
-    const equipment = selectedEquipment.value[id];
+    const equipment = selectedEquipment.value;
 
     if (equipment) {
-        equipment.slice(0, id);
+        equipment.splice(id, 1);
     }
 }
-
+const deleteSubEquipment = (id, subId) => {
+    const equipment = selectedEquipment.value[id].subequipment;
+    if (equipment && equipment.length > subId) {
+        equipment.splice(subId, 1);
+    }
+}
 watch(getSelectedServices, async (newValue, oldValue) => {
     if (newValue) {
         try {
             selectedServices.value.push({
                 ...toRaw(newValue[0]),
-                price:null,
-                commentary:null,
-                shipping_date:null
+                price: null,
+                commentary: null,
+                shipping_date: null
             })
         } catch (error) {
             console.error(error);
@@ -257,7 +274,7 @@ const form = reactive({
     return_reason: null,
     commentary: null,
     income: null,
-    active: 0,
+    active: 1,
     contract: 0,
     equipment: null,
 
@@ -288,7 +305,9 @@ function submit() {
         contragent_id: form.contragent_id,
         service_number: form.service_number,
         service_date: form.service_date,
+        commentary: form.commentary,
         active: form.active,
+        contract: form.contract,
         extraServices: cleanedServices,
         equipment: JSON.parse(JSON.stringify(formattedRequestObject))
     });
@@ -299,7 +318,8 @@ function submit() {
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
         <ServicesServicesDialog v-if="modalShownServices" />
-
+        <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
         <div class="p-5">
             <ServicesNav2 title="Новая аренда" />
 
@@ -337,7 +357,7 @@ function submit() {
 
                         <label class="flex items-center p-1 bg-bg1 lg:bg-transparent">
                             <span
-                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчк:</span>
+                                class="block w-[calc(50%-9px)] py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD] lg:w-auto lg:mr-[52px] lg:p-0 lg:text-base lg:border-0">Заказчик:</span>
                             <span
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
@@ -345,7 +365,8 @@ function submit() {
                                 <select v-model="form.contragent_id"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
                                     <option value="">Выберите</option>
-                                    <option v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
+                                    <option @click="setAgent(agent.id)" v-for="agent in contragents" :value="agent.id">
+                                        {{ agent.name }}</option>
                                 </select>
                             </div>
                         </label>
@@ -362,8 +383,8 @@ function submit() {
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select v-model="form.active"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
-                                    <option value="0">Аренда закрыта</option>
                                     <option value="1" selected>Аренда открыта</option>
+                                    <option value="0">Аренда закрыта</option>
                                 </select>
                             </div>
                         </label>
@@ -376,13 +397,26 @@ function submit() {
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select v-model="form.contract"
                                     class="block grow p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium">
-                                    <option value="0" selected>Договор 0</option>
-                                    <option value="1">Договор 1</option>
+                                    <option selected>Выберите</option>
+                                    <option v-for="(doc,index) in chosenContracts" :value="index">{{ doc }}</option>
                                 </select>
                             </div>
                         </label>
                     </div>
                 </div>
+                <label class="block items-center p-1 mt-4 bg-bg1 lg:flex lg:bg-transparent">
+                    <span class="
+                            block py-1.5 px-3.5 text-sm font-medium border-b border-b-[#C1C7CD]
+                            lg:w-auto lg:mr-2 lg:p-0 lg:text-base lg:border-0
+                        ">Комментарий:</span>
+                    <div class="
+                            flex items-center mt-2 text-sm rounded-lg overflow-hidden bg-white
+                            lg:w-[calc(50%-9px)] lg:mt-0 lg:text-basew-auto lg:bg-[#F3F3F8]
+                        ">
+                        <input v-model="form.commentary" type="text"
+                            class="block grow p-2 w-[177px] h-9 rounded-lg bg-inherit" />
+                    </div>
+                </label>
             </div>
             <div class="relative text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
@@ -540,8 +574,7 @@ function submit() {
                             <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
                                 class="shrink-0 flex items-center w-[15.84%] ">
                                 <button class="block w-full h-full px-2 bg-transparent text-left" @click="openDialog">
-                                    Нажмите чтобы выбрать оборудование {{ selectedEquipmentService.length +
-                                        subEquipment.length + 2 }}
+                                    Нажмите чтобы выбрать оборудование
                                 </button>
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
@@ -694,6 +727,22 @@ function submit() {
                                                             </svg>
                                                         </button>
                                                     </DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <button @click="deleteMainEquipment(index)" type="button"
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                            Удалить
+                                                            <svg class="block ml-2" width="16" height="16"
+                                                                viewBox="0 0 16 16" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path
+                                                                    d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                    fill="#464F60" />
+                                                                <path
+                                                                    d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                    fill="#464F60" />
+                                                            </svg>
+                                                        </button>
+                                                    </DropdownMenuItem>
 
                                                 </DropdownMenuContent>
                                             </transition>
@@ -712,7 +761,7 @@ function submit() {
                                     <div class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                                         <div class="flex py-2.5 px-2">
                                             {{ subEquipment.equipment.category.name }} {{
-                                            subEquipment.equipment.size.name }} {{
+                                                subEquipment.equipment.size.name }} {{
                                                 subEquipment.equipment.series }}
                                         </div>
                                     </div>
@@ -771,8 +820,9 @@ function submit() {
                                                         :side-offset="5" align="end">
                                                         <DropdownMenuItem>
                                                             <button type="button"
+                                                                @click="deleteSubEquipment(index, subindex)"
                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                Укомплектовать
+                                                                Удалить
                                                                 <svg class="block ml-2" width="16" height="16"
                                                                     viewBox="0 0 16 16" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -1030,15 +1080,15 @@ function submit() {
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%] cursor-pointer">
                                 <input v-model="item.shipping_date" type="date"
-                                    class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()"/>
+                                    class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                             </div>
                             <div class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
                                 <input type="text" class="block w-full h-full px-2 bg-transparent"
-                                    v-model="item.commentary"
-                                   />
+                                    v-model="item.commentary" />
                             </div>
                             <div class="shrink-0 flex items-center w-[14.08%]">
-                                <input v-model="item.price" type="text" class="block w-full h-full px-2 bg-transparent"/>
+                                <input v-model="item.price" type="text"
+                                    class="block w-full h-full px-2 bg-transparent" />
                             </div>
                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

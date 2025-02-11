@@ -42,6 +42,9 @@ const pagination = reactive({
     totalPages: 1,
 });
 
+const chosenCategory = ref(null);
+const chosenSize = ref(null);
+
 const filters = reactive({
     size_id: null,
     category_id: 1,
@@ -58,7 +61,6 @@ const chooseAgent = (id) => {
     }
 }
 
-// Props
 const props = defineProps({
     equipment_categories: Array,
     equipment_categories_counts: Array,
@@ -85,6 +87,7 @@ const removeParams = () => {
 const setCategoryId = (categoryId) => {
     if (filters.category_id) setSizeId(null);
     filters.category_id = categoryId
+    chosenCategory.value = categoryId
     updateUrl();
 }
 
@@ -93,6 +96,7 @@ const setSizeId = (sizeId) => {
     if (filters.size_id)
         console.log(sizeId)
     filters.size_id = sizeId
+    chosenSize.size = sizeId
     updateUrl();
 }
 const updateFiltersAndFetchData = () => {
@@ -107,12 +111,14 @@ const updateFiltersAndFetchData = () => {
 
     if (url_params.get('size_id')) {
         filters.size_id = +url_params.get('size_id');
+        chosenSize.value = +url_params.get('size_id');
     } else {
         filters.size_id = null;
     }
 
     if (url_params.get('category_id')) {
         filters.category_id = +url_params.get('category_id');
+        chosenCategory.value = +url_params.get('category_id')
     } else {
         filters.category_id = 1;
     }
@@ -141,20 +147,21 @@ onMounted(() => {
                             <div class="flex items-center justify-between">
                                 Все
                                 <span
-                                    class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_categories_counts_all }}</span>
+                                    class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
+                                    equipment_categories_counts_all }}</span>
                             </div>
                         </li>
 
 
                         <li v-for="category in equipment_categories"
-                            :class="{ '!border-[#001D6C] text-[#001D6C]': true }"
+                            :class="{ '!border-[#001D6C] text-[#001D6C]': chosenCategory === category.id }"
                             class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                             @click="setCategoryId(category.id)">
                             <div class="flex items-center justify-between">
                                 {{ category.name }}
                                 <span
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
-                                    equipment_categories_counts[category.id] }}</span>
+                                        equipment_categories_counts[category.id] }}</span>
                             </div>
                         </li>
 
@@ -175,14 +182,14 @@ onMounted(() => {
                         </li>
 
 
-                        <li v-for="size in equipment_sizes" :class="{ '!border-[#001D6C] text-[#001D6C]': true }"
+                        <li v-for="size in equipment_sizes" :class="{ '!border-[#001D6C] text-[#001D6C]': chosenSize === size.id }"
                             class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                             @click="setSizeId(size.id)">
                             <div class="flex items-center justify-between">
                                 {{ size.name }}
                                 <span
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
-                                    equipment_sizes_counts[size.id]}}</span>
+                                        equipment_sizes_counts[size.id] }}</span>
                             </div>
                         </li>
 

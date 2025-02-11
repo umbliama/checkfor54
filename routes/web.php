@@ -94,11 +94,14 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/contragents/create', [ContragentsController::class, 'create'])->name('contragents.create');
     Route::get('/contragents/edit/{id}', [ContragentsController::class, 'edit'])->name('contragents.edit');
     Route::get('/contragents/show/{id}', [ContragentsController::class, 'show'])->name('contragents.show');
-    Route::put('/contragents/update/{id}', [ContragentsController::class, 'update'])->name('contragents.update');
+    Route::post('/contragents/update/{id}', [ContragentsController::class, 'update'])->name('contragents.update');
     Route::post('/contragents', [ContragentsController::class, 'store'])->name('contragents.store');
     Route::delete('/contragents/delete/{id}', [ContragentsController::class, 'destroy'])->name('contragents.destroy');
     Route::get('/contragents/{id}', [ContragentsController::class, 'show'])->name('contragents.show');
-    Route::delete('/contragents/file/delete', [ContragentsController::class,'deleteDocumentFileByContragent'])->name('contragents.deleteFile');
+    Route::delete('/contragents/file/delete', [ContragentsController::class, 'deleteDocumentFileByContragent'])->name('contragents.deleteFile');
+    Route::delete('/contragents/deleteAvatar/{id}', [ContragentsController::class, 'destroyAvatar'])->name('contragents.destroyAvatar');
+
+
     Route::prefix('/constructor')->group(function () {
         Route::get('/', [IncidentController::class, 'index'])->name('constructor.index');
 
@@ -125,7 +128,8 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::delete('/services/delete/{id}', [ServiceController::class, 'destroy'])->name('services.destroy');
     Route::post('/services/createIncident/{id}', [ServiceController::class, 'createIncident'])->name('services.createIncident');
     Route::delete('/service-equip/{id}', [ServiceController::class, 'destroyServiceEquip'])->name('services.destroyServiceEquip');
-    
+    Route::post('/service/setContragentServiceData', [ServiceController::class, 'setContragentServiceData'])->name('services.setContragentServiceData');
+
     Route::get('/incident', [IncidentController::class, 'index'])->name('incident.index');
     Route::get('/incident/history', [IncidentController::class, 'history'])->name('incident.history');
 
@@ -155,7 +159,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/search', [SearchController::class, 'search']);
     Route::get('/search-results', [SearchController::class, 'index'])->name('search.index');
 
-    Route::post('/changeLocation', [EquipmentController::class,'changeLocation'])->name('location.change');
+    Route::post('/changeLocation', [EquipmentController::class, 'changeLocation'])->name('location.change');
 
     Route::post('/setContSale', [SaleController::class, 'setContSale'])->name('sale.contr');
 });

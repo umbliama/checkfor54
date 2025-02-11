@@ -156,5 +156,12 @@ return [
         'inn'         => 'ИНН',
         'repair_date' => 'Дата ремонта',
         'size_id' => 'Размер',
+        'service_date' => 'Дата',
+        'service_number' => 'Номер аренды',
+        'equipment' => 'Оборудование',
+        'equipment.0.commentary' => 'Комментарий',
+        'equipment.0.shipping_date' => 'Дата отгрузки',
+        'equipment.0.period_start_date' => 'Дата начала периода',
+        'name' => 'Наименование',
     ],
 ];
