@@ -18,11 +18,10 @@ return new class extends Migration
             $table->foreign('contragent_id')->references('id')->on('contragents')->onDelete('cascade');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->json('commercials')->nullable();
-            $table->json('contracts')->nullable();
-            $table->json('transport')->nullable();
-            $table->json('financial')->nullable();
-            $table->json('adddocs')->nullable();
+            $table->string('type'); 
+            $table->string('file_path');
+            $table->text('notes')->nullable();
+            $table->enum('status',[1,2,3,4,5])->nullable();
         });
     }
 

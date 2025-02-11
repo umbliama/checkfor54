@@ -610,40 +610,14 @@ class DashboardController extends Controller
 
         $contragents = Contragents::all();
 
-        $documents = ContrDocuments::with('contragent', 'user')
-            ->where('commercials', '!=', '')
-            ->get();
-
-        $processedDocuments = [];
-
-        foreach ($documents as $document) {
-            $contragentId = $document->contragent_id;
-            if (!isset($processedDocuments[$contragentId])) {
-                $processedDocuments[$contragentId] = [
-                    'commercials' => [],
-                    'count' => 0,
-                    'contragent_name' => $document->contragent->name ?? 'Unknown'
-                ];
-            }
-
-            $commercials = json_decode($document->commercials, true);
-            if (is_array($commercials)) {
-                foreach ($commercials as $commercial) {
-                    $processedDocuments[$contragentId]['commercials'][] = [
-                        'path' => $commercial,
-                        'user' => [
-                            'id' => $document->user->id,
-                            'name' => $document->user->name,
-                        ]
-                    ];
-                    $processedDocuments[$contragentId]['count']++;
-                }
-            }
-        }
+        $documents = ContrDocuments::with('contragent', 'user')->where('type', 'commercials')->get()->groupBy('contragent_id');
 
 
 
-        return Inertia::render('Dashboard/Commercial', ['documents' => $processedDocuments, 'contragents' => $contragents]);
+
+
+
+        return Inertia::render('Dashboard/Commercial', ['documents' => $documents, 'contragents' => $contragents]);
     }
 
 

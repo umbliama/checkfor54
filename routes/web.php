@@ -42,6 +42,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/serviced', [DashboardController::class, 'serviced'])->middleware(['auth', 'verified'])->name('serviced');
     Route::get('/analysis', [DashboardController::class, 'analysis'])->middleware(['auth', 'verified'])->name('analysis');
     Route::get('/commercial', [DashboardController::class, 'commercial'])->middleware(['auth', 'verified'])->name('commercial');
+    Route::put('/commercial/editKP', [ContragentsController::class, 'editKP'])->middleware(['auth', 'verified'])->name('editKP');
 
 
     Route::get('/equip', [EquipmentController::class, 'index'])->name('equip.index');

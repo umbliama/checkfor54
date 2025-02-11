@@ -240,7 +240,8 @@ class ContragentsController extends Controller
     {
         try {
             $contragent = Contragents::findOrFail($id);
-
+            $userId = Auth::id();
+    
             $validated = $request->validate([
                 'agentTypeLegal' => 'nullable',
                 'country' => 'nullable',
@@ -271,65 +272,46 @@ class ContragentsController extends Controller
                 'contact_person_email' => 'nullable',
                 'contact_person_notes' => 'nullable',
                 'contact_person_commentary' => 'nullable',
-                'status' => 'nullable',
                 'avatar' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
-                'contracts.*' => 'required|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'transport.*' => 'required|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'financial.*' => 'required|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*' => 'required|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*' => 'required|file|mimes:pdf,doc,docx,zip,txt|max:5120',
             ]);
-
+    
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
                 $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
                 $avatar->move(public_path('avatars'), $avatarName);
                 $validated['avatar'] = 'avatars/' . $avatarName;
-            } else {
-                unset($validated['avatar']);
             }
-
-            $contrDocs = ContrDocuments::where('contragent_id', $id)->first();
-            $existingFiles = $contrDocs ? $contrDocs->toArray() : [];
-
+    
+            $contragent->update($validated);
+    
             $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
-            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
-
+            
             foreach ($docFields as $field) {
-                $newFiles = [];
-
-                if ($contrDocs && !empty($existingFiles[$field])) {
-                    $newFiles = json_decode($existingFiles[$field], true) ?? [];
-                }
-
                 if ($request->hasFile($field)) {
                     foreach ($request->file($field) as $file) {
                         $fileName = time() . '_' . $file->getClientOriginalName();
+                        $filePath = "documents/{$contragent->id}/{$field}/" . $fileName;
+                        
                         $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
-                        $newFiles[] = "documents/{$contragent->id}/{$field}/" . $fileName;
+    
+                        ContrDocuments::create([
+                            'contragent_id' => $contragent->id,
+                            'user_id' => $userId,
+                            'type' => $field,
+                            'file_path' => $filePath,
+                            'status' => 1,
+                        ]);
                     }
                 }
-
-                if (!empty($newFiles)) {
-                    $data[$field] = json_encode($newFiles);
-                }
             }
 
-            if ($contrDocs && $contrDocs->user_id === Auth::id()) {
-                $contrDocs->update($data);
-            } else {
-                ContrDocuments::create($data);
-            }
-
-            $contragent->update($validated);
-
+    
             return back()->with('message', "Контрагент успешно обновлен");
-
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
-
+    
 
     public function show($id)
     {
@@ -375,43 +357,42 @@ class ContragentsController extends Controller
     public function deleteDocumentFileByContragent(Request $request)
     {
         $contragentId = $request->query('contragentId');
-        $fileName = $request->query('fileName');
-        $document = ContrDocuments::where('contragent_id', $contragentId)->first();
-
+        $fileId = $request->query('fileId');
+        
+        $document = ContrDocuments::where('contragent_id', $contragentId)
+                    ->where('id', $fileId)
+                    ->first();
+    
         if (!$document) {
             return response()->json(['message' => 'Document not found for this contragent.'], 404);
         }
-
-        $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
-        $fileFound = false;
-
-        foreach ($docFields as $field) {
-            if (!empty($document->$field)) {
-                $files = json_decode($document->$field, true) ?? [];
-                $fileIndex = array_search($fileName, $files);
-                if ($fileIndex !== false) {
-
-                    $filePath = public_path($files[$fileIndex]);
-
-                    if (file_exists($filePath)) {
-
-                        unlink($filePath);
-
-                        unset($files[$fileIndex]);
-                        $document->$field = json_encode(array_values($files));
-                        $document->save();
-                        $fileFound = true;
-                    }
-                    break;
-                }
-            }
+    
+        $filePath = public_path($document->file_path);
+        
+        if (file_exists($filePath)) {
+            unlink($filePath);
         }
-
-        if (!$fileFound) {
-            return response()->json(['message' => 'File not found in any document field.'], 404);
-        }
-
+    
+        $document->delete();
+    
         return back()->with('message', 'Файл успешно удален');
     }
-
+    
+    public function editKP(Request $request)
+    {
+        $id = $request->input('fileId');
+        $notes = $request->input('notes');
+        $status = $request->input('status');
+        $document = ContrDocuments::find($id);
+    
+        if ($document) {
+            $document->notes = $notes;
+            $document->status = $status;
+            $document->save();
+    
+            return back()->with('message','Документ обновлен.');
+        } else {
+            return response()->json(['message' => 'Document not found'], 404);
+        }
+    }
 }

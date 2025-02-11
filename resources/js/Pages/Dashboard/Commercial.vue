@@ -37,7 +37,7 @@ import { ref } from 'vue';
 import UiField from '@/Components/Ui/UiField.vue';
 import UiSelect from '@/Components/Ui/UiSelect.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 
 
 const props = defineProps({
@@ -56,12 +56,9 @@ function formatDateToDDMMYYYY(isoDateString) {
 }
 
 const statuses = {
-    'new': 'Новое',
-    'good': 'Хорошее',
-    'satisfactory': 'Удовлетворительно',
-    'bad': 'Плохое',
-    'off': 'Списано',
-    'unknown': 'Неизвестный статус'
+    '1': 'Сделка',
+    '2': 'Переговоры',
+    '3': 'Нет сделки',
 };
 const statuses_colors = {
     'new': 'bg-[#0F62FE]',
@@ -73,10 +70,13 @@ const statuses_colors = {
 };
 
 const edit_dialog_state = ref(false);
-
+const note = ref(null);
 const edit_status = ref(null);
+const chosenFile = ref(null)
 
-function editRow() {
+
+function editRow(id) {
+    chosenFile.value = id
     edit_dialog_state.value = true;
 }
 
@@ -84,6 +84,13 @@ function nameContragent(id) {
     return props.contragents[id]
 }
 
+const editKP = () => {
+    router.put('/commercial/editKP', {
+        fileId:chosenFile.value,
+        notes:note.value,
+        status:edit_status.value
+    })
+}
 </script>
 
 <template>
@@ -153,14 +160,14 @@ function nameContragent(id) {
                                         </span>
                                     </div>
                                 </div>
-                                <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">{{ doc.commercials[0].user.name}}</div>
+                                <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">{{ doc[0].user.name}}</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">27.02.2024</div>
-                                <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">ВЗД+ЯСС / Аренда
+                                <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ doc[0].notes }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
                                     <span :class="statuses_colors['good']" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                    <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses['good'] }}</span>
+                                    <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[doc[0].status] }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[80px] py-2.5 px-2">
                                     <Link
@@ -293,7 +300,7 @@ function nameContragent(id) {
                                                         <button
                                                             type="button"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                            @click="editRow"
+                                                            @click="editRow(doc[0].id)"
                                                         >
                                                             Редактировать
                                                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -308,7 +315,7 @@ function nameContragent(id) {
                                     </DropdownMenuRoot>
                                 </div>
                             </AccordionHeader>
-                            <AccordionContent  v-for="item in doc.commercials.slice(1)" class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
+                            <AccordionContent  v-for="item in doc.slice(1)" class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                 <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all bg-[#F3F1FE]">
                                     <div class="shrink-0 flex items-center justify-center w-[40px]"></div>
                                     <div class="shrink-0 flex items-center justify-center w-[32px]"></div>
@@ -323,14 +330,15 @@ function nameContragent(id) {
                                             </span>
                                         </div>
                                     </div>
+                                    
                                     <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">{{ item.user.name }}</div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">27.02.2024</div>
-                                    <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">ВЗД+ЯСС / Аренда
+                                    <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ item.notes ?? "-" }}
                                     </div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
                                         <span :class="statuses_colors['good']" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                        <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses['good'] }}</span>
+                                        <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] }}</span>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[80px] py-2.5 px-2">
                                         <Link
@@ -462,9 +470,9 @@ function nameContragent(id) {
                                                             <button
                                                                 type="button"
                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                                @click="editRow"
+                                                                @click="editRow(item.id)"
                                                             >
-                                                                Редактировать
+                                                                Редактировать 
                                                                 <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                                     <path d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z" fill="#464F60"/>
                                                                     <path d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z" fill="#464F60"/>
@@ -504,8 +512,8 @@ function nameContragent(id) {
                             </DialogClose>
                         </DialogTitle>
 
-                        <form class="mt-8 space-y-6">
-                            <UiField label="Примечание" textarea />
+                        <div class="mt-8 space-y-6">
+                            <UiField v-model="note" label="Примечание" textarea />
                             <UiFieldSelect
                                 v-model="edit_status"
                                 :items="Object.entries(statuses).map(s=>({ title: s[1], value: s[0] }))"
@@ -513,11 +521,11 @@ function nameContragent(id) {
                                 only-value
                             />
                             <div class="flex justify-end">
-                                <button class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text">
+                                <button @click="editKP" class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text">
                                     Сохранить
                                 </button>
                             </div>
-                        </form>
+                        </div>
                     </DialogContent>
                 </transition>
             </DialogPortal>
