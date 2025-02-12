@@ -107,24 +107,30 @@ const fillRequestObject = async (value) => {
     console.log("Updated requestObject:", requestObject);
 };
 
-const updateEquipmentByKey = (index, field, value) => {
-    console.log("Before update:", requestObject);
+const chosenAgent = ref(null);
+const chosenContracts = ref([]);
+const setAgent = (id) => {
+    chosenAgent.value = id
+}
 
-    if (!requestObject || !Array.isArray(requestObject)) {
-        console.error("requestObject is not initialized properly.");
-        return;
+const setContracts = (id) => {
+    const agent = props.contragents.find(eq => eq.id === id);
+    agent.documents.forEach(doc => {
+
+        const fileName = doc.file_path.split('/').pop().split('.')[0];
+        chosenContracts.value.push({id:doc.id,name:toRaw(fileName)});
+    });
+}
+
+watch(chosenAgent, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            setContracts(newValue)
+        } catch (error) {
+            console.error(error);
+        }
     }
-
-    if (index >= requestObject.length || requestObject[index] === undefined) {
-        console.error(`Invalid index: ${index}. Array length: ${requestObject.length}`);
-        return;
-    }
-
-    requestObject[index][field] = value;
-
-    console.log("After update:", requestObject);
-};
-
+}, { deep: true });
 
 const incSubRowMain = () => {
     store.dispatch('services/updateIncSubRowsCount');
@@ -224,7 +230,7 @@ watch(getActiveEquipmentId, async (newValue, oldValue) => {
                 shipping_date: null,
                 period_start_date: null,
                 commentary: null,
-                income:null,
+                income: null,
                 service_subs: [],
                 subRows: 0
             }
@@ -250,7 +256,7 @@ watch(getActiveSubEquipmentId, async (newValue, oldValue) => {
                 period_end_date: null,
                 return_date: null,
                 operating: null,
-                income:null,
+                income: null,
                 store: null,
                 subequipment: {}
             }
@@ -265,40 +271,66 @@ watch(getActiveSubEquipmentId, async (newValue, oldValue) => {
 }, { deep: true });
 
 
-let dateResult = ref(0)
 
-
-const calculateResult = () => {
-    const { period_start_date, period_end_date, operating } = form;
-
-    // Проверка на валидность дат
+const calculateResultForEquip = (equip) => {
+    const { period_start_date, period_end_date, operating } = equip;
     if (!period_start_date || !period_end_date) {
-        dateResult = 0;
+        equip.store = 0;
         return;
     }
 
-    // Преобразование дат в объекты
     const startDate = new Date(period_start_date);
     const endDate = new Date(period_end_date);
 
-    // Проверка на корректность дат
     if (isNaN(startDate) || isNaN(endDate)) {
-        dateResult = 0;
+        equip.store = 0;
+        return;
+    }
+
+    const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+    if (operating === 0) {
+        equip.store = parseInt((diffInDays + 1));
+        console.log(diffInDays + 1)
+    } else {
+        equip.store = parseInt(((diffInDays + 1) - (operating / 24)));
+    }
+};
+const calculateResultForSubEquip = (subEquip) => {
+    const { period_start_date, period_end_date, operating } = subEquip;
+    if (!period_start_date || !period_end_date) {
+        subEquip.store = 0;
+        return;
+    }
+    const startDate = new Date(period_start_date);
+    const endDate = new Date(period_end_date);
+    if (isNaN(startDate) || isNaN(endDate)) {
+        subEquip.store = 0;
         return;
     }
     const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
     if (operating === 0) {
-        dateResult = diffInDays + 1
-        console.log(diffInDays)
+        subEquip.store = parseInt(diffInDays + 1);
     } else {
-        dateResult = (diffInDays) + 1 - (operating / 24);
-        console.log(dateResult)
+        subEquip.store = parseInt(((diffInDays + 1) - (operating / 24))); 
+    }
+};
 
+const calculateAllSubEquips = (equip) => {
+    if (equip.service_subs && Array.isArray(equip.service_subs)) {
+        equip.service_subs.forEach((subEquip) => {
+            calculateResultForSubEquip(subEquip); 
+        });
+    }
+};
+const checkAndCalculate = (equip) => {
+    if (equip.period_start_date && equip.period_end_date) {
+        calculateResultForEquip(equip);
     }
 
-    form.store = dateResult.toFixed(2)
-}
+    calculateAllSubEquips(equip);
+};
 const showModalServices = (value) => {
     store.dispatch('sale/showModal', value)
 }
@@ -321,7 +353,18 @@ const form = reactive({
     equipment: null,
 
 })
+const isNewEquipmentAdded = computed(() => {
+    return props.serviceEquip.some(equipment => !equipment.id);
+});
 
+const isNewServiceSubAdded = computed(() => {
+    return props.serviceEquip.some(equipment => 
+        equipment.service_subs && equipment.service_subs.some(sub => !sub.id)
+    );
+});
+const method = computed(() => {
+    return (isNewEquipmentAdded.value || isNewServiceSubAdded.value) ? 'post' : (props.service.id ? 'put' : 'post');
+});
 function submit() {
     const cleanedServices = selectedServices.value ? selectedServices.value.filter(sub => sub) : [];
     const allServices = props.extraServices ? cleanedServices.concat(props.extraServices) : cleanedServices;
@@ -351,6 +394,7 @@ function submit() {
         service_number: props.service.service_number,
         service_date: props.service.service_date,
         active: props.service.active,
+        contract: props.service.contract,
         equipment: JSON.parse(JSON.stringify(formattedRequestObject))
     };
 
@@ -419,7 +463,7 @@ function submit() {
                                 <select v-model="service.contragent_id"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
                                     <option value="">Выберите</option>
-                                    <option v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
+                                    <option  @click="setAgent(agent.id)" v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
                                 </select>
                             </div>
                         </label>
@@ -448,10 +492,9 @@ function submit() {
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
-                                <select v-model="form.contract"
+                                <select v-model="service.contract"
                                     class="block grow p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium">
-                                    <option value="0" selected>Договор 0</option>
-                                    <option value="1">Договор 1</option>
+                                    <option v-for="item in chosenContracts" :value="item.id">{{ item.name }}</option>
                                 </select>
                             </div>
                         </label>
@@ -552,8 +595,8 @@ function submit() {
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input v-model="equip.period_start_date" type="date"
-                                        class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                    <input @input="checkAndCalculate(equip)" v-model="equip.period_start_date"
+                                        type="date" class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
@@ -561,18 +604,18 @@ function submit() {
                                         class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input v-model="equip.operating" type="text"
+                                    <input @input="checkAndCalculate(equip)" v-model="equip.operating" type="text"
                                         class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input v-model="equip.period_end_date" type="date"
+                                    <input @input="checkAndCalculate(equip)" v-model="equip.period_end_date" type="date"
                                         class="block w-full h-full py-2.5 px-2 bg-transparent"
                                         onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
                                     <input v-model="equip.return_date" type="date"
                                         class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                        onclick="this.showPicker()" value="2024-04-11" />
+                                        onclick="this.showPicker()"  />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%] ">
                                     <select class="block w-full h-full py-2.5 px-2 bg-transparent">
@@ -709,30 +752,33 @@ function submit() {
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input v-model="equipment.shipping_date" type="date"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            onclick="this.showPicker()" value="2024-04-11" />
+                                            onclick="this.showPicker()"  />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input v-model="equipment.period_start_date" type="date"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            onclick="this.showPicker()" />
+                                            onclick="this.showPicker()"
+                                            @change="checkAndCalculate(equipment)"
+                                            />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input v-model="equipment.store" type="text"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input v-model="equipment.operating" type="text"
+                                        <input  @input="checkAndCalculate(equip)" v-model="equipment.operating" type="text"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input v-model="equipment.period_end_date" type="date"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent"
+                                            @change="checkAndCalculate(equipment)"
                                             onclick="this.showPicker()" />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
                                         <input v-model="equipment.return_date" type="date"
                                             class="block w-full h-full py-2.5 px-2 bg-transparent"
-                                            onclick="this.showPicker()" value="2024-04-11" />
+                                            onclick="this.showPicker()"  />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%] ">
                                         <select class="block w-full h-full py-2.5 px-2 bg-transparent">
@@ -741,7 +787,8 @@ function submit() {
                                         </select>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
-                                        <input v-model="equipment.income" type="text" class="block w-full h-full py-2.5 px-2 bg-transparent" />
+                                        <input v-model="equipment.income" type="text"
+                                            class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                         <span class="shrink-0 inline-block mr-2">₽</span>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
@@ -889,7 +936,7 @@ function submit() {
                                     </select>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
-                                    <input  readonly="readonly" type="text"
+                                    <input readonly="readonly" type="text"
                                         class="block w-full h-full py-2.5 px-2 bg-transparent" />
                                     <span class="shrink-0 inline-block mr-2">₽</span>
                                 </div>

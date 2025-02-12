@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Contragents;
 use App\Models\ContrDocuments;
 use App\Models\Equipment;
@@ -152,19 +153,19 @@ class ServiceController extends Controller
     {
         $equipment = Equipment::with('category', 'size')->get();
         $equipment_all = Equipment::all();
-        $contragents = Contragents::all();
+        $contragents = Contragents::with(['documents'])->get();
         $contracts = ContrDocuments::whereNotNull('contracts')->get();
         foreach ($contracts as $document) {
             $document->contracts = json_decode($document->contracts, true) ?? [];
         }
-        
+
         $equipmentFormatted = $equipment->map(function ($item) {
             return [
                 'id' => $item->id,
                 'display' => $item->category->name . ' ' . $item->size->name . ' ' . $item->series,
             ];
         });
-        return Inertia::render("Services/Create", ['equipmentFormatted' => $equipmentFormatted, 'contragents' => $contragents, 'equipment' => $equipment,'contracts' => $contracts]);
+        return Inertia::render("Services/Create", ['equipmentFormatted' => $equipmentFormatted, 'contragents' => $contragents, 'equipment' => $equipment, 'contracts' => $contracts]);
     }
 
     public function store(Request $request)
@@ -286,7 +287,7 @@ class ServiceController extends Controller
         $equipment = Equipment::where('id', $service->equipment_id)
             ->with(['category', 'size'])
             ->first();
-        $contragents = Contragents::all();
+        $contragents = Contragents::with(['documents'])->get();
         $extraServices = ServiceExtra::where('service_id', $service->id)->get()->map(function ($service) {
             $serviceMapping = Service::getExtraServices();
             $service->value = $serviceMapping[$service->type] ?? $service->type;
@@ -355,6 +356,7 @@ class ServiceController extends Controller
                 'service_date' => 'nullable|date',
                 'active' => 'nullable|boolean',
                 'hyperlink' => 'nullable|string',
+                'contract' => 'nullable',
                 'equipment' => 'nullable|array',
                 'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
                 'equipment.*.commentary' => 'nullable|string',
@@ -387,6 +389,7 @@ class ServiceController extends Controller
                     'period_end_date',
                     'store',
                     'operating',
+                    'contract',
                     'return_reason',
                     'active'
                 ]),
@@ -427,14 +430,16 @@ class ServiceController extends Controller
                     );
                 }
             }
+
             foreach ($request->equipment as $index => $equipmentData) {
                 try {
-
+                    // Получаем данные основного оборудования
                     $equipment_id = $equipmentData['equipment_id'];
                     $equipment = Equipment::findOrFail($equipment_id);
                     $category = $equipment->category_id;
                     $size = $equipment->size_id;
 
+                    // Валидация цен
                     $equipmentPrice = EquipmentPrice::where('category_id', $category)
                         ->where('size_id', $size)
                         ->where('archive', false)
@@ -447,63 +452,112 @@ class ServiceController extends Controller
                     $store_price = $equipmentPrice->store_price;
                     $operation_price = $equipmentPrice->operation_price;
 
+                    // Расчёт income для основного оборудования
                     $operating = $equipmentData['operating'] ?? 0;
                     $store = $equipmentData['store'] ?? 0;
 
-                    if ($operating > 0) {
-                        $days_operating = $operating / 24;
-                        $store = max(0, $store - $days_operating);
+                    // Get existing record
+                    $existingServiceEquipment = ServiceEquip::where('service_id', $service->id)
+                        ->where('equipment_id', $equipment_id)
+                        ->first();
+
+                    $shouldUpdateEquipment = !$existingServiceEquipment;
+
+                    if ($existingServiceEquipment) {
+                        // Check if store or operating has changed
+                        if (
+                            $existingServiceEquipment->store != $store ||
+                            $existingServiceEquipment->operating != $operating
+                        ) {
+                            $shouldUpdateEquipment = true;
+                            $income = ($store * $store_price) + ($operating * $operation_price);
+                        } else {
+                            $income = $existingServiceEquipment->income;
+                        }
+                    } else {
+                        $income = ($store * $store_price) + ($operating * $operation_price);
                     }
 
-                    $income = ($store * $store_price) + ($operating * $operation_price);
-
-                    $serviceEquipment = ServiceEquip::updateOrCreate([
-                        'service_id' => $service->id,
-                        'equipment_id' => $equipment_id
-                    ], [
-                        'commentary' => $equipmentData['commentary'] ?? "",
-                        'period_start_date' => $equipmentData['period_start_date'] ?? null,
-                        'return_date' => $equipmentData['return_date'] ?? null,
-                        'period_end_date' => $equipmentData['period_end_date'] ?? null,
-                        'store' => $store,
-                        'shipping_date' => $equipmentData['shipping_date'] ?? null,
-                        'operating' => $operating,
-                        'income' => $income
-                    ]);
-                    $fullIncome += $income;
-
-                    if (!empty($equipmentData['subEquipment']) && is_array($equipmentData['subEquipment'])) {
-                        foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
-                            $subEquipment_id = $subEquipmentData['subequipment_id'];
-                            $subOperating = $subEquipmentData['operating'] ?? 0;
-                            $subStore = $subEquipmentData['store'] ?? 0;
-
-                            if ($subOperating > 0) {
-                                $days_operating = $subOperating / 24;
-                                $subStore = max(0, $subStore - $days_operating); // Обновляем subStore
-                            }
-
-                            $subincome = ($subStore * $store_price) + ($subOperating * $operation_price);
-
-                            ServiceSub::updateOrCreate([
+                    if ($shouldUpdateEquipment) {
+                        // Update or create equipment
+                        $existingServiceEquipment = ServiceEquip::updateOrCreate(
+                            [
                                 'service_id' => $service->id,
-                                'subequipment_id' => $subEquipment_id,
-                                'service_equipment_id' => $serviceEquipment->id
-                            ], [
-                                'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
-                                'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
-                                'return_date' => $subEquipmentData['return_date'] ?? null,
-                                'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
-                                'operating' => $subOperating,
-                                'store' => $subStore, // Теперь сохраняем обновленное значение
-                                'income' => $subincome
-                            ]);
+                                'equipment_id' => $equipment_id
+                            ],
+                            [
+                                'commentary' => $equipmentData['commentary'] ?? "",
+                                'period_start_date' => $equipmentData['period_start_date'] ?? null,
+                                'return_date' => $equipmentData['return_date'] ?? null,
+                                'period_end_date' => $equipmentData['period_end_date'] ?? null,
+                                'store' => $store,
+                                'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                                'operating' => $operating,
+                                'income' => $income
+                            ]
+                        );
+                    }
 
-                            $fullIncome += $subincome;
+                    $fullIncome += $income;
+                    if (isset($equipmentData['subEquipment']) && is_array($equipmentData['subEquipment'])) {
+                        foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
+                            try {
+                                $subEquipment_id = $subEquipmentData['subequipment_id'] ?? null;
+                                if (!$subEquipment_id) {
+                                    continue;
+                                }
+
+                                $subOperating = $subEquipmentData['operating'] ?? 0;
+                                $subStore = $subEquipmentData['store'] ?? 0;
+
+                                $existingServiceSub = ServiceSub::where('service_id', $service->id)
+                                    ->where('subequipment_id', $subEquipment_id)
+                                    ->where('service_equipment_id', $existingServiceEquipment->id)
+                                    ->first();
+
+                                $shouldUpdateSub = !$existingServiceSub;
+
+                                if ($existingServiceSub) {
+                                    if (
+                                        $existingServiceSub->store != $subStore ||
+                                        $existingServiceSub->operating != $subOperating
+                                    ) {
+                                        $shouldUpdateSub = true;
+                                        $subincome = ($subStore * $store_price) + ($subOperating * $operation_price);
+                                    } else {
+                                        $subincome = $existingServiceSub->income;
+                                    }
+                                } else {
+                                    $subincome = ($subStore * $store_price) + ($subOperating * $operation_price);
+                                }
+
+                                if ($shouldUpdateSub) {
+                                    ServiceSub::updateOrCreate(
+                                        [
+                                            'service_id' => $service->id,
+                                            'subequipment_id' => $subEquipment_id,
+                                            'service_equipment_id' => $existingServiceEquipment->id
+                                        ],
+                                        [
+                                            'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
+                                            'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
+                                            'return_date' => $subEquipmentData['return_date'] ?? null,
+                                            'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
+                                            'operating' => $subOperating,
+                                            'store' => $subStore,
+                                            'income' => $subincome
+                                        ]
+                                    );
+                                }
+
+                                $fullIncome += $subincome;
+                            } catch (\Exception $e) {
+                                return back()->with('error', 'Ошибка при обработке subEquipment: ' . $e->getMessage());
+                            }
                         }
                     }
                 } catch (\Exception $e) {
-                    return back()->with('error', $e->getMessage());
+                    return back()->with('error', 'Ошибка при обработке оборудования: ' . $e->getMessage());
                 }
             }
 

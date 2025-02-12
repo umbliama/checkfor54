@@ -141,7 +141,7 @@ const calcFullIncome = () => {
                     }
                     result[contragentId] += service.full_income;
                 }
-            }
+            }   
         }
     }
 
@@ -189,7 +189,7 @@ const getMonthNumber = (month) => {
         'novb': 10,
         'dec': 11
     };
-    return months[month] ?? null; // Return null if no match found
+    return months[month] ?? null;
 }
 
 const updateMonth = (month) => {

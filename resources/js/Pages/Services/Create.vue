@@ -49,23 +49,6 @@ const modalShownServices = computed(() => store.getters['sale/getExtraServicesMo
 const getSelectedServices = computed(() => store.getters['services/getSelectedServices']);
 const servicesRow = ref(0);
 
-let requestObject = reactive([]);
-
-const fillRequestObject = async (value) => {
-    if (!Array.isArray(requestObject)) {
-        requestObject = [];
-    }
-
-    requestObject.push({
-        id: value,
-        shipping_date: null,
-        period_start_date: null,
-        commentary: null,
-        subEquipment: []
-    });
-
-    await nextTick();
-};
 
 const chosenAgent = ref(null);
 const chosenContracts = ref([]);
@@ -74,12 +57,11 @@ const setAgent = (id) => {
 }
 
 const setContracts = (id) => {
-    const agent = props.contracts.find(eq => eq.contragent_id === id);
+    const agent = props.contragents.find(eq => eq.id === id);
+    agent.documents.forEach(doc => {
 
-    agent.contracts.forEach(doc => {
-
-        const fileName = doc.split('/').pop().split('.')[0];
-        chosenContracts.value.push(toRaw(fileName));
+        const fileName = doc.file_path.split('/').pop().split('.')[0];
+        chosenContracts.value.push({ id: doc.id, name: toRaw(fileName) });
     });
 }
 
@@ -121,37 +103,6 @@ const incSubRow = (value) => {
 }
 
 
-const updateSubEquipmentByIndex = (parentIndex, subIndex, data) => {
-    if (!requestObject || !Array.isArray(requestObject)) {
-        console.error("requestObject is not initialized properly.");
-        return;
-    }
-
-    if (parentIndex >= requestObject.length || !requestObject[parentIndex]) {
-        console.error(`Invalid parent index: ${parentIndex}`);
-        return;
-    }
-
-    if (!Array.isArray(requestObject[parentIndex].subEquipment)) {
-        requestObject[parentIndex].subEquipment = [];
-    }
-
-    if (subIndex !== null && subIndex < requestObject[parentIndex].subEquipment.length) {
-        const updatedSubEquipment = [...requestObject[parentIndex].subEquipment];
-        updatedSubEquipment[subIndex] = {
-            ...updatedSubEquipment[subIndex],
-            ...data
-        };
-        requestObject[parentIndex].subEquipment = updatedSubEquipment;
-    } else {
-        requestObject[parentIndex].subEquipment = [
-            ...requestObject[parentIndex].subEquipment,
-            data
-        ];
-    }
-
-    console.log(`Updated requestObject[${parentIndex}].subEquipment:`, requestObject[parentIndex].subEquipment);
-};
 const addService = (service) => {
     selectedServices.value.push(service);
 }
@@ -398,7 +349,7 @@ function submit() {
                                 <select v-model="form.contract"
                                     class="block grow p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium">
                                     <option selected>Выберите</option>
-                                    <option v-for="(doc,index) in chosenContracts" :value="index">{{ doc }}</option>
+                                    <option v-for="(doc, index) in chosenContracts" :value="doc.id">{{ doc.name }}</option>
                                 </select>
                             </div>
                         </label>

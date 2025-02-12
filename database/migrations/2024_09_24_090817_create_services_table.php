@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('service_number');
             $table->date('service_date');       
             $table->text('commentary')->nullable();
+            $table->integer('contract')->nullable();
             $table->decimal('full_income',20,2)->nullable();
             $table->boolean('active');
             $table->string('hyperlink')->nullable();
