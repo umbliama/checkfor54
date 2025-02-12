@@ -531,14 +531,45 @@ class EquipmentController extends Controller
         $Test->delete();
     }
 
+
     public function price(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
-        $perPage = $request->input('perPage');
-        $prices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])->where('archive', 0)->paginate($perPage);
-        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])->where('archive', 1)->paginate($perPage);
+
+        $perPage = $request->input('perPage', 10); 
+
+        $categoryId = $request->query('category_id');
+        $sizeId = $request->query('size_id');
+
+        $prices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])
+            ->where('archive', 0) 
+            ->when($categoryId, function ($query, $categoryId) {
+                return $query->whereHas('category', function ($q) use ($categoryId) {
+                    $q->where('id', $categoryId);
+                });
+            })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->whereHas('size', function ($q) use ($sizeId) {
+                    $q->where('id', $sizeId);
+                });
+            })
+            ->paginate($perPage);
+
+        $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])
+            ->where('archive', 1) 
+            ->when($categoryId, function ($query, $categoryId) {
+                return $query->whereHas('category', function ($q) use ($categoryId) {
+                    $q->where('id', $categoryId);
+                });
+            })
+            ->when($sizeId, function ($query, $sizeId) {
+                return $query->whereHas('size', function ($q) use ($sizeId) {
+                    $q->where('id', $sizeId);
+                });
+            })
+            ->paginate($perPage);
 
         $prices->getCollection()->transform(function ($sale) {
             if (isset($sale->directory['files'])) {
@@ -547,26 +578,19 @@ class EquipmentController extends Controller
             return $sale;
         });
 
-        $categoryId = $request->query('category_id', 1);
-        $sizeId = $request->query('size_id');
-        $series = $request->query('series');
-
-        // Retrieve equipment sizes for the given category
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
 
-        // Count equipment by categories
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
             $equipment_categories_counts[$category->id] = Equipment::where('category_id', $category->id)->count();
         }
 
-        // Count equipment by sizes
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $equipment_sizes_counts[$size->id] = Equipment::where('size_id', $size->id)->count();
         }
 
-        // Fetch equipment with category and size names
+        $series = $request->query('series');
         $equipment = Equipment::with(['category', 'size'])
             ->where('category_id', $categoryId)
             ->when($sizeId, function ($query, $sizeId) {
@@ -576,8 +600,6 @@ class EquipmentController extends Controller
                 return $query->where('series', $series);
             })
             ->get();
-
-
 
         return Inertia::render('Equip/Price', [
             'equipment_categories' => $equipment_categories,
@@ -590,7 +612,6 @@ class EquipmentController extends Controller
             'archivedPrices' => $archivedPrices
         ]);
     }
-
     public function storePrice(Request $request)
     {
         $validatedData = $request->validate([
@@ -743,7 +764,7 @@ class EquipmentController extends Controller
                     'narabotka_ds' => 'nullable|string',
                     'dlina_ds' => 'nullable|string',
                 ]);
-                $validatedData = array_merge($validatedData, $extraData); // Merge extra data
+                $validatedData = array_merge($validatedData, $extraData);
                 break;
             case 2:
                 break;
@@ -756,7 +777,7 @@ class EquipmentController extends Controller
                     'length_rezba' => 'nullable|string',
                     'diameter' => 'nullable|string',
                 ]);
-                $validatedData = array_merge($validatedData, $extraData); // Merge extra data
+                $validatedData = array_merge($validatedData, $extraData);
                 break;
         }
 
