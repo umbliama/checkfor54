@@ -607,7 +607,7 @@ class DashboardController extends Controller
         //     }
         // });
 
-        $contragents = Contragents::all();
+        $contragents = Contragents::with(['documents'])->get();
 
         $documents = ContrDocuments::with('contragent', 'user')->where('type', 'commercials')->get()->groupBy('contragent_id');
 
@@ -616,13 +616,14 @@ class DashboardController extends Controller
         $dealsCount = ContrDocuments::where('type', 'commercials')->where('status', 1)->count();
 
         $dialogueCount = ContrDocuments::where('type', 'commercials')->where('status', 2)->count();
-
+        
+        $dialoguePercent = $KPcount > 0 ? ($dialogueCount / $KPcount) * 100 : 0;
+        
         $noDealCount = ContrDocuments::where('type', 'commercials')->where('status', 3)->count();
-
-        $percentDeals = ($dealsCount / $KPcount) * 100;
-
-        $documentCount = $documents->sum(fn($group) => $group->count());
-
+        
+        $percentDeals = $KPcount > 0 ? ($dealsCount / $KPcount) * 100 : 0;
+        
+        $documentCount = $documents->count();
 
         return Inertia::render('Dashboard/Commercial', [
             'documents' => $documents,
@@ -631,7 +632,9 @@ class DashboardController extends Controller
             'dealsCount' => $dealsCount,
             'dialogueCount' => $dialogueCount,
             'noDealCount' => $noDealCount,
-            'percentDeals' => $percentDeals
+            'percentDeals' => $percentDeals,
+            'documentCount' => $documentCount,
+            'dialoguePercent' => $dialoguePercent
         ]);
     }
 }

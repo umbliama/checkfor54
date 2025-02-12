@@ -33,11 +33,12 @@ import {
     DropdownMenuRoot,
     DropdownMenuTrigger,
 } from 'radix-vue';
-import { ref } from 'vue';
+import { computed, reactive, ref, toRaw, watch } from 'vue';
 import UiField from '@/Components/Ui/UiField.vue';
 import UiSelect from '@/Components/Ui/UiSelect.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 import { Link, router } from '@inertiajs/vue3';
+
 
 
 const props = defineProps({
@@ -48,7 +49,47 @@ const props = defineProps({
     noDealCount: Number,
     percentDeals: Number,
     dialogueCount: Number,
+    dialoguePercent: Number,
+    documentCount: Number
 })
+
+const sortedDocuments = reactive({});
+
+watch(() => props.documents, (newDocuments) => {
+    Object.keys(newDocuments).forEach(contragentId => {
+        sortedDocuments[contragentId] = [...toRaw(newDocuments[contragentId])];
+    });
+}, { immediate: true, deep: true });
+
+const sortBy = ref('created_at'); 
+const sortOrder = ref('asc'); 
+
+watch([sortBy, sortOrder], () => {
+    console.log(`Sorting documents by: ${sortBy.value} (${sortOrder.value})`);
+
+    Object.keys(sortedDocuments).forEach(contragentId => {
+        let rawDocs = [...toRaw(sortedDocuments[contragentId])];
+
+        console.log(`\nContragent ID: ${contragentId}`);
+        console.log('Original Documents:', rawDocs);
+
+        let sorted = rawDocs.sort((a,b) => {
+            console.log(a,b)
+        })
+
+        console.log('Sorted Documents:', sortedDocuments[contragentId]);
+    });
+}, { immediate: true });
+
+const updateSort = (field) => {
+    if (sortBy.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortBy.value = field;
+        sortOrder.value = 'asc';
+    }
+    console.log(`Updated sort field: ${sortBy.value}, Order: ${sortOrder.value}`);
+};
 function formatDateToDDMMYYYY(isoDateString) {
     const date = new Date(isoDateString);
 
@@ -59,6 +100,8 @@ function formatDateToDDMMYYYY(isoDateString) {
 
     return `${day}.${month}.${year}`;
 }
+
+
 
 const statuses = {
     '1': 'Сделка',
@@ -118,11 +161,11 @@ const editKP = () => {
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Сделка сост.</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{dealsCount}}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ dealsCount }}</div>
                         <div
                             class="flex items-center h-6 px-3 rounded-full text-sm border border-gray1 bg-gray1 text-white">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#31C246]"></span>
-                            {{percentDeals}}%
+                            {{ percentDeals }}%
                         </div>
                     </div>
                 </div>
@@ -130,11 +173,11 @@ const editKP = () => {
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Переговоры
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{dialogueCount}}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ dialogueCount }}</div>
                         <div
                             class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-gray1 text-white">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#0F62FE]"></span>
-                            50,9%
+                            {{ dialoguePercent }}%
                         </div>
                     </div>
                 </div>
@@ -190,7 +233,7 @@ const editKP = () => {
                         class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                         <div class="shrink-0 flex items-center justify-center w-[40px] py-2.5 px-2"></div>
                         <div class="shrink-0 flex items-center justify-center w-[32px] py-2.5 px-2"></div>
-                        <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">
+                        <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2" @click="updateSort('name')">
                             Наименование
 
                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -205,7 +248,20 @@ const editKP = () => {
                             class="relative shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 cursor-pointer">
                             Автор</div>
                         <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Тип</div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Дата</div>
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Дата
+
+
+
+                            <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                :class="sortBy === 'status' && sortOrder === 'asc' ? 'rotate-180' : ''"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8.16675 12L12.1667 7.99996M8.16675 3.66663V12V3.66663ZM8.16675 12L4.16675 7.99996L8.16675 12Z"
+                                    stroke="#21272A" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+
+                        </div>
                         <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">Примечание
                         </div>
                         <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
@@ -224,7 +280,7 @@ const editKP = () => {
                         </div>
                     </div>
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(doc, index) in documents" value="item-1">
+                        <AccordionItem v-for="(doc, index) in sortedDocuments" value="item-1">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 bg-white">
                                 <div class="shrink-0 flex items-center justify-center w-[40px]">
@@ -246,7 +302,8 @@ const editKP = () => {
                                 <div class="shrink-0 flex items-center justify-center w-[32px]">
                                     <span
                                         class="flex items-center justify-center w-[18px] h-[18px] rounded-full text-xs bg-gray1 text-white">{{
-                                        doc.count }}</span>
+                                            nameContragent(index - 1).documents.filter(x => x.type === 'commercials').length
+                                        }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">
                                     <UiUserAvatar size="40px" class="shrink-0 mr-2" />
@@ -262,7 +319,8 @@ const editKP = () => {
                                 <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">
                                     {{ doc[0].user.name }}</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
-                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">27.02.2024</div>
+                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
+                                    formatDateToDDMMYYYY(doc[0].created_at) }}</div>
                                 <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ doc[0].notes }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
@@ -472,7 +530,8 @@ const editKP = () => {
                                         class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">
                                         {{ item.user.name }}</div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
-                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">27.02.2024</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
+                                        formatDateToDDMMYYYY(item.created_at) }}</div>
                                     <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ item.notes ?? "-"
                                         }}
                                     </div>
@@ -691,8 +750,8 @@ const editKP = () => {
                         <div class="mt-8 space-y-6">
                             <UiField v-model="note" label="Примечание" textarea />
                             <UiFieldSelect v-model="edit_status"
-                                :items="Object.entries(statuses).map(s => ({ title: s[1], value: s[0] }))" label="Статус"
-                                only-value />
+                                :items="Object.entries(statuses).map(s => ({ title: s[1], value: s[0] }))"
+                                label="Статус" only-value />
                             <div class="flex justify-end">
                                 <button @click="editKP"
                                     class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text">
