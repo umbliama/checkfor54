@@ -120,7 +120,6 @@ class EquipmentController extends Controller
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->count();
             } else {
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
-
             }
         }
         if ($rentActive) {
@@ -136,7 +135,6 @@ class EquipmentController extends Controller
 
                 return $items;
             });
-
         }
 
         if ($categoryId) {
@@ -194,8 +192,6 @@ class EquipmentController extends Controller
         // Update the hyperlink field
         $equipment->hyperlink = $request->input('hyperlink');
         $equipment->save();
-
-
     }
 
     public function storeRepairHyperLink(Request $request, $id)
@@ -209,8 +205,6 @@ class EquipmentController extends Controller
         $repair->hyperlink = $request->input('hyperlink');
 
         $repair->save();
-
-
     }
 
     public function storeTestHyperLink(Request $request, $id)
@@ -224,8 +218,6 @@ class EquipmentController extends Controller
         $repair->hyperlink = $request->input('hyperlink');
 
         $repair->save();
-
-
     }
 
     public function storeServiceHyperLink(Request $request, $id)
@@ -239,8 +231,6 @@ class EquipmentController extends Controller
         $repair->hyperlink = $request->input('hyperlink');
 
         $repair->save();
-
-
     }
 
     public function repair(Request $request)
@@ -332,7 +322,6 @@ class EquipmentController extends Controller
             ]));
 
             return back()->with('message', 'Запись успешно добавлена.');
-
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -347,7 +336,6 @@ class EquipmentController extends Controller
             'description' => 'nullable|min:3|max:200',
         ]);
         $repair->update($request->all());
-
     }
     public function destroyRepair($id)
     {
@@ -513,7 +501,6 @@ class EquipmentController extends Controller
             ]));
 
             return back()->with('message', 'Запись успешно добавлена.');
-
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -625,9 +612,6 @@ class EquipmentController extends Controller
 
 
         EquipmentPrice::create(array_merge($validatedData, ['archive' => false]));
-
-
-
     }
 
     public function updatePrice(Request $request, $id)
@@ -645,8 +629,6 @@ class EquipmentController extends Controller
         ]);
 
         $price->update($validatedData);
-
-
     }
     public function destroyPrice($id)
     {
@@ -669,7 +651,6 @@ class EquipmentController extends Controller
         $repair->hyperlink = $request->input('hyperlink');
 
         $repair->save();
-
     }
 
     /**
@@ -706,7 +687,6 @@ class EquipmentController extends Controller
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts' => $equipment_sizes_counts
         ]);
-
     }
 
     public function storeLocation(Request $request)
@@ -716,8 +696,6 @@ class EquipmentController extends Controller
         ]);
 
         EquipmentLocation::create($request->all());
-
-
     }
     public function deleteLocation($id)
     {
@@ -728,7 +706,6 @@ class EquipmentController extends Controller
 
 
         return redirect()->route('equip.index')->with('success', 'Локация успешно удалена.');
-
     }
 
     /**
@@ -781,7 +758,6 @@ class EquipmentController extends Controller
                 ]);
                 $validatedData = array_merge($validatedData, $extraData); // Merge extra data
                 break;
-
         }
 
 
@@ -880,7 +856,6 @@ class EquipmentController extends Controller
                 ]);
                 $validatedData = array_merge($validatedData, $extraData);
                 break;
-
         }
 
 
@@ -888,7 +863,6 @@ class EquipmentController extends Controller
 
 
         return redirect()->route('equip.index')->with('success', 'Оборудование успешно обновлено.');
-
     }
 
     /**
@@ -921,7 +895,6 @@ class EquipmentController extends Controller
 
         $equipment->location_id = $location->id;
         $equipment->save();
-
     }
 
     public function move(Request $request)
@@ -964,7 +937,7 @@ class EquipmentController extends Controller
             })
             ->value('location_id');
 
-        $equipment_location_found = EquipmentLocation::where('id',$equipment_location)->first();
+        $equipment_location_found = EquipmentLocation::where('id', $equipment_location)->first();
 
 
 
@@ -1029,7 +1002,6 @@ class EquipmentController extends Controller
             ]));
 
             return back()->with('message', 'Запись успешно добавлена.');
-
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
