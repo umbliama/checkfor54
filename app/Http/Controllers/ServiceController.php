@@ -101,7 +101,6 @@ class ServiceController extends Controller
             ->get()
             ->groupBy('contragent_id')
             ->map(function ($services, $contragentId) {
-                // Fetch ServiceContragent for this contragent_id
                 $serviceContragent = ServiceContragent::where('contragent_id', $contragentId)->get();
                 return [
                     'services' => $services->map(function ($service) {
