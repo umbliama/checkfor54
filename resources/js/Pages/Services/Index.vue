@@ -54,7 +54,7 @@ const props = defineProps({
     contragentsServiceData: Array
 });
 
-const contragentId = ref(null);
+    const contragentId = ref(null);
 
 
 
@@ -141,13 +141,14 @@ const calcFullIncome = () => {
                     }
                     result[contragentId] += service.full_income;
                 }
-            }   
+            }
         }
     }
 
 
     return result;
 };
+
 
 const filterDatesInActive = computed(() => {
     const raw = toRaw(props.services.data)
@@ -190,9 +191,43 @@ const getMonthNumber = (month) => {
         'dec': 11
     };
     return months[month] ?? null;
-}
+};
 
-const updateMonth = (month) => {
+const normalizeMonth = (month) => {
+    if (typeof month === 'string') {
+        const numericMonth = getMonthNumber(month.toLowerCase());
+        if (numericMonth !== null) {
+            return String(numericMonth + 1).padStart(2, '0');
+        }
+    } else if (typeof month === 'number') {
+        if (month >= 1 && month <= 12) {
+            return String(month).padStart(2, '0');
+        }
+    }
+    return null; 
+};
+
+const filteredServices = (month) => {
+    const formattedMonth = normalizeMonth(month);
+
+    const dataArray = Object.values(props.activeServices.data || {});
+
+    if (month === 0 || formattedMonth === null) {
+        return dataArray;
+    }
+
+    return dataArray.filter(service => {
+        if (service.contragent_data && service.contragent_data.length > 0) {
+            const shippingDate = service.contragent_data[0].shipping_date;
+            const dateParts = shippingDate.split('-');
+            if (dateParts.length === 3) {
+                const monthPart = dateParts[1];
+                return monthPart === formattedMonth;
+            }
+        }
+        return false;
+    });
+}; const updateMonth = (month) => {
     store.dispatch('services/updateSelectedMonth', month)
 }
 const showSubservices = ref({});
@@ -368,7 +403,8 @@ function openEditDialog(id) {
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(service, index) in selectedActive ? activeServices.data : services.data"
+                        <AccordionItem
+                            v-for="(service, index) in selectedActive ? filteredServices(getMonth) : services.data"
                             :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
@@ -377,7 +413,7 @@ function openEditDialog(id) {
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
-                                    {{ nameContragent(index) }}
+                                    {{ nameContragent(service.services[0].contragent_id) }}
                                     <AccordionTrigger class="shrink-0 group ml-3">
                                         <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

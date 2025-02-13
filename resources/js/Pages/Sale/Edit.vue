@@ -38,6 +38,8 @@ const props = defineProps({
 
 const is_dialog_open = ref(false);
 
+const sale_states = ref([]);
+
 const chosenEquipmentId = ref(null);
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
 const activeTab = computed(() => store.getters['sale/getActiveTab']);
@@ -125,7 +127,10 @@ const showModal = (value) => {
     store.dispatch('services/updateModalShown', value)
 }
 
+const originalSaleEquip = ref(null);
+
 onMounted(() => {
+    originalSaleEquip.value = [...props.saleEquip]
     store.dispatch('sale/updateEditorMode', true)
     for (let item of props.saleEquip) {
         item.subRows = 0;
@@ -157,6 +162,22 @@ const addSubEquipment = (id, data) => {
     }
 }
 
+
+const removeEquipment = (id, equipId) => {
+    if (originalSaleEquip.value[id] === props.saleEquip[id]) {
+        router.delete('/sale/deleteEquipment', { data: { id: equipId } })
+    }else{
+        props.saleEquip.splice(id,1);
+    }
+}
+const removeSubEquipment = (id, equipId) => {
+    if (originalSaleEquip.value[id] === props.saleEquip[id]) {
+        router.delete('/sale/deleteSubEquipment', { data: { id: equipId } })
+    }else{
+        props.saleEquip[id].subequipment.splice(id,1);
+    }
+}
+
 watch(activeMainEquipmentId, async (newValue) => {
     const equipment = selectedEquipment.value.find(eq => eq.id === newValue)
     if (equipment) {
@@ -173,6 +194,8 @@ watch(activeMainEquipmentId, async (newValue) => {
                     subRows:0
                 }
                 props.saleEquip.push(equipment)
+                sale_states.value.push('item-'+equipment.id);
+
 
             } catch (error) {
                 console.error("Ошибка загрузки оборудования:", error);
@@ -283,6 +306,7 @@ function submit() {
         contragent_id: props.sale.contragent_id,
         sale_number: props.sale.sale_number,
         sale_date: props.sale.sale_date,
+        commentary: props.sale.commentary,
         status: props.sale.status,
         price: props.sale.price,
         equipment: formattedRequestObject,
@@ -394,7 +418,7 @@ const updateActiveTab = (tab) => {
                             flex items-center mt-2 text-sm rounded-lg overflow-hidden bg-white
                             lg:w-[calc(50%-9px)] lg:mt-0 lg:text-basew-auto lg:bg-[#F3F3F8]
                         ">
-                        <input v-model="form.commentary" type="text"
+                        <input v-model="sale.commentary" type="text"
                             class="block grow p-2 w-[177px] h-9 rounded-lg bg-inherit" />
                     </div>
                 </label>
@@ -521,7 +545,7 @@ const updateActiveTab = (tab) => {
                                                 <DropdownMenuItem>
                                                     <button type="button"
                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                        Укомплектовать
+                                                        Укомплектовать1
                                                         <svg class="block ml-2" width="16" height="16"
                                                             viewBox="0 0 16 16" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -541,8 +565,8 @@ const updateActiveTab = (tab) => {
                                 </DropdownMenuRoot>
                             </div>
                         </div>
-                        <AccordionRoot v-for="(item, index) in saleEquip" type="multiple" :collapsible="true">
-                            <AccordionItem value="some-id-1">
+                        <AccordionRoot  v-model="sale_states" v-for="(item, index) in saleEquip" type="multiple" :collapsible="true">
+                            <AccordionItem :value="'item-' + item.id">
                                 <AccordionHeader>
                                     <div
                                         class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -639,21 +663,22 @@ const updateActiveTab = (tab) => {
                                                                     </svg>
                                                                 </button>
                                                             </DropdownMenuItem>
-                                                            <!-- <DropdownMenuItem>
-                                                                <Link
-                                                                    :href="route('services.destroy', selectedEquipmentService.id)"
-                                                                    method="DELETE"
-                                                                    class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
-                                                                Удалить
-                                                                <svg class="block ml-2" width="16" height="16"
-                                                                    viewBox="0 0 16 16" fill="none"
-                                                                    xmlns="http://www.w3.org/2000/svg">
-                                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                        d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
-                                                                        fill="currentColor" />
-                                                                </svg>
-                                                                </Link>
-                                                            </DropdownMenuItem> -->
+                                                            <DropdownMenuItem>
+                                                                <button type="button" @click="removeEquipment(index,item.id)"
+                                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                    Удалить {{ index }}
+                                                                    <svg class="block ml-2" width="16" height="16"
+                                                                        viewBox="0 0 16 16" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path
+                                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                            fill="#464F60" />
+                                                                        <path
+                                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                            fill="#464F60" />
+                                                                    </svg>
+                                                                </button>
+                                                            </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </transition>
                                                 </DropdownMenuPortal>
@@ -731,7 +756,23 @@ const updateActiveTab = (tab) => {
                                                             <DropdownMenuItem>
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                    Укомплектовать
+                                                                    Укомплектовать 
+                                                                    <svg class="block ml-2" width="16" height="16"
+                                                                        viewBox="0 0 16 16" fill="none"
+                                                                        xmlns="http://www.w3.org/2000/svg">
+                                                                        <path
+                                                                            d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                            fill="#464F60" />
+                                                                        <path
+                                                                            d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                            fill="#464F60" />
+                                                                    </svg>
+                                                                </button>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <button type="button" @click="removeSubEquipment(index,subItem.id)"
+                                                                    class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                    Удалить 
                                                                     <svg class="block ml-2" width="16" height="16"
                                                                         viewBox="0 0 16 16" fill="none"
                                                                         xmlns="http://www.w3.org/2000/svg">
@@ -752,7 +793,7 @@ const updateActiveTab = (tab) => {
                                     </div>
 
                                 </AccordionContent>
-                                <div v-if="item.subRows > 0" v-for="item in item.subRows"
+                                <div v-if="item.subRows > 0" v-for="item in item.subRows - item.subequipment.length"
                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                                     <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                         <UiHyperlink v-if="selectedEquipmentService"

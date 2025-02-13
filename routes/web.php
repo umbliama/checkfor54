@@ -145,6 +145,9 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::delete('/sale/delete/{id}', [SaleController::class, 'destroy'])->name('sale.destroy');
     Route::get('/sale/edit/{id}', [SaleController::class, 'edit'])->name('sale.edit');
     Route::put('/sale/update/{id}', [SaleController::class, 'update'])->name('sale.update');
+    Route::post('/sale/setContragentServiceData', [SaleController::class, 'setContragentSaleData'])->name('sale.setContragentSaleData');
+    Route::delete('/sale/deleteEquipment', [SaleController::class, 'deleteEquipment'])->name('sale.deleteEquipment');
+    Route::delete('/sale/deleteSubEquipment', [SaleController::class, 'deleteSubEquipment'])->name('sale.deleteSubEquipment');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

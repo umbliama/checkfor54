@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Contragents;
 use App\Models\ContrSale;
+use App\Models\SaleContragent;
 use App\Models\SaleExtra;
 use App\Models\SaleSub;
 use App\Models\Equipment;
@@ -28,22 +29,36 @@ class SaleController extends Controller
             'saleEquipment.equipment',
             'saleEquipment.equipment.category',
             'saleEquipment.equipment.size',
+            'saleEquipment.equipment.directory',
             'saleEquipment.subequipment',
             'saleEquipment.subequipment.equipment',
             'saleEquipment.subequipment.equipment.category',
             'saleEquipment.subequipment.equipment.size',
             'directory'
-        ])->get()->map(function ($sale) {
+        ])->get();
+
+        $sales->transform(function ($sale) {
             if (isset($sale->directory['files'])) {
                 $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
             }
             return $sale;
         });
 
-    
-
-        $contragents_names = Contragents::all();
         $groupedSales = $sales->groupBy('contragent_id');
+
+        $groupedSales = $groupedSales->map(function ($sales, $contragentId) {
+            $serviceContragent = SaleContragent::where('contragent_id', $contragentId)->get();
+            return [
+                'sales' => $sales->map(function ($sale) {
+                    if (isset($sale->directory['files'])) {
+                        $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+                    }
+                    return $sale;
+                }),
+                'contragent_data' => $serviceContragent
+            ];
+        });
+        $contragents_names = Contragents::all();
         $perPage = 10;
         $currentPage = request()->get('page', 1);
         $pagedData = $groupedSales->forPage($currentPage, $perPage);
@@ -96,6 +111,7 @@ class SaleController extends Controller
             'sale_number' => "required|string",
             'sale_date' => "required|date",
             'status' => "in:credit,full,pred",
+            'commentary' => 'nullable|string',
             'equipment' => 'required|array',
             'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
             'equipment.*.commentary' => 'nullable|string',
@@ -114,7 +130,8 @@ class SaleController extends Controller
             'sale_number',
             'sale_date',
             'status',
-            'price'
+            'price',
+            'commentary'
         ]));
 
         foreach ($request->equipment as $equipmentData) {
@@ -172,7 +189,7 @@ class SaleController extends Controller
 
         $sale->save();
 
-        
+
 
 
         return redirect()->route('sale.index')->with('success', 'Service created successfully.');
@@ -254,6 +271,7 @@ class SaleController extends Controller
             'sale_number' => "nullable|string",
             'sale_date' => "nullable|date",
             'status' => "in:credit,full,pred",
+            'commentary' => 'nullable|string',
             'equipment' => 'nullable|array',
             'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
             'equipment.*.commentary' => 'nullable|string',
@@ -273,7 +291,8 @@ class SaleController extends Controller
             'sale_number',
             'sale_date',
             'status',
-            'price'
+            'price',
+            'commentary'
         ]));
 
         foreach ($request->equipment as $equipmentData) {
@@ -348,12 +367,12 @@ class SaleController extends Controller
                 }
             }
         }
-        
+
 
 
     }
 
-    public function setContSale(Request $request,$saleId)
+    public function setContSale(Request $request, $saleId)
     {
         $contrSale = ContrSale::where('sale_id', $saleId)->get();
 
@@ -384,14 +403,52 @@ class SaleController extends Controller
 
             'hyperlink' => 'required|string'
         ]);
-
         $repair = Sale::find($id);
 
         $repair->hyperlink = $request->input('hyperlink');
-
         $repair->save();
 
     }
+    public function setContragentSaleData(Request $request)
+    {
+
+        try {
+            $contragent_id = $request->input('contragent_id');
+            $commentary = $request->input('commentary');
+            $shipping_date = $request->input('shipping_date');
+            $found = SaleContragent::where('contragent_id', $contragent_id)->first();
+            if ($found) {
+                $found->update([
+                    'contragent_id' => $contragent_id,
+                    'commentary' => $commentary,
+                    'shipping_date' => $shipping_date
+                ]);
+            } else {
+                SaleContragent::create([
+                    'contragent_id' => $contragent_id,
+                    'commentary' => $commentary,
+                    'shipping_date' => $shipping_date
+                ]);
+            }
+
+
+            return back()->with('message', 'Данные обновлены');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function deleteEquipment(Request $request) 
+    {
+        $id = $request->input('id');
+
+        SaleEquip::find($id)->delete();
+    }
     
+    public function deleteSubEquipment(Request $request) 
+    {
+        $id = $request->input('id');
+        SaleSub::find($id)->delete();
+    }
 
 }

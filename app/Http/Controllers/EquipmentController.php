@@ -180,7 +180,6 @@ class EquipmentController extends Controller
         $request->validate([
             'hyperlink' => 'required|string'
         ]);
-
         // Find the equipment by its id
         $equipment = Equipment::find($id);
 
@@ -191,6 +190,7 @@ class EquipmentController extends Controller
 
         // Update the hyperlink field
         $equipment->hyperlink = $request->input('hyperlink');
+
         $equipment->save();
     }
 
