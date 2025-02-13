@@ -34,6 +34,7 @@ import {Menu, MenuItems, MenuItem, MenuButton} from '@headlessui/vue'
 import {EquipMenuItems} from "../../../constants/index.js";
 import UiCheckbox from "@/Components/Ui/UiCheckbox.vue";
 import UiField from "@/Components/Ui/UiField.vue";
+import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 
 const is_location_dialog_open = ref(false);
 const changeLocationItemId = ref(null);
@@ -330,18 +331,19 @@ onMounted(() => {
                     </PopoverTrigger>
                     <PopoverPortal>
                         <PopoverContent
-                            class="min-w-[var(--radix-popper-anchor-width)] py-4 px-3 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
-                            <ul class="space-y-2.5">
-                                <li>
-                                    <UiCheckbox label="Фильтр 1"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 2"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 3"/>
-                                </li>
-                            </ul>
+                        align="end"
+                            class="min-w-[var(--radix-popper-anchor-width)] py-4 px-3 space-y-4 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
+                            <div>
+                                <label>Стоимость</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2">
+                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'До' }" />
+                                </div>
+                            </div>
+
+                            <UiFieldSelect size="sm" label="Состояние" :items="[ { title: 'Пункт 1', value: 'point_1' }, { title: 'Пункт 2', value: 'point_2' } ]" only-value />
+                            <UiFieldSelect size="sm" label="Производитель" :items="[ { title: 'Пункт 1', value: 'point_1' }, { title: 'Пункт 2', value: 'point_2' } ]" only-value />
+                            <UiField class="w-full" size="sm" label="Примечание" />
                         </PopoverContent>
                     </PopoverPortal>
                 </PopoverRoot>
@@ -375,18 +377,18 @@ onMounted(() => {
                     </PopoverTrigger>
                     <PopoverPortal>
                         <PopoverContent
-                            class="min-w-[137px] py-4 px-3 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
-                            <ul class="space-y-2.5">
-                                <li>
-                                    <UiCheckbox label="Фильтр 1"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 2"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 3"/>
-                                </li>
-                            </ul>
+                            class="min-w-[137px] py-4 px-3 space-y-4 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
+                            <div>
+                                <label>Стоимость</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2">
+                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'До' }" />
+                                </div>
+                            </div>
+
+                            <UiFieldSelect size="sm" label="Состояние" :items="[ { title: 'Пункт 1', value: 'point_1' }, { title: 'Пункт 2', value: 'point_2' } ]" only-value />
+                            <UiFieldSelect size="sm" label="Производитель" :items="[ { title: 'Пункт 1', value: 'point_1' }, { title: 'Пункт 2', value: 'point_2' } ]" only-value />
+                            <UiField class="w-full" size="sm" label="Примечание" />
                         </PopoverContent>
                     </PopoverPortal>
                 </PopoverRoot>
