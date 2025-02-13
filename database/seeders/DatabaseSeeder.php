@@ -15,10 +15,10 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             EquipmentSeeder::class,
             ContragentsTableSeeder::class,
-            // MoveSeeder::class,
+            MoveSeeder::class,
             // TestsRepairsSeeder::class,
-            // SaleSeeder::class,
-            // ServiceSeeder::class
+            SaleSeeder::class,
+            ServiceSeeder::class
         ]);
     }
 }
