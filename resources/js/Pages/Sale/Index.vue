@@ -327,9 +327,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                         <AccordionItem v-for="(service, index) in filteredSales(getMonth)" :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
-                                    <UiHyperlink :item-id="2" :hyperlink="'some.ru'" endpoint="/equipment" />
-                                </div>
+                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
                                     {{ nameContragent(index) }}
@@ -554,13 +552,13 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                 <AccordionRoot type="multiple" :collapsible="true">
                                     <AccordionItem v-for="subservice in service.sales" :value="'item-' + subservice.id">
                                         <AccordionHeader
-                                            class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                            class="flex border-b border-b-gray3 bg-[#FBE9EA] [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                 <UiHyperlink :item-id="subservice.id" :hyperlink="subservice.hyperlink"
                                                     endpoint="/equipment/sale" />
                                             </div>
                                             <div
-                                                class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-[#DA1E28]">
                                                 Продажа № {{ subservice.sale_number }}
 
                                                 <AccordionTrigger class="shrink-0 group ml-3">
@@ -779,6 +777,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                     :value="'item-' + equip.id">
                                                     <AccordionHeader
                                                         class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                        <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                         <div
                                                             class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                             <UiHyperlink :item-id="equip.equipment.id" :hyperlink="equip.equipment.hyperlink"
@@ -786,7 +785,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                         </div>
                                                         
                                                         <div
-                                                            class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                            class="shrink-0 flex items-center justify-between w-[calc(15.84%-44px)] py-2.5 px-2 !border-l-violet-full">
                                                             {{ equip.equipment.category.name }} {{
                                                                 equip.equipment.size.name }} {{ equip.equipment.series }}
                                                             <AccordionTrigger class="shrink-0 group ml-3">
@@ -997,13 +996,14 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                         <div v-for="subequip in equip.subequipment"
                                                             :value="'item-' + subequip.id"
                                                             class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                            <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
                                                                     endpoint="/equipment" />
                                                             </div>
                                                             <div
-                                                                class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                                class="shrink-0 flex items-center w-[calc(15.84%-44px)] py-2.5 px-2 !border-l-[#F1C21B]">
                                                                 {{ subequip.equipment.category.name }} {{
                                                                     subequip.equipment.size.name }} {{
                                                                     subequip.equipment.series }}

@@ -406,11 +406,8 @@ function openEditDialog(id) {
                         <AccordionItem
                             v-for="(service, index) in selectedActive ? filteredServices(getMonth) : services.data"
                             :value="'item-' + index">
-                            <AccordionHeader
-                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.ы5 px-2">
-                                    <UiHyperlink :item-id="2" :hyperlink="'some.ru'" endpoint="/equipment" />
-                                </div>
+                            <AccordionHeader class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
                                     {{ nameContragent(service.services[0].contragent_id) }}
@@ -639,13 +636,13 @@ function openEditDialog(id) {
                                     <AccordionItem v-for="(service_item, index) in service.services"
                                         :value="'item-' + service_item.id">
                                         <AccordionHeader
-                                            class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                            class="flex border-b border-b-gray3 bg-[#FBE9EA] [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
                                                     endpoint="/equipment" />
                                             </div>
                                             <div
-                                                class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-[#DA1E28]">
                                                 Аренда №{{ service_item.service_number }}
 
                                                 <AccordionTrigger class="shrink-0 group ml-3">
@@ -867,13 +864,14 @@ function openEditDialog(id) {
                                                     :value="'item-' + subservice.id">
                                                     <AccordionHeader
                                                         class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                        <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                         <div
                                                             class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                             <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
                                                                 endpoint="/equipment" />
                                                         </div>
                                                         <div
-                                                            class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                            class="shrink-0 flex items-center justify-between w-[calc(15.84%-44px)] py-2.5 px-2 !border-l-violet-full">
                                                             {{ subservice.equipment.category.name }}
                                                             {{ subservice.equipment.size.name }}
                                                             {{ subservice.equipment.series }}
@@ -1099,13 +1097,14 @@ function openEditDialog(id) {
                                                         <div v-for="(sub, index) in subservice.service_subs"
                                                             :value="'item-' + service.id"
                                                             class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                            <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                                 <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
                                                                     endpoint="/equipment" />
                                                             </div>
                                                             <div
-                                                                class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
+                                                                class="shrink-0 flex items-center w-[calc(15.84%-44px)] py-2.5 px-2 !border-l-[#F1C21B]">
                                                                 {{ sub.equipment.category.name }} {{
                                                                     sub.equipment.size.name }} {{
                                                                     sub.equipment.series }}
