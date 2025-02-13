@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('test_id')->nullable();
             $table->foreignId('repair_id')->nullable();
             $table->foreignId('price_id')->nullable();
-            $table->json('files')->nullable();
+            $table->string('file_path')->nullable();
             $table->text('commentary')->nullable();
         });
     }

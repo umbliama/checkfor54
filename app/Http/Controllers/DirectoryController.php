@@ -44,51 +44,35 @@ class DirectoryController extends Controller
      */
     public function store(Request $request, $type, $id)
     {
-        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair','price'];
+        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair', 'price'];
         if (!in_array($type, $allowedTypes)) {
             return response()->json(['error' => 'Invalid directory type'], 400);
         }
     
-        $directory = Directory::where($type . '_id', $id)->first();
-    
         $validatedData = $request->validate([
             'files.*' => 'nullable|file',
-            'commentary' => 'required',
+            'commentary' => 'required|string',
         ]);
-    
-        $fileUrls = [];
     
         if ($request->hasFile('files')) {
             $uploadedFiles = $request->file('files');
     
             foreach ($uploadedFiles as $file) {
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filePath = 'files/' . $fileName;
+    
                 $file->move(public_path('files'), $fileName);
-                $fileUrls[] = 'files/' . $fileName;
+    
+                Directory::create([
+                    $type . '_id' => $id,
+                    'file_path' => $filePath,
+                    'commentary' => $validatedData['commentary'],
+                ]);
             }
         }
     
-        if ($directory) {
-            $existingFiles = json_decode($directory->files, true) ?? [];
-    
-            $allFiles = array_merge($existingFiles, $fileUrls);
-    
-            $directory->update(array_merge($validatedData, [
-                $type . '_id' => $id,
-                'files' => json_encode($allFiles),
-            ]));
-    
-            return redirect()->back()->with('success', 'Directory updated successfully!');
-        } else {
-            $directory = Directory::create(array_merge($validatedData, [
-                $type . '_id' => $id,
-                'files' => json_encode($fileUrls),
-            ]));
-    
-            return redirect()->back()->with('success', 'Directory created successfully!');
-        }
-    }
-    
+        return redirect()->back()->with('success', 'Files uploaded successfully!');
+    }    
     /**
      * Display the specified resource.
      */
