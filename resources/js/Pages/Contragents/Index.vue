@@ -45,22 +45,12 @@ const sortBy = computed(() => store.getters['contragent/getSortBy']);
 const sortedContragets = computed(() => {
     let target_contragents = null;
 
-    if (getActiveMenuLink.value === 'all') {
-        target_contragents = props.contragents;
-    } else if (getActiveMenuLink.value === 'customers') {
-        target_contragents = props.contragents_customers;
-    } else if (getActiveMenuLink.value === 'suppliers') {
-        target_contragents = props.contragents_suppliers;
-    }
+    if (getActiveMenuLink.value === 'all') target_contragents = props.contragents;
+    if (getActiveMenuLink.value === 'customers') target_contragents = props.contragents_customers;
+    if (getActiveMenuLink.value === 'suppliers') target_contragents = props.contragents_suppliers;
 
-    if (!target_contragents || !target_contragents.data) {
-        return [];
-    }
-
-    const dataCopy = target_contragents.data.slice();
-
-    return dataCopy.sort((a, b) => {
-        let result = 0;
+    return target_contragents.data.slice().sort((a, b) => {
+        let result = false;
 
         if (sortBy.value === 'name') {
             result = a.name.localeCompare(b.name);
@@ -69,11 +59,12 @@ const sortedContragets = computed(() => {
         }
 
         if (sortOrder.value === 'desc') {
-            result *= -1; 
+            result = !result;
         }
 
         return result;
     });
+
 });
 
 watchEffect(() => {
