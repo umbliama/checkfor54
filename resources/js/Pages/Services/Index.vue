@@ -54,25 +54,10 @@ const props = defineProps({
     contragentsServiceData: Array
 });
 
-    const contragentId = ref(null);
+const contragentId = ref(null);
 
 
 
-const months = {
-    all: 'Все',
-    jan: 'Январь',
-    feb: 'Февраль',
-    mar: 'Март',
-    apr: 'Апрель',
-    may: 'Май',
-    jun: 'Июнь',
-    jul: 'Июль',
-    aug: 'Август',
-    sep: 'Сентябрь',
-    oct: 'Октябрь',
-    nov: 'Ноябрь',
-    dec: 'Декабрь',
-};
 
 const form = reactive({
     'hyperlink': null
@@ -101,30 +86,7 @@ const plusYear = () => {
     store.dispatch('services/updateIncSelectedYear');
 }
 
-const filterDatesActive = computed(() => {
-    const raw = toRaw(props.activeServices.data);
 
-    return raw.sort((a, b) => {
-        if (date_sort.value === 'asc') {
-            return new Date(a.service_date) - new Date(b.service_date);
-        } else {
-            return new Date(b.service_date) - new Date(a.service_date);
-        }
-    }).filter(service => {
-        const serviceDate = new Date(service.service_date);
-
-        if (!!start_date.value || !!end_date.value) return service.service_date > start_date.value && service.service_date < end_date.value;
-
-        if (!start_date.value && !end_date.value) {
-            const isYearMatch = serviceDate.getFullYear() == getYear.value;
-
-            const isMonthMatch = getMonth.value === 'all' || serviceDate.getMonth() === getMonthNumber(getMonth.value)
-
-            const isActive = service.active === 1;
-            return isYearMatch && isMonthMatch && isActive;
-        }
-    });
-});
 
 const calcFullIncome = () => {
     const result = {};
@@ -150,31 +112,6 @@ const calcFullIncome = () => {
 };
 
 
-const filterDatesInActive = computed(() => {
-    const raw = toRaw(props.services.data)
-
-    return raw.sort((a, b) => {
-        if (date_sort.value === 'desc') {
-            return new Date(b.service_date) - new Date(a.service_date);
-        } else {
-            return new Date(a.service_date) - new Date(b.service_date);
-        }
-    }).filter(service => {
-        const serviceDate = new Date(service.service_date);
-
-        if (!!start_date.value && !!end_date.value) {
-            return service.service_date > start_date.value && service.service_date < end_date.value;
-        } else {
-            const isYearMatch = serviceDate.getFullYear() == getYear.value;
-
-            const isMonthMatch = getMonth.value === 'all' || serviceDate.getMonth() === getMonthNumber(getMonth.value)
-
-            const isActive = service.active === 0;
-            return isYearMatch && isMonthMatch && isActive;
-        }
-    });
-})
-
 const getMonthNumber = (month) => {
     const months = {
         'jan': 0,
@@ -192,6 +129,21 @@ const getMonthNumber = (month) => {
     };
     return months[month] ?? null;
 };
+const months = {
+    all: 'Все',
+    jan: 'Январь',
+    feb: 'Февраль',
+    mar: 'Март',
+    apr: 'Апрель',
+    may: 'Май',
+    jun: 'Июнь',
+    jul: 'Июль',
+    aug: 'Август',
+    sep: 'Сентябрь',
+    oct: 'Октябрь',
+    nov: 'Ноябрь',
+    dec: 'Декабрь',
+};
 
 const normalizeMonth = (month) => {
     if (typeof month === 'string') {
@@ -204,30 +156,99 @@ const normalizeMonth = (month) => {
             return String(month).padStart(2, '0');
         }
     }
-    return null; 
+    return null;
 };
 
-const filteredServices = (month) => {
-    const formattedMonth = normalizeMonth(month);
+const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = 'asc') => {
+    const formattedMonth = normalizeMonth(month); // Normalize the month value
+    const dataArray = Object.values(props.activeServices.data || {}); // Get the data array
 
-    const dataArray = Object.values(props.activeServices.data || {});
-
-    if (month === 0 || formattedMonth === null) {
-        return dataArray;
-    }
-
-    return dataArray.filter(service => {
-        if (service.contragent_data && service.contragent_data.length > 0) {
-            const shippingDate = service.contragent_data[0].shipping_date;
-            const dateParts = shippingDate.split('-');
-            if (dateParts.length === 3) {
-                const monthPart = dateParts[1];
-                return monthPart === formattedMonth;
-            }
+    // Filter the services based on the provided criteria
+    const filteredArray = dataArray.filter(service => {
+        if (!service.contragent_data || service.contragent_data.length === 0) {
+            return false; // Skip if no contragent_data exists
         }
-        return false;
+
+        // Safely access shipping_date (may be null)
+        const shippingDate = service.contragent_data[0]?.shipping_date;
+
+        // If shipping_date is null, skip date-based filtering but still include the service
+        if (shippingDate !== null && typeof shippingDate !== 'undefined') {
+            const dateParts = shippingDate.split('-'); // Split into [YYYY, MM, DD]
+            if (dateParts.length !== 3) {
+                return false; // Invalid date format
+            }
+            const [serviceYear, serviceMonth, serviceDay] = dateParts.map(Number);
+
+            // Convert start_date and end_date to Date objects for comparison
+            const startDate = start_date.value ? new Date(start_date.value) : null;
+            const endDate = end_date.value ? new Date(end_date.value) : null;
+
+            // Convert service shipping date to a Date object
+            const serviceDate = new Date(serviceYear, serviceMonth - 1, serviceDay);
+
+            // Check if the service matches the provided filters
+            return (
+                // Filter by month and year if provided, or include all if month is "all"
+                (month === 'all' || !month || !year || (serviceMonth === Number(formattedMonth) && serviceYear === Number(year))) &&
+                // Filter by start_date if provided
+                (!startDate || serviceDate >= startDate) &&
+                // Filter by end_date if provided
+                (!endDate || serviceDate <= endDate)
+            );
+        } else {
+            // Include services with null shipping_date but skip date-based filtering
+            return true;
+        }
     });
-}; const updateMonth = (month) => {
+
+    // Sort the filtered array by the specified key
+    if (sortKey) { // Ensure sortKey is defined before sorting
+        return filteredArray.sort((a, b) => {
+            let valueA, valueB;
+
+            // Handle nested keys like "contragent_data[0].shipping_date"
+            if (sortKey.includes('.')) {
+                const keys = sortKey.split('.');
+                valueA = keys.reduce((obj, key) => obj?.[key], a);
+                valueB = keys.reduce((obj, key) => obj?.[key], b);
+            } else {
+                valueA = a[sortKey];
+                valueB = b[sortKey];
+            }
+
+            // Handle date comparisons for fields like "shipping_date"
+            if (sortKey === 'contragent_data[0].shipping_date') {
+                // Convert to Date objects, treating null/undefined as epoch start
+                valueA = isValidDate(valueA) ? new Date(valueA) : new Date(0);
+                valueB = isValidDate(valueB) ? new Date(valueB) : new Date(0);
+
+                console.log('Sorting by shipping_date:', valueA, valueB); // Debugging log
+            } else if (typeof valueA === 'string' && isValidDate(valueA)) {
+                // Convert other date strings to Date objects
+                valueA = new Date(valueA);
+                valueB = new Date(valueB);
+            }
+
+            // Determine the sort order
+            if (valueA < valueB) {
+                return sortOrder === 'asc' ? -1 : 1;
+            }
+            if (valueA > valueB) {
+                return sortOrder === 'asc' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+};
+
+function isValidDate(dateString) {
+    if (!dateString || typeof dateString !== 'string') return false;
+    const regex = /^\d{4}-\d{2}-\d{2}$/; // Matches YYYY-MM-DD format
+    return regex.test(dateString) && !isNaN(new Date(dateString).getTime());
+}
+
+const updateMonth = (month) => {
     store.dispatch('services/updateSelectedMonth', month)
 }
 const showSubservices = ref({});
@@ -404,7 +425,7 @@ function openEditDialog(id) {
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
                         <AccordionItem
-                            v-for="(service, index) in selectedActive ? filteredServices(getMonth) : services.data"
+                            v-for="(service, index) in selectedActive ? filteredServices(getMonth, getYear) : services.data"
                             :value="'item-' + index">
                             <AccordionHeader class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
@@ -596,7 +617,7 @@ function openEditDialog(id) {
                                                     <DropdownMenuItem>
                                                         <button type="button"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                            @click="openEditDialog(index)">
+                                                            @click="openEditDialog(service.services[0].contragent_id)">
                                                             Редактировать
                                                             <svg class="block ml-2" width="16" height="16"
                                                                 viewBox="0 0 16 16" fill="none"
@@ -638,8 +659,8 @@ function openEditDialog(id) {
                                         <AccordionHeader
                                             class="flex border-b border-b-gray3 bg-[#FBE9EA] [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
-                                                    endpoint="/equipment" />
+                                                <UiHyperlink :item-id="service_item.id"
+                                                    :hyperlink="service_item.hyperlink" endpoint="/equipment/service" />
                                             </div>
                                             <div
                                                 class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-[#DA1E28]">
@@ -867,7 +888,8 @@ function openEditDialog(id) {
                                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                         <div
                                                             class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                            <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
+                                                            <UiHyperlink :item-id="subservice.equipment.id"
+                                                                :hyperlink="subservice.equipment.hyperlink"
                                                                 endpoint="/equipment" />
                                                         </div>
                                                         <div
@@ -906,7 +928,8 @@ function openEditDialog(id) {
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                            <Link v-if="true" :href="'/directory/service/' + 2"
+                                                            <Link v-if="subservice.equipment.hyperlink"
+                                                                :href="'/directory/equipment/' + subservice.equipment.id"
                                                                 class="mr-3.5">
                                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -1100,7 +1123,8 @@ function openEditDialog(id) {
                                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                                <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
+                                                                <UiHyperlink :item-id="sub.equipment.id"
+                                                                    :hyperlink="sub.equipment.hyperlink"
                                                                     endpoint="/equipment" />
                                                             </div>
                                                             <div
@@ -1125,7 +1149,8 @@ function openEditDialog(id) {
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                                <Link v-if="true" :href="'/directory/service/' + 2"
+                                                                <Link v-if="true"
+                                                                    :href="'/directory/equipment/' + sub.equipment.id"
                                                                     class="mr-3.5">
                                                                 <svg width="24" height="24" viewBox="0 0 24 24"
                                                                     fill="none" xmlns="http://www.w3.org/2000/svg">
