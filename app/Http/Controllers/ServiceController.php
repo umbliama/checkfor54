@@ -251,7 +251,11 @@ class ServiceController extends Controller
                     'commentary' => $extraService['commentary'],
                     'price' => $extraService['price'],
                 ]);
-            }
+            }   
+
+            ServiceContragent::create([
+                'contragent_id' => $service->contragent_id,
+            ]);
 
             // Create Notification
             Notification::create([
@@ -269,15 +273,21 @@ class ServiceController extends Controller
 
     public function storeHyperLink(Request $request, $id)
     {
-        $request->validate([
-            'hyperlink' => 'required|string'
-        ]);
-
-        $service = Service::find($id);
-
-        $service->hyperlink = $request->input('hyperlink');
-
-        $service->save();
+        try{
+            $request->validate([
+                'hyperlink' => 'required|string'
+            ]);
+    
+            $service = Service::find($id);
+    
+            $service->hyperlink = $request->input('hyperlink');
+    
+            $service->save();
+            
+            return back()->with('message', 'Данные обновлены');
+        }catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function edit($id)

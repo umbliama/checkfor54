@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->foreignId('contragent_id')->constrained('contragents');
-            $table->string('commentary');
-            $table->date('shipping_date');
+            $table->string('commentary')->nullable();
+            $table->date('shipping_date')->nullable();
         });
     }
 
