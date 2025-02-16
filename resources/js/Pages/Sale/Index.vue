@@ -45,6 +45,7 @@ const page = usePage()
 const user = computed(() => page.props.auth.user)
 
 const chosenContragent = ref(null);
+const getYear = ref(new Date().getFullYear());
 
 const is_edit_dialog_open = ref(false);
 const contragent_to_edit = ref(null);
@@ -115,18 +116,29 @@ const normalizeMonth = (month) => {
             return String(month).padStart(2, '0');
         }
     }
-    return null; 
+    return null;
 };
 
-const filteredSales = (month) => {
+const filteredSales = (month, year) => {
     const formattedMonth = normalizeMonth(month);
-
     const dataArray = Object.values(props.sales.data || {});
 
     if (month === 0 || formattedMonth === null) {
+        if (year) {
+            return dataArray.filter(service => {
+                if (service.contragent_data && service.contragent_data.length > 0) {
+                    const shippingDate = service.contragent_data[0].shipping_date;
+                    const dateParts = shippingDate.split('-');
+                    if (dateParts.length === 3) {
+                        const yearPart = dateParts[0];
+                        return yearPart === year.toString();
+                    }
+                }
+                return false;
+            });
+        }
         return dataArray;
     }
-    
 
     return dataArray.filter(service => {
         if (service.contragent_data && service.contragent_data.length > 0) {
@@ -134,16 +146,28 @@ const filteredSales = (month) => {
             const dateParts = shippingDate.split('-');
             if (dateParts.length === 3) {
                 const monthPart = dateParts[1];
-                return monthPart === formattedMonth;
+                const yearPart = dateParts[0];
+
+                if (monthPart === formattedMonth) {
+                    if (year) {
+                        return yearPart === year.toString();
+                    }
+                    return true;
+                }
             }
         }
         return false;
     });
 };
-
 const updateMonth = (month) => {
     store.dispatch('services/updateSelectedMonth', month)
 }
+
+const changeYear = (action) => {
+    console.log(`Before change: ${getYear.value}`);
+    action === 'plus' ? getYear.value += 1 : getYear.value -= 1;
+    console.log(`After change: ${getYear.value}`);
+};
 const showSubservices = ref({});
 
 const toggleSubservice = (index) => {
@@ -190,7 +214,6 @@ const calcFullIncome = () => {
 
 
 const getMonth = computed(() => store.getters['services/getSelectedMonth']);
-const getYear = computed(() => store.getters['services/getSelectedYear']);
 const selectedActive = computed(() => store.getters['services/getSelectedActive']);
 
 
@@ -217,7 +240,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 <div class="font-bold text-sm text-gray1">Список проданного оборудования:</div>
 
                 <div class="flex space-x-4">
-                    <div @click.prevent="minusYear" class="flex ">
+                    <div @click.prevent="changeYear('minus')" class="flex ">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_2051_7507)">
                                 <rect x="24" width="24" height="24" rx="5" transform="rotate(90 24 0)" fill="#F7F9FC" />
@@ -237,7 +260,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                         <p class="mx-2">{{ getYear }}</p>
 
-                        <div @click.prevent="plusYear" class="flex">
+                        <div @click.prevent="changeYear('plus')" class="flex">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_2051_7512)">
@@ -324,7 +347,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(service, index) in filteredSales(getMonth)" :value="'item-' + index">
+                        <AccordionItem v-for="(service, index) in filteredSales(getMonth, getYear)"
+                            :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
@@ -351,17 +375,19 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div v-else class="shrink-0 flex items-center w-[14.08%]">
-                                    <input disabled  type="date"
-                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                    <input disabled type="date" class="block w-full h-full px-2 bg-transparent"
+                                        onclick="this.showPicker()" />
                                 </div>
-                                <div v-if="service.contragent_data[0]" class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                <div v-if="service.contragent_data[0]"
+                                    class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
                                     <input disabled v-model="service.contragent_data[0].commentary" type="text"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
 
-                                <div v-else class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                    <input disabled type="text"
-                                        class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
+                                <div v-else
+                                    class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
+                                    <input disabled type="text" class="block w-full h-full px-2 bg-transparent"
+                                        onclick="this.showPicker()" />
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 font-bold">
@@ -513,8 +539,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                     <DropdownMenuItem>
                                                         <button type="button"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                                            @click="openDialog({ contragent_id: service.contragent_data[0].contragent_id, shipping_date:'', commentary: '' })">
-                                                            Редактировать 
+                                                            @click="openDialog({ contragent_id: service.contragent_data[0].contragent_id, shipping_date: '', commentary: '' })">
+                                                            Редактировать
                                                             <svg class="block ml-2" width="16" height="16"
                                                                 viewBox="0 0 16 16" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -780,10 +806,11 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                         <div
                                                             class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                            <UiHyperlink :item-id="equip.equipment.id" :hyperlink="equip.equipment.hyperlink"
+                                                            <UiHyperlink :item-id="equip.equipment.id"
+                                                                :hyperlink="equip.equipment.hyperlink"
                                                                 endpoint="/equipment" />
                                                         </div>
-                                                        
+
                                                         <div
                                                             class="shrink-0 flex items-center justify-between w-[calc(15.84%-44px)] py-2.5 px-2 !border-l-violet-full">
                                                             {{ equip.equipment.category.name }} {{
@@ -806,7 +833,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                             </AccordionTrigger>
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[14.08%]">
-                                                            <input v-model="shipping_date" type="date"
+                                                            <input v-model="equip.shipping_date" type="date"
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div
@@ -819,7 +846,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                            <Link v-if="!equip.equipment.directory" :href="'/directory/equipment/' + equip.equipment.id"
+                                                            <Link v-if="!equip.equipment.directory"
+                                                                :href="'/directory/equipment/' + equip.equipment.id"
                                                                 class="mr-3.5">
                                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                                 xmlns="http://www.w3.org/2000/svg">
@@ -853,11 +881,13 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                     <PopoverContent side="bottom" align="end"
                                                                         class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                         <div>Комментарий:</div>
-                                                                        <p class="mt-2.5 text-xs">{{ equip.equipment.directory.commentary }}</p>
-                                                                        <div v-for="file in equip.equipment.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
+                                                                        <p class="mt-2.5 text-xs">{{
+                                                                            equip.equipment.directory.commentary }}</p>
+                                                                        <div v-for="file in equip.equipment.directory.files"
+                                                                            class="mt-3 p-4 bg-bg1 text-xs">
                                                                             <div class="flex items-center max-w-full">
                                                                                 <span
-                                                                                    class="grow block mr-auto text-ellipsis overflow-hidden">{{file}}</span>
+                                                                                    class="grow block mr-auto text-ellipsis overflow-hidden">{{ file }}</span>
                                                                                 <svg class="shrink-0 block ml-2"
                                                                                     width="20" height="20"
                                                                                     viewBox="0 0 24 24" fill="none"
@@ -929,7 +959,8 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                                 </DropdownMenuRoot>
                                                                             </div>
                                                                         </div>
-                                                                        <Link :href="'/directory/equipment/' +  equip.equipment.id"
+                                                                        <Link
+                                                                            :href="'/directory/equipment/' + equip.equipment.id"
                                                                             class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                         Редактировать
 

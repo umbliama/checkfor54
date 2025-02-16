@@ -93,7 +93,7 @@ class SaleController extends Controller
      */
     public function create()
     {
-        $contragents = Contragents::all();
+        $contragents = Contragents::with(['documents'])->get();
         $saleStatuses = Sale::getStatusesMapping();
         $extraServices = Sale::getExtraServices();
 
@@ -180,16 +180,18 @@ class SaleController extends Controller
             ]);
         }
 
-        ContrSale::create([
-            'contragent_id' => $sale->contragent_id,
-            'sale_id' => $sale->id
-        ]);
-
+   
         $sale->price = $full_income;
 
         $sale->save();
 
-
+        SaleContragent::create([
+            'contragent_id' => $sale->contragent_id,
+        ]);
+        ContrSale::create([
+            'contragent_id' => $sale->contragent_id,
+            'sale_id' => $sale->id
+        ]);
 
 
         return redirect()->route('sale.index')->with('success', 'Service created successfully.');

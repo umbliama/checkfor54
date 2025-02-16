@@ -38,6 +38,11 @@ const props = defineProps({
 const is_dialog_open = ref(false);
 const saleEquip = ref([])
 const rows = ref(saleEquip.value.length - 1);
+const chosenAgent = ref(null);
+const chosenContracts = ref([]);
+const setAgent = (id) => {
+    chosenAgent.value = id
+}
 
 const sale_states = ref([]);
 
@@ -60,6 +65,24 @@ const activeSubEquipmentId = computed(() => store.getters['sale/getActiveSubEqui
 
 const selectedServices = ref(new Array(subRowsCount.length).fill(null))
 
+const setContracts = (id) => {
+    const agent = props.contragents.find(eq => eq.id === id);
+    agent.documents.forEach(doc => {
+
+        const fileName = doc.file_path.split('/').pop().split('.')[0];
+        chosenContracts.value.push({ id: doc.id, name: toRaw(fileName) });
+    });
+}
+
+watch(chosenAgent, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            setContracts(newValue)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
 
 const calcServicesPrice = () => {
     let result = 0;
@@ -358,7 +381,7 @@ function submit() {
                                 <select v-model="form.contragent_id"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
                                     <option value="">Выберите</option>
-                                    <option v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
+                                    <option @click="setAgent(agent.id)" v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
                                 </select>
                             </div>
                         </label>
@@ -388,8 +411,7 @@ function submit() {
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:w-auto lg:text-base lg:bg-[#F3F3F8]">
                                 <select v-model="form.contract"
                                     class="block grow p-2 w-[186px] h-9 rounded-lg bg-inherit font-medium">
-                                    <option value="0" selected>Договор 0</option>
-                                    <option value="1">Договор 1</option>
+                                    <option v-for="item in chosenContracts" :value="item.id" selected>{{ item.name }}</option>
                                 </select>
                             </div>
                         </label>
