@@ -155,6 +155,7 @@ return [
         'fullname'    => 'полное имя',
         'inn'         => 'ИНН',
         'repair_date' => 'Дата ремонта',
+        'on_repair_date' => 'На сервисе',
         'size_id' => 'Размер',
         'service_date' => 'Дата',
         'service_number' => 'Номер аренды',
@@ -163,5 +164,9 @@ return [
         'equipment.0.shipping_date' => 'Дата отгрузки',
         'equipment.0.period_start_date' => 'Дата начала периода',
         'name' => 'Наименование',
+        'on_test_date' => 'Дата испытания',
+        'test_date' => 'Испытания',
+        'expense' => 'Расход',
+        'description' => 'Описание'
     ],
 ];
