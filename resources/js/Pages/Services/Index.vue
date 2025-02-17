@@ -158,37 +158,40 @@ const normalizeMonth = (month) => {
     }
     return null;
 };
-
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = 'asc') => {
     const formattedMonth = normalizeMonth(month);
     const dataArray = Object.values(props.activeServices.data || {}); 
 
     const filteredArray = dataArray.filter(service => {
         if (!service.contragent_data || service.contragent_data.length === 0) {
+            console.log('Skipping service with no contragent_data:', service.id);
             return false; 
         }
+
         const shippingDate = service.contragent_data[0]?.shipping_date;
+        console.log('Raw shipping_date:', shippingDate);
 
-        if (shippingDate !== null && typeof shippingDate !== 'undefined') {
-            const dateParts = shippingDate.split('-');
-            if (dateParts.length !== 3) {
-                return false; 
-            }
-            const [serviceYear, serviceMonth, serviceDay] = dateParts.map(Number);
-
-            const startDate = start_date.value ? new Date(start_date.value) : null;
-            const endDate = end_date.value ? new Date(end_date.value) : null;
-
-            const serviceDate = new Date(serviceYear, serviceMonth - 1, serviceDay);
-
-            return (
-                (month === 'all' || !month || !year || (serviceMonth === Number(formattedMonth) && serviceYear === Number(year))) &&
-                (!startDate || serviceDate >= startDate) &&
-                (!endDate || serviceDate <= endDate)
-            );
-        } else {
-            return true;
+        if (!shippingDate || !isValidDate(shippingDate)) {
+            console.log('Invalid or missing shipping_date:', shippingDate);
+            return false; 
         }
+
+        const dateParts = shippingDate.split('-');
+        if (dateParts.length !== 3) {
+            console.log('Invalid date parts:', dateParts);
+            return false; 
+        }
+
+        const [serviceYear, serviceMonth, serviceDay] = dateParts.map(Number);
+        const startDate = start_date.value ? new Date(start_date.value) : null;
+        const endDate = end_date.value ? new Date(end_date.value) : null;
+        const serviceDate = new Date(serviceYear, serviceMonth - 1, serviceDay);
+
+        return (
+            (month === 'all' || !month || !year || (serviceMonth === Number(formattedMonth) && serviceYear === Number(year))) &&
+            (!startDate || serviceDate >= startDate) &&
+            (!endDate || serviceDate <= endDate)
+        );
     });
 
     if (sortKey) { 
@@ -197,21 +200,33 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
 
             if (sortKey.includes('.')) {
                 const keys = sortKey.split('.');
-                valueA = keys.reduce((obj, key) => obj?.[key], a);
-                valueB = keys.reduce((obj, key) => obj?.[key], b);
+                valueA = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), a);
+                valueB = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), b);
+
+                console.log('Accessing nested key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
             } else {
                 valueA = a[sortKey];
                 valueB = b[sortKey];
+
+                console.log('Accessing flat key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
             }
 
             if (sortKey === 'contragent_data[0].shipping_date') {
-                valueA = isValidDate(valueA) ? new Date(valueA) : new Date(0);
-                valueB = isValidDate(valueB) ? new Date(valueB) : new Date(0);
+                valueA = isValidDate(valueA) ? new Date(valueA).getTime() : new Date(0).getTime(); 
+                valueB = isValidDate(valueB) ? new Date(valueB).getTime() : new Date(0).getTime();
+
+                console.log('Raw shipping_date (A):', valueA, 'Parsed:', new Date(valueA));
+                console.log('Raw shipping_date (B):', valueB, 'Parsed:', new Date(valueB));
 
                 console.log('Sorting by shipping_date:', valueA, valueB); 
             } else if (typeof valueA === 'string' && isValidDate(valueA)) {
-                valueA = new Date(valueA);
-                valueB = new Date(valueB);
+                valueA = new Date(valueA).getTime();
+                valueB = new Date(valueB).getTime();
+            }
+
+            if (valueA === undefined || valueB === undefined) {
+                console.warn('Undefined value encountered during sorting:', { valueA, valueB });
+                return 0; 
             }
 
             if (valueA < valueB) {
@@ -223,12 +238,26 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
             return 0;
         });
     }
+
+    return filteredArray;
 };
 
 function isValidDate(dateString) {
     if (!dateString || typeof dateString !== 'string') return false;
-    const regex = /^\d{4}-\d{2}-\d{2}$/; // Matches YYYY-MM-DD format
-    return regex.test(dateString) && !isNaN(new Date(dateString).getTime());
+
+    dateString = dateString.trim();
+    const regex = /^\d{4}-\d{2}-\d{2}$/; 
+    if (!regex.test(dateString)) return false;
+
+    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+
+    return (
+        !isNaN(date.getTime()) &&
+        date.getFullYear() === year &&
+        date.getMonth() + 1 === month &&
+        date.getDate() === day
+    );
 }
 
 const updateMonth = (month) => {
@@ -410,7 +439,8 @@ function openEditDialog(id) {
                         <AccordionItem
                             v-for="(service, index) in selectedActive ? filteredServices(getMonth, getYear) : services.data"
                             :value="'item-' + index">
-                            <AccordionHeader class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                            <AccordionHeader
+                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
@@ -868,7 +898,9 @@ function openEditDialog(id) {
                                                     :value="'item-' + subservice.id">
                                                     <AccordionHeader
                                                         class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                                        <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
+                                                        <div
+                                                            class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                                        </div>
                                                         <div
                                                             class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                             <UiHyperlink :item-id="subservice.equipment.id"
@@ -1103,7 +1135,9 @@ function openEditDialog(id) {
                                                         <div v-for="(sub, index) in subservice.service_subs"
                                                             :value="'item-' + service.id"
                                                             class="flex border-b border-b-gray3 bg-white [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                                            <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
+                                                            <div
+                                                                class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                                            </div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                                                 <UiHyperlink :item-id="sub.equipment.id"

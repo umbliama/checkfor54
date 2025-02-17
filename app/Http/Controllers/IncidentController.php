@@ -6,11 +6,12 @@ use App\Models\Column;
 use App\Models\Notification;
 use App\Models\Contragents;
 use App\Models\User;
-use File;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+
 
 class IncidentController extends Controller
 {
@@ -29,7 +30,7 @@ class IncidentController extends Controller
             ->where('isArchive', 0);
 
         // Query for Advertisements
-        $advQuery = Column::with('blocks.equipment.category', 'blocks.user', 'blocks.equipment.size', 'blocks.contragent', 'blocks.subequipment', 'blocks.subequipment.category', 'blocks.subequipment.size')
+        $advQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user'   )
             ->where('type', 'adv')
             ->where('isArchive', 0);
 
@@ -299,7 +300,6 @@ class IncidentController extends Controller
                 'employee_id' => $request->input('employee_id', $block->employee_id),
                 'equipment' => $request->input('equipment', $block->equipment),
             ]);
-
             if ($block->type == 'customer') {
                 $block->column()->update([
                     'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),

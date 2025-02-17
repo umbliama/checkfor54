@@ -119,6 +119,7 @@ const normalizeMonth = (month) => {
     return null;
 };
 
+
 const filteredSales = (month, year) => {
     const formattedMonth = normalizeMonth(month);
     const dataArray = Object.values(props.sales.data || {});
@@ -127,7 +128,10 @@ const filteredSales = (month, year) => {
         if (year) {
             return dataArray.filter(service => {
                 if (service.contragent_data && service.contragent_data.length > 0) {
-                    const shippingDate = service.contragent_data[0].shipping_date;
+                    const shippingDate = service.contragent_data[0]?.shipping_date; 
+                    if (!shippingDate) {
+                        return true; 
+                    }
                     const dateParts = shippingDate.split('-');
                     if (dateParts.length === 3) {
                         const yearPart = dateParts[0];
@@ -137,17 +141,19 @@ const filteredSales = (month, year) => {
                 return false;
             });
         }
-        return dataArray;
+        return dataArray; 
     }
 
     return dataArray.filter(service => {
         if (service.contragent_data && service.contragent_data.length > 0) {
-            const shippingDate = service.contragent_data[0].shipping_date;
+            const shippingDate = service.contragent_data[0]?.shipping_date;
+            if (!shippingDate) {
+                return true; 
+            }
             const dateParts = shippingDate.split('-');
             if (dateParts.length === 3) {
                 const monthPart = dateParts[1];
                 const yearPart = dateParts[0];
-
                 if (monthPart === formattedMonth) {
                     if (year) {
                         return yearPart === year.toString();
@@ -159,6 +165,7 @@ const filteredSales = (month, year) => {
         return false;
     });
 };
+
 const updateMonth = (month) => {
     store.dispatch('services/updateSelectedMonth', month)
 }
