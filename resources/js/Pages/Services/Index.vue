@@ -160,54 +160,41 @@ const normalizeMonth = (month) => {
 };
 
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = 'asc') => {
-    const formattedMonth = normalizeMonth(month); // Normalize the month value
-    const dataArray = Object.values(props.activeServices.data || {}); // Get the data array
+    const formattedMonth = normalizeMonth(month);
+    const dataArray = Object.values(props.activeServices.data || {}); 
 
-    // Filter the services based on the provided criteria
     const filteredArray = dataArray.filter(service => {
         if (!service.contragent_data || service.contragent_data.length === 0) {
-            return false; // Skip if no contragent_data exists
+            return false; 
         }
-
-        // Safely access shipping_date (may be null)
         const shippingDate = service.contragent_data[0]?.shipping_date;
 
-        // If shipping_date is null, skip date-based filtering but still include the service
         if (shippingDate !== null && typeof shippingDate !== 'undefined') {
-            const dateParts = shippingDate.split('-'); // Split into [YYYY, MM, DD]
+            const dateParts = shippingDate.split('-');
             if (dateParts.length !== 3) {
-                return false; // Invalid date format
+                return false; 
             }
             const [serviceYear, serviceMonth, serviceDay] = dateParts.map(Number);
 
-            // Convert start_date and end_date to Date objects for comparison
             const startDate = start_date.value ? new Date(start_date.value) : null;
             const endDate = end_date.value ? new Date(end_date.value) : null;
 
-            // Convert service shipping date to a Date object
             const serviceDate = new Date(serviceYear, serviceMonth - 1, serviceDay);
 
-            // Check if the service matches the provided filters
             return (
-                // Filter by month and year if provided, or include all if month is "all"
                 (month === 'all' || !month || !year || (serviceMonth === Number(formattedMonth) && serviceYear === Number(year))) &&
-                // Filter by start_date if provided
                 (!startDate || serviceDate >= startDate) &&
-                // Filter by end_date if provided
                 (!endDate || serviceDate <= endDate)
             );
         } else {
-            // Include services with null shipping_date but skip date-based filtering
             return true;
         }
     });
 
-    // Sort the filtered array by the specified key
-    if (sortKey) { // Ensure sortKey is defined before sorting
+    if (sortKey) { 
         return filteredArray.sort((a, b) => {
             let valueA, valueB;
 
-            // Handle nested keys like "contragent_data[0].shipping_date"
             if (sortKey.includes('.')) {
                 const keys = sortKey.split('.');
                 valueA = keys.reduce((obj, key) => obj?.[key], a);
@@ -217,20 +204,16 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
                 valueB = b[sortKey];
             }
 
-            // Handle date comparisons for fields like "shipping_date"
             if (sortKey === 'contragent_data[0].shipping_date') {
-                // Convert to Date objects, treating null/undefined as epoch start
                 valueA = isValidDate(valueA) ? new Date(valueA) : new Date(0);
                 valueB = isValidDate(valueB) ? new Date(valueB) : new Date(0);
 
-                console.log('Sorting by shipping_date:', valueA, valueB); // Debugging log
+                console.log('Sorting by shipping_date:', valueA, valueB); 
             } else if (typeof valueA === 'string' && isValidDate(valueA)) {
-                // Convert other date strings to Date objects
                 valueA = new Date(valueA);
                 valueB = new Date(valueB);
             }
 
-            // Determine the sort order
             if (valueA < valueB) {
                 return sortOrder === 'asc' ? -1 : 1;
             }
