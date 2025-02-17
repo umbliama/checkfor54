@@ -185,7 +185,7 @@ onMounted(() => {
                     {{ item.name }}
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            {{ location_counts[item.id] }}
+                            {{ location_counts[item.id] ?? 0}}
                         </span>
                     </li>
 

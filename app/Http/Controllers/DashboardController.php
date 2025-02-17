@@ -106,35 +106,24 @@ class DashboardController extends Controller
     public function rent(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
-
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
-
+        $contragents = Contragents::all();
+    
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
             $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
         }
-
-
+    
         $contragents = Contragents::all();
-
+    
         $category_id = $request->input('category_id');
         $size_id = $request->input('size_id');
         $perPage = $request->input('perPage', 10);
-
-
+    
         $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
-
-        $rented_equipment_query = Equipment::whereHas('serviceEquipment.services', function ($query) {
-            $query->where('active', 1);
-        })->with([
-            'serviceEquipment.services' => function ($query) {
-                $query->where('active', 1);
-            }
-        ])->whereDoesntHave('serviceEquipment.services', function ($query) {
-            $query->where('active', 0);
-        });
+    
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
@@ -142,16 +131,49 @@ class DashboardController extends Controller
                 ->where('category_id', $category_id)
                 ->count();
         }
-        if ($category_id) {
-            $rented_equipment_query->where('category_id', $category_id);
-        }
-
-        if ($size_id) {
-            $rented_equipment_query->where('size_id', $size_id);
-        }
-
-        $rented_equipment = $rented_equipment_query->paginate($perPage);
-        return Inertia::render('Dashboard/Rent', ['equipment_sizes_counts' => $equipment_sizes_counts, 'equipment_sizes' => $equipment_sizes, 'equipment_categories' => $equipment_categories, 'equipment_categories_counts' => $equipment_categories_counts, 'equipment_categories_counts_all' => $equipment_categories_counts_all, 'contragents' => $contragents, 'rented_equipment' => $rented_equipment]);
+    
+        $rented_services_paginated = Service::where('active', 1)
+            ->with([
+                'serviceEquipment.equipment',
+                'subservices'
+            ])
+            ->paginate($perPage);
+    
+        $rented_services_grouped = $rented_services_paginated->getCollection()
+            ->groupBy('contragent_id')
+            ->map(function ($services) {
+                return $services->map(function ($service) {
+                    return [
+                        'id' => $service->id,
+                        'service_number' => $service->service_number,
+                        'service_date' => $service->service_date,
+                        'equipment' => $service->serviceEquipment->map(function ($equipment) {
+                            return [
+                                'id' => $equipment->equipment->id,
+                                'name' => $equipment->equipment->name,
+                                'category' => $equipment->equipment->category->name ?? null,
+                            ];
+                        })->toArray(),
+                        'subservices' => $service->subservices->map(function ($subservice) {
+                            return [
+                                'id' => $subservice->id,
+                                'commentary' => $subservice->commentary,
+                            ];
+                        })->toArray(),
+                    ];
+                });
+            });
+    
+        return Inertia::render('Dashboard/Rent', [
+            'equipment_sizes_counts' => $equipment_sizes_counts,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_categories' => $equipment_categories,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_categories_counts_all' => $equipment_categories_counts_all,
+            'contragents' => $contragents,
+            'rented_equipment' => $rented_services_paginated,
+            'rented_services_grouped' => $rented_services_grouped,
+        ]);
     }
     public function free(Request $request)
     {
@@ -543,10 +565,10 @@ class DashboardController extends Controller
                 ->count()
                 +
                 ServiceSub::whereIn('subequipment_id', $category->equipment->pluck('id'))
-                ->whereHas('service', function ($query) {
-                    $query->where('active', 1);
-                })
-                ->count();
+                    ->whereHas('service', function ($query) {
+                        $query->where('active', 1);
+                    })
+                    ->count();
 
             $percent = ($totalEquipment > 0) ? round(($totalOnRent / $totalEquipment) * 100, 2) : 0;
 
@@ -609,22 +631,48 @@ class DashboardController extends Controller
 
         $contragents = Contragents::with(['documents'])->get();
 
-        $documents = ContrDocuments::with('contragent', 'user')->where('type', 'commercials')->get()->groupBy('contragent_id');
+        $translations = [
+            'commercials_incoming' => 'Входящий',
+            'commercials_outcoming' => 'Исходящий',
+            'commercials_tender' => 'Тендер',
+        ];
 
-        $KPcount = ContrDocuments::where('type', 'commercials')->count();
+        $documents = ContrDocuments::whereIn('type', ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'])
+            ->with('contragent', 'user')
+            ->get()
+            ->map(function ($item) use ($translations) {
+                $item->translatedType = $translations[$item->type] ?? 'Unknown Type';
+                return $item;
+            })
+            ->groupBy('contragent_id');
 
-        $dealsCount = ContrDocuments::where('type', 'commercials')->where('status', 1)->count();
+        $KPcount = ContrDocuments::whereIn('type', ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'])->count();
 
-        $dialogueCount = ContrDocuments::where('type', 'commercials')->where('status', 2)->count();
-        
-        $dialoguePercent = $KPcount > 0 ? ($dialogueCount / $KPcount) * 100 : 0;
-        
-        $noDealCount = ContrDocuments::where('type', 'commercials')->where('status', 3)->count();
-        
-        $percentDeals = $KPcount > 0 ? ($dealsCount / $KPcount) * 100 : 0;
-        
-        $documentCount = $documents->count();
+        $stats = ContrDocuments::whereIn('type', ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'])
+            ->selectRaw("
+        SUM(CASE WHEN type = 'commercials_incoming' THEN 1 ELSE 0 END) AS incomingCount,
+        SUM(CASE WHEN type = 'commercials_outcoming' THEN 1 ELSE 0 END) AS outcomingCount,
+        SUM(CASE WHEN type = 'commercials_tender' THEN 1 ELSE 0 END) AS tenderCount,
+        SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS dealsCount,
+        SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS dialogueCount,
+        SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS noDealCount
+    ")
+            ->first();
 
+        $incomingCount = $stats->incomingCount;
+        $outcomingCount = $stats->outcomingCount;
+        $tenderCount = $stats->tenderCount;
+        $dealsCount = $stats->dealsCount;
+        $dialogueCount = $stats->dialogueCount;
+        $noDealCount = $stats->noDealCount;
+
+        $incomingPercent = $KPcount > 0 ? number_format(($incomingCount / $KPcount) * 100, 1) : 0;
+        $outcomingPercent = $KPcount > 0 ? number_format(($outcomingCount / $KPcount) * 100, 1) : 0;
+        $tenderPercent = $KPcount > 0 ? number_format(($tenderCount / $KPcount) * 100, 1) : 0;
+        $dialoguePercent = $KPcount > 0 ? number_format(($dialogueCount / $KPcount) * 100, 1) : 0;
+        $percentDeals = $KPcount > 0 ? number_format(($dealsCount / $KPcount) * 100, 1) : 0;
+
+        $documentCount = $documents->flatten()->count();
         return Inertia::render('Dashboard/Commercial', [
             'documents' => $documents,
             'contragents' => $contragents,
@@ -634,7 +682,13 @@ class DashboardController extends Controller
             'noDealCount' => $noDealCount,
             'percentDeals' => $percentDeals,
             'documentCount' => $documentCount,
-            'dialoguePercent' => $dialoguePercent
+            'dialoguePercent' => $dialoguePercent,
+            'incomingPercent' => $incomingPercent, 
+            'outcomingPercent' => $outcomingPercent, 
+            'tenderPercent' => $tenderPercent, 
+            'incomingCount' => $incomingCount,
+            'outcomingCount' => $outcomingCount,  
+            'tenderCount' => $tenderCount,
         ]);
     }
 }

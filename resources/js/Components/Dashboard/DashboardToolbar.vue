@@ -9,9 +9,13 @@ const $props = defineProps({
     filter           : Boolean
 });
 
-const start_date = ref();
-const end_date   = ref();
 
+const start_date = defineModel('startDate');
+const end_date = defineModel('endDate');
+function resetDates() {
+    start_date.value = null;
+    end_date  .value = null;
+}
 </script>
 
 <template>
@@ -66,6 +70,7 @@ const end_date   = ref();
                 <UiFieldDate v-model="start_date" :inp-attrs="{ placeholder: 'Начало', class: 'bg-white' }" class="w-[calc(100%/2-12px)] lg:w-[178px]" />
                 <button
                     class="flex items-center justify-center w-6 h-12 bg-[#DDE1E6] text-gray1 lg:w-12"
+                    @click="resetDates"
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.75 6.81984L17.1802 5.25L12 10.4302L6.81984 5.25L5.25 6.81984L10.4302 12L5.25 17.1802L6.81984 18.75L12 13.5698L17.1802 18.75L18.75 17.1802L13.5698 12L18.75 6.81984Z" fill="#697077"/>

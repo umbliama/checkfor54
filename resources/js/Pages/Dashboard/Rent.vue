@@ -50,6 +50,10 @@ const filters = reactive({
     category_id: 1,
 });
 
+const contragentData = (id) => {
+    return props.contragents[id];
+}
+
 const chooseAgent = (id) => {
 
     const found = chosenAgents.value.find(eq => eq === id);
@@ -67,6 +71,7 @@ const props = defineProps({
     equipment_categories_counts_all: Number,
     contragents: Array,
     rented_equipment: Array,
+    rented_services_grouped: Array,
     equipment: Object,
     equipment_sizes: Array,
     equipment_sizes_counts: Array
@@ -394,7 +399,7 @@ onMounted(() => {
                                 </div>
                             </div>
                             <AccordionRoot type="multiple" :collapsible="true">
-                                <AccordionItem v-for="equipment in rented_equipment.data" value="item-1">
+                                <AccordionItem v-for="(equipment,index) in rented_services_grouped" value="item-1">
                                     <AccordionHeader>
                                         <div
                                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
@@ -403,7 +408,7 @@ onMounted(() => {
                                             </div>
                                             <div :class="{ 'bg-violet/5': true }"
                                                 class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2">
-                                                {{ equipment.id }}
+                                                {{ contragentData(index).name }}
                                                 <AccordionTrigger
                                                     class="flex items-center py-1 px-2 ml-2 rounded-full border border-[#AD9FFF]">
                                                     <svg class="block" width="18" height="18" viewBox="0 0 18 18"

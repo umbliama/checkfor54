@@ -50,7 +50,13 @@ const props = defineProps({
     percentDeals: Number,
     dialogueCount: Number,
     dialoguePercent: Number,
-    documentCount: Number
+    documentCount: Number,
+    incomingPercent: Number,
+    outcomingPercent: Number,
+    tenderPercent: Number,
+    incomingCount: Number,
+    outcomingCount: Number,
+    tenderCount: Number,
 })
 
 const sortedDocuments = reactive({});
@@ -65,19 +71,14 @@ const sortBy = ref('created_at');
 const sortOrder = ref('asc'); 
 
 watch([sortBy, sortOrder], () => {
-    console.log(`Sorting documents by: ${sortBy.value} (${sortOrder.value})`);
 
     Object.keys(sortedDocuments).forEach(contragentId => {
         let rawDocs = [...toRaw(sortedDocuments[contragentId])];
 
-        console.log(`\nContragent ID: ${contragentId}`);
-        console.log('Original Documents:', rawDocs);
 
         let sorted = rawDocs.sort((a,b) => {
-            console.log(a,b)
         })
 
-        console.log('Sorted Documents:', sortedDocuments[contragentId]);
     });
 }, { immediate: true });
 
@@ -121,6 +122,8 @@ const edit_dialog_state = ref(false);
 const note = ref(null);
 const edit_status = ref(null);
 const chosenFile = ref(null)
+const start_date = ref(null);
+const end_date = ref(null);
 
 
 function editRow(id) {
@@ -138,12 +141,83 @@ const editKP = () => {
         notes: note.value,
         status: edit_status.value
     })
+    edit_dialog_state.value = false;
 }
+
+const filteredDocuments = computed(() => {
+    console.groupCollapsed('Filtering Documents');
+
+    // Ensure documents is valid and convert it to an array of arrays
+    if (!props.documents || typeof props.documents !== 'object' || Array.isArray(props.documents)) {
+        console.warn('Documents prop is missing or invalid.');
+        console.groupEnd();
+        return [];
+    }
+
+    const docArrays = Object.values(props.documents); // Convert object values to an array of arrays
+
+    console.log('Converted Document Arrays:', docArrays);
+
+    // Parse start_date and end_date into Date objects
+    const startDate = start_date.value ? new Date(start_date.value) : null;
+    const endDate = end_date.value ? new Date(end_date.value) : null;
+
+    console.log('Start Date:', start_date.value, startDate);
+    console.log('End Date:', end_date.value, endDate);
+
+    // Filter logic: Preserve document groups
+    const result = docArrays.map(docGroup => {
+        if (!Array.isArray(docGroup)) {
+            console.warn('Skipping invalid document group:', docGroup);
+            return [];
+        }
+
+        // Filter documents within the group
+        return docGroup.filter(doc => {
+            if (!doc || !doc.created_at) {
+                console.warn('Skipping document with missing created_at:', doc);
+                return false;
+            }
+
+            const createdAt = new Date(doc.created_at); // Use built-in Date constructor
+
+            if (isNaN(createdAt.getTime())) {
+                console.warn('Invalid created_at value:', doc.created_at);
+                return false;
+            }
+
+            console.log(`Processing document with created_at: ${createdAt.toISOString()}`);
+
+            // Apply date range filtering
+            if (startDate && endDate) {
+                console.log(`Checking if ${createdAt.toISOString()} is between ${startDate.toISOString()} and ${endDate.toISOString()}`);
+                return createdAt >= startDate && createdAt <= endDate;
+            } else if (startDate) {
+                console.log(`Checking if ${createdAt.toISOString()} is after or equal to ${startDate.toISOString()}`);
+                return createdAt >= startDate;
+            } else if (endDate) {
+                console.log(`Checking if ${createdAt.toISOString()} is before or equal to ${endDate.toISOString()}`);
+                return createdAt <= endDate;
+            }
+
+            // If no date range is set, include all documents
+            console.log('No date range set, including document.');
+            return true;
+        });
+    }).filter(group => group.length > 0); // Remove empty groups
+
+    console.log('Filtered Document Groups:', result);
+    console.groupEnd();
+
+    return result;
+
+})
+
 </script>
 
 <template>
     <AuthenticatedLayout bg="gray">
-        <DashboardToolbar dashboard-page-type="commercial" filter />
+        <DashboardToolbar  v-model:start-date="start_date" v-model:end-date="end_date" dashboard-page-type="commercial" filter />
 
         <div class="p-4 lg:p-6">
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-6 lg:gap-6">
@@ -186,17 +260,17 @@ const editKP = () => {
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Тендер
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">12</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ tenderCount }}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-[#F2F4F8]">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#DAC41E]"></span>
-                            11,53%
+                            {{tenderPercent}}%
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Исходящий</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">46</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{outcomingCount}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -205,14 +279,14 @@ const editKP = () => {
                                     stroke="#0F62FE" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
-                            44,2%
+                            {{outcomingPercent}}%
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Входящий</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">46</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ incomingCount }}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -221,7 +295,7 @@ const editKP = () => {
                                     stroke="#DA1E28" stroke-width="1.5" stroke-linecap="round"
                                     stroke-linejoin="round" />
                             </svg>
-                            44,2%
+                            {{incomingCount}}%
                         </div>
                     </div>
                 </div>
@@ -280,7 +354,7 @@ const editKP = () => {
                         </div>
                     </div>
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(doc, index) in sortedDocuments" value="item-1">
+                        <AccordionItem v-for="(doc, index) in filteredDocuments" :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 bg-white">
                                 <div class="shrink-0 flex items-center justify-center w-[40px]">
@@ -302,23 +376,25 @@ const editKP = () => {
                                 <div class="shrink-0 flex items-center justify-center w-[32px]">
                                     <span
                                         class="flex items-center justify-center w-[18px] h-[18px] rounded-full text-xs bg-gray1 text-white">{{
-                                            nameContragent(index - 1).documents.filter(x => x.type === 'commercials').length
+                                            nameContragent(doc[0].contragent_id - 1).documents.filter(doc => ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'].includes(doc.type)).length
                                         }}</span>
                                 </div>
+                                
                                 <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">
-                                    <UiUserAvatar size="40px" class="shrink-0 mr-2" />
+                                    <UiUserAvatar :image="nameContragent(doc[0].contragent_id - 1).avatar"  size="40px" class="shrink-0 mr-2" />
+
                                     <div>
                                         <span class="flex justify-start items-start font-medium">
-                                            {{ nameContragent(index - 1).name }}
+                                            {{ nameContragent(doc[0].contragent_id - 1).name }}
                                         </span>
                                         <span class="flex text-gray-500 items-start text-xs">
-                                            ИНН {{ nameContragent(index - 1).inn }}
+                                            ИНН {{ nameContragent(doc[0].contragent_id - 1).inn }}
                                         </span>
                                     </div>
                                 </div>
                                 <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">
                                     {{ doc[0].user.name }}</div>
-                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
+                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ doc[0].translatedType }}</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
                                     formatDateToDDMMYYYY(doc[0].created_at) }}</div>
                                 <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ doc[0].notes }}
@@ -329,6 +405,7 @@ const editKP = () => {
                                     <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[doc[0].status]
                                         }}</span>
                                 </div>
+                                
                                 <div class="shrink-0 flex items-center w-[80px] py-2.5 px-2">
                                     <Link v-if="true" :href="'/'" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -515,13 +592,13 @@ const editKP = () => {
                                     <div class="shrink-0 flex items-center justify-center w-[40px]"></div>
                                     <div class="shrink-0 flex items-center justify-center w-[32px]"></div>
                                     <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">
-                                        <UiUserAvatar size="40px" class="shrink-0 mr-2" />
+                                        <UiUserAvatar :image="nameContragent(item.contragent_id - 1 ).avatar" size="40px" class="shrink-0 mr-2" />
                                         <div>
                                             <span class="flex justify-start items-start font-medium">
-                                                {{ nameContragent(index - 1).name }}
+                                                {{ nameContragent(item.contragent_id - 1 ).name }}
                                             </span>
                                             <span class="flex text-gray-500 items-start text-xs">
-                                                ИНН {{ nameContragent(index - 1).inn }}
+                                                ИНН {{ nameContragent(item.contragent_id - 1 ).inn }}
                                             </span>
                                         </div>
                                     </div>
@@ -529,7 +606,7 @@ const editKP = () => {
                                     <div
                                         class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">
                                         {{ item.user.name }}</div>
-                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Исходящий</div>
+                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{item.translatedType}}</div>
                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
                                         formatDateToDDMMYYYY(item.created_at) }}</div>
                                     <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ item.notes ?? "-"
