@@ -50,11 +50,14 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::get('/equip/move', [EquipmentController::class, 'move'])->name('equip.move');
     Route::post('/equip/move', [EquipmentController::class, 'storeMove'])->name('equip.storeMove');
+    Route::delete('/equip/move/delete/{id}', [EquipmentController::class, 'destroyMove'])->name('equip.destroyMove');
 
     Route::get('/equip/tests', [EquipmentController::class, 'tests'])->name('equip.tests');
     Route::post('/equip/tests', [EquipmentController::class, 'storeTest'])->name('equip.storeTest');
+    Route::post('/equip/tests/close/{id}', [EquipmentController::class, 'closeTest'])->name('equip.closeTest');
     Route::post('/equip/repair', [EquipmentController::class, 'storeRepair'])->name('equip.storeRepair');
     Route::delete('/equip/repair/delete/{id}', [EquipmentController::class, 'destroyRepair'])->name('equip.destroyRepair');
+    Route::post('/equip/repair/close/{id}', [EquipmentController::class, 'closeRepair'])->name('equip.closeRepair');
 
 
     Route::get('/equip/price', [EquipmentController::class, 'price'])->name('equip.price');

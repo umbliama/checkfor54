@@ -87,7 +87,7 @@ async function submit() {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.95 8.464a1 1 0 0 0-1.414-1.414L12 10.586L8.464 7.05A1 1 0 1 0 7.05 8.464L10.586 12L7.05 15.536a1 1 0 1 0 1.414 1.414L12 13.414l3.536 3.536a1 1 0 1 0 1.414-1.414L13.414 12z"/></svg>
                         </DialogClose>
                     </DialogTitle>
-                    <form class="mt-8 space-y-4" @submit="submit">
+                    <div class="mt-8 space-y-4">
                         <UiFieldDate
                             v-model="date"
                             label="Дата ремонта"
@@ -99,10 +99,10 @@ async function submit() {
 
                         <button
                             :disabled="!is_edited"
-                            type="submit"
+                            @click="submit"
                             class="w-full mt-4 bg-my-gray text-side-gray-text font-bold px-6 py-3 disabled:opacity-40"
                         >Сохранить</button>
-                    </form>
+                    </div>
                 </DialogContent>
             </transition>
         </DialogPortal>

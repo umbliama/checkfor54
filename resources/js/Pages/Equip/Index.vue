@@ -46,7 +46,8 @@ const sortBy = computed(() => store.getters['equipment/getSortBy']);
 const rentActive = computed(() => store.getters['equipment/getRentActive']);
 const updateSortBy = (value) => store.dispatch("equipment/updateSortBy", value)
 const updateSortOrder = (value) => store.dispatch("equipment/updateSortOrder", value)
-
+const minPrice = ref(null);
+const maxPrice = ref(null);
 const setLocation = (location) => {
     store.dispatch('equipment/updateLocationActive', location)
     store.dispatch('equipment/updateIsRentActive',0)
@@ -336,8 +337,8 @@ onMounted(() => {
                             <div>
                                 <label>Стоимость</label>
                                 <div class="grid grid-cols-2 gap-3 mt-2">
-                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'От' }" />
-                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'До' }" />
+                                    <UiField v-model="minPrice" class="w-28" size="sm" :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField v-model="maxPrice" class="w-28" size="sm" :inp-attrs="{ placeholder: 'До' }" />
                                 </div>
                             </div>
 

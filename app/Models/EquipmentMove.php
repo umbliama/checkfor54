@@ -9,6 +9,7 @@ class EquipmentMove extends Model
     protected $fillable = [
         'send_date',
         'from',
+        'departure_date',
         'to',
         'reason',
         'expense',

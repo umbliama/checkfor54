@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->date('send_date');
-            $table->date('departure_date');
+            $table->date('departure_date')->nullable();
             $table->foreignId('from')->constrained('equipment_locations');
-            $table->foreignId('to')->constrained('equipment_locations');
+            $table->foreignId('to')->nullable()->constrained('equipment_locations');
             $table->text('reason');
             $table->integer('expense');
             $table->foreignId('category_id')->constrained('equipment_categories');

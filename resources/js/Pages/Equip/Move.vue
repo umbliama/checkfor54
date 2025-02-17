@@ -51,7 +51,7 @@ const setCategoryId = (categoryId) => {
 
 const getLocationName = (id) => {
     const location = props.equipment_locations.find(loc => loc.id === id);
-    return location ? location.name : 'Location not found';
+    return location ? location.name : '-';
 }
 
 const setSizeId = (sizeId) => {
@@ -353,7 +353,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">{{ move.send_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">{{ getLocationName(move.from) || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">{{ getLocationName(move.to) || '-' }}</div>
-                                        <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">12.12.2024</div>
+                                        <div class="shrink-0 flex items-center w-[10.6%] py-2.5 px-2">{{ move.departure_date || '-' }}</div>
                                         <div class="shrink-0 flex items-center w-[calc(100%-12.14%-10.6%-10.6%-10.6%-8.94%-100px)] py-2.5 px-2">{{ move.reason || '-' }}</div>
                                         <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{ move.expense || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
@@ -500,7 +500,7 @@ onMounted(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link :href="route('repair.destroy', move.id)"
+                                                                <Link :href="route('equip.destroyMove', move.id)"
                                                                       method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить

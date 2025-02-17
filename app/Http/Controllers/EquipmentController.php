@@ -313,9 +313,7 @@ class EquipmentController extends Controller
                 return back()->with('error', 'Оборудование не найдено.');
             }
 
-            if ($foundedEquipment->location_id != $request->location_id) {
-                return back()->with('error', 'Локации не совпадают.');
-            }
+
 
             EquipmentRepair::create(array_merge($request->all(), [
                 'equipment_id' => $foundedEquipment->id,
@@ -336,6 +334,50 @@ class EquipmentController extends Controller
             'description' => 'nullable|min:3|max:200',
         ]);
         $repair->update($request->all());
+    }
+
+    public function closeRepair(Request $request)
+    {
+        try {
+            $repair = EquipmentRepair::findOrFail($request->id);
+            $request->validate([
+                'on_repair_date' => 'required|string',
+                'repair_date' => 'required|date',
+                'location_id' => 'required|int',
+                'expense' => 'required|int',
+                'description' => 'required|min:3|max:200',
+                'isLocked' => 'required|boolean'
+            ]);
+
+
+            $repair->update($request->all());
+
+            return back()->with('message', 'Статус ремонта изменен');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function closeTest(Request $request)
+    {
+        try {
+            $repair = EquipmentTest::findOrFail($request->id);
+            $request->validate([
+                'on_test_date' => 'required|string',
+                'test_date' => 'required|date',
+                'location_id' => 'required|int',
+                'expense' => 'required|int',
+                'description' => 'required|min:3|max:200',
+                'isLocked' => 'required|boolean'
+            ]);
+
+
+            $repair->update($request->all());
+
+            return back()->with('message', 'Статус испытания изменен');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
     public function destroyRepair($id)
     {
@@ -510,18 +552,23 @@ class EquipmentController extends Controller
     public function updateTest(Request $request, $id)
     {
 
-        $test = EquipmentTest::findOrFail($id);
-        $request->validate([
-            'test_date' => 'nullable|date',
-            'location_id' => 'nullable|int',
-            'expense' => 'nullable|int',
-            'description' => 'nullable|min:3|max:200',
-            'category_id' => 'nullable|int',
-            'size_id' => 'nullable|int',
-            'series' => 'nullable|string'
-        ]);
+        try {
+            $test = EquipmentTest::findOrFail($id);
+            $request->validate([
+                'test_date' => 'nullable|date',
+                'location_id' => 'nullable|int',
+                'expense' => 'nullable|int',
+                'description' => 'nullable|min:3|max:200',
+                'category_id' => 'nullable|int',
+                'size_id' => 'nullable|int',
+                'series' => 'nullable|string'
+            ]);
 
-        $test->update($request->all());
+            $test->update($request->all());
+            return back()->with('message', 'Испытание обновлено');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function destroyTest($id)
@@ -538,13 +585,13 @@ class EquipmentController extends Controller
         $equipment_location = EquipmentLocation::all();
         $contragents = Contragents::all();
 
-        $perPage = $request->input('perPage', 10); 
+        $perPage = $request->input('perPage', 10);
 
         $categoryId = $request->query('category_id');
         $sizeId = $request->query('size_id');
 
         $prices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])
-            ->where('archive', 0) 
+            ->where('archive', 0)
             ->when($categoryId, function ($query, $categoryId) {
                 return $query->whereHas('category', function ($q) use ($categoryId) {
                     $q->where('id', $categoryId);
@@ -558,7 +605,7 @@ class EquipmentController extends Controller
             ->paginate($perPage);
 
         $archivedPrices = EquipmentPrice::with(['category', 'size', 'contragent', 'directory'])
-            ->where('archive', 1) 
+            ->where('archive', 1)
             ->when($categoryId, function ($query, $categoryId) {
                 return $query->whereHas('category', function ($q) use ($categoryId) {
                     $q->where('id', $categoryId);
@@ -998,7 +1045,7 @@ class EquipmentController extends Controller
                 'send_date' => 'required|date',
                 'from' => 'nullable|int',
                 'to' => 'nullable|int',
-                'reason' => 'nullable|int',
+                'reason' => 'nullable|string',
                 'expense' => 'nullable|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
@@ -1024,6 +1071,21 @@ class EquipmentController extends Controller
 
             return back()->with('message', 'Запись успешно добавлена.');
         } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function destroyMove($id)
+    {
+        try {
+
+            $move = EquipmentMove::findOrFail($id);
+
+            $move->delete();
+
+            return back()->with('message', 'Запись удалена');
+        } catch (Exception $e) {
+
             return back()->with('error', $e->getMessage());
         }
     }
