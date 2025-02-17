@@ -14,7 +14,8 @@ class ContrDocuments extends Model
         'user_id',
         'notes',
         'status',
-        'type'
+        'type',
+        'commercial_type'
         
     ];
 

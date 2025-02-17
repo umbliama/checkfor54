@@ -28,7 +28,7 @@ class ContragentsController extends Controller
                     ->orWhere('contact_person_phone', 'LIKE', "%$searchTerm%")
                     ->orWhere('contact_person_email', 'LIKE', "%$searchTerm%")
                     ->orWhere('notes', 'LIKE', "%$searchTerm%");
-        
+
                 if (strtolower($searchTerm) === 'активный') {
                     $query->orWhere('status', 1);
                 } elseif (strtolower($searchTerm) === 'неактивный' || strtolower($searchTerm) === 'не активный') {
@@ -241,7 +241,7 @@ class ContragentsController extends Controller
         try {
             $contragent = Contragents::findOrFail($id);
             $userId = Auth::id();
-    
+
             $validated = $request->validate([
                 'agentTypeLegal' => 'nullable',
                 'country' => 'nullable',
@@ -274,26 +274,26 @@ class ContragentsController extends Controller
                 'contact_person_commentary' => 'nullable',
                 'avatar' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
             ]);
-    
+
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
                 $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
                 $avatar->move(public_path('avatars'), $avatarName);
                 $validated['avatar'] = 'avatars/' . $avatarName;
             }
-    
+
             $contragent->update($validated);
-    
-            $docFields = ['commercials', 'contracts', 'transport', 'financial', 'adddocs'];
-            
+
+            $docFields = ['commercials_incoming', 'commercials_outcoming', 'commercials_tender', 'contracts', 'transport', 'financial', 'adddocs'];
+
             foreach ($docFields as $field) {
                 if ($request->hasFile($field)) {
                     foreach ($request->file($field) as $file) {
                         $fileName = time() . '_' . $file->getClientOriginalName();
                         $filePath = "documents/{$contragent->id}/{$field}/" . $fileName;
-                        
+
                         $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
-    
+
                         ContrDocuments::create([
                             'contragent_id' => $contragent->id,
                             'user_id' => $userId,
@@ -301,21 +301,44 @@ class ContragentsController extends Controller
                             'file_path' => $filePath,
                             'status' => 1,
                         ]);
+
+                        if ($field === 'commercials') {
+
+                        }
                     }
                 }
             }
 
-    
+
             return back()->with('message', "Контрагент успешно обновлен");
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
-    
+
 
     public function show($id)
     {
-        $contragent = Contragents::findOrFail($id);
+        $contragent = Contragents::with('documents')->whereNotNull("user_id")->findOrFail($id);
+
+        $groupedDocuments = $contragent->documents->map(function ($document) {
+            $types = ['contracts', 'financial', 'transport', 'commercials', 'adddocs'];
+
+            foreach ($types as $type) {
+                $document->$type = !empty($document->$type) ? json_decode($document->$type, true) : [];
+            }
+
+            return $document;
+        })->reduce(function ($carry, $document) {
+            foreach (['contracts', 'financial', 'transport', 'commercials', 'adddocs'] as $type) {
+                if (!empty($document->$type)) {
+                    $carry[$type] = array_merge($carry[$type] ?? [], $document->$type);
+                }
+            }
+            return $carry;
+        }, []);
+
+        $contragent->documents = $groupedDocuments;
         $contragent->append('formatted_country');
         $contragent->append('legal_statuses');
 
@@ -358,39 +381,39 @@ class ContragentsController extends Controller
     {
         $contragentId = $request->query('contragentId');
         $fileId = $request->query('fileId');
-        
+
         $document = ContrDocuments::where('contragent_id', $contragentId)
-                    ->where('id', $fileId)
-                    ->first();
-    
+            ->where('id', $fileId)
+            ->first();
+
         if (!$document) {
             return response()->json(['message' => 'Document not found for this contragent.'], 404);
         }
-    
+
         $filePath = public_path($document->file_path);
-        
+
         if (file_exists($filePath)) {
             unlink($filePath);
         }
-    
+
         $document->delete();
-    
+
         return back()->with('message', 'Файл успешно удален');
     }
-    
+
     public function editKP(Request $request)
     {
         $id = $request->input('fileId');
         $notes = $request->input('notes');
         $status = $request->input('status');
         $document = ContrDocuments::find($id);
-    
+
         if ($document) {
             $document->notes = $notes;
             $document->status = $status;
             $document->save();
-    
-            return back()->with('message','Документ обновлен.');
+
+            return back()->with('message', 'Документ обновлен.');
         } else {
             return response()->json(['message' => 'Document not found'], 404);
         }
