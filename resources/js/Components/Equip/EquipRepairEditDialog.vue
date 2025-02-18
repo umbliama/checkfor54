@@ -44,7 +44,7 @@ watch(model, new_val => {
     if (!new_val) return;
 
     date       .value = $props.repair.repair_date;
-    location   .value = { title: $props.locations.find(l=>l.id==$props.repair.location_id).name, value: $props.repair.location_id };
+    location   .value = { title: $props.locations.find(l=>l.id==$props.repair.location_id)?.name || $props.locations[0].id, value: $props.repair.location_id };
     description.value = $props.repair.description;
     expense    .value = $props.repair.expense;
 });
@@ -54,7 +54,7 @@ async function submit() {
         repair_date: date       .value,
         location_id: location   .value.value,
         description: description.value,
-        expense    : expense    .value,
+        expense    : expense    .value, 
     });
 }
 

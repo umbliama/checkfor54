@@ -317,4 +317,6 @@ class EquipmentController extends Controller
             'equipment_id' => $id
         ]);
     }
+
+
 }

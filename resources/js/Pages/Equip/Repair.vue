@@ -45,16 +45,14 @@ const getLocationName = (id) => {
     return location ? location.name : '-';
 
 }
-const closeRepair = (id, on_repair_date, repair_date, location_id, expense,commentary,isLocked) => {
+const closeRepair = (id, on_repair_date, repair_date, location_id, expense, commentary, isLocked) => {
     router.post(`/equip/repair/close/${id}`, {
-        data: {
-            'on_repair_date': on_repair_date,
-            'repair_date': repair_date,
-            'location_id': location_id,
-            'expense': expense,
-            'description': commentary,
-            'isLocked': isLocked,
-        }
+        'on_repair_date': on_repair_date,
+        'repair_date': repair_date,
+        'location_id': location_id,
+        'expense': expense,
+        'description': commentary,
+        'isLocked': isLocked,
     })
 }
 const setSizeId = (sizeId) => {
@@ -406,7 +404,7 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center justify-center w-[8.94%] py-2.5 px-2">{{
                                             repair.expense || '-' }} ₽</div>
                                         <div class="shrink-0 flex items-center w-[110px] py-2.5 px-2">
-                                            <button  v-if="repair.isLocked" class="mr-3.5">
+                                            <button v-if="repair.isLocked" class="mr-3.5">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path
@@ -414,7 +412,9 @@ onMounted(() => {
                                                         fill="#21272A" />
                                                 </svg>
                                             </button>
-                                            <button @click="closeRepair(repair.id,repair.on_repair_date,repair.repair_date,repair.location_id,repair.expense,repair.commentary,true)" v-else class="mr-3.5">
+                                            <button
+                                                @click="closeRepair(repair.id, repair.on_repair_date, repair.repair_date, repair.location_id, repair.expense, repair.description, true)"
+                                                v-else class="mr-3.5">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path
@@ -462,7 +462,7 @@ onMounted(() => {
                                                             <div class="flex items-center max-w-full">
                                                                 <span
                                                                     class="grow block mr-auto text-ellipsis overflow-hidden">{{
-                                                                    file }}</span>
+                                                                        file }}</span>
                                                                 <svg class="shrink-0 block ml-2" width="20" height="20"
                                                                     viewBox="0 0 24 24" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -524,9 +524,9 @@ onMounted(() => {
                                                                 </DropdownMenuRoot>
                                                             </div>
                                                         </div>
-                                                        <Link :href="'/directory/repair/' + repair.id"
+                                                        <Link  :href="'/directory/repair/' + repair.id"
                                                             class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                        Редактировать
+                                                        Редактировать 
 
                                                         <svg class="block ml-2" width="16" height="16"
                                                             viewBox="0 0 16 16" fill="none"
@@ -563,7 +563,7 @@ onMounted(() => {
                                                         <DropdownMenuContent
                                                             class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                             :side-offset="5" align="end">
-                                                            <DropdownMenuItem>
+                                                            <DropdownMenuItem v-if="!test.isLocked || $page.props.user.isAdmin">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                                     @click="openDialog(repair.id)">
