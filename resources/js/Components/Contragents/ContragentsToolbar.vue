@@ -65,8 +65,7 @@ onBeforeMount(() => {
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                     @click="updateMenuLink('all')">
                     Все
-                    <span :class="[$props?.contragentsCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                    <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                         {{ $props.contragentsCount }}
                     </span>
                 </li>
@@ -74,8 +73,7 @@ onBeforeMount(() => {
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                     @click="updateMenuLink('customers')">
                     Заказчики
-                    <span :class="[$props?.contragentsCustomerCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                    <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                         {{ $props.contragentsCustomerCount }}
                     </span>
                 </li>
@@ -83,8 +81,7 @@ onBeforeMount(() => {
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                     @click="updateMenuLink('suppliers')">
                     Поставщики
-                    <span :class="[$props?.contragentsCupplierCount?.toString()?.length === 1 ? 'w-[30px]' : 'w-auto']"
-                        class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                    <span class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                         {{ $props.contragentsSupplierCount }}
                     </span>
                 </li>
@@ -125,7 +122,6 @@ onBeforeMount(() => {
                             </transition>
                         </DropdownMenuPortal>
                     </DropdownMenuRoot>
-
                 </li>
             </ul>
 
