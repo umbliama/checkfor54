@@ -45,6 +45,7 @@ class DirectoryController extends Controller
     public function store(Request $request, $type, $id)
     {
         $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair', 'price'];
+    
         if (!in_array($type, $allowedTypes)) {
             return response()->json(['error' => 'Invalid directory type'], 400);
         }
@@ -53,6 +54,8 @@ class DirectoryController extends Controller
             'files.*' => 'nullable|file',
             'commentary' => 'required|string',
         ]);
+    
+        $successMessages = [];
     
         if ($request->hasFile('files')) {
             $uploadedFiles = $request->file('files');
@@ -68,11 +71,27 @@ class DirectoryController extends Controller
                     'file_path' => $filePath,
                     'commentary' => $validatedData['commentary'],
                 ]);
+    
+                $successMessages[] = "File '{$fileName}' uploaded successfully.";
             }
         }
     
-        return redirect()->back()->with('success', 'Files uploaded successfully!');
-    }    
+        if (!$request->hasFile('files')) {
+            Directory::create([
+                $type . '_id' => $id,
+                'file_path' => null, // No file path since no file was uploaded
+                'commentary' => $validatedData['commentary'],
+            ]);
+    
+            $successMessages[] = "Commentary saved successfully.";
+        }
+    
+        $successMessage = implode(' ', $successMessages);
+    
+        return redirect()->back()->with('success', $successMessage);
+    }
+    
+    
     /**
      * Display the specified resource.
      */
