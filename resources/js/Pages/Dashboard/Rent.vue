@@ -73,6 +73,7 @@ const props = defineProps({
     rented_equipment: Array,
     rented_services_grouped: Array,
     equipment: Object,
+    pagination: Object,
     equipment_sizes: Array,
     equipment_sizes_counts: Array
 });
@@ -313,9 +314,9 @@ onMounted(() => {
 
                 <div class="w-full lg:w-[calc(100%-168px-14px)]">
                     <div class="space-y-6">
-                        <div>
+                        <div v-for="(services, contragentId, index) in rented_services_grouped">
                             <div class="items-center justify-between py-2 px-2.5 bg-bg2 text-sm lg:flex">
-                                <div class="font-bold">ООО Иргъма: 10.03.2024</div>
+                                <div class="font-bold">{{ contragentData(contragentId).name }} 10.03.2024</div>
                                 <div class="mt-2 font-medium text-[#484964] lg:mt-0">
                                     Доход за весь период: 1 280 000 ₽
                                 </div>
@@ -368,7 +369,7 @@ onMounted(() => {
                                         </div>
                                     </div>
                                     <AccordionRoot type="multiple" :collapsible="true">
-                                        <AccordionItem v-for="(equipment,index) in rented_services_grouped" value="item-1">
+                                        <AccordionItem v-for="service in services"  value="item-1">
                                             <AccordionHeader>
                                                 <div
                                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
@@ -377,7 +378,7 @@ onMounted(() => {
                                                     </div>
                                                     <div :class="{ 'bg-violet/5': true }"
                                                         class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2">
-                                                        {{ contragentData(index).name }}
+                                                        {{ service.service_equipment.equipment.category }} {{ service.service_equipment.}}
                                                         <AccordionTrigger
                                                             class="flex items-center py-1 px-2 ml-2 rounded-full border border-[#AD9FFF]">
                                                             <svg class="block" width="18" height="18" viewBox="0 0 18 18"

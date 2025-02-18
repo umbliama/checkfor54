@@ -109,21 +109,21 @@ class DashboardController extends Controller
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
         $contragents = Contragents::all();
-    
+
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
             $equipment_categories_counts_all += $equipment_categories_counts[$categoryIDForCount];
         }
-    
+
         $contragents = Contragents::all();
-    
+
         $category_id = $request->input('category_id');
         $size_id = $request->input('size_id');
         $perPage = $request->input('perPage', 10);
-    
+
         $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
-    
+
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
@@ -131,39 +131,54 @@ class DashboardController extends Controller
                 ->where('category_id', $category_id)
                 ->count();
         }
-    
+
         $rented_services_paginated = Service::where('active', 1)
             ->with([
                 'serviceEquipment.equipment',
                 'subservices'
             ])
             ->paginate($perPage);
-    
-        $rented_services_grouped = $rented_services_paginated->getCollection()
-            ->groupBy('contragent_id')
+        $rented_services_paginated = Service::where('active', 1)
+            ->with([
+                'mainServices' => function ($query) {
+                    $query->with(['equipment']);
+                },
+                'subservices' => function ($query) {
+                    $query->with(['equipment']);
+                }
+            ])
+            ->paginate($perPage);
+
+            $rented_services_grouped = $rented_services_paginated->getCollection()
+            ->groupBy('contragent_id') // Group services by contragent_id
             ->map(function ($services) {
-                return $services->map(function ($service) {
-                    return [
-                        'id' => $service->id,
-                        'service_number' => $service->service_number,
-                        'service_date' => $service->service_date,
-                        'equipment' => $service->serviceEquipment->map(function ($equipment) {
-                            return [
-                                'id' => $equipment->equipment->id,
-                                'name' => $equipment->equipment->name,
-                                'category' => $equipment->equipment->category->name ?? null,
-                            ];
-                        })->toArray(),
-                        'subservices' => $service->subservices->map(function ($subservice) {
-                            return [
-                                'id' => $subservice->id,
-                                'commentary' => $subservice->commentary,
-                            ];
-                        })->toArray(),
-                    ];
+                return $services->flatMap(function ($service) {
+                    return $service->mainServices->map(function ($serviceEquip) use ($service) {
+                        return [
+                            'service_equipment' => [
+                                'id' => $serviceEquip->id,
+                                'equipment' => [
+                                    'id' => $serviceEquip->equipment->id ?? null,
+                                    'name' => $serviceEquip->equipment->name ?? null,
+                                    'category' => $serviceEquip->equipment->category->name ?? null,
+                                ],
+                                'services_subequipment' => $serviceEquip->serviceSubs->map(function ($serviceSub) {
+                                    return [
+                                        'id' => $serviceSub->id,
+                                        'commentary' => $serviceSub->commentary,
+                                        'equipment' => [
+                                            'id' => $serviceSub->equipment->id ?? null,
+                                            'name' => $serviceSub->equipment->name ?? null,
+                                            'category' => $serviceSub->equipment->category->name ?? null,
+                                        ],
+                                    ];
+                                })->toArray(),
+                            ],
+                        ];
+                    });
                 });
             });
-    
+
         return Inertia::render('Dashboard/Rent', [
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'equipment_sizes' => $equipment_sizes,
@@ -173,6 +188,14 @@ class DashboardController extends Controller
             'contragents' => $contragents,
             'rented_equipment' => $rented_services_paginated,
             'rented_services_grouped' => $rented_services_grouped,
+            'pagination' => [
+                'total' => $rented_services_paginated->total(),
+                'per_page' => $rented_services_paginated->perPage(),
+                'current_page' => $rented_services_paginated->currentPage(),
+                'last_page' => $rented_services_paginated->lastPage(),
+                'from' => $rented_services_paginated->firstItem(),
+                'to' => $rented_services_paginated->lastItem(),
+            ],
         ]);
     }
     public function free(Request $request)
@@ -683,11 +706,11 @@ class DashboardController extends Controller
             'percentDeals' => $percentDeals,
             'documentCount' => $documentCount,
             'dialoguePercent' => $dialoguePercent,
-            'incomingPercent' => $incomingPercent, 
-            'outcomingPercent' => $outcomingPercent, 
-            'tenderPercent' => $tenderPercent, 
+            'incomingPercent' => $incomingPercent,
+            'outcomingPercent' => $outcomingPercent,
+            'tenderPercent' => $tenderPercent,
             'incomingCount' => $incomingCount,
-            'outcomingCount' => $outcomingCount,  
+            'outcomingCount' => $outcomingCount,
             'tenderCount' => $tenderCount,
         ]);
     }
