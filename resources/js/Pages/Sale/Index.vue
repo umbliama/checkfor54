@@ -358,7 +358,10 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                             :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
+                                <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                    <UiHyperlink :item-id="2" :hyperlink="'some.ru'"
+                                                    endpoint="/equipment/sale" />
+                                </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
                                     {{ nameContragent(index) }}
