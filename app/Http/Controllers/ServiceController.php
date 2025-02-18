@@ -91,8 +91,10 @@ class ServiceController extends Controller
         $activeServices = Service::with([
             'mainServices.serviceSubs.equipment.category',
             'mainServices.serviceSubs.equipment.size',
+            'mainServices.serviceSubs.equipment.directory',
             'mainServices.equipment.category',
             'mainServices.equipment.size',
+            'mainServices.equipment.directory',
             'equipment.category',
             'equipment.size',
             'directory'

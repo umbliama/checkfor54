@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import { usePage,router } from '@inertiajs/vue3'
 import { SideMenuMenuStates } from '../../constants';
 import store from '../../store';
-import { computed, ref, toRaw } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import UiBtn from "@/Components/Ui/UiBtn.vue";
 import UiField from "@/Components/Ui/UiField.vue";
 import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
@@ -100,10 +100,12 @@ const search = () => {
     router.get('/search', {query: query.value}, {
     })
 }
+onMounted(() => {
 
-setInterval(() => {
-    checkNewNotifications(toRaw(user.value.id))
-}, 60000);
+})
+// setInterval(() => {
+//     checkNewNotifications(toRaw(user.value.id))
+// }, 60000);
 </script>
 
     <template>

@@ -158,6 +158,8 @@ const normalizeMonth = (month) => {
     }
     return null;
 };
+
+
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = 'asc') => {
     const formattedMonth = normalizeMonth(month);
     const dataArray = Object.values(props.activeServices.data || {}); 
@@ -171,8 +173,14 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
         const shippingDate = service.contragent_data[0]?.shipping_date;
         console.log('Raw shipping_date:', shippingDate);
 
-        if (!shippingDate || !isValidDate(shippingDate)) {
-            console.log('Invalid or missing shipping_date:', shippingDate);
+        // Allow null or undefined shipping_date
+        if (shippingDate === null || shippingDate === undefined) {
+            console.log('Including service with null/undefined shipping_date:', service.id);
+            return true;
+        }
+
+        if (!isValidDate(shippingDate)) {
+            console.log('Invalid shipping_date:', shippingDate);
             return false; 
         }
 
@@ -202,22 +210,19 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
                 const keys = sortKey.split('.');
                 valueA = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), a);
                 valueB = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), b);
-
                 console.log('Accessing nested key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
             } else {
                 valueA = a[sortKey];
                 valueB = b[sortKey];
-
                 console.log('Accessing flat key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
             }
 
+            // Handle null or undefined shipping_date during sorting
             if (sortKey === 'contragent_data[0].shipping_date') {
-                valueA = isValidDate(valueA) ? new Date(valueA).getTime() : new Date(0).getTime(); 
-                valueB = isValidDate(valueB) ? new Date(valueB).getTime() : new Date(0).getTime();
-
+                valueA = isValidDate(valueA) ? new Date(valueA).getTime() : Infinity; // Treat null/undefined as "Infinity"
+                valueB = isValidDate(valueB) ? new Date(valueB).getTime() : Infinity;
                 console.log('Raw shipping_date (A):', valueA, 'Parsed:', new Date(valueA));
                 console.log('Raw shipping_date (B):', valueB, 'Parsed:', new Date(valueB));
-
                 console.log('Sorting by shipping_date:', valueA, valueB); 
             } else if (typeof valueA === 'string' && isValidDate(valueA)) {
                 valueA = new Date(valueA).getTime();
@@ -241,6 +246,8 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
 
     return filteredArray;
 };
+
+
 
 function isValidDate(dateString) {
     if (!dateString || typeof dateString !== 'string') return false;
@@ -943,7 +950,7 @@ function openEditDialog(id) {
                                                                 class="block w-full h-full px-2 bg-transparent" />
                                                         </div>
                                                         <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                            <Link v-if="subservice.equipment.hyperlink"
+                                                            <Link v-if="!subservice.equipment.directory"
                                                                 :href="'/directory/equipment/' + subservice.equipment.id"
                                                                 class="mr-3.5">
                                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -1166,7 +1173,7 @@ function openEditDialog(id) {
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                                <Link v-if="true"
+                                                                <Link v-if="sub.equipment.directory === null"
                                                                     :href="'/directory/equipment/' + sub.equipment.id"
                                                                     class="mr-3.5">
                                                                 <svg width="24" height="24" viewBox="0 0 24 24"
@@ -1204,18 +1211,7 @@ function openEditDialog(id) {
                                                                         <PopoverContent side="bottom" align="end"
                                                                             class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                             <div>Комментарий:</div>
-                                                                            <p class="mt-2.5 text-xs">Далеко-далеко за
-                                                                                словесными горами
-                                                                                в стране гласных и
-                                                                                согласных живут рыбные тексты. Страна
-                                                                                если бросил, он
-                                                                                всемогущая запятых
-                                                                                грамматики себя ipsum точках, несколько
-                                                                                меня строчка
-                                                                                маленькая страну
-                                                                                предупреждал которой раз проектах. Ему
-                                                                                выйти составитель
-                                                                                дал то ...</p>
+                                                                            <p class="mt-2.5 text-xs">{{sub.equipment.directory.commentary}}</p>
                                                                             <div class="mt-3 p-4 bg-bg1 text-xs">
                                                                                 <div
                                                                                     class="flex items-center max-w-full">
