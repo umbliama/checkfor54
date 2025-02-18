@@ -34,6 +34,7 @@ class SaleController extends Controller
             'saleEquipment.subequipment.equipment',
             'saleEquipment.subequipment.equipment.category',
             'saleEquipment.subequipment.equipment.size',
+            'saleEquipment.subequipment.equipment.directory',
             'directory'
         ])->get();
 

@@ -1037,7 +1037,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                             <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
                                                             <div
                                                                 class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                                                <UiHyperlink :item-id="2" :hyperlink="'some.sss'"
+                                                                <UiHyperlink :item-id="subequip.equipment.id" :hyperlink="subequip.equipment.hyperlink"
                                                                     endpoint="/equipment" />
                                                             </div>
                                                             <div
@@ -1052,7 +1052,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                                                <input v-model="subequip.commentary" value="somee"
+                                                                <input v-model="subequip.commentary"
                                                                     type="text"
                                                                     class="block w-full h-full px-2 bg-transparent" />
                                                             </div>
@@ -1063,7 +1063,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                             </div>
                                                             <div
                                                                 class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                                                <Link v-if="true" :href="'/directory/service/' + 2"
+                                                                <Link v-if="subequip.equipment.directory" :href="'/directory/equipment/' + subequip.equipment.id"
                                                                     class="mr-3.5">
                                                                 <svg width="24" height="24" viewBox="0 0 24 24"
                                                                     fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1100,16 +1100,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                         <PopoverContent side="bottom" align="end"
                                                                             class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                             <div>Комментарий:</div>
-                                                                            <p class="mt-2.5 text-xs">Далеко-далеко за
-                                                                                словесными горами в стране
-                                                                                гласных и согласных
-                                                                                живут рыбные тексты. Страна если бросил,
-                                                                                он всемогущая запятых
-                                                                                грамматики себя ipsum
-                                                                                точках, несколько меня строчка маленькая
-                                                                                страну предупреждал которой
-                                                                                раз проектах. Ему
-                                                                                выйти составитель дал то ...</p>
+                                                                            <p class="mt-2.5 text-xs">{{subequip.equipment.directory.commentary}}</p>
                                                                             <div class="mt-3 p-4 bg-bg1 text-xs">
                                                                                 <div
                                                                                     class="flex items-center max-w-full">
@@ -1188,7 +1179,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                                     </DropdownMenuRoot>
                                                                                 </div>
                                                                             </div>
-                                                                            <Link :href="'/directory/service/' + 2"
+                                                                            <Link :href="'/directory/equipment/' + subequip.equipment.hyperlink"
                                                                                 class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                             Редактировать
 
