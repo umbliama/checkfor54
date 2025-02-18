@@ -150,7 +150,7 @@ class DashboardController extends Controller
             ->paginate($perPage);
 
             $rented_services_grouped = $rented_services_paginated->getCollection()
-            ->groupBy('contragent_id') // Group services by contragent_id
+            ->groupBy('contragent_id') 
             ->map(function ($services) {
                 return $services->flatMap(function ($service) {
                     return $service->mainServices->map(function ($serviceEquip) use ($service) {
@@ -159,17 +159,19 @@ class DashboardController extends Controller
                                 'id' => $serviceEquip->id,
                                 'equipment' => [
                                     'id' => $serviceEquip->equipment->id ?? null,
-                                    'name' => $serviceEquip->equipment->name ?? null,
                                     'category' => $serviceEquip->equipment->category->name ?? null,
+                                    'size' => $serviceEquip->equipment->size->name ?? null,
+                                    'series' => $serviceEquip->equipment->series ?? null,
                                 ],
                                 'services_subequipment' => $serviceEquip->serviceSubs->map(function ($serviceSub) {
                                     return [
                                         'id' => $serviceSub->id,
                                         'commentary' => $serviceSub->commentary,
                                         'equipment' => [
-                                            'id' => $serviceSub->equipment->id ?? null,
-                                            'name' => $serviceSub->equipment->name ?? null,
-                                            'category' => $serviceSub->equipment->category->name ?? null,
+                                            'id' => $serviceEquip->equipment->id ?? null,
+                                            'category' => $serviceEquip->equipment->category->name ?? null,
+                                            'size' => $serviceEquip->equipment->size->name ?? null,
+                                            'series' => $serviceEquip->equipment->series ?? null,
                                         ],
                                     ];
                                 })->toArray(),

@@ -378,7 +378,7 @@ onMounted(() => {
                                                     </div>
                                                     <div :class="{ 'bg-violet/5': true }"
                                                         class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2">
-                                                        {{ service.service_equipment.equipment.category }} {{ service.service_equipment.}}
+                                                        {{ service.service_equipment.equipment.category }} {{ service.service_equipment.equipment.size}} {{ service.service_equipment.equipment.series}}
                                                         <AccordionTrigger
                                                             class="flex items-center py-1 px-2 ml-2 rounded-full border border-[#AD9FFF]">
                                                             <svg class="block" width="18" height="18" viewBox="0 0 18 18"
@@ -598,7 +598,7 @@ onMounted(() => {
                                                     </div>
                                                 </div>
                                             </AccordionHeader>
-                                            <AccordionContent
+                                            <AccordionContent v-for="sub in service.service_equipment.services_subequipment"
                                                 class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                                 <div
                                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
@@ -607,7 +607,7 @@ onMounted(() => {
                                                     </div>
                                                     <div :class="{ 'bg-violet/5': true }"
                                                         class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                        Аренда №123
+                                                        {{ sub }}
                                                     </div>
                                                     <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">20.12.2024
                                                     </div>
