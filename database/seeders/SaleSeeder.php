@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\SaleContragent;
 use Illuminate\Database\Seeder;
 use App\Models\Contragents;
 use App\Models\Equipment;
@@ -34,6 +35,9 @@ class SaleSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
+            $sa123 = SaleContragent::insert([
+                'contragent_id' => $contragent->id
+            ]);
             $saleId = DB::table('sale')->insertGetId([
                 'contragent_id' => $contragent->id,
                 'sale_number' => Str::random(10),

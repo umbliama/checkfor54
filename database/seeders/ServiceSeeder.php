@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Contragents;
 use App\Models\Equipment;
+use App\Models\ServiceContragent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -29,6 +30,10 @@ class ServiceSeeder extends Seeder
                 'customer' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ]);
+
+            $asd = ServiceContragent::insert([
+                'contragent_id' => $contragent->id,
             ]);
 
             // Insert Service   
