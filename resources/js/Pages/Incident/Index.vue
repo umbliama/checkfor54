@@ -30,17 +30,21 @@ import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
 import 'swiper/css';
 import IncidentPagination from '@/Components/IncidentPagination.vue';
 import UiNotification from '@/Components/Ui/UiNotification.vue';
+import IncidentsDialog from "@/Components/Incidents/IncidentsDialog.vue";
 
 const page = usePage()
 
 const user = computed(() => page.props.auth.user);
+const is_dialog_open = ref(false);
 
 const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
 const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
+const getSelectedEquipment = computed(() => store.getters['incident/getSelectedEquipment']);
 const selectedSubEquipmentArray = computed(() => store.getters['services/getSubSelectedEquipmentObjects']);
 const selectedEquipmentService = computed(() => store.getters['services/getSelectedEquipmentService']);
 const modalShown = computed(() => store.getters['services/getModalShown']);
 const getMenuActiveItem = computed(() => store.getters['incident/getActiveMenuItem']);
+const equipment_list = ref([])
 const subEquipment = computed(() => store.getters['services/getSubEquipment'])
 const props = defineProps({
     tasksColumns: Object,
@@ -64,7 +68,13 @@ const updateActiveMenuItem = (value) => {
     store.dispatch('incident/updateActiveMenuItem', value)
 }
 
+const removeEquipment = (id) => {
+    const index = equipment_list.value.findIndex(item => item.id === id);
 
+    if (index !== -1) {
+        equipment_list.value.splice(index, 1);
+    }
+};
 
 const form = reactive({
     mediaFile: null,
@@ -79,6 +89,9 @@ const form = reactive({
     files: null
 });
 
+const openModal = () => {
+    is_dialog_open.value = true
+}
 
 const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -180,12 +193,29 @@ const handleFileUpload = async (event, columnId, blockId) => {
     }
 };
 
-
+watch(getSelectedEquipment, async (newValue, oldValue) => {
+    if (newValue) {
+        try {
+            const response = await fetch(`/api/equipmentExtra/${newValue}`);
+            const data = await response.json();
+            const extended = {
+                id:data.equipment.id,
+                category:data.equipment.category,
+                size:data.equipment.size,
+                series:data.equipment.series
+            };
+            equipment_list.value.push(extended)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}, { deep: true });
 
 
 const saveBlock = async (blockId, blockData) => {
     try {
         const response = await router.post(`constructor/block/${blockId}/save`, blockData);
+        equipment_list.value = [];
     } catch (error) {
         console.error('Error saving block:', error);
     }
@@ -225,6 +255,7 @@ onBeforeMount(() => {
     <AuthenticatedLayout>
         <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
         <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error"  />
+        <IncidentsDialog v-model="is_dialog_open" />
         <div class="p-5">
             <div class="relative flex items-center justify-between flex-col lg:flex-row">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
@@ -642,7 +673,25 @@ onBeforeMount(() => {
                                         </div>
                                     </template>
                                     <template v-if="block.type == 'equipment'">
-                                        <UiField label="Оборудование" v-model="block.equipment" textarea />
+                                        <p @click="openModal">Нажмите чтобы выбрать оборудование</p>
+                                        <div>
+                                            <ul>
+                                                <li v-for="item in equipment_list" :key="item.id">
+
+                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} <button @click="removeEquipment(item.id)">удалить</button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div>
+                                            <ul>
+                                                <li v-for="item in block.equipment" :key="item.id">
+
+                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} 
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
 
@@ -670,7 +719,7 @@ onBeforeMount(() => {
                                                             :side-offset="5" align="end">
                                                             <DropdownMenuItem>
                                                                 <Link
-                                                                    @click="saveBlock(block.id, { equipment: block.equipment });">
+                                                                    @click="saveBlock(block.id, { equipment: equipment_list });">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                     Сохранить блок
@@ -1244,7 +1293,25 @@ onBeforeMount(() => {
                                         </div>
                                     </template>
                                     <template v-if="block.type == 'equipment'">
-                                        <UiField label="Оборудование" v-model="block.equipment" textarea />
+                                        <p @click="openModal">Нажмите чтобы выбрать оборудование</p>
+                                        <div>
+                                            <ul>
+                                                <li v-for="item in equipment_list" :key="item.id">
+
+                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} <button @click="removeEquipment(item.id)">удалить</button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div>
+                                            <ul>
+                                                <li v-for="item in block.equipment" :key="item.id">
+
+                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} 
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
 
@@ -1272,7 +1339,7 @@ onBeforeMount(() => {
                                                             :side-offset="5" align="end">
                                                             <DropdownMenuItem>
                                                                 <Link
-                                                                    @click="saveBlock(block.id, { equipment: block.equipment });">
+                                                                    @click="saveBlock(block.id, { equipment: equipment_list });">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                     Сохранить блок

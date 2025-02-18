@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('column_id')->constrained()->onDelete('cascade');
             $table->string('type');
             $table->foreignId('contragent_id')->nullable()->constrained()->nullOnDelete(); 
-            $table->text('equipment')->nullable()->constrained()->nullOnDelete(); 
+            $table->json('equipment')->nullable(); 
             $table->json('media_url')->nullable();
             $table->json('file_url')->nullable();
             $table->text('commentary')->nullable();

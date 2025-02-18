@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Events\NewNotification;
 use App\Models\Block;
 use App\Models\Column;
 use App\Models\Notification;
@@ -30,7 +31,7 @@ class IncidentController extends Controller
             ->where('isArchive', 0);
 
         // Query for Advertisements
-        $advQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user'   )
+        $advQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->where('type', 'adv')
             ->where('isArchive', 0);
 
@@ -93,6 +94,23 @@ class IncidentController extends Controller
         $contragents = Contragents::all();
         $employees = User::where('isAdmin', 0)->get();
 
+
+        $tasksColumns->getCollection()->transform(function ($column) {
+            $column->blocks->transform(function ($block) {
+                $block->equipment = json_decode($block->equipment, true); // Decode equipment field
+                return $block;
+            });
+            return $column;
+        });
+
+        $advColumns->getCollection()->transform(function ($column) {
+            $column->blocks->transform(function ($block) {
+                $block->equipment = json_decode($block->equipment, true); // Decode equipment field
+                return $block;
+            });
+            return $column;
+        });
+
         return Inertia::render('Incident/Index', [
             'advColumnsArchivedCount' => $advColumnsArchivedCount,
             'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount,
@@ -124,11 +142,13 @@ class IncidentController extends Controller
             $position = Column::max('position') + 1;
             $user_id = Auth::id();
             $column = Column::create(['position' => $position, 'type' => $request->input('type'), 'creator_id' => Auth::id()]);
-            Notification::create([
+            $notification = Notification::create([
                 'type' => 'Создана новая колонка',
                 'data' => ['position' => $position],
                 'user_id' => $user_id
             ]);
+
+            event(new NewNotification($notification));
             $this->createBlock($column, 'customer');
             $this->createBlock($column, 'equipment');
             return back()->with('message', 'Колонка успешно создана');
@@ -289,34 +309,47 @@ class IncidentController extends Controller
     {
         try {
             $type = $block->type;
-
             $data = $this->prepareBlockContent($type, $request);
-
+    
+            // Retrieve existing equipment data (if any)
+            $existingEquipment = json_decode($block->equipment, true) ?? [];
+    
+            // Merge new equipment data with existing data
+            if ($type === 'equipment' && isset($data['equipment'])) {
+                $newEquipment = $data['equipment'];
+                if (!is_array($newEquipment)) {
+                    $newEquipment = [$newEquipment]; // Ensure it's an array
+                }
+                $mergedEquipment = array_merge($existingEquipment, $newEquipment);
+                $data['equipment'] = json_encode($mergedEquipment); // Save as JSON
+            }
+    
+            // Update the block with merged data
             $block->update([
                 'media_url' => $data['media_url'] ?? $block->media_url,
                 'file_url' => $data['file_url'] ?? $block->file_url,
                 'contragent_id' => $request->input('contragent_id', $block->contragent_id),
                 'commentary' => $request->input('commentary', $block->commentary),
                 'employee_id' => $request->input('employee_id', $block->employee_id),
-                'equipment' => $request->input('equipment', $block->equipment),
+                'equipment' => $data['equipment'] ?? $block->equipment,
             ]);
+    
+            // Additional logic for specific block types
             if ($block->type == 'customer') {
                 $block->column()->update([
                     'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),
                 ]);
             }
-
+    
             if ($request->input('subEquipmentArray')) {
                 $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
             }
+    
             return back()->with('message', 'Данные блока сохранены');
-
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
-
         }
-    }
-    private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
+    }    private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
     {
         $block->subequipment()->detach();
 
