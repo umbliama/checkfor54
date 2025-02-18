@@ -204,33 +204,9 @@ onMounted(() => {
 
             <div class="block mt-4 lg:hidden">
                 <div class="flex justify-between bg-my-gray p-1 text-sm lg:hidden">
-                    <UiField :inp-attrs="{ class: 'bg-white text-sm', placeholder: 'Поиск...' }"
-                        class="w-[calc(50%-10px)]">
-                        <template #prepend>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M14.3424 13.5813L10.9759 10.2155C11.9517 9.04407 12.4382 7.54156 12.3344 6.02054C12.2305 4.49952 11.5443 3.07708 10.4184 2.04914C9.29248 1.0212 7.81363 0.466892 6.28946 0.501531C4.76529 0.53617 3.31315 1.15709 2.23512 2.23512C1.15709 3.31315 0.53617 4.76529 0.501531 6.28946C0.466892 7.81363 1.0212 9.29248 2.04914 10.4184C3.07708 11.5443 4.49952 12.2305 6.02054 12.3344C7.54156 12.4382 9.04407 11.9517 10.2155 10.9759L13.5813 14.3424C13.6312 14.3923 13.6906 14.432 13.7559 14.459C13.8212 14.4861 13.8911 14.5 13.9618 14.5C14.0325 14.5 14.1025 14.4861 14.1678 14.459C14.2331 14.432 14.2924 14.3923 14.3424 14.3424C14.3923 14.2924 14.432 14.2331 14.459 14.1678C14.4861 14.1025 14.5 14.0325 14.5 13.9618C14.5 13.8911 14.4861 13.8212 14.459 13.7559C14.432 13.6906 14.3923 13.6312 14.3424 13.5813ZM1.59062 6.43152C1.59062 5.47408 1.87453 4.53814 2.40646 3.74206C2.93838 2.94598 3.69443 2.32551 4.57899 1.95911C5.46355 1.59271 6.43689 1.49685 7.37594 1.68363C8.31498 1.87042 9.17755 2.33147 9.85456 3.00849C10.5316 3.6855 10.9926 4.54807 11.1794 5.48711C11.3662 6.42615 11.2703 7.3995 10.9039 8.28406C10.5375 9.16862 9.91707 9.92466 9.12099 10.4566C8.3249 10.9885 7.38896 11.2724 6.43152 11.2724C5.14807 11.271 3.9176 10.7605 3.01006 9.85299C2.10252 8.94545 1.59204 7.71497 1.59062 6.43152Z"
-                                    fill="#787878" />
-                            </svg>
-                        </template>
-                    </UiField>
-
-                    <div class="flex mx-2 items-center">
-                        <svg width="5" height="34" viewBox="0 0 3 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <mask id="path-1-inside-1_2101_84576" fill="white">
-                                <path d="M0.5 0H2.5V28H0.5V0Z" />
-                            </mask>
-                            <path d="M0.5 0H2.5V28H0.5V0Z" fill="white" />
-                            <path
-                                d="M0 0V1H1V0H0ZM0 3V5H1V3H0ZM0 7V9H1V7H0ZM0 11V13H1V11H0ZM0 15V17H1V15H0ZM0 19V21H1V19H0ZM0 23V25H1V23H0ZM0 27V28H1V27H0ZM-0.5 0V1H1.5V0H-0.5ZM-0.5 3V5H1.5V3H-0.5ZM-0.5 7V9H1.5V7H-0.5ZM-0.5 11V13H1.5V11H-0.5ZM-0.5 15V17H1.5V15H-0.5ZM-0.5 19V21H1.5V19H-0.5ZM-0.5 23V25H1.5V23H-0.5ZM-0.5 27V28H1.5V27H-0.5Z"
-                                fill="#C1C7CD" mask="url(#path-1-inside-1_2101_84576)" />
-                        </svg>
-                    </div>
-
                     <PopoverRoot>
                         <PopoverTrigger
-                            class="flex items-center w-[calc(50%-10px)] py-2 px-3 text-gray1 bg-white lg:py-3 lg:px-4">
+                            class="flex items-center w-full py-2 px-3 text-gray1 bg-white lg:py-3 lg:px-4">
                             <svg class="block mr-2" width="25" height="24" viewBox="0 0 25 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -241,7 +217,7 @@ onMounted(() => {
                         </PopoverTrigger>
                         <PopoverPortal>
                             <PopoverContent side="bottom" align="end" :side-offset="5"
-                                class="rounded p-3 w-[360px] bg-white shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)] focus:shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2),0_0_0_2px_theme(colors.green7)] will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade lg:p-5">
+                                class="rounded p-3 w-[var(--radix-popover-trigger-width)] bg-white shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2)] focus:shadow-[0_10px_38px_-10px_hsla(206,22%,7%,.35),0_10px_20px_-15px_hsla(206,22%,7%,.2),0_0_0_2px_theme(colors.green7)] will-change-[transform,opacity] data-[state=open]:data-[side=top]:animate-slideDownAndFade data-[state=open]:data-[side=right]:animate-slideLeftAndFade data-[state=open]:data-[side=bottom]:animate-slideUpAndFade data-[state=open]:data-[side=left]:animate-slideRightAndFade lg:p-5">
                                 <div class="flex w-full text-sm lg:w-auto lg:text-base lg:mt-0">
                                     <UiFieldDate v-model="start_date"
                                         :inp-attrs="{ placeholder: 'Начало', class: 'bg-white' }"
@@ -336,8 +312,10 @@ onMounted(() => {
                 </ul>
 
                 <div class="w-full lg:w-[calc(100%-168px-14px)]">
-                    <form class="hidden items-center justify-between py-2 px-2.5 bg-bg1 lg:flex">
-                        <UiField :inp-attrs="{ class: 'bg-white', placeholder: 'Поиск...' }" size="sm">
+                    <div class="items-center justify-between py-2 px-2.5 bg-bg2 text-sm lg:flex">
+                        <div class="font-bold">ООО Иргъма: 10.03.2024</div>
+                        
+                        <!-- <UiField :inp-attrs="{ class: 'bg-white', placeholder: 'Поиск...' }" size="sm">
                             <template #prepend>
                                 <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -346,13 +324,13 @@ onMounted(() => {
                                         fill="#787878" />
                                 </svg>
                             </template>
-                        </UiField>
-                        <div class="font-medium text-[#484964]">
+                        </UiField> -->
+                        <div class="mt-2 font-medium text-[#484964] lg:mt-0">
                             Доход за весь период: 1 280 000 ₽
                         </div>
-                    </form>
+                    </div>
 
-                    <div class="w-full max-w-full mt-6 bg-bg2 overflow-x-auto border border-gray3">
+                    <div class="w-full max-w-full bg-bg2 overflow-x-auto border border-gray3">
                         <div class="min-w-[1136px] text-xs">
                             <div
                                 class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
