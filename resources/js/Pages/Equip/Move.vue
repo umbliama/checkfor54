@@ -19,6 +19,7 @@ import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
 import UiNotification from '@/Components/Ui/UiNotification.vue';
 import EquipMoveEditDialog from '@/Components/Equip/EquipMoveEditDialog.vue';
+import axios from 'axios';
 const props = defineProps({
     equipmentSeries: Array,
     equipment_locations: Array,
@@ -70,7 +71,21 @@ const setSeriesId = (seriesId) => {
 }
 
 const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
-    moves.value = props.equipment_moves
+
+    axios.get('/api/equip/moves', {
+        params: {
+            series: selectedCategory.value,
+            category_id: selectedSize.value,
+            size_id: seriesActive.value
+        }
+    })
+        .then(response => {
+            moves.value = response.data
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        }); 
+
 }
 
 const updateUrl = () => {
@@ -577,7 +592,7 @@ onMounted(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link :href="route('equip.destroyMove', move.id)"
+                                                                <Link :href="route('equip.destroyMove', move.id)" @click="updateRepairTable(selectedCategory,selectedSize,seriesActive)"    
                                                                     method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить

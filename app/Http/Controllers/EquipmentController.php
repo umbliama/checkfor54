@@ -1025,7 +1025,6 @@ class EquipmentController extends Controller
 
         $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->get();
 
-        dd($equipment_moves);
 
 
         return Inertia::render('Equip/Move', [
@@ -1047,8 +1046,8 @@ class EquipmentController extends Controller
                 'send_date' => 'required|date',
                 'from' => 'nullable|int',
                 'to' => 'nullable|int',
-                'reason' => 'nullable|string',
-                'expense' => 'nullable|min:3|max:200',
+                'reason' => 'required|string',
+                'expense' => 'required|min:3|max:200',
                 'category_id' => 'required|int',
                 'size_id' => 'required|int',
                 'series' => 'required|string',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contragents;
 use App\Models\Equipment;
 use App\Models\EquipmentCategories;
+use App\Models\EquipmentMove;
 use App\Models\EquipmentSize;
 use App\Models\EquipmentTest;
 use App\Models\Service;
@@ -41,6 +42,31 @@ class EquipmentController extends Controller
             });
 
         return response()->json($repairs);
+    }
+    public function getFilteredMoves(Request $request)
+    {
+        $series = $request->input('series');
+        $category = $request->input('category_id');
+        $size = $request->input('size_id');
+
+        $repairs = EquipmentMove::where($category, function ($query, $category) {
+            return $query->where('category_id', $category);
+        })
+            ->where($size, function ($query, $size) {
+                return $query->where('size_id', $size);
+            })
+            ->where($series, function ($query, $series) {
+                return $query->where('series', $series);
+            })
+            ->get()->map(function ($repair) {
+                if(isset($repair->directory['files'])){
+                    $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
+                }
+                return $repair;
+            });
+            
+
+        return $repairs;
     }
     public function getFilteredReports(Request $request)
     {

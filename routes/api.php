@@ -36,6 +36,7 @@ Route::get('/equip/repair', [EquipmentController::class, 'getFilteredRepairs']);
 Route::get('/equip/report', [EquipmentController::class, 'getFilteredReports']);
 Route::get('/equip/tests', [EquipmentController::class, 'getFilteredTests']);
 Route::get('/equip/services', [EquipmentController::class, 'getFilteredServicesInActive']);
+Route::get('/equip/moves', [EquipmentController::class, 'getFilteredMoves']);
 
 
 Route::get('/getNotificationsByUserId/{id}', [NotificationController::class, 'getNotificationsByUserId']);
