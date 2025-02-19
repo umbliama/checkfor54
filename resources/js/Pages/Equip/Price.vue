@@ -206,7 +206,7 @@ const lastPage = ref(props.prices.last_page || 1);
 
 onMounted(() => {
     const { current_page, total } = props.prices;
-
+    
     store.dispatch('pagination/updatePagination', {
         currentPage: current_page,
         totalPages: total,
