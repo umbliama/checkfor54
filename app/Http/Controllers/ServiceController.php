@@ -463,11 +463,9 @@ class ServiceController extends Controller
                     $store_price = $equipmentPrice->store_price;
                     $operation_price = $equipmentPrice->operation_price;
 
-                    // Расчёт income для основного оборудования
                     $operating = $equipmentData['operating'] ?? 0;
                     $store = $equipmentData['store'] ?? 0;
 
-                    // Get existing record
                     $existingServiceEquipment = ServiceEquip::where('service_id', $service->id)
                         ->where('equipment_id', $equipment_id)
                         ->first();
@@ -508,6 +506,7 @@ class ServiceController extends Controller
                             ]
                         );
                     }
+
 
                     $fullIncome += $income;
                     if (isset($equipmentData['subEquipment']) && is_array($equipmentData['subEquipment'])) {
@@ -560,6 +559,7 @@ class ServiceController extends Controller
                                         ]
                                     );
                                 }
+
 
                                 $fullIncome += $subincome;
                             } catch (\Exception $e) {
