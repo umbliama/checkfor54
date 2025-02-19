@@ -54,6 +54,13 @@ const submit = () => {
                 :error="form.errors.password"
                 label="Пароль"
             />
+            <UiField
+                v-model="form.password_confirmation"
+                :inp-attrs="{ required: true, autocomplete: 'new-password', type: 'password' }"
+                :error="form.errors.password"
+                label="Еще раз пароль"
+            />
+
 
             <div class="text-center">Нажимая «Продолжить», вы принимаете пользовательское соглашение и политику конфиденциальности</div>
 
