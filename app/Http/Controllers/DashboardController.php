@@ -15,7 +15,9 @@ use App\Models\Service;
 use App\Models\ServiceEquip;
 use App\Models\ServiceSub;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+
 
 use Inertia\Inertia;
 
@@ -147,16 +149,23 @@ class DashboardController extends Controller
                     $query->with(['equipment']);
                 }
             ])
-            ->paginate($perPage);
+            ->paginate(10);
 
-            $rented_services_grouped = $rented_services_paginated->getCollection()
-            ->groupBy('contragent_id') 
+        $rented_services_grouped = $rented_services_paginated->getCollection()
+            ->groupBy('contragent_id')
             ->map(function ($services) {
                 return $services->flatMap(function ($service) {
+                    // Debug: Check if mainServices exist
+    
                     return $service->mainServices->map(function ($serviceEquip) use ($service) {
+                        // Debug: Check if serviceSubs exist
                         return [
                             'service_equipment' => [
+                                'service_date' => $service->service_date,
                                 'id' => $serviceEquip->id,
+                                'shipping_date' => $serviceEquip->shipping_date,
+                                'commentary' => $serviceEquip->commentary,
+                                'income' => $serviceEquip->income,
                                 'equipment' => [
                                     'id' => $serviceEquip->equipment->id ?? null,
                                     'category' => $serviceEquip->equipment->category->name ?? null,
@@ -167,11 +176,13 @@ class DashboardController extends Controller
                                     return [
                                         'id' => $serviceSub->id,
                                         'commentary' => $serviceSub->commentary,
+                                        'shipping_date' => $serviceSub->shipping_date,
+                                        'income' => $serviceSub->income,
                                         'equipment' => [
-                                            'id' => $serviceEquip->equipment->id ?? null,
-                                            'category' => $serviceEquip->equipment->category->name ?? null,
-                                            'size' => $serviceEquip->equipment->size->name ?? null,
-                                            'series' => $serviceEquip->equipment->series ?? null,
+                                            'id' => $serviceSub->equipment->id ?? null,
+                                            'category' => $serviceSub->equipment->category->name ?? null,
+                                            'size' => $serviceSub->equipment->size->name ?? null,
+                                            'series' => $serviceSub->equipment->series ?? null,
                                         ],
                                     ];
                                 })->toArray(),
@@ -181,6 +192,28 @@ class DashboardController extends Controller
                 });
             });
 
+            $paginated_result = new LengthAwarePaginator(
+                $rented_services_grouped->values(), // Flatten the grouped collection for pagination
+                $rented_services_paginated->total(), // Total count from original pagination
+                $rented_services_paginated->perPage(), // Items per page
+                $rented_services_paginated->currentPage(), // Current page
+                ['path' => $rented_services_paginated->getPageName()] // Path for pagination links
+            );
+            
+            $pagination_links = [
+                'first_page_url' => $paginated_result->url(1),
+                'last_page_url' => $paginated_result->url($paginated_result->lastPage()),
+                'next_page_url' => $paginated_result->nextPageUrl(),
+                'prev_page_url' => $paginated_result->previousPageUrl(),
+                'current_page_url' => $paginated_result->url($paginated_result->currentPage()),
+                'pages' => array_map(function ($page) use ($paginated_result) {
+                    return [
+                        'page_number' => $page,
+                        'url' => $paginated_result->url($page),
+                    ];
+                }, range(1, $paginated_result->lastPage())),
+            ];
+  
         return Inertia::render('Dashboard/Rent', [
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'equipment_sizes' => $equipment_sizes,
@@ -190,13 +223,17 @@ class DashboardController extends Controller
             'contragents' => $contragents,
             'rented_equipment' => $rented_services_paginated,
             'rented_services_grouped' => $rented_services_grouped,
-            'pagination' => [
-                'total' => $rented_services_paginated->total(),
-                'per_page' => $rented_services_paginated->perPage(),
-                'current_page' => $rented_services_paginated->currentPage(),
-                'last_page' => $rented_services_paginated->lastPage(),
-                'from' => $rented_services_paginated->firstItem(),
-                'to' => $rented_services_paginated->lastItem(),
+            'paginated' => [
+                'data' => $paginated_result->items(), 
+                'pagination' => [
+                    'total' => $paginated_result->total(),
+                    'per_page' => $paginated_result->perPage(),
+                    'current_page' => $paginated_result->currentPage(),
+                    'last_page' => $paginated_result->lastPage(),
+                    'from' => $paginated_result->firstItem(),
+                    'to' => $paginated_result->lastItem(),
+                    'links' => $pagination_links, 
+                ],
             ],
         ]);
     }

@@ -1,6 +1,7 @@
 <script setup>
 import DashboardToolbar from '@/Components/Dashboard/DashboardToolbar.vue';
 import Pagination from '@/Components/Pagination.vue';
+import RentPagination from '@/Components/RentPagination.vue';
 import UiField from '@/Components/Ui/UiField.vue';
 import UiFieldDate from '@/Components/Ui/UiFieldDate.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
@@ -30,6 +31,7 @@ import {
     PopoverTrigger
 } from 'radix-vue'
 import { ref, reactive, onMounted } from 'vue';
+
 
 const selected_series = ref();
 const start_date = ref();
@@ -73,7 +75,7 @@ const props = defineProps({
     rented_equipment: Array,
     rented_services_grouped: Array,
     equipment: Object,
-    pagination: Object,
+    paginated: Object,
     equipment_sizes: Array,
     equipment_sizes_counts: Array
 });
@@ -95,6 +97,16 @@ const setCategoryId = (categoryId) => {
     filters.category_id = categoryId
     chosenCategory.value = categoryId
     updateUrl();
+}
+function calculateTotalIncome(services) {
+  return services.reduce((sum, item) => {
+    const mainIncome = item.service_equipment.income || 0;
+    const subEquipmentsIncome = item.service_equipment.services_subequipment.reduce(
+      (subSum, subItem) => subSum + (subItem.income || 0),
+      0
+    );
+    return sum + mainIncome + subEquipmentsIncome;
+  }, 0);
 }
 
 
@@ -316,9 +328,9 @@ onMounted(() => {
                     <div class="space-y-6">
                         <div v-for="(services, contragentId, index) in rented_services_grouped">
                             <div class="items-center justify-between py-2 px-2.5 bg-bg2 text-sm lg:flex">
-                                <div class="font-bold">{{ contragentData(contragentId).name }} 10.03.2024</div>
+                                <div class="font-bold">{{ contragentData(contragentId - 1).name }} {{ services[0].service_equipment.service_date }}</div>
                                 <div class="mt-2 font-medium text-[#484964] lg:mt-0">
-                                    Доход за весь период: 1 280 000 ₽
+                                    Доход за весь период: {{ calculateTotalIncome(services) }} ₽
                                 </div>
                             </div>
 
@@ -404,12 +416,12 @@ onMounted(() => {
                                                             </svg>
                                                         </AccordionTrigger>
                                                     </div>
-                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">12.12.2024
+                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ service.service_equipment.shipping_date }}
                                                     </div>
                                                     <div
                                                         class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
-                                                        Somesome</div>
-                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">12332 ₽
+                                                        {{service.service_equipment.commentary ?? '-'}}</div>
+                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{service.service_equipment.income ?? 0}} ₽
                                                     </div>
                                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                                         <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
@@ -607,14 +619,14 @@ onMounted(() => {
                                                     </div>
                                                     <div :class="{ 'bg-violet/5': true }"
                                                         class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                                        {{ sub }}
+                                                        {{ sub.equipment.category }} {{ sub.equipment.size }} {{ sub.equipment.series }}
                                                     </div>
-                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">20.12.2024
+                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ sub.shipping_date }}
                                                     </div>
                                                     <div
                                                         class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)] py-2.5 px-2">
-                                                        asdasdas</div>
-                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">12333 ₽</div>
+                                                        {{sub.commentary}}</div>
+                                                    <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ sub.income ?? 0 }} ₽</div>
                                                     <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                                         <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
                                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -809,9 +821,9 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-
-                    <Pagination :links="[1, 2, 3]" current-page="1" total-pages="2" total-count="23"
-                        class="mt-6 bg-bg1" />
+                    {{ paginated}}
+                    <RentPagination v-model="paginated.pagination.current_page"
+                :total-pages="paginated.pagination.last_page" class="mt-5" />
                 </div>
             </div>
         </div>
