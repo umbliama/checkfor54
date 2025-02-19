@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('size_id')->constrained('equipment_sizes');
             $table->string('series');
             $table->foreignId('equipment_id')->constrained('equipment');
+            $table->boolean('isLocked')->default(false);
         });
     }
 

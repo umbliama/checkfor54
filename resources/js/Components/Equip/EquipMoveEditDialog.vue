@@ -40,8 +40,8 @@ watch(model, new_val => {
 
     send_date     .value = $props.move.send_date;
     departure_date.value = $props.move.departure_date;
-    from          .value = { title: $props.locations.find(l=>l.id==$props.move.from).name, value: $props.move.from };
-    to            .value = { title: $props.locations.find(l=>l.id==$props.move.to)  .name, value: $props.move.to   };
+    from          .value = { title: $props.locations.find(l=>l.id==$props.move.from)?.name || $props.locations[0].id, value: $props.move.from };
+    to            .value = { title: $props.locations.find(l=>l.id==$props.move.to)  ?.name || $props.locations[0].id, value: $props.move.to   };
     reason        .value = $props.move.reason;
     expense       .value = $props.move.expense;
 });
@@ -76,7 +76,7 @@ async function submit() {
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.95 8.464a1 1 0 0 0-1.414-1.414L12 10.586L8.464 7.05A1 1 0 1 0 7.05 8.464L10.586 12L7.05 15.536a1 1 0 1 0 1.414 1.414L12 13.414l3.536 3.536a1 1 0 1 0 1.414-1.414L13.414 12z"/></svg>
                         </DialogClose>
                     </DialogTitle>
-                    <form class="mt-8 space-y-4" @submit="submit">
+                    <div class="mt-8 space-y-4" >
                         <UiFieldDate
                             v-model="send_date"
                             label="Дата отправки"
@@ -92,12 +92,12 @@ async function submit() {
                         <UiField v-model="reason" label="Описание" />
                         <UiField v-model="expense" :inp-attrs="{ type: 'number' }" label="Расход, ₽" />
 
-                        <button
+                        <button @click="submit"
                             :disabled="false"
                             type="submit"
                             class="w-full mt-4 bg-my-gray text-side-gray-text font-bold px-6 py-3 disabled:opacity-40"
                         >Сохранить</button>
-                    </form>
+                    </div>
                 </DialogContent>
             </transition>
         </DialogPortal>

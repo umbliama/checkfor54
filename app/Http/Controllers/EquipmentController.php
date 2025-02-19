@@ -1025,6 +1025,8 @@ class EquipmentController extends Controller
 
         $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->get();
 
+        dd($equipment_moves);
+
 
         return Inertia::render('Equip/Move', [
             'equipmentSeries' => $equipment_series,
@@ -1071,6 +1073,58 @@ class EquipmentController extends Controller
 
             return back()->with('message', 'Запись успешно добавлена.');
         } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function updateMove(Request $request, $id)
+    {
+        try {
+            // Validate the incoming request data
+            $request->validate([
+                'send_date' => 'required|date',
+                'from' => 'nullable|int',
+                'to' => 'nullable|int',
+                'reason' => 'nullable|string',
+                'expense' => 'nullable|min:3|max:200',
+            ]);
+
+            // Find the specific move record by equipment_id
+            $moveRecord = EquipmentMove::where('id', $id)->latest()->first();
+
+
+            if (!$moveRecord) {
+                return back()->with('error', 'Запись перемещения для данного оборудования не найдена.');
+            }
+
+            // Update the move record with the new data
+            $moveRecord->update(array_merge($request->all()));
+
+            return back()->with('message', 'Запись успешно обновлена.');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function closeMove(Request $request)
+    {
+        try {
+            $repair = EquipmentMove::findOrFail($request->equipment_id);
+            $request->validate([
+                'send_date' => 'required|date',
+                'from' => 'required|int',
+                'to' => 'required|int',
+                'departure_date' => 'required|date',
+                'reason' => 'required|string',
+                'expense' => 'required|min:1|max:200',
+                'equipment_id' => 'required|exists:equipment,id',
+            ]);
+
+
+            $repair->update($request->all());
+
+            return back()->with('message', 'Статус перемещения изменен');
+        } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
