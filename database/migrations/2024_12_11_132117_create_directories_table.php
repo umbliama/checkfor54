@@ -20,8 +20,21 @@ return new class extends Migration
             $table->foreignId('test_id')->nullable();
             $table->foreignId('repair_id')->nullable();
             $table->foreignId('price_id')->nullable();
+            $table->foreignId('move_id')->nullable();
             $table->string('file_path')->nullable();
+            $table->integer('creator_id')->nullable();
             $table->text('commentary')->nullable();
+        });
+
+        Schema::create('directory_files', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('directory_id')->constrained()->onDelete('cascade'); 
+            $table->string('file_path');
+            $table->string('file_name')->nullable(); 
+            $table->string('mime_type')->nullable(); 
+            $table->integer('user_id');
+            $table->integer('size')->nullable(); 
+            $table->timestamps();
         });
     }
 

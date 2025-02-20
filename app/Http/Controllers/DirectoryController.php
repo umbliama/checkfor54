@@ -13,7 +13,7 @@ class DirectoryController extends Controller
      */
     public function index(Request $request, $type, $id)
     {
-        $allowedTypes = ['equipment', 'service', 'sale','test','repair','price'];
+        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair', 'price', 'move'];
 
         if (!in_array($type, $allowedTypes)) {
             return redirect()->back()->withErrors(['error' => 'Invalid directory type']);
@@ -22,7 +22,7 @@ class DirectoryController extends Controller
 
         $typeIdField = $type . '_id';
 
-        $directory = Directory::where($typeIdField, $id)->first();
+        $directory = Directory::with('files.uploader')->where($typeIdField, $id)->first();
 
         return Inertia::render('Directory/Index', [
             'directory' => $directory,
@@ -44,54 +44,57 @@ class DirectoryController extends Controller
      */
     public function store(Request $request, $type, $id)
     {
-        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair', 'price'];
-    
+        // Define allowed types
+        $allowedTypes = ['equipment', 'service', 'sale', 'test', 'repair', 'price', 'move'];
+
+        // Validate the type parameter
         if (!in_array($type, $allowedTypes)) {
             return response()->json(['error' => 'Invalid directory type'], 400);
         }
-    
+
+        // Validate request data
         $validatedData = $request->validate([
             'files.*' => 'nullable|file',
             'commentary' => 'required|string',
         ]);
-    
-        $successMessages = [];
-    
+
+        // Determine if we are creating or updating a record
+        $typeIdField = $type . '_id';
+        $record = Directory::where($typeIdField, $id)->first();
+
+        // Create or update the directory
+        if ($record) {
+            $record->update([
+                'commentary' => $validatedData['commentary'],
+            ]);
+        } else {
+            $record = Directory::create([
+                $typeIdField => $id,
+                'commentary' => $validatedData['commentary'],
+            ]);
+        }
+
         if ($request->hasFile('files')) {
             $uploadedFiles = $request->file('files');
-    
+
             foreach ($uploadedFiles as $file) {
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $filePath = 'files/' . $fileName;
-    
+
                 $file->move(public_path('files'), $fileName);
-    
-                Directory::create([
-                    $type . '_id' => $id,
+
+                $record->files()->create([
                     'file_path' => $filePath,
-                    'commentary' => $validatedData['commentary'],
+                    'file_name' => $fileName,
+                    'mime_type' => $file->getClientMimeType(),
+                    'user_id' => auth()->id(),
                 ]);
-    
-                $successMessages[] = "File '{$fileName}' uploaded successfully.";
             }
         }
-    
-        if (!$request->hasFile('files')) {
-            Directory::create([
-                $type . '_id' => $id,
-                'file_path' => null, // No file path since no file was uploaded
-                'commentary' => $validatedData['commentary'],
-            ]);
-    
-            $successMessages[] = "Commentary saved successfully.";
-        }
-    
-        $successMessage = implode(' ', $successMessages);
-    
-        return redirect()->back()->with('success', $successMessage);
+
+        // Redirect back with success message
+        return redirect()->back()->with('success', 'Files and commentary saved successfully.');
     }
-    
-    
     /**
      * Display the specified resource.
      */

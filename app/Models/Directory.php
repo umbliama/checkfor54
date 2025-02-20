@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Directory extends Model
 {
@@ -12,9 +13,10 @@ class Directory extends Model
         'service_id',
         'test_id',
         'repair_id',
+        'move_id',
         'price_id',
         'commentary',
-        'files'
+        'file_path'
     ];
     public function equipment()
     {
@@ -39,5 +41,14 @@ class Directory extends Model
     public function price()
     {
         return $this->belongsTo(EquipmentPrice::class);
+    }
+    public function move()
+    {
+        return $this->belongsTo(EquipmentMove::class);
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(DirectoryFiles::class);
     }
 }
