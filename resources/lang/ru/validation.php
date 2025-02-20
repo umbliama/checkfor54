@@ -167,6 +167,9 @@ return [
         'on_test_date' => 'Дата испытания',
         'test_date' => 'Испытания',
         'expense' => 'Расход',
-        'description' => 'Описание'
+        'description' => 'Описание',
+        'to' => 'Куда',
+        'departure_date' => 'Дата прибытия',
+        'send_date' => 'Дата отправки'
     ],
 ];

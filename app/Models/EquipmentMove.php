@@ -18,5 +18,10 @@ class EquipmentMove extends Model
         'series',
         'equipment_id',
     ];
+
+    public function directory()
+    {
+        return $this->hasOne(Directory::class, 'move_id', 'id');
+    }
     
 }

@@ -35,7 +35,7 @@ class EquipmentController extends Controller
             })
             ->with('directory')
             ->get()->map(function ($repair) {
-                if(isset($repair->directory['files'])){
+                if (isset($repair->directory['files'])) {
                     $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
                 }
                 return $repair;
@@ -49,22 +49,20 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
-        $repairs = EquipmentMove::where($category, function ($query, $category) {
-            return $query->where('category_id', $category);
-        })
-            ->where($size, function ($query, $size) {
-                return $query->where('size_id', $size);
-            })
-            ->where($series, function ($query, $series) {
-                return $query->where('series', $series);
-            })
-            ->get()->map(function ($repair) {
-                if(isset($repair->directory['files'])){
-                    $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
-                }
-                return $repair;
-            });
-            
+        $query = EquipmentMove::query();
+
+        if ($series) {
+            $query->where('series', $series);
+        }
+        if ($category) {
+            $query->where('category_id', $category);
+        }
+        if ($size) {
+            $query->where('size_id', $size);
+        }
+
+        $repairs = $query->with('directory.files.uploader')->get();
+
 
         return $repairs;
     }
@@ -90,6 +88,7 @@ class EquipmentController extends Controller
         $category = $request->input('category_id');
         $size = $request->input('size_id');
 
+
         $reports = EquipmentTest::when($category, function ($query, $category) {
             return $query->where('category_id', $category);
         })->when($size, function ($query, $size) {
@@ -97,12 +96,12 @@ class EquipmentController extends Controller
         })->when($series, function ($query, $series) {
             return $query->where('series', $series);
         })->with('directory')
-        ->get()->map(function ($repair) {
-            if(isset($repair->directory['files'])){
-                $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
-            }
-            return $repair;
-        });
+            ->get()->map(function ($repair) {
+                if (isset($repair->directory['files'])) {
+                    $repair->directory['files'] = json_decode($repair->directory['files'], true) ?? [];
+                }
+                return $repair;
+            });
 
 
 

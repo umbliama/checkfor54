@@ -55,7 +55,11 @@ async function submit() {
         reason        : reason        .value,
         expense       : expense       .value,
     });
+
+    model.value = false
 }
+
+
 
 </script>
 

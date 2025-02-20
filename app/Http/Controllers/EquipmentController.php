@@ -1015,7 +1015,7 @@ class EquipmentController extends Controller
                 return $query->where('size_id', $sizeId);
             })
             ->where('series', $series)
-            ->with('directory')->get()->map(function ($sale) {
+            ->with('directory.files.uploader')->get()->map(function ($sale) {
                 if (isset($sale->directory['files'])) {
                     $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
                 }
@@ -1023,7 +1023,7 @@ class EquipmentController extends Controller
             })->pluck('id');
 
 
-        $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->get();
+        $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->with('directory')->get();
 
 
         return Inertia::render('Equip/Move', [
@@ -1078,7 +1078,6 @@ class EquipmentController extends Controller
     public function updateMove(Request $request, $id)
     {
         try {
-            // Validate the incoming request data
             $request->validate([
                 'send_date' => 'required|date',
                 'from' => 'nullable|int',
@@ -1087,7 +1086,6 @@ class EquipmentController extends Controller
                 'expense' => 'nullable|min:3|max:200',
             ]);
 
-            // Find the specific move record by equipment_id
             $moveRecord = EquipmentMove::where('id', $id)->latest()->first();
 
 
@@ -1095,7 +1093,6 @@ class EquipmentController extends Controller
                 return back()->with('error', 'Запись перемещения для данного оборудования не найдена.');
             }
 
-            // Update the move record with the new data
             $moveRecord->update(array_merge($request->all()));
 
             return back()->with('message', 'Запись успешно обновлена.');
@@ -1116,10 +1113,11 @@ class EquipmentController extends Controller
                 'reason' => 'required|string',
                 'expense' => 'required|min:1|max:200',
                 'equipment_id' => 'required|exists:equipment,id',
+                'isLocked' => 'required|int'
             ]);
 
-
-            $repair->update($request->all());
+            $repair->isLocked = $request->isLocked;
+            $repair->save();
 
             return back()->with('message', 'Статус перемещения изменен');
         } catch (\Exception $e) {

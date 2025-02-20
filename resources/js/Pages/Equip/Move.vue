@@ -72,21 +72,23 @@ const setSeriesId = (seriesId) => {
 
 const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
 
+
     axios.get('/api/equip/moves', {
         params: {
-            series: selectedCategory.value,
-            category_id: selectedSize.value,
-            size_id: seriesActive.value
+            series: seriesActive,
+            category_id: selectedCategory,
+            size_id: selectedSize
         }
     })
-        .then(response => {
-            moves.value = response.data
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        }); 
-
-}
+    .then(response => {
+        moves.value = response.data;
+        console.log(response.data);
+        
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+};
 
 const updateUrl = () => {
     const params = {};
@@ -129,6 +131,7 @@ const closeMove = (id, send_date, departure_date,
         category_id: category_id,
         size_id: size_id,
         series: series,
+        isLocked: 1
     })
 }
 
@@ -307,12 +310,12 @@ onMounted(() => {
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[10.6%]">
-                                    <!-- <input type="text" v-model="equipment_location_found.name" class="block w-full h-full px-2 bg-transparent" /> -->
-                                    <select
+                                    <!-- <input type="text"  class="block w-full h-full px-2 bg-transparent" /> -->
+                                    <select v-model="equipment_location_found.id"
                                         class="w-full h-full border-none rounded px-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         disabled>
-                                        <option v-for="location in equipment_locations" :value="location.id">
-                                            {{ location.name }}
+                                        <option v-for="location in equipment_locations" :value="equipment_location_found.id">
+                                            {{ equipment_location_found.name }}
                                         </option>
                                     </select>
                                 </div>
@@ -473,7 +476,7 @@ onMounted(() => {
                                                             <div class="flex items-center max-w-full">
                                                                 <span
                                                                     class="grow block mr-auto text-ellipsis overflow-hidden">{{
-                                                                        file }}</span>
+                                                                        file.file_name }}</span>
                                                                 <svg class="shrink-0 block ml-2" width="20" height="20"
                                                                     viewBox="0 0 24 24" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -513,7 +516,7 @@ onMounted(() => {
                                                                                 class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                                 :side-offset="5" align="end">
                                                                                 <DropdownMenuItem>
-                                                                                    <Link :href="'/'"
+                                                                                    <a download :href="'/'+file.file_path"
                                                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                                     Скачать
                                                                                     <svg class="block ml-2"
@@ -527,7 +530,7 @@ onMounted(() => {
                                                                                             stroke-width="2"
                                                                                             d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                                     </svg>
-                                                                                    </Link>
+                                                                                    </a>
                                                                                 </DropdownMenuItem>
                                                                             </DropdownMenuContent>
                                                                         </transition>

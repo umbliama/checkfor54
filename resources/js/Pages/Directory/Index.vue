@@ -82,10 +82,10 @@ const submit = () => {
         <div class="flex flex-col px-6 pb-6 lg:items-start lg:flex-row">
             <div class="py-5 px-2 content-block lg:mr-6 lg:w-[220px]">
                 <div class="font-medium">Файлы:</div>
-                <div v-if="parsedFiles" class="mt-3 p-4 bg-bg1 text-xs">
-                    <div v-for="file in parsedFiles" class="flex items-center max-w-full">
-                        <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.split('/')[1] }}</span>
-                        <svg v-if="file.includes('.zip') || file.includes('.rar') || file.includes('.tar.gz')"
+                <div v-if="directory.files" class="mt-3 p-4 bg-bg1 text-xs">
+                    <div v-for="file in directory.files" class="flex items-center max-w-full">
+                        <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.file_name }}</span>
+                        <svg v-if="file.mime_type.includes('.zip') || file.mime_type.includes('.rar') || file.mime_type.includes('.tar.gz')"
                              width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M12.83 6H19C19.7956 6 20.5587 6.31607 21.1213 6.87868C21.6839 7.44129 22 8.20435 22 9V17C22 17.7956 21.6839 18.5587 21.1213 19.1213C20.5587 19.6839 19.7956 20 19 20H5C4.20435 20 3.44129 19.6839 2.87868 19.1213C2.31607 18.5587 2 17.7956 2 17V7C2 6.20435 2.31607 5.44129 2.87868 4.87868C3.44129 4.31607 4.20435 4 5 4H10C11.306 4 12.417 4.835 12.83 6ZM19 8H11.415L10.944 6.666C10.8748 6.47105 10.7468 6.30233 10.5778 6.18307C10.4087 6.06381 10.2069 5.99985 10 6H5C4.73478 6 4.48043 6.10536 4.29289 6.29289C4.10536 6.48043 4 6.73478 4 7V17C4 17.2652 4.10536 17.5196 4.29289 17.7071C4.48043 17.8946 4.73478 18 5 18H19C19.2652 18 19.5196 17.8946 19.7071 17.7071C19.8946 17.5196 20 17.2652 20 17V9C20 8.73478 19.8946 8.48043 19.7071 8.29289C19.5196 8.10536 19.2652 8 19 8ZM16 10H18V12H16V10ZM14 8H16V10H14V8ZM14 12H16V14H14V12ZM16 14H18V16H16V14ZM14 16H16V18H14V16Z"
