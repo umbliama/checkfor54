@@ -1025,8 +1025,6 @@ class EquipmentController extends Controller
 
         $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->get();
 
-        dd($equipment_moves);
-
 
         return Inertia::render('Equip/Move', [
             'equipmentSeries' => $equipment_series,
