@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 use App\Events\NewNotification;
+use App\Events\NotificationCountUpdated;
 use App\Models\Block;
 use App\Models\Column;
 use App\Models\Notification;
 use App\Models\Contragents;
+use App\Models\NotificationRead;
 use App\Models\User;
+use Illuminate\Broadcasting\Channel;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -149,6 +152,13 @@ class IncidentController extends Controller
             ]);
 
             event(new NewNotification($notification));
+            $otherUserIds = User::where('id', '!=', $user_id)->pluck('id')->toArray();
+
+            foreach ($otherUserIds as $userId) {
+    
+                $unreadCount = NotificationRead::where('user_id', $userId)->whereNull('read_at')->count();
+                event(new NotificationCountUpdated($unreadCount, $userId));
+            }
             $this->createBlock($column, 'customer');
             $this->createBlock($column, 'equipment');
             return back()->with('message', 'Колонка успешно создана');

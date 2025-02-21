@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\NotificationCountUpdated;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ContragentsController;
 use App\Http\Controllers\DashboardController;
@@ -27,6 +28,8 @@ Route::get('/', function () {
         return redirect('/login');
     }
 });
+
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/notallowed', function () {

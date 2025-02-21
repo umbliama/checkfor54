@@ -16,6 +16,10 @@ class Notification extends Model
         $this->update(['read_at' => now()]);
     }
 
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
     public function markAsUnread()
     {
         $this->update(['read_at' => null]);

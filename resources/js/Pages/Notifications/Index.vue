@@ -43,16 +43,8 @@ const unreadNotifications = computed(() => {
     }
 });
 
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const timeOptions = { hour: "2-digit", minute: "2-digit" };
 
-    return `${date.toLocaleDateString("en-US", options)}, ${date.toLocaleTimeString(
-        "en-US",
-        timeOptions
-    )}`;
-}
+
 
 const readAllNotifications = () => {
     fetch(`/api/notifications/read-all/${props.user_id}`, {
@@ -71,7 +63,17 @@ const readNotification = (id,userId) => {
         .then(response => response.json())
         .then(data => window.location.reload());
 }
+function formatDate(isoString) {
+    const date = new Date(isoString); 
 
+    const day = String(date.getUTCDate()).padStart(2, '0'); 
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); 
+    const year = date.getUTCFullYear();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${day}.${month}.${year} в ${hours}:${minutes}`;
+}
 </script>
 
 <template>
@@ -152,28 +154,18 @@ const readNotification = (id,userId) => {
                             Добавлен новый пользователь admin@admin.ru
                         </div>
                     </div>
-                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                    <div v-for="item in notifications" class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                         <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
-                            23.01.2025 в 12:47
+                            {{ formatDate(item.created_at) }}
                         </div>
                         <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2">
-                            Руслан Шакиров:
+                            {{ item.user.name }}:
                         </div>
                         <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2">
-                            Добавил(а) новое оборудование: ВЗД 172 ДР-1245
+                            {{ item.type }}
                         </div>
                     </div>
-                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
-                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2 bg-violet-full/10">
-                            23.01.2025 в 12:47
-                        </div>
-                        <div class="shrink-0 flex items-center w-[120px] py-2.5 px-2">
-                            Руслан Шакиров:
-                        </div>
-                        <div class="shrink-0 flex items-center w-[calc(100%-120px-120px)] py-2.5 px-2">
-                            <span class="text-danger">ВНИМАНИЕ!</span> ВЗД 43 ДР-1333 выведено из обращения. Причина: продано
-                        </div>
-                    </div>
+            
                 </div>
             </div>
         </div>

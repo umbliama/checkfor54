@@ -16,7 +16,7 @@ class NotificationController extends Controller
     public function index()
     {
         $user_id = Auth::id();
-        $notifications = Notification::where('user_id',"!=",$user_id)->get();
+        $notifications = Notification::with('user')->where('user_id',"!=",$user_id)->get();
         // $notifications = Notification::all();
         $read_notifications = NotificationRead::all();
         return Inertia::render('Notifications/Index', ['notifications' => $notifications, 'user_id' => $user_id,'read_notifications' => $read_notifications]);
