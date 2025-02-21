@@ -18,7 +18,7 @@ class ContragentsController extends Controller
         $searchTerm = $request->query('query');
         $perPage = $request->query('perPage', 10);
 
-        $query = Contragents::query();
+        $query = Contragents::query()->with('directory');
 
         if ($searchTerm) {
             $query->where(function ($query) use ($searchTerm) {
@@ -416,6 +416,39 @@ class ContragentsController extends Controller
             return back()->with('message', 'Документ обновлен.');
         } else {
             return response()->json(['message' => 'Document not found'], 404);
+        }
+    }
+
+    public function storeHyperLink(Request $request, $id)
+    {
+        $request->validate([
+            'hyperlink' => 'required|string'
+        ]);
+        $contragent = Contragents::find($id);
+
+        if (!$contragent) {
+            return response()->json(['error' => 'contragent not found'], 404);
+        }
+
+        $contragent->hyperlink = $request->input('hyperlink');
+
+        $contragent->save();
+    }
+    public function deleteHyperLink($id)
+    {
+        try {
+
+            $contragent = Contragents::find($id);
+
+            $contragent->hyperlink = null;
+
+            $contragent->save();
+
+            return back()->with('message', 'Ссылка удалена');
+
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+
         }
     }
 }

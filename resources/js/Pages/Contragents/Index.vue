@@ -17,6 +17,7 @@ import ContragentsToolbar from "@/Components/Contragents/ContragentsToolbar.vue"
 import UiUserBadge from "@/Components/Ui/UiUserAvatar.vue";
 import UiCheckbox from "@/Components/Ui/UiCheckbox.vue";
 import UiHyperlink from '@/Components/Ui/UiHyperlink.vue';
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'radix-vue'
 
 
 const query = ref((new URLSearchParams(window.location.search)).get('query') || '');
@@ -191,7 +192,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="bg-white">
-                        <div
+                        <div 
                             v-for="(item, i) in sortedContragets"
                             :key="item.id"
                             :class="{ 'bg-my-gray': selectedItems.includes(item.id), 'border-b': i < sortedContragets.length }"
@@ -203,7 +204,7 @@ onMounted(() => {
                                 <UiCheckbox v-model="selectedItems" :inp-attrs="{ value: item.id }" />
                             </div>
                             <div class="self-stretch flex items-center justify-center w-[44px] py-2 border-x border-l-[#644DED] border-r-[#DDE1E6]">
-                                <UiHyperlink :item-id="1" :hyperlink="'somoe.ru'" endpoint="/equipment" />
+                                <UiHyperlink   :item-id="item.id" :hyperlink="item.hyperlink" endpoint="/equipment/contragent" />
                             </div>
                             <div class="w-[calc(22.5%-44px)] flex py-2 px-3">
                                 <UiUserBadge :image="item.avatar" size="40px" class="shrink-0 mr-2" />
@@ -230,7 +231,7 @@ onMounted(() => {
                                 <ContragentStatus pingColor="#ff0000" dotColor="#00ff00" :status="item.status" />
                             </div>
                             <div class="flex w-20 py-2 px-3">
-                                <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
+                                <Link v-if="item.directory === null" :href="'/directory/contragent/' + item.id" class="mr-3.5">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -263,18 +264,11 @@ onMounted(() => {
                                         <PopoverContent side="bottom" align="end"
                                             class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                             <div>Комментарий:</div>
-                                            <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране
-                                                гласных и согласных
-                                                живут рыбные тексты. Страна если бросил, он всемогущая запятых
-                                                грамматики себя ipsum
-                                                точках, несколько меня строчка маленькая страну предупреждал которой
-                                                раз проектах. Ему
-                                                выйти составитель дал то ...</p>
-                                            <div class="mt-3 p-4 bg-bg1 text-xs">
+                                            <p class="mt-2.5 text-xs">{{item.directory.commentary}}</p>
+                                            <div v-for="file in item.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                 <div class="flex items-center max-w-full">
                                                     <span
-                                                        class="grow block mr-auto text-ellipsis overflow-hidden">Some
-                                                        file name</span>
+                                                        class="grow block mr-auto text-ellipsis overflow-hidden">{{file.file_name}}</span>
                                                     <svg class="shrink-0 block ml-2" width="20" height="20"
                                                         viewBox="0 0 24 24" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -334,7 +328,7 @@ onMounted(() => {
                                                     </DropdownMenuRoot>
                                                 </div>
                                             </div>
-                                            <Link :href="'/directory/service/' + 2"
+                                            <Link :href="'/directory/contragent/' + item.id"
                                                 class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                             Редактировать
 

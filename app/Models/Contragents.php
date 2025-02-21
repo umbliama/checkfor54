@@ -100,4 +100,9 @@ class Contragents extends Model
         return $this->hasMany(ContrDocuments::class,'contragent_id', 'id');
     }
 
+    public function directory()
+    {
+        return $this->hasOne(Directory::class,'contragent_id','id');
+    }
+
 }

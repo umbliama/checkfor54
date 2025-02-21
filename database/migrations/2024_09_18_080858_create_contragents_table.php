@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('contact_person_commentary')->nullable();
             $table->boolean('status')->nullable();
             $table->string('avatar')->nullable();
+            $table->string('hyperlink')->nullable();
         });
     }
 
