@@ -15,6 +15,7 @@ class Directory extends Model
         'repair_id',
         'move_id',
         'price_id',
+        'contragent_id',
         'commentary',
         'file_path'
     ];
@@ -50,5 +51,10 @@ class Directory extends Model
     public function files(): HasMany
     {
         return $this->hasMany(DirectoryFiles::class);
+    }
+
+    public function directory()
+    {
+        return $this->belongsTo(Contragents::class);
     }
 }

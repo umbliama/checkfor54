@@ -99,7 +99,9 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::post('/equipment/service/{id}/hyperlink', action: [ServiceController::class, 'storeHyperLink']);
     Route::post('/equipment/price/{id}/hyperlink', action: [EquipmentController::class, 'storeHyperlinkPrice']);
     Route::post('/equipment/sale/{id}/hyperlink', action: [SaleController::class, 'storeHyperlink']);
-
+    Route::post('/equipment/contragent/{id}/hyperlink', action: [ContragentsController::class, 'storeHyperlink']);
+    
+    Route::delete('/equipment/contragent/{id}/hyperlink', action: [ContragentsController::class, 'deleteHyperLink']);
 
     Route::get('/contragents', [ContragentsController::class, 'index'])->name('contragents.index');
     Route::get('/contragents/create', [ContragentsController::class, 'create'])->name('contragents.create');
@@ -165,6 +167,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::get('/directory/{type}/{id}', [DirectoryController::class, 'index'])->name('directory.index');
     Route::post('/directory/{type}/{id}', [DirectoryController::class, 'store'])->name('directory.store');
+    Route::delete('/directory/{fileId}', [DirectoryController::class, 'deleteFile'])->name('directory.deleteFile');
 
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/approve/{id}', [AdminController::class, 'approveUser'])->name('admin.approve');

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('repair_id')->nullable();
             $table->foreignId('price_id')->nullable();
             $table->foreignId('move_id')->nullable();
+            $table->foreignId('contragent_id')->nullable();
             $table->string('file_path')->nullable();
             $table->integer('creator_id')->nullable();
             $table->text('commentary')->nullable();

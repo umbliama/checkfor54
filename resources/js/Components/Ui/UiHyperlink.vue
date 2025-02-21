@@ -7,7 +7,7 @@ import UiField from "@/Components/Ui/UiField.vue";
 const $props = defineProps({
     itemId   : [String, Number],
     hyperlink: String,
-    endpoint : String
+    endpoint : String,
 });
 
 const local_hyperlink = ref('');
@@ -24,6 +24,12 @@ function submit() {
 
 function openExternalLink(url) {
     window.open(url, '_blank');
+}
+
+function deleteHyperlink() {
+    router.delete($props.endpoint + `/${$props.itemId}/hyperlink`, {
+        id: $props.itemId
+    })
 }
 
 </script>
@@ -89,7 +95,7 @@ function openExternalLink(url) {
                                 </PopoverRoot>
                             </li>
                             <li>
-                                <Link
+                                <Link @click="deleteHyperlink"
                                     :href="'/'"
                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all"
                                 >

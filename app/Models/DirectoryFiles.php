@@ -12,6 +12,7 @@ class DirectoryFiles extends Model
         'file_path',
         'file_name',
         'mime_type',
+        'user_id'
     ];
 
     public function directory(): BelongsTo
