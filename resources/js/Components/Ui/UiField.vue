@@ -1,8 +1,9 @@
 <script setup>
 import { computed, ref, useSlots } from "vue";
 
+const model_value = defineModel({ default: '' });
+
 const $props = defineProps({
-    modelValue: [String, Number, null],
     label     : String,
     textarea  : Boolean,
     disabled  : Boolean,
@@ -18,7 +19,7 @@ const $props = defineProps({
     inpAttrs  : Object,
 });
 
-const $emit = defineEmits([ 'blur', 'update:modelValue' ]);
+const $emit = defineEmits([ 'blur' ]);
 
 const $slots = useSlots();
 
@@ -54,15 +55,14 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
             </span>
             <component
                 :is="tagName"
-                :value="$props.modelValue"
+                v-model="model_value"
                 :class="{ 'pl-10': !!$slots.prepend, ...inpSizeClasses }"
                 class="w-full px-5 bg-inherit outline-0"
                 type="text"
                 v-bind="inpAttrs"
                 @focusin="is_focused = true"
                 @focusout="is_focused = false"
-                @blur="$event=>$emit('blur', $event)"
-                @input="$emit('update:modelValue', $event.target.value)"
+                @blur="$emit('blur', model_value)"
             />
         </div>
         <div v-if="$props.hint" class="mt-1 text-xs text-gray1">{{ $props.hint }}</div>
