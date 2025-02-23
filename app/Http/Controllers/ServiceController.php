@@ -1,26 +1,25 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Events\NotificationCountUpdated;
+use App\Models\Column;
 use App\Models\Contragents;
 use App\Models\ContrDocuments;
 use App\Models\Equipment;
+use App\Models\EquipmentPrice;
+use App\Models\Notification;
+use App\Models\NotificationRead;
 use App\Models\Service;
 use App\Models\ServiceContragent;
 use App\Models\ServiceEquip;
 use App\Models\ServiceExtra;
 use App\Models\ServiceSub;
-use App\Models\Column;
 use App\Models\User;
-use App\Models\Notification;
-use App\Models\EquipmentPrice;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\ServiceModel;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class ServiceController extends Controller
 {
@@ -44,18 +43,17 @@ class ServiceController extends Controller
         $formatted_data = [];
 
         foreach ($services_by_year_month as $service) {
-            $year = $service->year;
+            $year  = $service->year;
             $month = $month_names[$service->month] ?? $service->month;
             $count = $service->count;
 
-            if (!isset($formatted_data[$year])) {
+            if (! isset($formatted_data[$year])) {
                 $formatted_data[$year] = [
-                    'year' => $year,
-                    'months' => []
+                    'year'   => $year,
+                    'months' => [],
                 ];
             }
 
-            // Add the count for the specific month
             $formatted_data[$year]['months'][$month] = $count;
         }
 
@@ -78,7 +76,7 @@ class ServiceController extends Controller
             'mainServices.equipment.size',
             'equipment.category',
             'equipment.size',
-            'directory'
+            'directory',
         ])->where('active', 0)->get()->groupBy('contragent_id')
             ->map(function ($services) {
                 return $services->map(function ($service) {
@@ -97,49 +95,69 @@ class ServiceController extends Controller
             'mainServices.equipment.directory',
             'equipment.category',
             'equipment.size',
-            'directory'
+            'directory',
         ])
             ->where('active', 1)
             ->get()
             ->groupBy('contragent_id')
             ->map(function ($services, $contragentId) {
-                $serviceContragent = ServiceContragent::where('contragent_id', $contragentId)->get();
+                // Fetch all ServiceContragent records for this contragent
+                $serviceContragents = ServiceContragent::where('contragent_id', $contragentId)->get();
+
+                // Fetch the associated contragent with directory & hyperlink
+                $contragent = Contragents::with('directory')->find($contragentId);
+
                 return [
-                    'services' => $services->map(function ($service) {
+                    'services'        => $services->map(function ($service) {
                         if (isset($service->directory['files'])) {
                             $service->directory['files'] = json_decode($service->directory['files'], true) ?? [];
                         }
                         return $service;
                     }),
-                    'contragent_data' => $serviceContragent
+                    'contragent_data' => $serviceContragents->map(function ($serviceContragent) use ($contragent) {
+                        return [
+                            'contragent_id' => $serviceContragent->contragent_id,
+                            'shipping_date' => $serviceContragent->shipping_date,
+                            'commentary'    => $serviceContragent->commentary,
+                            'hyperlink'     => $contragent->hyperlink ?? null,
+                            'directory'     => $contragent->directory ? [
+                                'commentary' => $contragent->directory->commentary,
+                                'files'  => $contragent->directory->files->map(function ($file) {
+                                    return [
+                                        'id'       => $file->id,
+                                        'filename' => $file->file_name,
+                                        'path'     => $file->file_path,
+                                    ];
+                                }),
+                            ] : null,
+                        ];
+                    }),
                 ];
             });
 
-
-
         $paginatedInactive = $this->paginateCollection($inActiveServices, $perPage, $request);
-        $paginatedActive = $this->paginateCollection($activeServices, $perPage, $request);
+        $paginatedActive   = $this->paginateCollection($activeServices, $perPage, $request);
 
-        $count_services_active = Service::where('active', 1)->count();
+        $count_services_active   = Service::where('active', 1)->count();
         $count_services_inactive = Service::where('active', 0)->count();
-        $contragents_names = Contragents::pluck('name', 'id');
+        $contragents_names       = Contragents::pluck('name', 'id');
 
         $contragentsServiceData = ServiceContragent::all();
 
         return Inertia::render('Services/Index', [
-            'contragentsServiceData' => $contragentsServiceData,
-            'services' => $paginatedInactive,
-            'activeServices' => $paginatedActive,
-            'contragents_names' => $contragents_names,
-            'count_services_active' => $count_services_active,
-            'count_services_inactive' => $count_services_inactive
+            'contragentsServiceData'  => $contragentsServiceData,
+            'services'                => $paginatedInactive,
+            'activeServices'          => $paginatedActive,
+            'contragents_names'       => $contragents_names,
+            'count_services_active'   => $count_services_active,
+            'count_services_inactive' => $count_services_inactive,
         ]);
     }
 
     private function paginateCollection(Collection $collection, $perPage, $request)
     {
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $items = $collection->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $items       = $collection->slice(($currentPage - 1) * $perPage, $perPage)->all();
         return new LengthAwarePaginator(
             $items,
             $collection->count(),
@@ -149,20 +167,19 @@ class ServiceController extends Controller
         );
     }
 
-
     public function create()
     {
-        $equipment = Equipment::with('category', 'size')->get();
+        $equipment     = Equipment::with('category', 'size')->get();
         $equipment_all = Equipment::all();
-        $contragents = Contragents::with(['documents'])->get();
-        $contracts = ContrDocuments::whereNotNull('contracts')->get();
+        $contragents   = Contragents::with(['documents'])->get();
+        $contracts     = ContrDocuments::whereNotNull('contracts')->get();
         foreach ($contracts as $document) {
             $document->contracts = json_decode($document->contracts, true) ?? [];
         }
 
         $equipmentFormatted = $equipment->map(function ($item) {
             return [
-                'id' => $item->id,
+                'id'      => $item->id,
                 'display' => $item->category->name . ' ' . $item->size->name . ' ' . $item->series,
             ];
         });
@@ -174,72 +191,72 @@ class ServiceController extends Controller
 
         try {
             $user_id = Auth::id();
-            $user = User::find($user_id);
+            $user    = User::find($user_id);
 
             // Validate request data
             $request->validate([
-                'contragent_id' => 'required|int|exists:contragents,id',
-                'service_number' => 'required|string',
-                'service_date' => 'required|date',
-                'active' => 'required|boolean',
-                'hyperlink' => 'nullable|string',
-                'commentary' => 'nullable|string',
-                'contract' => 'nullable',
-                'equipment' => 'required|array',
-                'equipment.*.equipment_id' => 'required|int|exists:equipment,id',
-                'equipment.*.commentary' => 'required|string',
-                'equipment.*.shipping_date  ' => 'nullable|date',
-                'equipment.*.period_start_date' => 'required|date',
-                'equipment.*.return_date' => 'nullable|date',
-                'equipment.*.period_end_date' => 'nullable|date',
-                'equipment.*.store' => 'nullable|string',
-                'equipment.*.operating' => 'nullable|string',
-                'equipment.*.income' => 'nullable|numeric',
-                'equipment.*.subEquipment' => 'array|nullable',
-                'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
-                'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
+                'contragent_id'                                => 'required|int|exists:contragents,id',
+                'service_number'                               => 'required|string',
+                'service_date'                                 => 'required|date',
+                'active'                                       => 'required|boolean',
+                'hyperlink'                                    => 'nullable|string',
+                'commentary'                                   => 'nullable|string',
+                'contract'                                     => 'nullable',
+                'equipment'                                    => 'required|array',
+                'equipment.*.equipment_id'                     => 'required|int|exists:equipment,id',
+                'equipment.*.commentary'                       => 'required|string',
+                'equipment.*.shipping_date  '                  => 'nullable|date',
+                'equipment.*.period_start_date'                => 'required|date',
+                'equipment.*.return_date'                      => 'nullable|date',
+                'equipment.*.period_end_date'                  => 'nullable|date',
+                'equipment.*.store'                            => 'nullable|string',
+                'equipment.*.operating'                        => 'nullable|string',
+                'equipment.*.income'                           => 'nullable|numeric',
+                'equipment.*.subEquipment'                     => 'array|nullable',
+                'equipment.*.subEquipment.*.subequipment_id'   => 'nullable|int',
+                'equipment.*.subEquipment.*.shipping_date'     => 'nullable|date',
                 'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.return_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.period_end_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.commentary' => 'nullable|string',
-                'equipment.*.subEquipment.*.income' => 'nullable|numeric'
+                'equipment.*.subEquipment.*.return_date'       => 'nullable|date',
+                'equipment.*.subEquipment.*.period_end_date'   => 'nullable|date',
+                'equipment.*.subEquipment.*.commentary'        => 'nullable|string',
+                'equipment.*.subEquipment.*.income'            => 'nullable|numeric',
             ]);
             $service = Service::create([
-                'contragent_id' => $request->contragent_id,
-                'service_date' => $request->service_date,
+                'contragent_id'  => $request->contragent_id,
+                'service_date'   => $request->service_date,
                 'service_number' => $request->service_number,
-                'contract' => $request->contract,
-                'active' => $request->active,
-                'commentary' => $request->commentary
+                'contract'       => $request->contract,
+                'active'         => $request->active,
+                'commentary'     => $request->commentary,
             ]);
 
             foreach ($request->equipment as $equipmentData) {
                 $serviceEquipment = ServiceEquip::create([
-                    'service_id' => $service->id,
-                    'equipment_id' => $equipmentData['equipment_id'],
-                    'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                    'service_id'        => $service->id,
+                    'equipment_id'      => $equipmentData['equipment_id'],
+                    'shipping_date'     => $equipmentData['shipping_date'] ?? null,
                     'period_start_date' => $equipmentData['period_start_date'] ?? null,
-                    'return_date' => $equipmentData['return_date'] ?? null,
-                    'period_end_date' => $equipmentData['period_end_date'] ?? null,
-                    'store' => $equipmentData['store'] ?? null,
-                    'operating' => $equipmentData['operating'] ?? null,
-                    'commentary' => $equipmentData['commentary'] ?? null,
-                    'income' => $equipmentData['income'] ?? null,
+                    'return_date'       => $equipmentData['return_date'] ?? null,
+                    'period_end_date'   => $equipmentData['period_end_date'] ?? null,
+                    'store'             => $equipmentData['store'] ?? null,
+                    'operating'         => $equipmentData['operating'] ?? null,
+                    'commentary'        => $equipmentData['commentary'] ?? null,
+                    'income'            => $equipmentData['income'] ?? null,
                 ]);
 
                 // Loop through SubEquipment (if exists)
-                if (!empty($equipmentData['subEquipment'])) {
+                if (! empty($equipmentData['subEquipment'])) {
                     foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
                         ServiceSub::create([
-                            'service_id' => $service->id,
+                            'service_id'           => $service->id,
                             'service_equipment_id' => $serviceEquipment->id,
-                            'subequipment_id' => $subEquipmentData['subequipment_id'],
-                            'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
-                            'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
-                            'return_date' => $subEquipmentData['return_date'] ?? null,
-                            'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
-                            'commentary' => $subEquipmentData['commentary'] ?? null,
-                            'income' => $subEquipmentData['income'] ?? null,
+                            'subequipment_id'      => $subEquipmentData['subequipment_id'],
+                            'shipping_date'        => $subEquipmentData['shipping_date'] ?? null,
+                            'period_start_date'    => $subEquipmentData['period_start_date'] ?? null,
+                            'return_date'          => $subEquipmentData['return_date'] ?? null,
+                            'period_end_date'      => $subEquipmentData['period_end_date'] ?? null,
+                            'commentary'           => $subEquipmentData['commentary'] ?? null,
+                            'income'               => $subEquipmentData['income'] ?? null,
                         ]);
                     }
                 }
@@ -248,23 +265,24 @@ class ServiceController extends Controller
             foreach ($request->extraServices as $extraService) {
                 ServiceExtra::create([
                     'shipping_date' => $extraService['shipping_date'],
-                    'service_id' => $service->id,
-                    'type' => $extraService['item'],
-                    'commentary' => $extraService['commentary'],
-                    'price' => $extraService['price'],
+                    'service_id'    => $service->id,
+                    'type'          => $extraService['item'],
+                    'commentary'    => $extraService['commentary'],
+                    'price'         => $extraService['price'],
                 ]);
-            }   
+            }
 
             ServiceContragent::create([
                 'contragent_id' => $service->contragent_id,
             ]);
 
-            // Create Notification
-            Notification::create([
-                'type' => "Пользователь {$user->name} создал новую аренду №{$service->id}",
-                'data' => ['service_id' => $service->id],
-                'user_id' => $user_id
+            $notification = Notification::create([
+                'type'       => "Пользователь {$user->name} создал новую аренду",
+                'data'       => ['service_number' => $service->service_number],
+                'created_by' => $user_id,
             ]);
+
+            $this->sendNotificationToUsers($notification, $user_id);
 
             return back()->with('message', 'Аренда успешно создана');
         } catch (\Exception $e) {
@@ -272,33 +290,32 @@ class ServiceController extends Controller
         }
     }
 
-
     public function storeHyperLink(Request $request, $id)
     {
-        try{
+        try {
             $request->validate([
-                'hyperlink' => 'required|string'
+                'hyperlink' => 'required|string',
             ]);
-    
+
             $service = Service::find($id);
-    
+
             $service->hyperlink = $request->input('hyperlink');
-    
+
             $service->save();
-            
+
             return back()->with('message', 'Данные обновлены');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
 
     public function edit($id)
     {
-        $service = Service::findOrFail($id);
+        $service   = Service::findOrFail($id);
         $equipment = Equipment::where('id', $service->equipment_id)
             ->with(['category', 'size'])
             ->first();
-        $contragents = Contragents::with(['documents'])->get();
+        $contragents   = Contragents::with(['documents'])->get();
         $extraServices = ServiceExtra::where('service_id', $service->id)->get()->map(function ($service) {
             $serviceMapping = Service::getExtraServices();
             $service->value = $serviceMapping[$service->type] ?? $service->type;
@@ -306,10 +323,10 @@ class ServiceController extends Controller
         });
         if ($equipment) {
             $equipment->category_name = $equipment->category ? $equipment->category->name : null;
-            $equipment->size_name = $equipment->size ? $equipment->size->name : null;
+            $equipment->size_name     = $equipment->size ? $equipment->size->name : null;
         }
 
-        $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
+        $subservices  = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
         $serviceEquip = ServiceEquip::where('service_id', $service->id)->with('equipment', 'equipment.category', 'equipment.size', 'serviceSubs.equipment', 'serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
         return Inertia::render('Services/Edit', ['serviceEquip' => $serviceEquip, 'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents, 'extraServices' => $extraServices]);
     }
@@ -322,34 +339,33 @@ class ServiceController extends Controller
             'mainServices.equipment.category',
             'mainServices.equipment.size',
             'equipment.category',
-            'equipment.size'
+            'equipment.size',
         ])->findOrFail($id);
-        $user_id = Auth::id();
+        $user_id       = Auth::id();
         $contragent_id = Contragents::findOrFail($service->contragent_id)->value('id');
-        $position = Column::max('position') + 1;
-        $column = Column::create([
-            'position' => $position,
-            'type' => 'adv',
-            'creator_id' => $user_id
+        $position      = Column::max('position') + 1;
+        $column        = Column::create([
+            'position'   => $position,
+            'type'       => 'adv',
+            'creator_id' => $user_id,
 
         ]);
 
         $position = $column->blocks()->max('position') + 1;
 
         $block = $column->blocks()->create([
-            'type' => 'customer',
+            'type'          => 'customer',
             'contragent_id' => $contragent_id,
-            'position' => $position,
-            'creator_id' => $user_id
+            'position'      => $position,
+            'creator_id'    => $user_id,
 
         ]);
         if ($service->subequiment_id !== null) {
             $block_subequipment = $block->subequipment()->create([
-                'block_id' => $block->id,
-                'subequipment_id' => $service->subequipment_id
+                'block_id'        => $block->id,
+                'subequipment_id' => $service->subequipment_id,
             ]);
         }
-
 
         return redirect()->route('incident.index')->with('success', 'Column updated successfully.');
     }
@@ -357,37 +373,37 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         try {
-            $user_id = Auth::id();
+            $user_id    = Auth::id();
             $fullIncome = 0;
-            $income = 0;
-            $subincome = 0;
+            $income     = 0;
+            $subincome  = 0;
             $request->validate([
-                'contragent_id' => 'nullable|int|exists:contragents,id',
-                'service_number' => 'nullable|string',
-                'service_date' => 'nullable|date',
-                'active' => 'nullable|boolean',
-                'hyperlink' => 'nullable|string',
-                'contract' => 'nullable',
-                'equipment' => 'nullable|array',
-                'equipment.*.equipment_id' => 'nullable|int|exists:equipment,id',
-                'equipment.*.commentary' => 'nullable|string',
-                'equipment.*.period_start_date' => 'nullable|date',
-                'equipment.*.return_date' => 'nullable|date',
-                'equipment.*.period_end_date' => 'nullable|date',
-                'equipment.*.store' => 'nullable|int',
-                'equipment.*.operating' => 'nullable|int',
-                'equipment.*.income' => 'nullable|numeric',
-                'equipment.*.subEquipment' => 'array|nullable',
-                'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
-                'equipment.*.subEquipment.*.shipping_date' => 'nullable|date',
+                'contragent_id'                                => 'nullable|int|exists:contragents,id',
+                'service_number'                               => 'nullable|string',
+                'service_date'                                 => 'nullable|date',
+                'active'                                       => 'nullable|boolean',
+                'hyperlink'                                    => 'nullable|string',
+                'contract'                                     => 'nullable',
+                'equipment'                                    => 'nullable|array',
+                'equipment.*.equipment_id'                     => 'nullable|int|exists:equipment,id',
+                'equipment.*.commentary'                       => 'nullable|string',
+                'equipment.*.period_start_date'                => 'nullable|date',
+                'equipment.*.return_date'                      => 'nullable|date',
+                'equipment.*.period_end_date'                  => 'nullable|date',
+                'equipment.*.store'                            => 'nullable|int',
+                'equipment.*.operating'                        => 'nullable|int',
+                'equipment.*.income'                           => 'nullable|numeric',
+                'equipment.*.subEquipment'                     => 'array|nullable',
+                'equipment.*.subEquipment.*.subequipment_id'   => 'nullable|int',
+                'equipment.*.subEquipment.*.shipping_date'     => 'nullable|date',
                 'equipment.*.subEquipment.*.period_start_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.return_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.period_end_date' => 'nullable|date',
-                'equipment.*.subEquipment.*.commentary' => 'nullable|string',
-                'equipment.*.subEquipment.*.income' => 'nullable|numeric'
+                'equipment.*.subEquipment.*.return_date'       => 'nullable|date',
+                'equipment.*.subEquipment.*.period_end_date'   => 'nullable|date',
+                'equipment.*.subEquipment.*.commentary'        => 'nullable|string',
+                'equipment.*.subEquipment.*.income'            => 'nullable|numeric',
             ]);
 
-            $isChangingToInactive = $service->active && !$request->get('active', true);
+            $isChangingToInactive = $service->active && ! $request->get('active', true);
 
             $service->update(array_merge(
                 $request->only([
@@ -402,16 +418,16 @@ class ServiceController extends Controller
                     'operating',
                     'contract',
                     'return_reason',
-                    'active'
+                    'active',
                 ]),
                 ['full_income' => 0]
             ));
 
             if ($isChangingToInactive) {
                 Notification::create([
-                    'type' => 'Пользователь ' . User::find($user_id)->name . ' закрыл аренду №' . $service->id,
-                    'data' => ['service_id' => $service->id],
-                    'user_id' => $user_id
+                    'type'    => 'Пользователь ' . User::find($user_id)->name . ' закрыл аренду №' . $service->id,
+                    'data'    => ['service_id' => $service->id],
+                    'user_id' => $user_id,
                 ]);
             }
 
@@ -435,8 +451,8 @@ class ServiceController extends Controller
                         $conditions,
                         [
                             'shipping_date' => $extraService['shipping_date'] ?? null,
-                            'commentary' => $extraService['commentary'] ?? null,
-                            'price' => $extraService['price'] ?? null,
+                            'commentary'    => $extraService['commentary'] ?? null,
+                            'price'         => $extraService['price'] ?? null,
                         ]
                     );
                 }
@@ -444,42 +460,41 @@ class ServiceController extends Controller
 
             foreach ($request->equipment as $index => $equipmentData) {
                 try {
-                    // Получаем данные основного оборудования
                     $equipment_id = $equipmentData['equipment_id'];
-                    $equipment = Equipment::findOrFail($equipment_id);
-                    $category = $equipment->category_id;
-                    $size = $equipment->size_id;
+                    $equipment    = Equipment::findOrFail($equipment_id);
+                    $category     = $equipment->category_id;
+                    $size         = $equipment->size_id;
 
-                    // Валидация цен
                     $equipmentPrice = EquipmentPrice::where('category_id', $category)
                         ->where('size_id', $size)
                         ->where('archive', false)
                         ->first();
 
-                    if (!$equipmentPrice) {
+                    if (! $equipmentPrice) {
                         return back()->with('error', 'Цена не установлена');
                     }
 
-                    $store_price = $equipmentPrice->store_price;
+                    $store_price     = $equipmentPrice->store_price;
                     $operation_price = $equipmentPrice->operation_price;
 
                     $operating = $equipmentData['operating'] ?? 0;
-                    $store = $equipmentData['store'] ?? 0;
+                    $store     = $equipmentData['store'] ?? 0;
 
                     $existingServiceEquipment = ServiceEquip::where('service_id', $service->id)
                         ->where('equipment_id', $equipment_id)
                         ->first();
 
-                    $shouldUpdateEquipment = !$existingServiceEquipment;
+                    $shouldUpdateEquipment = ! $existingServiceEquipment ||
+                    $existingServiceEquipment->return_date != ($equipmentData['return_date'] ?? null) ||
+                    $existingServiceEquipment->return_reason != ($equipmentData['return_reason'] ?? null);
 
                     if ($existingServiceEquipment) {
-                        // Check if store or operating has changed
                         if (
                             $existingServiceEquipment->store != $store ||
                             $existingServiceEquipment->operating != $operating
                         ) {
                             $shouldUpdateEquipment = true;
-                            $income = ($store * $store_price) + ($operating * $operation_price);
+                            $income                = ($store * $store_price) + ($operating * $operation_price);
                         } else {
                             $income = $existingServiceEquipment->income;
                         }
@@ -488,44 +503,43 @@ class ServiceController extends Controller
                     }
 
                     if ($shouldUpdateEquipment) {
-                        // Update or create equipment
                         $existingServiceEquipment = ServiceEquip::updateOrCreate(
                             [
-                                'service_id' => $service->id,
-                                'equipment_id' => $equipment_id
+                                'service_id'   => $service->id,
+                                'equipment_id' => $equipment_id,
                             ],
                             [
-                                'commentary' => $equipmentData['commentary'] ?? "",
+                                'commentary'        => $equipmentData['commentary'] ?? "",
                                 'period_start_date' => $equipmentData['period_start_date'] ?? null,
-                                'return_date' => $equipmentData['return_date'] ?? null,
-                                'period_end_date' => $equipmentData['period_end_date'] ?? null,
-                                'store' => $store,
-                                'shipping_date' => $equipmentData['shipping_date'] ?? null,
-                                'operating' => $operating,
-                                'income' => $income
+                                'return_date'       => $equipmentData['return_date'] ?? null,
+                                'period_end_date'   => $equipmentData['period_end_date'] ?? null,
+                                'store'             => $store,
+                                'return_reason'     => $equipmentData['return_reason'] ?? null,
+                                'shipping_date'     => $equipmentData['shipping_date'] ?? null,
+                                'operating'         => $operating,
+                                'income'            => $income,
                             ]
                         );
                     }
-
 
                     $fullIncome += $income;
                     if (isset($equipmentData['subEquipment']) && is_array($equipmentData['subEquipment'])) {
                         foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
                             try {
                                 $subEquipment_id = $subEquipmentData['subequipment_id'] ?? null;
-                                if (!$subEquipment_id) {
+                                if (! $subEquipment_id) {
                                     continue;
                                 }
 
                                 $subOperating = $subEquipmentData['operating'] ?? 0;
-                                $subStore = $subEquipmentData['store'] ?? 0;
+                                $subStore     = $subEquipmentData['store'] ?? 0;
 
                                 $existingServiceSub = ServiceSub::where('service_id', $service->id)
                                     ->where('subequipment_id', $subEquipment_id)
                                     ->where('service_equipment_id', $existingServiceEquipment->id)
                                     ->first();
 
-                                $shouldUpdateSub = !$existingServiceSub;
+                                $shouldUpdateSub = ! $existingServiceSub;
 
                                 if ($existingServiceSub) {
                                     if (
@@ -533,7 +547,7 @@ class ServiceController extends Controller
                                         $existingServiceSub->operating != $subOperating
                                     ) {
                                         $shouldUpdateSub = true;
-                                        $subincome = ($subStore * $store_price) + ($subOperating * $operation_price);
+                                        $subincome       = ($subStore * $store_price) + ($subOperating * $operation_price);
                                     } else {
                                         $subincome = $existingServiceSub->income;
                                     }
@@ -544,22 +558,21 @@ class ServiceController extends Controller
                                 if ($shouldUpdateSub) {
                                     ServiceSub::updateOrCreate(
                                         [
-                                            'service_id' => $service->id,
-                                            'subequipment_id' => $subEquipment_id,
-                                            'service_equipment_id' => $existingServiceEquipment->id
+                                            'service_id'           => $service->id,
+                                            'subequipment_id'      => $subEquipment_id,
+                                            'service_equipment_id' => $existingServiceEquipment->id,
                                         ],
                                         [
-                                            'shipping_date' => $subEquipmentData['shipping_date'] ?? null,
+                                            'shipping_date'     => $subEquipmentData['shipping_date'] ?? null,
                                             'period_start_date' => $subEquipmentData['period_start_date'] ?? null,
-                                            'return_date' => $subEquipmentData['return_date'] ?? null,
-                                            'period_end_date' => $subEquipmentData['period_end_date'] ?? null,
-                                            'operating' => $subOperating,
-                                            'store' => $subStore,
-                                            'income' => $subincome
+                                            'return_date'       => $subEquipmentData['return_date'] ?? null,
+                                            'period_end_date'   => $subEquipmentData['period_end_date'] ?? null,
+                                            'operating'         => $subOperating,
+                                            'store'             => $subStore,
+                                            'income'            => $subincome,
                                         ]
                                     );
                                 }
-
 
                                 $fullIncome += $subincome;
                             } catch (\Exception $e) {
@@ -571,6 +584,13 @@ class ServiceController extends Controller
                     return back()->with('error', 'Ошибка при обработке оборудования: ' . $e->getMessage());
                 }
             }
+            $notification = Notification::create([
+                'type'       => 'Обновлена аренда',
+                'data'       => ['service_number' => $service->service_number],
+                'created_by' => $user_id,
+            ]);
+
+            $this->sendNotificationToUsers($notification, $user_id);
 
             $service->update(['full_income' => $fullIncome]);
             return back()->with('message', 'Аренда успешно обновлена');
@@ -580,11 +600,24 @@ class ServiceController extends Controller
     }
     public function destroy($id)
     {
-        $service = Service::findOrFail($id);
-        $subservice = ServiceSub::where('service_id', $id);
+        try {
+            $service    = Service::findOrFail($id);
+            $subservice = ServiceSub::where('service_id', $id);
+            $user_id    = Auth::id();
+            $service->delete();
+            $subservice->delete();
+            $notification = Notification::create([
+                'type'       => 'Удалена аренда',
+                'data'       => ['service_number' => $service->service_number],
+                'created_by' => $user_id,
+            ]);
+            $this->sendNotificationToUsers($notification, $user_id);
+            return back()->with('message', 'Аренда удалена');
 
-        $service->delete();
-        $subservice->delete();
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
     }
 
     public function destroyServiceEquip($id)
@@ -601,27 +634,50 @@ class ServiceController extends Controller
 
         try {
             $contragent_id = $request->input('contragent_id');
-            $commentary = $request->input('commentary');
+            $commentary    = $request->input('commentary');
             $shipping_date = $request->input('shipping_date');
-            $found = ServiceContragent::where('contragent_id', $contragent_id)->first();
+            $found         = ServiceContragent::where('contragent_id', $contragent_id)->first();
             if ($found) {
                 $found->update([
                     'contragent_id' => $contragent_id,
-                    'commentary' => $commentary,
-                    'shipping_date' => $shipping_date
+                    'commentary'    => $commentary,
+                    'shipping_date' => $shipping_date,
                 ]);
             } else {
                 ServiceContragent::create([
                     'contragent_id' => $contragent_id,
-                    'commentary' => $commentary,
-                    'shipping_date' => $shipping_date
+                    'commentary'    => $commentary,
+                    'shipping_date' => $shipping_date,
                 ]);
             }
-
 
             return back()->with('message', 'Данные обновлены');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }
+
+    private function sendNotificationToUsers($notification, $currentUserId)
+    {
+        $otherUserIds = User::where('id', '!=', $currentUserId)->pluck('id')->toArray();
+
+        foreach ($otherUserIds as $userId) {
+            // 🔹 Создаём запись о непрочитанном уведомлении
+            NotificationRead::create([
+                'notification_id' => $notification->id,
+                'user_id'         => $userId,
+                'read_at'         => null,
+            ]);
+
+            // 🔹 Подсчитываем количество непрочитанных уведомлений
+            $unreadCount = NotificationRead::where('user_id', $userId)
+                ->whereNull('read_at')
+                ->count();
+
+            \Log::info("Отправка NotificationCountUpdated для пользователя $userId", ['count' => $unreadCount]);
+
+            event(new NotificationCountUpdated($unreadCount, $userId));
+        }
+    }
+
 }

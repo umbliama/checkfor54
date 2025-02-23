@@ -11,4 +11,10 @@ class ServiceContragent extends Model
         'shipping_date',
         'commentary'
     ];
+
+
+    public function contragent()
+    {
+        return $this->belongsTo(Contragents::class, 'contragent_id');
+    }
 }

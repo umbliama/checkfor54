@@ -160,7 +160,7 @@ const normalizeMonth = (month) => {
 };
 
 
-const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = 'asc') => {
+const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = date_sort.value) => {
     const formattedMonth = normalizeMonth(month);
     const dataArray = Object.values(props.activeServices.data || {}); 
 
@@ -173,7 +173,6 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
         const shippingDate = service.contragent_data[0]?.shipping_date;
         console.log('Raw shipping_date:', shippingDate);
 
-        // Allow null or undefined shipping_date
         if (shippingDate === null || shippingDate === undefined) {
             console.log('Including service with null/undefined shipping_date:', service.id);
             return true;
@@ -196,7 +195,8 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
         const serviceDate = new Date(serviceYear, serviceMonth - 1, serviceDay);
 
         return (
-            (month === 'all' || !month || !year || (serviceMonth === Number(formattedMonth) && serviceYear === Number(year))) &&
+            (month === 'all' || !month || (serviceMonth === Number(formattedMonth))) &&
+            (year === 'all' || !year || serviceYear === Number(year)) &&  // Fix: Ensure Year Matches
             (!startDate || serviceDate >= startDate) &&
             (!endDate || serviceDate <= endDate)
         );
@@ -206,46 +206,38 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
         return filteredArray.sort((a, b) => {
             let valueA, valueB;
 
-            if (sortKey.includes('.')) {
-                const keys = sortKey.split('.');
-                valueA = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), a);
-                valueB = keys.reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), b);
-                console.log('Accessing nested key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
-            } else {
-                valueA = a[sortKey];
-                valueB = b[sortKey];
-                console.log('Accessing flat key:', sortKey, 'Value A:', valueA, 'Value B:', valueB);
-            }
+            if (sortKey.includes('contragent_data[0].shipping_date')) {
+                valueA = a.contragent_data?.[0]?.shipping_date ?? null;
+                valueB = b.contragent_data?.[0]?.shipping_date ?? null;
 
-            // Handle null or undefined shipping_date during sorting
-            if (sortKey === 'contragent_data[0].shipping_date') {
-                valueA = isValidDate(valueA) ? new Date(valueA).getTime() : Infinity; // Treat null/undefined as "Infinity"
+                console.log('Sorting by shipping_date:', valueA, valueB);
+
+                valueA = isValidDate(valueA) ? new Date(valueA).getTime() : Infinity;
                 valueB = isValidDate(valueB) ? new Date(valueB).getTime() : Infinity;
-                console.log('Raw shipping_date (A):', valueA, 'Parsed:', new Date(valueA));
-                console.log('Raw shipping_date (B):', valueB, 'Parsed:', new Date(valueB));
-                console.log('Sorting by shipping_date:', valueA, valueB); 
-            } else if (typeof valueA === 'string' && isValidDate(valueA)) {
-                valueA = new Date(valueA).getTime();
-                valueB = new Date(valueB).getTime();
+            } else {
+                valueA = a[sortKey] ?? null;
+                valueB = b[sortKey] ?? null;
+
+                if (typeof valueA === 'string' && isValidDate(valueA)) {
+                    valueA = new Date(valueA).getTime();
+                    valueB = new Date(valueB).getTime();
+                }
             }
 
-            if (valueA === undefined || valueB === undefined) {
-                console.warn('Undefined value encountered during sorting:', { valueA, valueB });
-                return 0; 
+            if (valueA === null || valueB === null) {
+                console.warn('Null value encountered during sorting:', { valueA, valueB });
+                return 0;
             }
 
-            if (valueA < valueB) {
-                return sortOrder === 'asc' ? -1 : 1;
-            }
-            if (valueA > valueB) {
-                return sortOrder === 'asc' ? 1 : -1;
-            }
+            if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
+            if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
             return 0;
         });
     }
 
     return filteredArray;
 };
+
 
 
 
@@ -449,8 +441,8 @@ function openEditDialog(id) {
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                    <UiHyperlink :item-id="2" :hyperlink="'some.ru'"
-                                                    endpoint="/equipment/sale" />
+                                    <UiHyperlink :item-id="service.contragent_data[0].contragent_id" :hyperlink="service.contragent_data[0].hyperlink"
+                                                    endpoint="/equipment/contragent" />
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
@@ -492,10 +484,10 @@ function openEditDialog(id) {
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 font-bold">
-                                    <span>Итого:</span> {{ calcFullIncome()[index] }}
+                                    <span>Итого:</span> {{ calcFullIncome()[service.services[0].contragent_id] }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                    <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
+                                    <Link v-if="service.contragent_data[0].directory === null" :href="'/directory/service/' + 2" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -528,18 +520,11 @@ function openEditDialog(id) {
                                             <PopoverContent side="bottom" align="end"
                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                 <div>Комментарий:</div>
-                                                <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране
-                                                    гласных и согласных
-                                                    живут рыбные тексты. Страна если бросил, он всемогущая запятых
-                                                    грамматики себя ipsum
-                                                    точках, несколько меня строчка маленькая страну предупреждал которой
-                                                    раз проектах. Ему
-                                                    выйти составитель дал то ...</p>
-                                                <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                <p class="mt-2.5 text-xs">{{ service.contragent_data[0].directory.commentary }}</p>
+                                                <div v-if="service.contragent_data[0].directory.files" v-for="file in service.contragent_data[0].directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                     <div class="flex items-center max-w-full">
                                                         <span
-                                                            class="grow block mr-auto text-ellipsis overflow-hidden">Some
-                                                            file name</span>
+                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.filename }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -578,7 +563,7 @@ function openEditDialog(id) {
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <Link :href="'/'"
+                                                                            <a download :href="'/'+file.path"
                                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                             Скачать
                                                                             <svg class="block ml-2"
@@ -591,7 +576,7 @@ function openEditDialog(id) {
                                                                                     stroke-width="2"
                                                                                     d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                             </svg>
-                                                                            </Link>
+                                                                        </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>
@@ -599,7 +584,7 @@ function openEditDialog(id) {
                                                         </DropdownMenuRoot>
                                                     </div>
                                                 </div>
-                                                <Link :href="'/directory/service/' + 2"
+                                                <Link :href="'/directory/contragent/' + service.contragent_data[0].contragent_id"
                                                     class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                 Редактировать
 

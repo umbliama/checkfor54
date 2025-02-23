@@ -258,6 +258,7 @@ watch(getActiveSubEquipmentId, async (newValue, oldValue) => {
                 operating: null,
                 income: null,
                 store: null,
+                return_reason:null,
                 subequipment: {}
             }
 
@@ -377,6 +378,7 @@ function submit() {
         operating: equipment.operating || null,
         period_end_date: equipment.period_end_date || null,
         return_date: equipment.return_date || null,
+        return_reason: equipment.return_reason || null,
         subEquipment: (equipment.service_subs || []).filter(sub => sub
         ).map(sub => ({
             subequipment_id: sub.equipment.id,
@@ -618,9 +620,9 @@ function submit() {
                                         onclick="this.showPicker()"  />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%] ">
-                                    <select class="block w-full h-full py-2.5 px-2 bg-transparent">
-                                        <option value="">Проект</option>
-                                        <option value="">Отказ</option>
+                                    <select v-model="equip.return_reason" class="block w-full h-full py-2.5 px-2 bg-transparent">
+                                        <option value="project">Проект</option>
+                                        <option value="rejected">Отказ</option>
                                     </select>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">
@@ -781,9 +783,9 @@ function submit() {
                                             onclick="this.showPicker()"  />
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%] ">
-                                        <select class="block w-full h-full py-2.5 px-2 bg-transparent">
-                                            <option value="">Проект</option>
-                                            <option value="">Отказ</option>
+                                        <select v-model="equipment.return_reason" class="block w-full h-full py-2.5 px-2 bg-transparent">
+                                            <option value="project">Проект</option>
+                                            <option value="rejected">Отказ</option>
                                         </select>
                                     </div>
                                     <div class="shrink-0 flex items-center w-[8.97%]">
