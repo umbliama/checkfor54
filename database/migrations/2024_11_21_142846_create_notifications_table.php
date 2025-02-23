@@ -16,9 +16,11 @@ return new class extends Migration
             $table->timestamps();
             $table->string('type');
             $table->json('data');
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+
         });
-        Schema::create('notification_reads', function (Blueprint $table) {
+
+        Schema::create('notification_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('notification_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

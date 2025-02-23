@@ -6,27 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    protected $fillable = ['type', 'data', 'user_id', 'read_at'];
+    protected $fillable = ['type', 'data', 'created_by'];
     protected $casts = ['data' => 'array'];
 
-
-
-    public function markAsRead()
+    /**
+     * Связь с информацией о прочтении уведомления.
+     */
+    public function reads()
     {
-        $this->update(['read_at' => now()]);
+        return $this->hasMany(NotificationRead::class);
     }
 
-    public function user()
+    /**
+     * Связь для получения данных о создателе уведомления.
+     */
+    public function creator()
     {
-        return $this->hasOne(User::class, 'id', 'user_id');
-    }
-    public function markAsUnread()
-    {
-        $this->update(['read_at' => null]);
-    }
-
-    public function isRead()
-    {
-        return !is_null($this->read_at);
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

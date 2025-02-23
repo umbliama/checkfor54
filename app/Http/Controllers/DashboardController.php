@@ -155,10 +155,8 @@ class DashboardController extends Controller
             ->groupBy('contragent_id')
             ->map(function ($services) {
                 return $services->flatMap(function ($service) {
-                    // Debug: Check if mainServices exist
     
                     return $service->mainServices->map(function ($serviceEquip) use ($service) {
-                        // Debug: Check if serviceSubs exist
                         return [
                             'service_equipment' => [
                                 'service_date' => $service->service_date,

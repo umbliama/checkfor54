@@ -1,21 +1,19 @@
 <?php
-
 namespace App\Http\Controllers;
+
 use App\Events\NewNotification;
 use App\Events\NotificationCountUpdated;
 use App\Models\Block;
 use App\Models\Column;
-use App\Models\Notification;
 use App\Models\Contragents;
+use App\Models\Notification;
 use App\Models\NotificationRead;
 use App\Models\User;
-use Illuminate\Broadcasting\Channel;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-
+use Inertia\Inertia;
 
 class IncidentController extends Controller
 {
@@ -25,8 +23,8 @@ class IncidentController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('perPage', 10);
-        $page = request()->get('page', 1);
-        $search = $request->input('search', null);
+        $page    = request()->get('page', 1);
+        $search  = $request->input('search', null);
 
         // Query for Tasks
         $tasksQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
@@ -52,7 +50,7 @@ class IncidentController extends Controller
         }
 
         $tasksColumns = $tasksQuery->orderBy('position')->paginate($perPage);
-        $advColumns = $advQuery->orderBy('position')->paginate($perPage);
+        $advColumns   = $advQuery->orderBy('position')->paginate($perPage);
 
         // Archived Queries
         $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
@@ -75,7 +73,7 @@ class IncidentController extends Controller
 
         // Pagination for Archived Data
         $tasksColumnsArchivedCount = $tasksColumnsArchived->count();
-        $advColumnsArchivedCount = $advColumnsArchived->count();
+        $advColumnsArchivedCount   = $advColumnsArchived->count();
 
         $paginator = new LengthAwarePaginator(
             $paginatedGroups,
@@ -95,8 +93,7 @@ class IncidentController extends Controller
 
         // Additional Data
         $contragents = Contragents::all();
-        $employees = User::where('isAdmin', 0)->get();
-
+        $employees   = User::where('isAdmin', 0)->get();
 
         $tasksColumns->getCollection()->transform(function ($column) {
             $column->blocks->transform(function ($block) {
@@ -115,14 +112,14 @@ class IncidentController extends Controller
         });
 
         return Inertia::render('Incident/Index', [
-            'advColumnsArchivedCount' => $advColumnsArchivedCount,
+            'advColumnsArchivedCount'   => $advColumnsArchivedCount,
             'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount,
-            'tasksColumns' => $tasksColumns,
-            'advColumns' => $advColumns,
-            'tasksColumnsArchived' => $paginator,
-            'advColumnsArchived' => $advPaginator,
-            'contragents' => $contragents,
-            'employees' => $employees
+            'tasksColumns'              => $tasksColumns,
+            'advColumns'                => $advColumns,
+            'tasksColumnsArchived'      => $paginator,
+            'advColumnsArchived'        => $advPaginator,
+            'contragents'               => $contragents,
+            'employees'                 => $employees,
         ]);
     }
 
@@ -134,33 +131,50 @@ class IncidentController extends Controller
             ->paginate($perPage);
         $contragents = Contragents::all();
 
-
-
         return Inertia::render('Incident/History', ['archivedColumns' => $columns, 'contragents' => $contragents]);
     }
 
     public function createColumn(Request $request)
     {
         try {
+            // Вычисляем позицию для новой колонки
             $position = Column::max('position') + 1;
-            $user_id = Auth::id();
-            $column = Column::create(['position' => $position, 'type' => $request->input('type'), 'creator_id' => Auth::id()]);
+            $user_id  = Auth::id();
+
+            $column = Column::create([
+                'position'   => $position,
+                'type'       => $request->input('type'),
+                'creator_id' => $user_id,
+            ]);
+
             $notification = Notification::create([
-                'type' => 'Создана новая колонка',
-                'data' => ['position' => $position],
-                'user_id' => $user_id
+                'type'       => 'Создана новая колонка',
+                'data'       => ['position' => $position],
+                'created_by' => $user_id,
             ]);
 
             event(new NewNotification($notification));
+
             $otherUserIds = User::where('id', '!=', $user_id)->pluck('id')->toArray();
 
             foreach ($otherUserIds as $userId) {
-    
-                $unreadCount = NotificationRead::where('user_id', $userId)->whereNull('read_at')->count();
+                NotificationRead::create([
+                    'notification_id' => $notification->id,
+                    'user_id'         => $userId,
+                    'read_at'         => null,
+                ]);
+
+                $unreadCount = NotificationRead::where('user_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
+
+                \Log::info("Отправка NotificationCountUpdated для пользователя $userId", ['count' => $unreadCount]);
                 event(new NotificationCountUpdated($unreadCount, $userId));
             }
+
             $this->createBlock($column, 'customer');
             $this->createBlock($column, 'equipment');
+
             return back()->with('message', 'Колонка успешно создана');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -196,23 +210,23 @@ class IncidentController extends Controller
     {
         try {
             if (is_string($typeOrRequest)) {
-                $type = $typeOrRequest;
+                $type    = $typeOrRequest;
                 $request = request();
             } elseif ($typeOrRequest instanceof Request) {
                 $request = $typeOrRequest;
-                $type = $request->input('type');
+                $type    = $request->input('type');
             } else {
                 throw new \InvalidArgumentException('Argument #2 must be a string or a Request object.');
             }
             $position = Column::max('position') + 1;
-            $content = $this->prepareBlockContent($type, $request);
+            $content  = $this->prepareBlockContent($type, $request);
 
             Block::create([
-                'column_id' => $column->id,
-                'type' => $type,
+                'column_id'  => $column->id,
+                'type'       => $type,
                 'creator_id' => Auth::id(),
-                'position' => $position,
-                'content' => json_encode($content),
+                'position'   => $position,
+                'content'    => json_encode($content),
             ]);
             return back()->with('message', 'Блок успешно создан');
 
@@ -221,8 +235,6 @@ class IncidentController extends Controller
 
         }
     }
-
-
 
     protected function prepareBlockContent($type, Request $request)
     {
@@ -238,8 +250,8 @@ class IncidentController extends Controller
             case 'commentary':
                 return [
                     'contragent_id' => $request->input('contragent_id', null),
-                    'equipment_id' => $request->input('equipment_id', null),
-                    'commentary' => $request->input('commentary'),
+                    'equipment_id'  => $request->input('equipment_id', null),
+                    'commentary'    => $request->input('commentary'),
                 ];
             case 'mediafiles':
                 $existingMediaUrls = $request->input('existing_media_urls', []);
@@ -247,8 +259,8 @@ class IncidentController extends Controller
                     $uploadedFiles = $request->file('media_file');
 
                     foreach ($uploadedFiles as $mediaFile) {
-                        $fileName = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
-                        $filePath = $mediaFile->storeAs('media_files', $fileName, 'public');
+                        $fileName            = time() . '_' . uniqid() . '.' . $mediaFile->getClientOriginalExtension();
+                        $filePath            = $mediaFile->storeAs('media_files', $fileName, 'public');
                         $existingMediaUrls[] = 'media_files/' . $fileName;
                     }
                 }
@@ -264,9 +276,9 @@ class IncidentController extends Controller
 
                     foreach ($uploadedFiles as $file) {
                         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                        $extension = $file->getClientOriginalExtension();
-                        $shortUniqid = substr(uniqid(), 0, 6);
-                        $fileName = $originalName . '_' . time() . '_' . $shortUniqid . '.' . $extension;
+                        $extension    = $file->getClientOriginalExtension();
+                        $shortUniqid  = substr(uniqid(), 0, 6);
+                        $fileName     = $originalName . '_' . time() . '_' . $shortUniqid . '.' . $extension;
                         $file->move(public_path('files'), $fileName);
                         $existingFileUrls[] = 'files/' . $fileName;
                     }
@@ -289,7 +301,7 @@ class IncidentController extends Controller
     protected function handleFileUpload(Request $request, $folder)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:50480',
+            'file'    => 'required|file|mimes:jpg,jpeg,png,mp4,mov,doc,docx,pdf,xls,xlsx|max:50480',
             'caption' => 'nullable|string|max:255',
         ]);
 
@@ -297,13 +309,12 @@ class IncidentController extends Controller
             $filePath = $request->file('file')->store($folder, 'public');
             return [
                 'file_path' => $filePath,
-                'caption' => $request->input('caption', ''),
+                'caption'   => $request->input('caption', ''),
             ];
         }
 
         return [];
     }
-
 
     public function deleteBlock(Block $block)
     {
@@ -320,46 +331,46 @@ class IncidentController extends Controller
         try {
             $type = $block->type;
             $data = $this->prepareBlockContent($type, $request);
-    
+
             // Retrieve existing equipment data (if any)
             $existingEquipment = json_decode($block->equipment, true) ?? [];
-    
+
             // Merge new equipment data with existing data
             if ($type === 'equipment' && isset($data['equipment'])) {
                 $newEquipment = $data['equipment'];
-                if (!is_array($newEquipment)) {
+                if (! is_array($newEquipment)) {
                     $newEquipment = [$newEquipment]; // Ensure it's an array
                 }
-                $mergedEquipment = array_merge($existingEquipment, $newEquipment);
+                $mergedEquipment   = array_merge($existingEquipment, $newEquipment);
                 $data['equipment'] = json_encode($mergedEquipment); // Save as JSON
             }
-    
+
             // Update the block with merged data
             $block->update([
-                'media_url' => $data['media_url'] ?? $block->media_url,
-                'file_url' => $data['file_url'] ?? $block->file_url,
+                'media_url'     => $data['media_url'] ?? $block->media_url,
+                'file_url'      => $data['file_url'] ?? $block->file_url,
                 'contragent_id' => $request->input('contragent_id', $block->contragent_id),
-                'commentary' => $request->input('commentary', $block->commentary),
-                'employee_id' => $request->input('employee_id', $block->employee_id),
-                'equipment' => $data['equipment'] ?? $block->equipment,
+                'commentary'    => $request->input('commentary', $block->commentary),
+                'employee_id'   => $request->input('employee_id', $block->employee_id),
+                'equipment'     => $data['equipment'] ?? $block->equipment,
             ]);
-    
+
             // Additional logic for specific block types
             if ($block->type == 'customer') {
                 $block->column()->update([
                     'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),
                 ]);
             }
-    
+
             if ($request->input('subEquipmentArray')) {
                 $this->saveSubequipmentAssociations($block, $request->input('subEquipmentArray'));
             }
-    
+
             return back()->with('message', 'Данные блока сохранены');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-    }    private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
+    }private function saveSubequipmentAssociations(Block $block, array $subEquipmentArray)
     {
         $block->subequipment()->detach();
 
@@ -389,20 +400,19 @@ class IncidentController extends Controller
     {
         $taskColumn = Column::find($columnId);
 
-        if (!$taskColumn) {
+        if (! $taskColumn) {
             return response()->json(['message' => 'Task Column not found.'], 404);
         }
 
         $block = Block::find($blockId);
 
-
-        if (!$block) {
+        if (! $block) {
             return response()->json(['message' => 'Block not found.'], 404);
         }
 
         if (is_array($block->media_url)) {
             if (isset($block->media_url[$imageIndex])) {
-                $mediaUrls = $block->media_url;
+                $mediaUrls    = $block->media_url;
                 $fileToDelete = public_path('storage/' . $block->media_url[$imageIndex]);
 
                 if (File::exists($fileToDelete)) {
@@ -424,18 +434,18 @@ class IncidentController extends Controller
     {
         try {
             $taskColumn = Column::find($columnId);
-            if (!$taskColumn) {
+            if (! $taskColumn) {
                 return response()->json(['message' => 'Task Column not found.'], 404);
             }
 
             $block = Block::find($blockId);
-            if (!$block) {
+            if (! $block) {
                 return response()->json(['message' => 'Block not found.'], 404);
             }
 
             if (is_array($block->file_url)) {
                 if (isset($block->file_url[$fileIndex])) {
-                    $fileUrls = $block->file_url;
+                    $fileUrls     = $block->file_url;
                     $fileToDelete = public_path('storage/' . $block->file_url[$fileIndex]);
 
                     if (File::exists($fileToDelete)) {

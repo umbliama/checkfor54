@@ -7,10 +7,13 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+
 class NotificationCountUpdated implements ShouldBroadcast
+
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $count;
@@ -25,7 +28,10 @@ class NotificationCountUpdated implements ShouldBroadcast
         $this->userId = $userId;
 
     }
-
+    public function broadcastAs()
+    {
+        return 'NotificationCountUpdated';
+    }
     /**
      * Get the channels the event should broadcast on.
      *
