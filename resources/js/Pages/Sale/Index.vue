@@ -4,7 +4,7 @@ import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { computed, onMounted, ref, toRaw } from 'vue';
+import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import store from '../../../store/index';
 import SaleNav from "@/Components/Sale/SaleNav.vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
@@ -45,22 +45,26 @@ const page = usePage()
 const user = computed(() => page.props.auth.user)
 
 const chosenContragent = ref(null);
-const getYear = ref(new Date().getFullYear());
 
 const is_edit_dialog_open = ref(false);
 const contragent_to_edit = ref(null);
 
-const setChosenContragent = (id) => {
-    chosenContragent.value = id
-}
 const contragentId = ref(null);
+const sortOrderNow = ref('asc'); 
 
-const minusYear = () => {
-    store.dispatch('services/updateDecSelectedYear')
-}
-const plusYear = () => {
-    store.dispatch('services/updateIncSelectedYear')
-}
+const sortBy = ref('shipping_date');
+const toggleSortOrder = () => {
+    sortOrderNow.value = sortOrderNow.value === 'asc' ? 'desc' : 'asc';
+};
+
+const changeSortBy = (field) => {
+    if (sortBy.value === field) {
+        toggleSortOrder();
+    } else {
+        sortBy.value = field;
+        sortOrderNow.value = 'asc'; 
+    }
+};
 
 const selectActive = (value) => {
     store.dispatch('services/updateSelectedActive', value)
@@ -104,6 +108,16 @@ const getMonthNumber = (month) => {
     };
     return months[month] ?? null;
 };
+const getYear = ref(new Date().getFullYear());
+
+const changeYear = (action) => {
+    if (action === "minus") {
+        getYear.value -= 1;
+    } else if (action === "plus") {
+        getYear.value += 1;
+    }
+};
+
 
 const normalizeMonth = (month) => {
     if (typeof month === 'string') {
@@ -119,62 +133,60 @@ const normalizeMonth = (month) => {
     return null;
 };
 
-
-const filteredSales = (month, year) => {
+const filteredSales = computed(() => (month, year) => {
     const formattedMonth = normalizeMonth(month);
     const dataArray = Object.values(props.sales.data || {});
 
+    let filteredData;
+
     if (month === 0 || formattedMonth === null) {
         if (year) {
-            return dataArray.filter(service => {
+            filteredData = dataArray.filter(service => {
                 if (service.contragent_data && service.contragent_data.length > 0) {
-                    const shippingDate = service.contragent_data[0]?.shipping_date; 
-                    if (!shippingDate) {
-                        return true; 
-                    }
-                    const dateParts = shippingDate.split('-');
-                    if (dateParts.length === 3) {
-                        const yearPart = dateParts[0];
-                        return yearPart === year.toString();
-                    }
+                    const shippingDate = service.contragent_data[0]?.shipping_date;
+                    if (!shippingDate) return true;
+
+                    const yearPart = shippingDate.split('-')[0];
+                    return yearPart === year.toString();
                 }
                 return false;
             });
+        } else {
+            filteredData = dataArray;
         }
-        return dataArray; 
+    } else {
+        filteredData = dataArray.filter(service => {
+            if (service.contragent_data && service.contragent_data.length > 0) {
+                const shippingDate = service.contragent_data[0]?.shipping_date;
+                if (!shippingDate) return true;
+
+                const [yearPart, monthPart] = shippingDate.split('-');
+                return monthPart === formattedMonth && (!year || yearPart === year.toString());
+            }
+            return false;
+        });
     }
 
-    return dataArray.filter(service => {
-        if (service.contragent_data && service.contragent_data.length > 0) {
-            const shippingDate = service.contragent_data[0]?.shipping_date;
-            if (!shippingDate) {
-                return true; 
-            }
-            const dateParts = shippingDate.split('-');
-            if (dateParts.length === 3) {
-                const monthPart = dateParts[1];
-                const yearPart = dateParts[0];
-                if (monthPart === formattedMonth) {
-                    if (year) {
-                        return yearPart === year.toString();
-                    }
-                    return true;
-                }
-            }
-        }
-        return false;
+    // Sorting logic by selected field
+    return filteredData.sort((a, b) => {
+        const valueA = a.contragent_data[0]?.[sortBy.value] || '';
+        const valueB = b.contragent_data[0]?.[sortBy.value] || '';
+
+        if (!valueA && !valueB) return 0;
+        if (!valueA) return sortOrderNow.value === 'asc' ? 1 : -1;
+        if (!valueB) return sortOrderNow.value === 'asc' ? -1 : 1;
+
+        return sortOrderNow.value === 'asc' 
+            ? valueA.localeCompare(valueB, undefined, { numeric: true }) 
+            : valueB.localeCompare(valueA, undefined, { numeric: true });
     });
-};
+});
+
 
 const updateMonth = (month) => {
     store.dispatch('services/updateSelectedMonth', month)
 }
 
-const changeYear = (action) => {
-    console.log(`Before change: ${getYear.value}`);
-    action === 'plus' ? getYear.value += 1 : getYear.value -= 1;
-    console.log(`After change: ${getYear.value}`);
-};
 const showSubservices = ref({});
 
 const toggleSubservice = (index) => {
@@ -247,7 +259,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                 <div class="font-bold text-sm text-gray1">Список проданного оборудования:</div>
 
                 <div class="flex space-x-4">
-                    <div @click.prevent="changeYear('minus')" class="flex ">
+                    <div @click.stop.prevent="changeYear('minus')" class="flex ">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_2051_7507)">
                                 <rect x="24" width="24" height="24" rx="5" transform="rotate(90 24 0)" fill="#F7F9FC" />
@@ -267,7 +279,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
 
                         <p class="mx-2">{{ getYear }}</p>
 
-                        <div @click.prevent="changeYear('plus')" class="flex">
+                        <div @click.stop.prevent="changeYear('plus')" class="flex">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_2051_7512)">
@@ -296,9 +308,11 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                     <div
                         class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2"></div>
-                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 bg-violet-full/10">
+                        <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 "
+                        :class="{'bg-violet-full/10': sortBy === 'name'}"
+                        >
                             Заказчик
-                            <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
+                            <button @click="changeSortBy('name')" type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
                                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED"
@@ -312,9 +326,12 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                 </svg>
                             </button>
                         </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
-                            Дата отгрузки
-                            <button type="button" class="shrink-0 ml-auto rounded-full bg-violet-full/10">
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2"
+                        :class="{'bg-violet-full/10': sortBy === 'shipping_date'}"
+
+                        >
+                            Дата отгрузки 
+                            <button type="button" @click="changeSortBy('shipping_date')"   class="shrink-0 ml-auto rounded-full bg-violet-full/10">
                                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path d="M8.26795 12.1904L10.6251 9.83325L12.9822 12.1904" stroke="#644DED"
@@ -359,12 +376,14 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                    <UiHyperlink :item-id="2" :hyperlink="'some.ru'"
-                                                    endpoint="/equipment/sale" />
+                                    <UiHyperlink :item-id="service.contragent_data[0].contragent_id" :hyperlink="service.contragent_data[0].hyperlink"
+                                                    endpoint="/equipment/contragent" />
                                 </div>
                                 <div
-                                    class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
-                                    {{ nameContragent(index) }}
+                                    class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2"
+                                    :class="{'bg-violet-full/10': sortBy === 'name'}"
+                                    >
+                                    {{ nameContragent(service.contragent_data[0].contragent_id) }}
                                     <AccordionTrigger class="shrink-0 group ml-3">
                                         <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -380,7 +399,9 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                         </svg>
                                     </AccordionTrigger>
                                 </div>
-                                <div v-if="service.contragent_data[0]" class="shrink-0 flex items-center w-[14.08%]">
+                                <div v-if="service.contragent_data[0]" class="shrink-0 flex items-center w-[14.08%]"
+                                :class="{'bg-violet-full/10': sortBy === 'shipping_date'}"
+                                >
                                     <input disabled v-model="service.contragent_data[0].shipping_date" type="date"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
@@ -404,7 +425,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                     <!-- <span>Итого:</span> {{ calcFullIncome()[index] }} -->
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                    <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
+                                    <Link v-if="service.contragent_data[0].directory === null" :href="'/directory/contragent/' + service.contragent_data[0].contragent_id" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -437,18 +458,11 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                             <PopoverContent side="bottom" align="end"
                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                 <div>Комментарий:</div>
-                                                <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране
-                                                    гласных и согласных
-                                                    живут рыбные тексты. Страна если бросил, он всемогущая запятых
-                                                    грамматики себя ipsum
-                                                    точках, несколько меня строчка маленькая страну предупреждал которой
-                                                    раз проектах. Ему
-                                                    выйти составитель дал то ...</p>
-                                                <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                <p class="mt-2.5 text-xs">{{ service.contragent_data[0].directory.commentary }}</p>
+                                                <div v-if="service.contragent_data[0].directory.files" v-for="file in service.contragent_data[0].directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                     <div class="flex items-center max-w-full">
                                                         <span
-                                                            class="grow block mr-auto text-ellipsis overflow-hidden">Some
-                                                            file name</span>
+                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.file_name }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -487,7 +501,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <Link :href="'/'"
+                                                                            <a download :href="'/' + file.file_path"
                                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                             Скачать
                                                                             <svg class="block ml-2"
@@ -500,7 +514,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                                                     stroke-width="2"
                                                                                     d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                             </svg>
-                                                                            </Link>
+                                                                            </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>
@@ -508,7 +522,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                                         </DropdownMenuRoot>
                                                     </div>
                                                 </div>
-                                                <Link :href="'/directory/service/' + 2"
+                                                <Link :href="'/directory/contragent/' + service.contragent_data[0].contragent_id"
                                                     class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                 Редактировать
 

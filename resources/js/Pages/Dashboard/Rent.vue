@@ -821,7 +821,6 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                    {{ paginated}}
                     <RentPagination v-model="paginated.pagination.current_page"
                 :total-pages="paginated.pagination.last_page" class="mt-5" />
                 </div>

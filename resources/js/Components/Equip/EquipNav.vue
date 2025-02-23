@@ -129,7 +129,7 @@ onMounted(() => {
                     :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                 >
-                    <Link :href="route('equip.price')" class="text-base lg:text-lg">Стоимость</Link>
+                    <Link :href="route('equip.price', {category_id: 1})" class="text-base lg:text-lg">Стоимость</Link>
                 </li>
 <!--                <Link @click="toggleDropdown">-->
 

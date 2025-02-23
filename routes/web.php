@@ -23,7 +23,7 @@ Route::get('/welcome', function () {
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect('/login');
+        return redirect('/rent');
     } else {
         return redirect('/login');
     }
@@ -116,6 +116,8 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/contragents/{id}', [ContragentsController::class, 'show'])->name('contragents.show');
     Route::delete('/contragents/file/delete', [ContragentsController::class, 'deleteDocumentFileByContragent'])->name('contragents.deleteFile');
     Route::delete('/contragents/deleteAvatar/{id}', [ContragentsController::class, 'destroyAvatar'])->name('contragents.destroyAvatar');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 
 
     Route::prefix('/constructor')->group(function () {
