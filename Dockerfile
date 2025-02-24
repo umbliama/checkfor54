@@ -43,14 +43,12 @@ RUN apt-get update && apt-get install -y \
     nano \ 
     python3-certbot-apache \
     curl \
-    && rm -rf /var/lib/apt/lists/* \
-    # Install Node.js and npm
+    && rm -rf /var/lib/apt/lists/* \    
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
     && npm install \
     && npm run build \
     && php artisan migrate \
-    && php artisan db:seed DatabaseSeeder \
     && php artisan storage:link \
     && rm -rf /var/lib/apt/lists/*
 
