@@ -57,9 +57,10 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
 
-# ✅ Copy startup script (for migrations, queue, etc.)
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+    
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
