@@ -35,13 +35,12 @@ WORKDIR /var/www
 # Copy all application files from the previous stage
 COPY --from=deps /app /var/www
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-# Install dependencies including Certbot
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     openssl \
-    certbot \
     git \
-    nano \ 
-    python3-certbot-apache \
+    nano \
     curl \
     && rm -rf /var/lib/apt/lists/* \    
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
@@ -55,13 +54,26 @@ RUN apt-get update && apt-get install -y \
 # Configure Apache and PHP
 RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && a2enmod rewrite ssl \
+    && a2ensite default-ssl \
     && sed -i 's#/var/www/html#/var/www/public#' /etc/apache2/sites-available/000-default.conf \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
 
+COPY fullchain.pem /etc/ssl/certs/fullchain.pem
+COPY private.key /etc/ssl/private/private.key
+COPY ssl.conf /etc/apache2/sites-available/ssl.conf
+
+
+# Настраиваем права на файлы
+RUN chmod 600 /etc/ssl/private/private.key
+    
+# Configure Apache for SSL
+COPY ssl.conf /etc/apache2/sites-available/ssl.conf
+RUN a2ensite ssl.conf
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 CMD ["/docker-entrypoint.sh"]
+
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
