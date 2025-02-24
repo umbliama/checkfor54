@@ -13,6 +13,12 @@ jobs:
     steps:
     - name: Checkout the code
       uses: actions/checkout@v4
+
+    - name: Create SSL Certificate files
+      run: |
+        echo "${{ secrets.SSL_PRIVATE_KEY }}" > private.key
+        echo "${{ secrets.SSL_CERTIFICATE }}" > fullchain.pem
+
     - name: Log in to Docker registry
       uses: docker/login-action@v2
       with:
@@ -21,8 +27,11 @@ jobs:
 
     - name: Build and push the Docker image
       run: |
-        IMAGE_TAG=$(date +%s)  
+        IMAGE_TAG=$(date +%s)
         docker build . --file Dockerfile --tag koepido/bm-service-server:$IMAGE_TAG
         docker tag koepido/bm-service-server:$IMAGE_TAG koepido/bm-service-server:latest
         docker push koepido/bm-service-server:$IMAGE_TAG
         docker push koepido/bm-service-server:latest
+
+    - name: Clean up SSL files
+      run: rm -f private.key fullchain.pem
