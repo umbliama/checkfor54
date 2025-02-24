@@ -52,7 +52,7 @@ RUN apt-get update && apt-get install -y \
     && php artisan migrate \
     && php artisan db:seed DatabaseSeeder \
     && php artisan storage:link \
-    && php artisan reverb:start --host=0.0.0.0 --port=6001  \ 
+    && php artisan reverb:start --host=0.0.0.0 --port=6001 \ 
     && php artisan queue:work \ 
     && rm -rf /var/lib/apt/lists/*
 
