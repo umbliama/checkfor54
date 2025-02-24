@@ -52,7 +52,7 @@ RUN apt-get update && apt-get install -y \
     && php artisan migrate \
     && php artisan db:seed DatabaseSeeder \
     && php artisan storage:link \
-    && php artisan queue:work \ 
+    && php artisan reverb:start --host=0.0.0.0 --port=6001 \ 
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache and PHP
