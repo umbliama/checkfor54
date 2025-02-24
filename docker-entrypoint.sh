@@ -9,7 +9,7 @@ sleep 5 # Adjust this if needed
 php artisan migrate --force
 php artisan db:seed --force
 php artisan storage:link
-php artisan reverb:start & 
+php artisan reverb:start --host=0.0.0.0 --port=6001 & 
 php artisan queue:work & 
 
 # Start Apache
