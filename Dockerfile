@@ -8,47 +8,53 @@ WORKDIR /app
 # Copy application files into the container
 COPY . .
 
-# Install Composer dependencies
+# Run composer install
 RUN --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction --prefer-dist
+    composer install --no-dev --no-interaction
 
-################################################################################
-# Stage 2: Node.js build
-################################################################################
+
 FROM node:lts as node-build
 
 WORKDIR /app
 
-# ✅ Ensure vendor/ exists before running npm build
-COPY --from=deps /app /app
+# Copy application files into the container
+COPY . .
 
-# Install Node.js dependencies and build assets
-RUN npm install && npm run build
+# Install Node.js dependencies 
+RUN npm install
 
+# Run the build command 
+RUN npm run build
 ################################################################################
-# Stage 3: Final application image
+# Stage 2: Build the final image
 ################################################################################
 FROM php:8.3-apache
 
 WORKDIR /var/www
 
-# Copy built application files from Composer & Node.js build stages
+# Copy all application files from the previous stage
 COPY --from=deps /app /var/www
-COPY --from=node-build /app/public /var/www/public
-
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
     openssl \
     certbot \
     git \
-    nano\
+    nano \ 
     python3-certbot-apache \
     curl \
+    && rm -rf /var/lib/apt/lists/* \
+    # Install Node.js and npm
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install \
+    && npm run build \
+    && php artisan migrate \
+    && php artisan db:seed DatabaseSeeder \
+    && php artisan storage:link \
+    && php artisan reverb:start --host=0.0.0.0 --port=6001  \ 
+    && php artisan queue:work \ 
     && rm -rf /var/lib/apt/lists/*
-
-# Install Node.js (LTS)
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
 
 # Configure Apache and PHP
 RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
@@ -57,16 +63,5 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-    
-
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
-
-# ✅ Set entrypoint
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-# Start Apache
-CMD ["apache2-foreground"]
