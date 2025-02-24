@@ -1,14 +1,13 @@
 <script setup>
 import { computed, ref, useSlots } from "vue";
 
-const model_value = defineModel({ default: '' });
-
 const $props = defineProps({
+    modelValue: [String, Number],
     label     : String,
-    textarea  : Boolean,
-    disabled  : Boolean,
     error     : String,
     hint      : String,
+    textarea  : Boolean,
+    disabled  : Boolean,
     size      : {
         type: String,
         default: 'default',
@@ -19,7 +18,7 @@ const $props = defineProps({
     inpAttrs  : Object,
 });
 
-const $emit = defineEmits([ 'blur' ]);
+const $emit = defineEmits([ 'blur', 'update:modelValue' ]);
 
 const $slots = useSlots();
 
@@ -62,7 +61,8 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
                 v-bind="inpAttrs"
                 @focusin="is_focused = true"
                 @focusout="is_focused = false"
-                @blur="$emit('blur', model_value)"
+                @blur="$event => $emit('blur', $event.target.value)"
+                @input="$event => $emit('update:modelValue', $event.target.value)"
             />
         </div>
         <div v-if="$props.hint" class="mt-1 text-xs text-gray1">{{ $props.hint }}</div>
