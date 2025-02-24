@@ -104,11 +104,13 @@ class DashboardController extends Controller
         $equipment_categories            = EquipmentCategories::all();
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts     = [];
-        $contragents                     = Contragents::all();
-        $currentPage                     = (int) $request->input('page', 1);
-        $category_id                     = $request->input('category_id');
-        $size_id                         = $request->input('size_id');
-        $perPage                         = $request->input('perPage', 10);
+        $contragents                     = Contragents::whereHas('services', function ($query) {
+            $query->where('active', 1);
+        })->get();
+        $currentPage = (int) $request->input('page', 1);
+        $category_id = $request->input('category_id');
+        $size_id     = $request->input('size_id');
+        $perPage     = $request->input('perPage', 10);
 
         foreach ($equipment_categories as $category) {
             $categoryIDForCount                               = $category->id;
