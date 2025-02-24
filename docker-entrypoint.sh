@@ -16,8 +16,8 @@ php artisan db:seed --force
 php artisan storage:link
 
 # Start Reverb and Queue
-php artisan reverb:start --host=0.0.0.0 --port=6001 &
-php artisan queue:work &
+# php artisan reverb:start --host=0.0.0.0 --port=6001 &
+# php artisan queue:work &
 
 # ✅ Ensure Apache runs in foreground
 exec apache2-foreground
