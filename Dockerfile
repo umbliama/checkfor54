@@ -19,8 +19,8 @@ FROM node:lts as node-build
 
 WORKDIR /app
 
-# Copy application files into the container
-COPY . .
+# ✅ Ensure vendor/ exists before running npm build
+COPY --from=deps /app /app
 
 # Install Node.js dependencies and build assets
 RUN npm install && npm run build
@@ -57,14 +57,14 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
 
-# Copy startup script (for migrations, queue, etc.)
-COPY docker-entrypoint.sh /usr/local/bin/
+# ✅ Copy startup script (for migrations, queue, etc.)
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
 
-# Set entrypoint
+# ✅ Set entrypoint
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Start Apache
