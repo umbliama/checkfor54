@@ -77,5 +77,9 @@ class Equipment extends Model
         return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id');
     }
     
-
+    public function serviceSubs()
+    {
+        return $this->hasMany(ServiceSub::class, 'subequipment_id', 'id');
+    }
+    
 }

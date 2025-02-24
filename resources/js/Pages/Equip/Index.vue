@@ -90,15 +90,30 @@ const sumLocs = () => {
 const sortedEquipment = computed(() => {
     return props.equipment.data
         .filter((item) => {
+            // ✅ Manufacturer filter
             if (selectedManufacturer.value && item.manufactor !== selectedManufacturer.value) {
                 return false;
             }
 
+            // ✅ Status filter
             if (selectedStatus.value && item.status !== selectedStatus.value) {
                 return false;
             }
 
+            // ✅ Notes search filter
             if (searchNotes.value.trim() && !item.notes?.toLowerCase().includes(searchNotes.value.trim().toLowerCase())) {
+                return false;
+            }
+
+            // ✅ Price filtering
+            const price = item.price ?? 0; // Ensure `price` is always a number
+            const min = minPrice.value !== null ? Number(minPrice.value) : null;
+            const max = maxPrice.value !== null ? Number(maxPrice.value) : null;
+
+            if (min !== null && price < min) {
+                return false;
+            }
+            if (max !== null && price > max) {
                 return false;
             }
 
@@ -406,8 +421,10 @@ const aa = ref('');
                             <div>
                                 <label>Стоимость</label>
                                 <div class="grid grid-cols-2 gap-3 mt-2">
-                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'От' }" />
-                                    <UiField class="w-28" size="sm" :inp-attrs="{ placeholder: 'До' }" />
+                                    <UiField v-model="minPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField v-model="maxPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'До' }" />
                                 </div>
                             </div>
 
@@ -418,7 +435,7 @@ const aa = ref('');
                             <UiFieldSelect size="sm" v-if="manufacturers.length" label="Производитель"
                                 :items="[{ title: 'Все', value: null }, ...manufacturers]" only-value
                                 v-model="selectedManufacturer" />
-                            <UiField class="w-full" size="sm" label="Примечание" />
+                            <UiField class="w-full" size="sm" v-model="searchNotes" label="Примечание" />
                         </PopoverContent>
                     </PopoverPortal>
                 </PopoverRoot>
@@ -506,7 +523,7 @@ const aa = ref('');
                                 </div>
                                 <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                     item.zahodnost ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ?? '-' }}
                                 </div>
@@ -515,21 +532,21 @@ const aa = ref('');
                                 <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                     item.stator_rotor ??
                                     '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[6.11%] py-2.5 px-2">{{
                                     item.operating ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                     item.narabotka_ds ??
                                     '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.56%] py-2.5 px-2">{{
                                     item.manufactor_date ??
                                     '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
                                 </div>
@@ -541,7 +558,7 @@ const aa = ref('');
                                         class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                     <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                         statuses[item.status]
-                                    }}</span>
+                                        }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                     <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id"
@@ -839,12 +856,12 @@ const aa = ref('');
                                 </div>
                                 <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                     item.operating ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                     item.manufactor_date
                                     ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
                                 </div>
@@ -857,7 +874,7 @@ const aa = ref('');
                                         class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                     <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                         statuses[item.status]
-                                    }}</span>
+                                        }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                     <Link v-if="true" :href="'/directory/equipment/' + item.id" class="mr-3.5">
@@ -1113,23 +1130,23 @@ const aa = ref('');
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                     item.diameter ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                     item.length ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[6.73%] py-2.5 px-2">{{
                                     item.length_rezba ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                     item.rezbi ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                     item.operating ?? '-'
-                                }}
+                                    }}
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-center text-center w-[8.56%] py-2.5 px-2">
@@ -1147,7 +1164,7 @@ const aa = ref('');
                                         class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                     <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                         statuses[item.status]
-                                    }}</span>
+                                        }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
                                     <Link v-if="true" :href="'/directory/equipment/' + item.id" class="mr-3.5">

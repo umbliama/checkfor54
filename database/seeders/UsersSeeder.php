@@ -24,6 +24,14 @@ class UsersSeeder extends Seeder
             'isApproved' => 1,
         ]);
         User::create([
+            'name' => 'test1',
+            'lastname' => 'test1',
+            'email' => 'test@test.com',
+            'password' => bcrypt('123123123'),
+            'isAdmin' => 1,
+            'isApproved' => 1,
+        ]);
+        User::create([
             'name' => 'admin',
             'lastname' => 'admin',
             'email' => 'admin@admin.ru',

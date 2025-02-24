@@ -125,7 +125,7 @@ defineExpose({ resetPage });
                                 :side-offset="5">
                                 <SelectViewport class="p-1">
                                     <SelectGroup>
-                                        <SelectItem v-for="(option, index) in [10, 25, 50]" :key="index" :value="option"
+                                        <SelectItem v-for="(option, index) in   [10, 25, 50]" :key="index" :value="option"
                                             :class="{ '!bg-[#464F60] text-white': option === perPageValue }"
                                             class="py-1 px-2.5 rounded text-center text-xs outline-none cursor-pointer hover:bg-my-gray transition-all lg:text-sm">
                                             <SelectItemText>{{ option }}</SelectItemText>

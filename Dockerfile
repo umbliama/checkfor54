@@ -52,6 +52,8 @@ RUN apt-get update && apt-get install -y \
     && php artisan migrate \
     && php artisan db:seed DatabaseSeeder \
     && php artisan storage:link \
+    && php artisan reverb:start \ 
+    && php artisan queue:work \ 
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache and PHP
