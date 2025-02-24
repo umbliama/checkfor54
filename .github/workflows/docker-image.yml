@@ -32,6 +32,3 @@ jobs:
         docker tag koepido/bm-service-server:$IMAGE_TAG koepido/bm-service-server:latest
         docker push koepido/bm-service-server:$IMAGE_TAG
         docker push koepido/bm-service-server:latest
-
-    - name: Clean up SSL files
-      run: rm -f private.key fullchain.pem
