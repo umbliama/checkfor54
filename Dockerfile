@@ -49,7 +49,6 @@ RUN apt-get update && apt-get install -y \
     && npm install \
     && npm run build \
     && php artisan migrate \
-    && php artisan storage:link \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure Apache and PHP
