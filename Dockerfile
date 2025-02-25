@@ -57,7 +57,7 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && sed -i 's#/var/www/html#/var/www/public#' /etc/apache2/sites-available/000-default.conf \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
-
+RUN docker-php-ext-install pcntl
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443
