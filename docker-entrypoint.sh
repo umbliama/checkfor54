@@ -11,13 +11,6 @@ chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Run Laravel commands
-php artisan migrate --force
-php artisan db:seed --force
-php artisan storage:link
-
-# Start Reverb and Queue
-# php artisan reverb:start --host=0.0.0.0 --port=6001 &
-# php artisan queue:work &
-
-# ✅ Ensure Apache runs in foreground
+php artisan reverb:start
+php artisan queue:work
 exec apache2-foreground
