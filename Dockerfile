@@ -64,4 +64,4 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 CMD ["/docker-entrypoint.sh"]
 # Expose ports for HTTP and HTTPS
-EXPOSE 80 443
+EXPOSE 80 443 6001

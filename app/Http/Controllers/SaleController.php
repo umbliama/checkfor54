@@ -286,6 +286,7 @@ class SaleController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user_id = Auth::id();
         $request->validate([
             'contragent_id'                              => 'nullable|int',
             'sale_number'                                => "nullable|string",
@@ -419,12 +420,12 @@ class SaleController extends Controller
     {
         try {
             $sale = Sale::findOrFail($id);
-
+            $user_id = Auth::id();
             $sale->delete();
 
             $notification = Notification::create([
                 'type'       => 'Удалена аренда',
-                'data'       => ['service_number' => $service_number],
+                'data'       => ['service_number' => $sale->sale_number],
                 'created_by' => $user_id,
             ]);
 
