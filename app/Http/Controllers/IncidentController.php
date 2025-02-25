@@ -168,7 +168,6 @@ class IncidentController extends Controller
                     ->whereNull('read_at')
                     ->count();
 
-                \Log::info("Отправка NotificationCountUpdated для пользователя $userId", ['count' => $unreadCount]);
                 event(new NotificationCountUpdated($unreadCount, $userId));
             }
 
@@ -345,7 +344,6 @@ class IncidentController extends Controller
                 $data['equipment'] = json_encode($mergedEquipment); // Save as JSON
             }
 
-            // Update the block with merged data
             $block->update([
                 'media_url'     => $data['media_url'] ?? $block->media_url,
                 'file_url'      => $data['file_url'] ?? $block->file_url,
@@ -355,7 +353,6 @@ class IncidentController extends Controller
                 'equipment'     => $data['equipment'] ?? $block->equipment,
             ]);
 
-            // Additional logic for specific block types
             if ($block->type == 'customer') {
                 $block->column()->update([
                     'contragent_id' => $request->input('contragent_id', $block->column->contragent_id),

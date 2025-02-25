@@ -507,7 +507,6 @@ class SaleController extends Controller
                 ->whereNull('read_at')
                 ->count();
 
-            \Log::info("Отправка NotificationCountUpdated для пользователя $userId", ['count' => $unreadCount]);
 
             event(new NotificationCountUpdated($unreadCount, $userId));
         }
