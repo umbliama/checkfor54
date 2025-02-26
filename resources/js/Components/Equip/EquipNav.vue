@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <nav class="mt-4 mx-4 px-4 lg:m-0 lg:p-6 bg-my-gray">
+    <nav class="mt-4 mx-4 px-4 lg:m-0 lg:p-4 bg-my-gray">
         <div class="relative flex items-center flex-col lg:flex-row">
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto lg:overflow-x-visible">
@@ -70,14 +70,14 @@ onMounted(() => {
                     <Link
                         :href="route('equip.report')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base"
                     >Отчет</Link>
                 </li>
                 <li>
                     <Link
                         :href="route('equip.index')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.EQUIPMENT }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent"
                     >
                         Оборудование
                         <span
@@ -91,7 +91,7 @@ onMounted(() => {
                     <Link
                         :href="route('equip.repair')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPAIR }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent"
                     >
                         Ремонт
                         <span
@@ -105,7 +105,7 @@ onMounted(() => {
                     <Link
                         :href="route('equip.tests')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.TESTS }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent"
                     >
                         Испытания
                         <span
@@ -119,7 +119,7 @@ onMounted(() => {
                     <Link
                         :href="route('equip.move')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.MOVE }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent lg:text-lg"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent"
                     >
                         Перемещение
 
@@ -129,7 +129,7 @@ onMounted(() => {
                     :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
                 >
-                    <Link :href="route('equip.price', {category_id: 1})" class="text-base lg:text-lg">Стоимость</Link>
+                    <Link :href="route('equip.price', {category_id: 1})" class="text-base">Стоимость</Link>
                 </li>
 <!--                <Link @click="toggleDropdown">-->
 
