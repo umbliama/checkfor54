@@ -226,7 +226,7 @@ onMounted(() => {
                     <UiField v-model="form.manufactor_date" label="Изготовление"
                         :inp-attrs="{ type: 'date', required: true }" />
                     <UiField v-model="form.price" label="Стоимость" :inp-attrs="{ required: true }" />
-                    <UiField v-model="form.notes" label="Примечание" :inp-attrs="{ required: true }" />
+                    <UiField v-model="form.notes" label="Примечание" />
                     <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" />
                 </div>
 

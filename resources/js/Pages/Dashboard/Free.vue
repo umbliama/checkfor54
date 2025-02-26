@@ -394,7 +394,7 @@ onMounted(() => {
                                 <span class="line-clamp-2">{{item.notes}}</span>
                             </div>
                             <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
-                                <span :class="statuses_colors['new']"
+                                <span :class="statuses_colors[item.status]"
                                         class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                 <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                     statuses[item.status]

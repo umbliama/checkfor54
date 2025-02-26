@@ -525,7 +525,7 @@ function submit() {
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': activeTab === 'services' }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="updateActiveTab('services')">
-                        Продажа
+                        Аренда
                     </li>
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': activeTab === 'extra' }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"

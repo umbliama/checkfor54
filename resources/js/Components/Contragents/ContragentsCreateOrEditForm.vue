@@ -460,11 +460,11 @@ const setTab = (tab) => {
             <div class="block mt-4 p-2 space-y-2 content-block lg:hidden">
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Заказчик</span>
-                    <UiCheckbox v-mode="form.customer" size="lg" required />
+                    <UiCheckbox v-model="form.customer" size="lg" required />
                 </label>
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Поставщик</span>
-                    <UiCheckbox v-mode="form.supplier" size="lg" required />
+                    <UiCheckbox v-model="form.supplier" size="lg" required />
                 </label>
                 <label class="p-2 flex items-center justify-between cursor-pointer">
                     <span class="font-medium text-my-nav-text">Активный</span>
@@ -488,14 +488,14 @@ const setTab = (tab) => {
 
         <div class="shrink-0 w-full mt-4 space-y-4 lg:w-60 lg:mt-0 lg:space-y-1">
             <div class="py-4 px-2 content-block">
-                <div v-if="contragent" class="font-medium">Комм. предложения:</div>
+                <div v-if="props?.contragent" class="font-medium">Комм. предложения:</div>
 
                 <div class="mt-5 space-y-5">
                     <div>
                         <div class="font-medium">Исходящие:</div>
                         <ul class="mt-2 space-y-3.5 bg-my-gray">
-                            <li v-if="form.commercials_incoming !== null || contragent.documents.some(doc => doc.type === 'commercials_incoming')"
-                                v-for="file in (form.commercials_incoming || contragent.documents.filter(doc => doc.type === 'commercials_incoming'))"
+                            <li v-if="form.commercials_incoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_incoming')"
+                                v-for="file in (form.commercials_incoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_incoming'))"
                                 class="flex items-center">
                                 <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -570,8 +570,8 @@ const setTab = (tab) => {
                     <div>
                         <div class="font-medium">Входящие:</div>
                         <ul class="mt-2 space-y-3.5 bg-my-gray">
-                            <li v-if="form.commercials_outcoming !== null || contragent.documents.some(doc => doc.type === 'commercials_outcoming')"
-                                v-for="file in (form.commercials_outcoming || contragent.documents.filter(doc => doc.type === 'commercials_outcoming'))"
+                            <li v-if="form.commercials_outcoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_outcoming')"
+                                v-for="file in (form.commercials_outcoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_outcoming'))"
                                 class="flex items-center">
                                 <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -646,8 +646,8 @@ const setTab = (tab) => {
                     <div>
                         <div class="font-medium">Тендер:</div>
                         <ul class="mt-2 space-y-3.5 bg-my-gray">
-                            <li v-if="form.commercials_tender !== null || contragent.documents.some(doc => doc.type === 'commercials_tender')"
-                                v-for="file in (form.commercials_tender || contragent.documents.filter(doc => doc.type === 'commercials_tender'))"
+                            <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
+                                v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))"
                                 class="flex items-center">
                                 <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">

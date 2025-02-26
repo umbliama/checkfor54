@@ -54,7 +54,7 @@ const tagName = computed(() => $props.textarea ? 'textarea' : 'input');
             </span>
             <component
                 :is="tagName"
-                v-model="model_value"
+                :value="$props.modelValue"
                 :class="{ 'pl-10': !!$slots.prepend, ...inpSizeClasses }"
                 class="w-full px-5 bg-inherit outline-0"
                 type="text"
