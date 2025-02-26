@@ -1025,7 +1025,7 @@ const setTab = (tab) => {
                     </DropdownMenuRoot>
                 </div>
 
-                <div class="mt-6 flex justify-end lg:hidden">
+                <div class="mt-5 flex justify-end lg:hidden">
                     <button
                         class="inline-flex items-center justify-center py-3 px-7 font-medium tracking-wider bg-my-gray text-side-gray-text"
                         @click="submit">
