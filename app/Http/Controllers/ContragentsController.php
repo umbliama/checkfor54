@@ -99,30 +99,137 @@ class ContragentsController extends Controller
     public function store(Request $request)
     {
         try {
+
+            $userId = Auth::id();
+
+            $request->merge([
+                'supplier' => filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN),
+                'customer' => filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN),
+                'status' => filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
+
+                'site' => filter_var($request->input('site'), FILTER_VALIDATE_URL) ?:
+                    ($request->input('site') ? 'https://' . ltrim($request->input('site'), 'http://') : null),
+
+                'email' => $request->input('email') === 'null' ? null :
+                    (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('email') ? strtolower(trim($request->input('email'))) : null)),
+                'contact_person_email' => $request->input('contact_person_email') === 'null' ? null :
+                    (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('contact_person_email') ? strtolower(trim($request->input('contact_person_email'))) : null)),
+                'agentTypeLegal' => $request->input('agentTypeLegal') === 'null' ? null : trim($request->input('agentTypeLegal')),
+                'country' => $request->input('country') === 'null' ? null : trim($request->input('country')),
+                'name' => $request->input('name') === 'null' ? null : trim($request->input('name')),
+                'fullname' => $request->input('fullname') === 'null' ? null : trim($request->input('fullname')),
+                'inn' => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
+                'kpp' => $request->input('kpp') === 'null' ? null : trim($request->input('kpp')),
+                'ogrn' => $request->input('ogrn') === 'null' ? null : trim($request->input('ogrn')),
+                'reason' => $request->input('reason') === 'null' ? null : trim($request->input('reason')),
+                'notes' => $request->input('notes') === 'null' ? null : trim($request->input('notes')),
+                'commentary' => $request->input('commentary') === 'null' ? null : trim($request->input('commentary')),
+                'group' => $request->input('group') === 'null' ? null : trim($request->input('group')),
+                'bankname' => $request->input('bankname') === 'null' ? null : trim($request->input('bankname')),
+                'bank_bik' => $request->input('bank_bik') === 'null' ? null : trim($request->input('bank_bik')),
+                'bank_inn' => $request->input('bank_inn') === 'null' ? null : trim($request->input('bank_inn')),
+                'bank_rs' => $request->input('bank_rs') === 'null' ? null : trim($request->input('bank_rs')),
+                'bank_kpp' => $request->input('bank_kpp') === 'null' ? null : trim($request->input('bank_kpp')),
+                'bank_ca' => $request->input('bank_ca') === 'null' ? null : trim($request->input('bank_ca')),
+                'bank_commnetary' => $request->input('bank_commnetary') === 'null' ? null : trim($request->input('bank_commnetary')),
+                'address' => $request->input('address') === 'null' ? null : trim($request->input('address')),
+                'phone' => $request->input('phone') === 'null' ? null : trim($request->input('phone')),
+                'contact_person' => $request->input('contact_person') === 'null' ? null : trim($request->input('contact_person')),
+                'contact_person_phone' => $request->input('contact_person_phone') === 'null' ? null : trim($request->input('contact_person_phone')),
+                'contact_person_notes' => $request->input('contact_person_notes') === 'null' ? null : trim($request->input('contact_person_notes')),
+                'contact_person_commentary' => $request->input('contact_person_commentary') === 'null' ? null : trim($request->input('contact_person_commentary')),
+            ]);
             $validatedData = $request->validate([
-                'name' => 'required|string',
-                'inn' => 'required|string',
                 'agentTypeLegal' => 'required|string',
                 'country' => 'required|string',
+                'name' => 'required|string',
+                'fullname' => 'nullable|string',
+                'inn' => 'required|string',
+                'kpp' => 'nullable|string',
+                'ogrn' => 'nullable|string',
+                'reason' => 'nullable|string',
+                'notes' => 'nullable|string',
+                'commentary' => 'nullable|string',
+                'group' => 'nullable|string',
+                'bankname' => 'nullable|string',
+                'bank_bik' => 'nullable|string',
+                'bank_inn' => 'nullable|string',
+                'bank_rs' => 'nullable|string',
+                'bank_kpp' => 'nullable|string',
+                'bank_ca' => 'nullable|string',
+                'bank_commnetary' => 'nullable|string',
+                'supplier' => 'nullable|boolean',
+                'customer' => 'nullable|boolean',
+                'address' => 'nullable|string',
+                'site' => 'nullable|url',
+                'phone' => 'nullable|string',
+                'email' => 'nullable|email',
+                'contact_person' => 'nullable|string',
+                'contact_person_phone' => 'nullable|string',
+                'contact_person_email' => 'nullable|email',
+                'contact_person_notes' => 'nullable|string',
+                'contact_person_commentary' => 'nullable|string',
                 'status' => 'nullable|boolean',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+                'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
             ]);
-    
+
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+                $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move(public_path('avatars'), $avatarName);
+                $validatedData['avatar'] = 'avatars/' . $avatarName;
+            }
+
             $contragent = Contragents::create($validatedData);
-            $user_id = Auth::id();
-    
+
+            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
+            $docFields = ['commercials_incoming', 'commercials_outcoming', 'commercials_tender', 'contracts', 'transport', 'financial', 'adddocs'];
+
+            foreach ($docFields as $field) {
+                if ($request->hasFile($field)) {
+                    foreach ($request->file($field) as $file) {
+                        $fileName = time() . '_' . $file->getClientOriginalName();
+                        $filePath = "documents/{$contragent->id}/{$field}/" . $fileName;
+
+                        $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
+
+                        ContrDocuments::create([
+                            'contragent_id' => $contragent->id,
+                            'user_id' => $userId,
+                            'type' => $field,
+                            'file_path' => $filePath,
+                            'status' => 1,
+                        ]);
+
+
+                    }
+                }
+            }
+
+
             $notification = Notification::create([
                 'type' => 'Создан новый контрагент',
                 'data' => ['name' => $contragent->name],
-                'created_by' => $user_id,
+                'created_by' => $userId,
             ]);
-    
-            $this->sendNotificationToUsers($notification, $user_id);
-    
-            return back()->with('message', "Контрагент '{$contragent->name}' успешно создан.");
+        
+            $this->sendNotificationToUsers($notification, $userId);
+        
+
+            return back()->with('message', 'Профиль компании сохранен.');
         } catch (\Exception $e) {
             return back()->with('error', 'Ошибка: ' . $e->getMessage());
         }
     }
+
+
     
 
     public function edit($id)
@@ -156,32 +263,88 @@ class ContragentsController extends Controller
     {
         try {
             $contragent = Contragents::findOrFail($id);
-            $user_id = Auth::id();
+            $userId = Auth::id();
     
-            $validated = $request->validate([
-                'name' => 'nullable|string',
-                'inn' => 'nullable|string',
-                'status' => 'nullable|boolean',
+            $request->merge([
+                'supplier' => filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN),
+                'customer' => filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN),
+                'status' => filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
+    
+                'site' => filter_var($request->input('site'), FILTER_VALIDATE_URL) ?: 
+                    ($request->input('site') ? 'https://' . ltrim($request->input('site'), 'http://') : null),
+    
+                'email' => $request->input('email') === 'null' ? null :
+                    (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('email') ? strtolower(trim($request->input('email'))) : null)),
+                'contact_person_email' => $request->input('contact_person_email') === 'null' ? null :
+                    (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('contact_person_email') ? strtolower(trim($request->input('contact_person_email'))) : null)),
+                'name' => $request->input('name') === 'null' ? null : trim($request->input('name')),
+                'inn' => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
+                'status' => $request->input('status') === 'null' ? null : filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
             ]);
     
-            $contragent->update($validated);
+            $validatedData = $request->validate([
+                'name' => 'required|string',
+                'inn' => 'required|string',
+                'status' => 'nullable|boolean',
+                'site' => 'nullable|url',
+                'email' => 'nullable|email',
+                'contact_person_email' => 'nullable|email',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+                'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+            ]);
     
-            // 🔹 Создаём уведомление
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+                $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move(public_path('avatars'), $avatarName);
+                $validatedData['avatar'] = 'avatars/' . $avatarName;
+            }
+    
+            $contragent->update($validatedData);
+    
+            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
+            $docFields = ['commercials_incoming', 'commercials_outcoming', 'commercials_tender', 'contracts', 'transport', 'financial', 'adddocs'];
+
+            foreach ($docFields as $field) {
+                if ($request->hasFile($field)) {
+                    foreach ($request->file($field) as $file) {
+                        $fileName = time() . '_' . $file->getClientOriginalName();
+                        $filePath = "documents/{$contragent->id}/{$field}/" . $fileName;
+
+                        $file->move(public_path("documents/{$contragent->id}/{$field}"), $fileName);
+
+                        ContrDocuments::create([
+                            'contragent_id' => $contragent->id,
+                            'user_id' => $userId,
+                            'type' => $field,
+                            'file_path' => $filePath,
+                            'status' => 1,
+                        ]);
+
+
+                    }
+                }
+            }
+    
             $notification = Notification::create([
                 'type' => 'Обновлён контрагент',
                 'data' => ['name' => $contragent->name],
-                'created_by' => $user_id,
+                'created_by' => $userId,
             ]);
     
-            // 🔹 Добавляем уведомление в `notification_reads`
-            $this->sendNotificationToUsers($notification, $user_id);
+            $this->sendNotificationToUsers($notification, $userId);
     
             return back()->with('message', "Контрагент '{$contragent->name}' успешно обновлён.");
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+            return back()->with('error', 'Ошибка: ' . $e->getMessage());
         }
-    }
-    
+    }    
     public function show($id)
     {
         $contragent = Contragents::with('documents')->whereNotNull("user_id")->findOrFail($id);

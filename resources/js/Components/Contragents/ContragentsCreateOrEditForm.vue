@@ -515,7 +515,7 @@ const setTab = (tab) => {
 
                                 <span class="text-elipsis" v-if="form.commercials_incoming">{{ file.name }}</span>
                                 <span class="text-elipsis" v-else>{{ file.file_path.split('/').pop() }}</span>
-                                <Link method="DELETE"
+                                <Link v-if="contragent" method="DELETE"
                                     :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
                                     class="shrink-0" type="button">
                                 <button>
@@ -558,7 +558,8 @@ const setTab = (tab) => {
                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                     Загрузить
                                                     <input type="file" multiple
-                                                        @change="handleFileUpload($event, 'commercials_incoming')" hidden>
+                                                        @change="handleFileUpload($event, 'commercials_incoming')"
+                                                        hidden>
                                                 </label>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -591,7 +592,7 @@ const setTab = (tab) => {
 
                                 <span class="text-elipsis" v-if="form.commercials_outcoming">{{ file.name }}</span>
                                 <span class="text-elipsis" v-else>{{ file.file_path.split('/').pop() }}</span>
-                                <Link method="DELETE"
+                                <Link v-if="contragent" method="DELETE"
                                     :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
                                     class="shrink-0" type="button">
                                 <button>
@@ -634,7 +635,8 @@ const setTab = (tab) => {
                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                     Загрузить
                                                     <input type="file" multiple
-                                                        @change="handleFileUpload($event, 'commercials_outcoming')" hidden>
+                                                        @change="handleFileUpload($event, 'commercials_outcoming')"
+                                                        hidden>
                                                 </label>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -667,7 +669,7 @@ const setTab = (tab) => {
 
                                 <span class="text-elipsis" v-if="form.commercials_tender">{{ file.name }}</span>
                                 <span class="text-elipsis" v-else>{{ file.file_path.split('/').pop() }}</span>
-                                <Link method="DELETE"
+                                <Link v-if="contragent" method="DELETE"
                                     :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
                                     class="shrink-0" type="button">
                                 <button>
@@ -724,9 +726,9 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Договоры:</div>
-                <ul v-if="contragent" class="mt-2 space-y-3.5 bg-my-gray">
-                    <li v-if="form.contracts !== null || contragent.documents.some(doc => doc.type === 'contracts')"
-                        v-for="file in (form.contracts || contragent.documents.filter(doc => doc.type === 'contracts'))"
+                <ul class="mt-2 space-y-3.5 bg-my-gray">
+                    <li v-if="form.contracts !== null || props?.contragent?.documents.some(doc => doc.type === 'contracts')"
+                        v-for="file in (form.contracts || props?.contragent?.documents.filter(doc => doc.type === 'contracts'))"
                         :key="file" class="flex items-center">
                         <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -745,6 +747,18 @@ const setTab = (tab) => {
                         </svg>
                         <span class="text-elipsis" v-if="form.contracts">{{ file.name }}</span>
                         <span class="text-elipsis" v-else>{{ file.file_path.split('/').pop() }}</span>
+                        <Link v-if="contragent" method="DELETE"
+                            :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
+                            class="shrink-0" type="button">
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                    fill="#697077" />
+                            </svg>
+                        </button>
+                        </Link>
                     </li>
                 </ul>
                 <div class="flex items-center justify-between mt-2">
@@ -788,9 +802,9 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Транспортные документы:</div>
-                <ul v-if="contragent" class="mt-2 space-y-3.5 bg-my-gray">
-                    <li v-if="form.transport !== null || contragent.documents.some(doc => doc.type === 'transport')"
-                        v-for="file in (form.transport || contragent.documents.filter(doc => doc.type === 'transport'))"
+                <ul  class="mt-2 space-y-3.5 bg-my-gray">
+                    <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
+                        v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                         class="flex items-center">
                         <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -809,6 +823,18 @@ const setTab = (tab) => {
                         </svg>
                         <span v-if="form.transport">{{ file.name }}</span>
                         <span v-else>{{ file.file_path.split('/').pop() }}</span>
+                        <Link v-if="contragent" method="DELETE"
+                            :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
+                            class="shrink-0" type="button">
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                    fill="#697077" />
+                            </svg>
+                        </button>
+                        </Link>
                     </li>
                 </ul>
                 <div class="flex items-center justify-between mt-2">
@@ -851,9 +877,9 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Финансовая отчетность:</div>
-                <ul v-if="contragent" class="mt-2 space-y-3.5 bg-my-gray">
-                    <li v-if="form.financial !== null || contragent.documents.some(doc => doc.type === 'financial')"
-                        v-for="file in (form.financial || contragent.documents.filter(doc => doc.type === 'financial'))"
+                <ul  class="mt-2 space-y-3.5 bg-my-gray">
+                    <li v-if="form.financial !== null || props?.contragent?.documents.some(doc => doc.type === 'financial')"
+                        v-for="file in (form.financial || props?.contragent?.documents.filter(doc => doc.type === 'financial'))"
                         class="flex items-center">
                         <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -872,6 +898,18 @@ const setTab = (tab) => {
                         </svg>
                         <span v-if="form.financial">{{ file.name }}</span>
                         <span v-else>{{ file.file_path.split('/').pop() }}</span>
+                        <Link v-if="contragent" method="DELETE"
+                            :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
+                            class="shrink-0" type="button">
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                    fill="#697077" />
+                            </svg>
+                        </button>
+                        </Link>
                     </li>
                 </ul>
                 <div class="flex items-center justify-between mt-2">
@@ -914,9 +952,9 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Доп. документы:</div>
-                <ul v-if="contragent" class="mt-2 space-y-3.5 bg-my-gray">
-                    <li v-if="form.adddocs !== null || contragent.documents.some(doc => doc.type === 'adddocs')"
-                        v-for="file in (form.adddocs || contragent.documents.filter(doc => doc.type === 'adddocs'))"
+                <ul class="mt-2 space-y-3.5 bg-my-gray">
+                    <li v-if="form.adddocs !== null || props?.contragent?.documents.some(doc => doc.type === 'adddocs')"
+                        v-for="file in (form.adddocs || props?.contragent?.documents.filter(doc => doc.type === 'adddocs'))"
                         class="flex items-center">
                         <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
@@ -935,6 +973,18 @@ const setTab = (tab) => {
                         </svg>
                         <span v-if="form.adddocs">{{ file.name }}</span>
                         <span v-else>{{ file.file_path.split('/').pop() }}</span>
+                        <Link v-if="contragent" method="DELETE"
+                            :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
+                            class="shrink-0" type="button">
+                        <button>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z"
+                                    fill="#697077" />
+                            </svg>
+                        </button>
+                        </Link>
                     </li>
                 </ul>
                 <div class="flex items-center justify-between mt-2">
