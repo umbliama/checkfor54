@@ -170,6 +170,10 @@ return [
         'description' => 'Описание',
         'to' => 'Куда',
         'departure_date' => 'Дата прибытия',
-        'send_date' => 'Дата отправки'
+        'send_date' => 'Дата отправки',
+        'contragent_id' => 'Заказчик',
+        'sale_number' => 'Номер продажи',
+        'sale_date' => 'Дата',
+        'status' => 'Статус',
     ],
 ];
