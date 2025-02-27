@@ -531,19 +531,8 @@ class EquipmentController extends Controller
 
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
 
-        $equipment_categories_counts = [];
-
-        foreach ($equipment_categories as $category) {
-            $categoryIDForCount                               = $category->id;
-            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
-        }
-        $equipment_sizes_counts = [];
-
-        foreach ($equipment_sizes as $size) {
-            $sizeIDForCount                          = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
-        }
-
+        $equipment_categories_counts = EquipmentTest::groupBy('category_id')->selectRaw('category_id,COUNT(*) as count')->pluck('count','category_id');
+        $equipment_sizes_counts = EquipmentTest::groupBy('size_id')->selectRaw('size_id,COUNT(*) as count')->pluck('count','size_id');
         $equipment_series = Equipment::when($categoryId, function ($query, $categoryId) {
             return $query->where('category_id', $categoryId);
         })
