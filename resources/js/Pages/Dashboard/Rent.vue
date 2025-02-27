@@ -428,7 +428,7 @@ total_equipment_sizes}}</span>
                             </div>
                             <div class="space-y-6">
                                 <AccordionRoot type="multiple" :collapsible="true">
-                                    <AccordionItem v-for="item in item.services" value="'head-item-'+index" class="mt-3">
+                                    <AccordionItem v-for="item in item.services" :value="'head-item-'+item.service_id" class="mt-3">
                                         <AccordionHeader
                                             class="items-center justify-between py-3 px-2.5 text-base border border-[#EEEEF2] border-l-danger lg:flex">
                                             <div class="flex items-center font-bold text-xs">
