@@ -84,7 +84,8 @@ const props = defineProps({
     equipment_sizes: Array,
     equipment_sizes_counts: Array,
     total_equipment_categories: Number,
-    total_equipment_sizes: Number
+    total_equipment_sizes: Number,
+    mobileAgents: Array
 });
 const updateUrl = () => {
     const params = {};
@@ -124,6 +125,12 @@ function calculateTotalIncome(rented_services_grouped) {
 }
 
 
+const mobileAgentsParsed = computed(() =>
+    props.mobileAgents.map(agent => ({
+        title: agent.name,
+        value: agent.id
+    }))
+);
 
 const setSizeId = (sizeId) => {
     if (filters.size_id)
@@ -181,7 +188,7 @@ const filteredServicesGrouped = computed(() => {
 
                     const isAfterStart = startDateFilter ? serviceDate >= startDateFilter : true;
                     const isBeforeEnd = endDateFilter ? serviceDate <= endDateFilter : true;
-                    if (!isAfterStart || !isBeforeEnd) return null; // Remove if date does not match
+                    if (!isAfterStart || !isBeforeEnd) return null; 
 
                     let filteredMainEquipment = service.service_equipment.filter(equipment => {
                         const matchesCategory = categoryFilter ? equipment.equipment.category_id === categoryFilter : true;
@@ -338,7 +345,7 @@ total_equipment_sizes}}</span>
                 </div>
                 <div class="flex justify-between bg-my-gray mt-3 p-1 text-sm lg:hidden">
                     <UiFieldSelect v-model="selected_series"
-                        :items="[{ title: 'ООО Азалмеган', value: 1 }, { title: 'ООО Бабила баъ', value: 2 }, { title: 'ООО Гаршаган', value: 4 }]"
+                        :items="mobileAgentsParsed"
                         :trigger-attrs="{ class: 'bg-white' }" placeholder="Заказчики" class="w-[calc(50%-10px)]"
                         only-value />
 
