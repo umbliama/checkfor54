@@ -31,7 +31,7 @@ const props = defineProps({
 const graphColors = ['bg-[#0F62FE]', 'bg-[#DAC41E]', 'bg-[#31C246]', 'bg-[#DA1E28]', 'bg-[#7300FF]', 'bg-[#DDE1E6]', 'bg-[#DDE1E6]'];
 const chosenCategory = ref(1);
 const percent = ref(0)
-let semi_circle2 = null; 
+let semi_circle2 = null;
 const setCategory = (id) => {
     chosenCategory.value = id;
     percent.value = props.categoryPercentages[chosenCategory.value - 1]?.percent || 0;
@@ -49,28 +49,28 @@ onMounted(() => {
     });
 
     semi_circle.path.style.strokeLinecap = 'round';
-    semi_circle.animate(0.7); 
+    semi_circle.animate(0.7);
 
     semi_circle2 = new ProgressBar.Circle('.progress-bar', {
         color: '#878D96',
         easing: 'easeInOut',
         trailColor: 'transparent',
         strokeWidth: 10,
-        duration: 500, 
+        duration: 500,
         svgStyle: { strokeLinecap: 'round' }
     });
 
     semi_circle2.path.style.strokeLinecap = 'round';
-    semi_circle2.animate(percent.value / 100); 
+    semi_circle2.animate(percent.value / 100);
 
 
     watch(chosenCategory, (newValue) => {
         percent.value = props.categoryPercentages[newValue - 1]?.percent || 0;
 
-        if (semi_circle2) {
-            const maxProgress = 0.7;
-            const progress = Math.min(percent.value / 100, maxProgress); 
-        }
+        const maxProgress = 0.7;
+        const progress = Math.min(percent.value / 100, maxProgress);
+
+        semi_circle2.animate(progress);
     });
 
     new Chart(document.querySelector('#rent-graphic'), {
@@ -133,7 +133,7 @@ onMounted(() => {
 
 <template>
     <AuthenticatedLayout bg="gray">
-        <DashboardToolbar dashboard-page-type="analysis" filter />
+        <DashboardToolbar dashboard-page-type="analysis" />
         <div class="p-4 lg:p-6">
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-6 lg:gap-6">
                 <div class="p-4 border border-[#DDE1E6] bg-white">
@@ -183,7 +183,7 @@ onMounted(() => {
                     <div class="flex items-center justify-between">
                         <div class="font-bold text-xl lg:text-2xl">{{ equipment_in_active_services_count }}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
-                            {{ equipment_count_active_sum_percent }}%
+                            {{ Number(equipment_count_active_sum_percent).toFixed(2) }}%
                         </div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ onMounted(() => {
                                         :class="'' + graphColors[index]"></span>
                                     <span class="block mr-auto">{{ item.name }}</span>
                                     <span class="text-gray1">{{ item.total_service_count }} из {{ item.total_equipment
-                                        }}</span>
+                                    }}</span>
                                 </li>
                             </ul>
                         </div>
