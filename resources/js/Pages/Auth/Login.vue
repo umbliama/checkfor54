@@ -35,7 +35,7 @@ const submit = () => {
         <p class="fixed t-0 r-0 ">Version from 17 Dec</p>
 
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Вход" />
         
         <div class="font-bold text-2xl text-center lg:text-4xl">Вход</div>
         <div class="mt-2 text-sm text-center lg:text-lg">Войдите, чтобы продолжить</div>

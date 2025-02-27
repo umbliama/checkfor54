@@ -431,69 +431,20 @@ class DashboardController extends Controller
         $equipment_categories_counts = [];
         $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
 
-        $filtered_equipment_ids = Equipment::where(function ($query) use ($category_id, $size_id, $location_id) {
-            $query->whereExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
-                $subQuery->select(DB::raw(1))
-                    ->from('equipment_repairs as er')
-                    ->whereColumn('equipment.category_id', 'er.category_id')
-                    ->whereColumn('equipment.size_id', 'er.size_id')
-                    ->whereColumn('equipment.series', 'er.series')
-                    ->where('er.category_id', $category_id);
+        $equipment = Equipment::whereHas('repairs', function ($query) {
+            $query->whereNull('repair_date');
+        })->paginate();
+        $equipment_categories_counts = EquipmentRepair::groupBy('category_id')
+        ->selectRaw('category_id, COUNT(*) as count')
+        ->pluck('count', 'category_id');
 
-                if ($size_id !== null) {
-                    $subQuery->where('er.size_id', $size_id);
-                }
+        $equipment_sizes_counts = EquipmentRepair::groupBy('size_id')
+        ->selectRaw('size_id, COUNT(*) as count')
+        ->pluck('count', 'size_id');
 
-                if ($location_id != 0) {
-                    $subQuery->where('er.location_id', $location_id);
-                }
-
-                $subQuery->whereNotNull('er.repair_date');
-            })
-                ->orWhereExists(function ($subQuery) use ($category_id, $size_id, $location_id) {
-                    $subQuery->select(DB::raw(1))
-                        ->from('equipment_tests as et')
-                        ->whereColumn('equipment.category_id', 'et.category_id')
-                        ->whereColumn('equipment.size_id', 'et.size_id')
-                        ->whereColumn('equipment.series', 'et.series')
-                        ->where('et.category_id', $category_id);
-
-                    if ($size_id !== null) {
-                        $subQuery->where('et.size_id', $size_id);
-                    }
-
-                    if ($location_id != 0) {
-                        $subQuery->where('et.location_id', $location_id);
-                    }
-
-                    $subQuery->whereNotNull('et.test_date');
-                });
-        })
-            ->distinct()
-            ->pluck('id');
-
-        $equipment = Equipment::whereIn('id', $filtered_equipment_ids)->paginate($perPage);
-
-        $equipment_categories_counts = Equipment::whereIn('id', $filtered_equipment_ids)
-            ->select('category_id', DB::raw('COUNT(*) as count'))
-            ->groupBy('category_id')
-            ->pluck('count', 'category_id')
-            ->toArray();
-
-        $equipment_sizes_counts = [];
-        if ($category_id) {
-            $equipment_sizes_counts = Equipment::whereIn('id', $filtered_equipment_ids)
-                ->select('size_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('size_id')
-                ->pluck('count', 'size_id')
-                ->toArray();
-        }
-
-        $equipment_locations_counts = Equipment::whereIn('id', $filtered_equipment_ids)
-            ->select('location_id', DB::raw('COUNT(*) as count'))
-            ->groupBy('location_id')
-            ->pluck('count', 'location_id')
-            ->toArray();
+        $equipment_locations_counts = EquipmentRepair::groupBy('location_id')
+        ->selectRaw('location_id, COUNT(*) as count')
+        ->pluck('count', 'location_id');
 
         return Inertia::render('Dashboard/Serviced', [
             'equipment' => $equipment,
