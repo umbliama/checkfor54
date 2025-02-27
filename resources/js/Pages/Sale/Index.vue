@@ -383,7 +383,7 @@ const selectedActive = computed(() => store.getters['services/getSelectedActive'
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2"
                                     :class="{'bg-violet-full/10': sortBy === 'name'}"
                                     >
-                                    {{ nameContragent(service.contragent_data[0].contragent_id) }}
+                                    {{ service.contragent_data[0].name}}
                                     <AccordionTrigger class="shrink-0 group ml-3">
                                         <svg class="group-data-[state=open]:hidden" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

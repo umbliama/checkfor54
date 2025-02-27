@@ -27,6 +27,7 @@ import {
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import SaleDialog from "@/Components/Sale/SaleDialog.vue";
 import SaleServicesDialog from "@/Components/Sale/SaleServicesDialog.vue";
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 const props = defineProps({
     contragents: Array,
@@ -337,6 +338,8 @@ function submit() {
         <SaleDialog v-model="is_dialog_open" />
         <SaleNav />
         <SaleServicesDialog v-if="modalShownServices" />
+        <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
 
         <div class="p-5">
             <div class="mt-9 text-nowrap">

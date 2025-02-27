@@ -120,101 +120,104 @@ class SaleController extends Controller
      */
     public function store(Request $request)
     {
-        $full_income = 0;
-        $request->validate([
-            'contragent_id'                              => 'required|int',
-            'sale_number'                                => "required|string",
-            'sale_date'                                  => "required|date",
-            'status'                                     => "in:credit,full,pred",
-            'commentary'                                 => 'nullable|string',
-            'equipment'                                  => 'required|array',
-            'equipment.*.equipment_id'                   => 'nullable|int|exists:equipment,id',
-            'equipment.*.commentary'                     => 'nullable|string',
-            'equipment.*.shipping_date'                  => 'nullable|date',
-            'equipment.*.price'                          => 'nullable|numeric',
-            'equipment.*.subEquipment'                   => 'array|nullable',
-            'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
-            'equipment.*.subEquipment.*.shipping_date'   => 'nullable|date',
-            'equipment.*.subEquipment.*.commentary'      => 'nullable|string',
-            'equipment.*.subEquipment.*.price'           => 'nullable|numeric',
-
-        ]);
-
-        $sale = Sale::create($request->only([
-            'contragent_id',
-            'sale_number',
-            'sale_date',
-            'status',
-            'price',
-            'commentary',
-        ]));
-
-        foreach ($request->equipment as $equipmentData) {
-            $saleEquipment = SaleEquip::create([
-                'sale'          => $sale->id,
-                'equipment_id'  => $equipmentData['equipment_id'],
-                'shipping_date' => $equipmentData['shipping_date'] ?? null,
-                'commentary'    => $equipmentData['commentary'] ?? null,
-                'price'         => $equipmentData['price'] ?? null,
+        try {
+            $full_income = 0;
+            $request->validate([
+                'contragent_id'                              => 'required|int',
+                'sale_number'                                => "required|string",
+                'sale_date'                                  => "required|date",
+                'status'                                     => "in:credit,full,pred",
+                'commentary'                                 => 'nullable|string',
+                'equipment'                                  => 'required|array',
+                'equipment.*.equipment_id'                   => 'nullable|int|exists:equipment,id',
+                'equipment.*.commentary'                     => 'nullable|string',
+                'equipment.*.shipping_date'                  => 'nullable|date',
+                'equipment.*.price'                          => 'nullable|numeric',
+                'equipment.*.subEquipment'                   => 'array|nullable',
+                'equipment.*.subEquipment.*.subequipment_id' => 'nullable|int',
+                'equipment.*.subEquipment.*.shipping_date'   => 'nullable|date',
+                'equipment.*.subEquipment.*.commentary'      => 'nullable|string',
+                'equipment.*.subEquipment.*.price'           => 'nullable|numeric',
+    
             ]);
-
-            $full_income += $equipmentData['price'];
-            if (! empty($equipmentData['subEquipment'])) {
-                foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
-                    SaleSub::create([
-                        'equipment_id'      => $subEquipmentData['equipment_id'],
-                        'sale_id'           => $sale->id,
-                        'sale_equipment_id' => $saleEquipment->id,
-                        'shipping_date'     => $subEquipmentData['shipping_date'],
-                        'commentary'        => $subEquipmentData['commentary'] ?? null,
-                        'price'             => $subEquipmentData['price'] ?? null,
-                    ]);
-                    $full_income += $subEquipmentData['price'];
+    
+            $sale = Sale::create($request->only([
+                'contragent_id',
+                'sale_number',
+                'sale_date',
+                'status',
+                'price',
+                'commentary',
+            ]));
+    
+            foreach ($request->equipment as $equipmentData) {
+                $saleEquipment = SaleEquip::create([
+                    'sale'          => $sale->id,
+                    'equipment_id'  => $equipmentData['equipment_id'],
+                    'shipping_date' => $equipmentData['shipping_date'] ?? null,
+                    'commentary'    => $equipmentData['commentary'] ?? null,
+                    'price'         => $equipmentData['price'] ?? null,
+                ]);
+    
+                $full_income += $equipmentData['price'];
+                if (! empty($equipmentData['subEquipment'])) {
+                    foreach ($equipmentData['subEquipment'] as $subEquipmentData) {
+                        SaleSub::create([
+                            'equipment_id'      => $subEquipmentData['equipment_id'],
+                            'sale_id'           => $sale->id,
+                            'sale_equipment_id' => $saleEquipment->id,
+                            'shipping_date'     => $subEquipmentData['shipping_date'],
+                            'commentary'        => $subEquipmentData['commentary'] ?? null,
+                            'price'             => $subEquipmentData['price'] ?? null,
+                        ]);
+                        $full_income += $subEquipmentData['price'];
+                    }
                 }
             }
-        }
-
-        foreach ($request->extraServices as $extraService) {
-            SaleExtra::create([
-                'shipping_date' => $extraService['shipping_date'],
+    
+            foreach ($request->extraServices as $extraService) {
+                SaleExtra::create([
+                    'shipping_date' => $extraService['shipping_date'],
+                    'sale_id'       => $sale->id,
+                    'type'          => $extraService['item'],
+                    'commentary'    => $extraService['commentary'],
+                    'price'         => $extraService['price'],
+                ]);
+                $full_income += $extraService['price'];
+            }
+    
+            foreach (User::all() as $user) {
+                Notification::create([
+                    'type'    => 'Создан новая продажа №' . $sale->id,
+                    'data'    => ['equipment_id' => $sale->equipment_id],
+                    'user_id' => $user->id,
+                ]);
+            }
+    
+            $sale->price = $full_income;
+    
+            $sale->save();
+    
+            SaleContragent::create([
+                'contragent_id' => $sale->contragent_id,
+            ]);
+            ContrSale::create([
+                'contragent_id' => $sale->contragent_id,
                 'sale_id'       => $sale->id,
-                'type'          => $extraService['item'],
-                'commentary'    => $extraService['commentary'],
-                'price'         => $extraService['price'],
             ]);
-            $full_income += $extraService['price'];
-        }
-
-        foreach (User::all() as $user) {
-            Notification::create([
-                'type'    => 'Создан новая продажа №' . $sale->id,
-                'data'    => ['equipment_id' => $sale->equipment_id],
-                'user_id' => $user->id,
+    
+            $notification = Notification::create([
+                'type'       => "Пользователь {$user->name} создал новую аренду",
+                'data'       => ['service_number' => $sale->sale_number],
             ]);
+    
+            $this->sendNotificationToUsers($notification, $user->id);
+    
+            return back()->with('message', 'Продажа успешно создана');
+    
+        }catch(\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $sale->price = $full_income;
-
-        $sale->save();
-
-        SaleContragent::create([
-            'contragent_id' => $sale->contragent_id,
-        ]);
-        ContrSale::create([
-            'contragent_id' => $sale->contragent_id,
-            'sale_id'       => $sale->id,
-        ]);
-
-        $notification = Notification::create([
-            'type'       => "Пользователь {$user->name} создал новую аренду",
-            'data'       => ['service_number' => $sale->sale_number],
-            'created_by' => $user->id,
-        ]);
-
-        $this->sendNotificationToUsers($notification, $user->id);
-
-        return redirect()->route('sale.index')->with('success', 'Service created successfully.');
-
     }
 
     public function createIncident($id)
