@@ -140,7 +140,27 @@ const handleFileUpload = (event, type) => {
     }
 };
 
+const fileTypes = [
+    'commercials_incoming',
+    'contracts',
+    'commercials_outcoming',
+    'commercials_tender',
+    'transport',
+    'financial',
+    'adddocs'
+];
 
+const combinedFiles = computed(() => {
+    let result = {};
+
+    fileTypes.forEach(type => {
+        const uploadedFiles = props.form[type] || [];
+        const existingFiles = props?.contragent?.documents?.filter(doc => doc.type === type) || [];
+        result[type] = [...existingFiles, ...uploadedFiles];
+    });
+
+    return result;
+});
 
 
 watch(contragent_navigation, new_val => {
@@ -497,9 +517,9 @@ const setTab = (tab) => {
                     <div>
                         <div class="font-medium">Исходящие:</div>
                         <ul class="mt-2 space-y-3.5 bg-my-gray">
-                            <li v-if="form.commercials_incoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_incoming')"
-                                v-for="file in (form.commercials_incoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_incoming'))"
-                                class="flex items-center">
+                            <li v-if="form.commercials_incoming !== null || (props?.contragent?.documents && props.contragent.documents.some(doc => doc.type === 'commercials_incoming'))"
+                                v-for="file in [...(form.commercials_incoming || []), ...(props?.contragent?.documents?.filter(doc => doc.type === 'commercials_incoming') || [])]"
+                                :key="file.id || file.name" class="flex items-center">
                                 <svg class="shrink-0 block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -516,8 +536,7 @@ const setTab = (tab) => {
                                         fill="#697077" />
                                 </svg>
 
-                                <span class="text-elipsis" v-if="form.commercials_incoming">{{ file.name }}</span>
-                                <span class="text-elipsis" v-else>{{ file.file_path.split('/').pop() }}</span>
+                                <span class="text-elipsis" v-if="form.commercials_incoming || props.contragent?.documents">{{ file.name || file.file_path.split('/').pop() }}</span>
                                 <Link v-if="contragent" method="DELETE"
                                     :href="route('contragents.deleteFile', { contragentId: contragent.id, fileId: file.id })"
                                     class="shrink-0" type="button">
@@ -805,7 +824,7 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Транспортные документы:</div>
-                <ul  class="mt-2 space-y-3.5 bg-my-gray">
+                <ul class="mt-2 space-y-3.5 bg-my-gray">
                     <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
                         v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                         class="flex items-center">
@@ -880,7 +899,7 @@ const setTab = (tab) => {
             </div>
             <div class="py-4 px-2 content-block">
                 <div class="font-medium">Финансовая отчетность:</div>
-                <ul  class="mt-2 space-y-3.5 bg-my-gray">
+                <ul class="mt-2 space-y-3.5 bg-my-gray">
                     <li v-if="form.financial !== null || props?.contragent?.documents.some(doc => doc.type === 'financial')"
                         v-for="file in (form.financial || props?.contragent?.documents.filter(doc => doc.type === 'financial'))"
                         class="flex items-center">
