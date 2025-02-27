@@ -62,6 +62,11 @@ const statuses_colors = {
     'unknown': 'bg-[#C0C0C0]'
 };
 
+
+onMounted(() => {
+    chosenCategory.value = 1
+})
+
 const updateUrl = () => {
     const params = {};
 

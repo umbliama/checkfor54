@@ -433,19 +433,33 @@ class DashboardController extends Controller
 
         $equipment = Equipment::whereHas('repairs', function ($query) {
             $query->whereNull('repair_date');
-        })->paginate();
+        });
+
+        if ($category_id) {
+            $equipment->where('category_id', $category_id);
+        }
+
+        if ($size_id) {
+            $equipment->where('size_id', $size_id);
+        }
+
+        if ($location_id) {
+            $equipment->where('location_id', $location_id);
+        }
+
+        $equipment = $equipment->paginate($perPage);
         $equipment_categories_counts = EquipmentRepair::groupBy('category_id')
-        ->selectRaw('category_id, COUNT(*) as count')
-        ->pluck('count', 'category_id');
+            ->selectRaw('category_id, COUNT(*) as count')
+            ->pluck('count', 'category_id');
 
         $equipment_sizes_counts = EquipmentRepair::groupBy('size_id')
-        ->selectRaw('size_id, COUNT(*) as count')
-        ->pluck('count', 'size_id');
+            ->selectRaw('size_id, COUNT(*) as count')
+            ->pluck('count', 'size_id');
 
-        $equipment_locations_counts = EquipmentRepair::groupBy('location_id')
-        ->selectRaw('location_id, COUNT(*) as count')
-        ->pluck('count', 'location_id');
-
+            $equipment_locations_counts = EquipmentRepair::selectRaw('location_id, COUNT(*) as count')
+            ->groupBy('location_id')
+            ->pluck('count', 'location_id')
+            ->toArray();
         return Inertia::render('Dashboard/Serviced', [
             'equipment' => $equipment,
             'equipment_categories' => $equipment_categories,
