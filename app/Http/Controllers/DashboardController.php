@@ -22,6 +22,8 @@ class DashboardController extends Controller
 {
     public function dashboard(Request $request)
     {
+
+        return redirect('rent');
         $searchTerm              = $request->query('search');
         $perPage                 = $request->query('perPage');
         $categoryId              = $request->query('category_id', 1);
