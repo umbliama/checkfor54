@@ -111,32 +111,35 @@ const form = reactive({
     adddocs: props.contragent?.documents.adddocs || null,
 })
 const handleFileUpload = (event, type) => {
+    if (!event.target.files.length) return;
+
     switch (type) {
         case 'contracts':
-            form.contracts = Array.from(event.target.files);
+            form.contracts = [...(form.contracts || []), ...Array.from(event.target.files)];
             break;
         case 'commercials_incoming':
-            form.commercials_incoming = Array.from(event.target.files);
+            form.commercials_incoming = [...(form.commercials_incoming || []), ...Array.from(event.target.files)];
             break;
         case 'commercials_outcoming':
-            form.commercials_outcoming = Array.from(event.target.files);
+            form.commercials_outcoming = [...(form.commercials_outcoming || []), ...Array.from(event.target.files)];
             break;
         case 'commercials_tender':
-            form.commercials_tender = Array.from(event.target.files);
+            form.commercials_tender = [...(form.commercials_tender || []), ...Array.from(event.target.files)];
             break;
         case 'transport':
-            form.transport = Array.from(event.target.files);
+            form.transport = [...(form.transport || []), ...Array.from(event.target.files)];
             break;
         case 'financial':
-            form.financial = Array.from(event.target.files);
+            form.financial = [...(form.financial || []), ...Array.from(event.target.files)];
             break;
         case 'adddocs':
-            form.adddocs = Array.from(event.target.files);
+            form.adddocs = [...(form.adddocs || []), ...Array.from(event.target.files)];
             break;
         default:
             break;
     }
 };
+
 
 
 
