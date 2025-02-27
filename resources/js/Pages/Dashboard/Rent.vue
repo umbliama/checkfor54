@@ -179,19 +179,16 @@ const filteredServicesGrouped = computed(() => {
                 .map(service => {
                     const serviceDate = new Date(service.service_date);
 
-                    // ✅ Step 1: Apply Date Filters
                     const isAfterStart = startDateFilter ? serviceDate >= startDateFilter : true;
                     const isBeforeEnd = endDateFilter ? serviceDate <= endDateFilter : true;
                     if (!isAfterStart || !isBeforeEnd) return null; // Remove if date does not match
 
-                    // ✅ Step 2: Filter Main Equipment
                     let filteredMainEquipment = service.service_equipment.filter(equipment => {
                         const matchesCategory = categoryFilter ? equipment.equipment.category_id === categoryFilter : true;
                         const matchesSize = sizeFilter ? equipment.equipment.size_id === sizeFilter : true;
                         return matchesCategory && matchesSize;
                     });
 
-                    // ✅ Step 3: Filter Subservice Equipment
                     let filteredEquipmentWithSub = service.service_equipment.map(equipment => {
                         let filteredSubs = equipment.subservice_equipment.filter(subEquip => {
                             const matchesCategory = categoryFilter ? subEquip.equipment.category_id === categoryFilter : true;
@@ -205,7 +202,6 @@ const filteredServicesGrouped = computed(() => {
                         };
                     });
 
-                    // ✅ Step 4: Ensure the Service is Kept if it Has Valid Equipment
                     if (filteredMainEquipment.length > 0 || filteredEquipmentWithSub.some(e => e.subservice_equipment.length > 0)) {
                         return {
                             ...service,
@@ -213,12 +209,12 @@ const filteredServicesGrouped = computed(() => {
                         };
                     }
 
-                    return null; // Remove service if no matching main or sub-equipment
+                    return null;
                 })
-                .filter(service => service !== null); // Remove null services
+                .filter(service => service !== null); 
 
             return filteredServices.length > 0 ? { ...contragent, services: filteredServices } : null;
-        }).filter(contragent => contragent !== null); // Remove null contragents
+        }).filter(contragent => contragent !== null); 
     }
 
     return {
