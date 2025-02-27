@@ -1041,6 +1041,8 @@ class EquipmentController extends Controller
             return $sale;
         })->pluck('id');
 
+
+
         $equipment_moves = EquipmentMove::where('equipment_id', $equipment_id)->with('directory')->get();
 
         return Inertia::render('Equip/Move', [
@@ -1082,6 +1084,10 @@ class EquipmentController extends Controller
                 return back()->with('error', 'Выбраны одинаковые локации.');
             }
 
+            $foundedEquipment->location_id = -1;
+
+            $foundedEquipment->save();
+
             EquipmentMove::create(array_merge($request->all(), [
                 'equipment_id' => $foundedEquipment->id,
             ]));
@@ -1108,6 +1114,12 @@ class EquipmentController extends Controller
             if (! $moveRecord) {
                 return back()->with('error', 'Запись перемещения для данного оборудования не найдена.');
             }
+
+            $equipment = Equipment::where('id',$moveRecord->equipment_id )->first();
+
+            $equipment->location_id = $request->to;
+
+            $equipment->save();
 
             $moveRecord->update(array_merge($request->all()));
 

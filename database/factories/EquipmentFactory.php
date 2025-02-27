@@ -41,7 +41,7 @@ class EquipmentFactory extends Factory
                     return $this->faker->numberBetween(67, 78);
                 }
             },
-            'location_id' => \App\Models\EquipmentLocation::inRandomOrder()->first()->id ?? null,
+            'location_id' =>$this->faker->numberBetween(1,2),
             'series' => $this->faker->bothify('ДР-####'),
             'length' => $this->faker->numberBetween(20, 100),
             'operating' => $this->faker->numberBetween(20, 100),

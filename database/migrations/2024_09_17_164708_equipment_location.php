@@ -19,8 +19,9 @@ return new class extends Migration
 
 
         DB::table('equipment_locations')->insert([
-            ['name' => 'г. Пермь', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'г. Нефтеюганск', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => -1, 'name' => 'В пути', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 1,'name' => 'г. Пермь', 'created_at' => now(), 'updated_at' => now()],
+            ['id' => 2,'name' => 'г. Нефтеюганск', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 
