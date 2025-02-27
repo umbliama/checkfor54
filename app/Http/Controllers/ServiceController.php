@@ -204,7 +204,7 @@ class ServiceController extends Controller
                 'contract'                                     => 'nullable',
                 'equipment'                                    => 'required|array',
                 'equipment.*.equipment_id'                     => 'required|int|exists:equipment,id',
-                'equipment.*.commentary'                       => 'nullable|string',
+                'equipment.*.commentary'                       => 'required|string',
                 'equipment.*.shipping_date  '                  => 'nullable|date',
                 'equipment.*.period_start_date'                => 'required|date',
                 'equipment.*.return_date'                      => 'nullable|date',
