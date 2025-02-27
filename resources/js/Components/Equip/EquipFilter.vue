@@ -33,7 +33,7 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
-                            {{ $props.categoriesCounts[item.id] }}
+                            {{ $props.categoriesCounts[item.id] || 0 }}
                         </span>
                     </div>
                 </li>
@@ -76,7 +76,7 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
-                            {{ $props.sizesCounts[item.id] }}
+                            {{ $props.sizesCounts[item.id] || 0}}
                         </span>
                     </div>
                 </li>
