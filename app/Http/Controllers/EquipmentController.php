@@ -53,7 +53,7 @@ class EquipmentController extends Controller
             })->values()->toArray();
 
         $equipment_categories = EquipmentCategories::all();
-        $equipment_location   = EquipmentLocation::where('id','!=','-1')->get();
+        $equipment_location   = EquipmentLocation::all();
         $categoryId           = $request->query('category_id', 1);
         $sizeId               = $request->query('size_id');
         $equipment_sizes      = EquipmentSize::where('category_id', $categoryId)->get();
@@ -223,9 +223,10 @@ class EquipmentController extends Controller
             $query->where('size_id', $sizeId);
         }
 
-        if ($locationId > 0) {
+        if ($locationId) {
             $query->where('location_id', $locationId);
         }
+
 
         $equipment = $query->paginate($perPage);
 
@@ -323,7 +324,7 @@ class EquipmentController extends Controller
 
         $sizeId                      = $request->query('size_id');
         $series                      = $request->query('series');
-        $equipment_location          = EquipmentLocation::where('id','!=','-1')->get();
+        $equipment_location          = EquipmentLocation::all();
         $categoryId                  = $request->query('category_id', 1);
         $equipment_sizes             = EquipmentSize::where('category_id', $categoryId)->get();
         $equipment_categories        = EquipmentCategories::all();
