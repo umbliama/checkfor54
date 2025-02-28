@@ -291,10 +291,10 @@ const calculateResultForEquip = (equip) => {
     const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
     if (operating === 0) {
-        equip.store = parseInt((diffInDays + 1));
+        equip.store = parseFloat((diffInDays + 1)).toFixed(2);
         console.log(diffInDays + 1)
     } else {
-        equip.store = parseInt(((diffInDays + 1) - (operating / 24)));
+        equip.store = parseFloat(((diffInDays + 1) - (operating / 24))).toFixed(2);
     }
 };
 const calculateResultForSubEquip = (subEquip) => {
@@ -312,9 +312,9 @@ const calculateResultForSubEquip = (subEquip) => {
     const diffInDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
     if (operating === 0) {
-        subEquip.store = parseInt(diffInDays + 1);
+        subEquip.store = parseFloat(diffInDays + 1).toFixed(2);
     } else {
-        subEquip.store = parseInt(((diffInDays + 1) - (operating / 24))); 
+        subEquip.store = parseFloat(((diffInDays + 1) - (operating / 24))).toFixed(2); 
     }
 };
 
@@ -388,6 +388,8 @@ function submit() {
             operating: sub.operating || null,
             period_end_date: sub.period_end_date || null,
             return_date: sub.return_date || null,
+            return_reason: sub.return_reason || null,
+
         }))
     })).filter(equipment => equipment.equipment_id);
 
