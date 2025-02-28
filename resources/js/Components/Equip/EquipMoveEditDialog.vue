@@ -41,7 +41,7 @@ watch(model, new_val => {
     send_date     .value = $props.move.send_date;
     departure_date.value = $props.move.departure_date;
     from          .value = { title: $props.locations.find(l=>l.id==$props.move.from)?.name || $props.locations[0].id, value: $props.move.from };
-    to            .value = { title: $props.locations.find(l=>l.id==$props.move.to)  ?.name || $props.locations[0].id, value: $props.move.to   };
+    to            .value = { title: $props.locations.find(l=>l.id==$props.move.to)  ?.name, value: $props.move.to   };
     reason        .value = $props.move.reason;
     expense       .value = $props.move.expense;
 });
