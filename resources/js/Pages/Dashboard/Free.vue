@@ -19,9 +19,10 @@ import {
     PopoverRoot,
     PopoverTrigger
 } from 'radix-vue'
-import { onMounted, ref,reactive, watch } from 'vue';
+import { onMounted, ref,reactive, watch, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 
+import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 
 
 const props = defineProps({
@@ -31,7 +32,9 @@ const props = defineProps({
     equipment_sizes: Array,
     equipment_sizes_counts: Array,
     equipment_location:Array,
-    location_counts:Array
+    location_counts:Array,
+    manufacturers: Array,
+    statusesArray: Array
 })
 const filters = reactive({
     size_id: null,
@@ -42,11 +45,18 @@ const pagination = reactive({
     currentPage: 1,
     totalPages: 1,
 });
+const minPrice = ref(null);
+const maxPrice = ref(null);
+const searchNotes = ref("");
+const selectedManufacturer = ref(null);
+const selectedStatus = ref(null);
 const currentPage = ref(1);
 const lastPage = ref(1);
 const chosenCategory = ref(1);
 const chosenSize = ref(null);
 const chosenLocation = ref(null);
+const sortOrder = ref('asc');
+const sortBy = ref(null);
 
 const statuses = {
     'new': 'Новое',
@@ -85,6 +95,66 @@ watch(() => filters.category_id, (newCategory) => {
 const removeParams = () => {
     router.get(route('free'))
 }
+const sortedEquipment = computed(() => {
+    return props.equipment.data
+        .filter((item) => {
+            if (selectedManufacturer.value && item.manufactor !== selectedManufacturer.value) {
+                return false;
+            }
+
+            if (selectedStatus.value && item.status !== selectedStatus.value) {
+                return false;
+            }
+
+            if ((searchNotes.value ?? "").trim() && !item.notes?.toLowerCase().includes((searchNotes.value ?? "").trim().toLowerCase())) {
+                return false;
+            }
+
+            const price = item.price ?? 0;
+            const min = minPrice.value !== null ? Number(minPrice.value) : null;
+            const max = maxPrice.value !== null ? Number(maxPrice.value) : null;
+
+            if (min !== null && price < min) {
+                return false;
+            }
+            if (max !== null && price > max) {
+                return false;
+            }
+
+            return true;
+        })
+        .slice()
+        .sort((a, b) => {
+            if (!sortBy.value) return 0; // Skip sorting if no column is selected
+
+            let result = 0;
+            if (sortBy.value === "series") {
+                result = a.series?.localeCompare(b.series ?? "") ?? 0;
+            } else if (sortBy.value === "price") {
+                result = (a.price ?? 0) - (b.price ?? 0);
+            }
+
+            return sortOrder.value === "desc" ? -result : result;
+        });
+});
+
+const updateSortBy = (column) => {
+    sortBy.value = column;
+};
+
+const updateSortOrder = (order) => {
+    sortOrder.value = order;
+};
+
+const toggleSortBy = (column) => {
+    if (sortBy.value === column) {
+        updateSortOrder(sortOrder.value === "asc" ? "desc" : "asc");
+    } else {
+        updateSortBy(column);
+        updateSortOrder("asc");
+    }
+};
+
 
 const setCategoryId = (categoryId) => {
     filters.category_id = categoryId;
@@ -125,6 +195,7 @@ const updateFiltersAndFetchData = () => {
 onMounted(() => {
     updateFiltersAndFetchData();
 });
+
 
 </script>
 
@@ -230,19 +301,25 @@ onMounted(() => {
                         Фильтры
                     </PopoverTrigger>
                     <PopoverPortal>
-                        <PopoverContent
-                            class="min-w-[var(--radix-popper-anchor-width)] py-4 px-3 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
-                            <ul class="space-y-2.5">
-                                <li>
-                                    <UiCheckbox label="Фильтр 1"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 2"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 3"/>
-                                </li>
-                            </ul>
+                        <PopoverContent align="end"
+                            class="min-w-[var(--radix-popper-anchor-width)] py-4 px-3 space-y-4 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
+                            <div>
+                                <label>Стоимость</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2">
+                                    <UiField v-model="minPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField v-model="maxPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'До' }" />
+                                </div>
+                            </div>
+
+                            <UiFieldSelect size="sm" label="Состояние"
+                                :items="[{ title: 'Все', value: null }, ...statusesArray]" v-model="selectedStatus"
+                                only-value />
+                            <UiFieldSelect size="sm" label="Производитель"
+                                :items="[{ title: 'Все', value: null }, ...manufacturers]" only-value
+                                v-model="selectedManufacturer" />
+                            <UiField class="w-full" size="sm" label="Примечание" v-model="searchNotes" />
                         </PopoverContent>
                     </PopoverPortal>
                 </PopoverRoot>
@@ -275,21 +352,26 @@ onMounted(() => {
                         Фильтры
                     </PopoverTrigger>
                     <PopoverPortal>
-                        <PopoverContent
-                            class="min-w-[137px] py-4 px-3 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
-                            <ul class="space-y-2.5">
-                                <li>
-                                    <UiCheckbox label="Фильтр 1"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 2"/>
-                                </li>
-                                <li>
-                                    <UiCheckbox label="Фильтр 3"/>
-                                </li>
-                            </ul>
-                        </PopoverContent>
-                    </PopoverPortal>
+                        <PopoverContent align="end"
+                            class="min-w-[var(--radix-popper-anchor-width)] py-4 px-3 space-y-4 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]">
+                            <div>
+                                <label>Стоимость</label>
+                                <div class="grid grid-cols-2 gap-3 mt-2">
+                                    <UiField v-model="minPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'От' }" />
+                                    <UiField v-model="maxPrice" class="w-28" size="sm"
+                                        :inp-attrs="{ placeholder: 'До' }" />
+                                </div>
+                            </div>
+
+                            <UiFieldSelect size="sm" label="Состояние"
+                                :items="[{ title: 'Все', value: null }, ...statusesArray]" v-model="selectedStatus"
+                                only-value />
+                            <UiFieldSelect size="sm" label="Производитель"
+                                :items="[{ title: 'Все', value: null }, ...manufacturers]" only-value
+                                v-model="selectedManufacturer" />
+                            <UiField class="w-full" size="sm" label="Примечание" v-model="searchNotes" />
+                        </PopoverContent>                    </PopoverPortal>
                 </PopoverRoot>
             </div>
 
@@ -300,7 +382,7 @@ onMounted(() => {
                             class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Производитель
                             </div>
-                            <div :class="{ 'bg-[#644DED] bg-opacity-10': true }"
+                            <div :class="{ 'bg-[#644DED] bg-opacity-10': true }" @click="toggleSortBy('series')"
                                  class="relative shrink-0 flex items-center justify-between w-[9.96%] py-2.5 px-2 cursor-pointer">
                                 <span class="absolute left-0 top-0 w-full h-[1px] bg-[#644DED]"></span>
                                 Серия
@@ -358,7 +440,7 @@ onMounted(() => {
                                 </svg>
                             </div>
                         </div>
-                        <div  v-for="item in equipment.data"
+                        <div  v-for="item in sortedEquipment"
                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                             <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                 <div class="mr-2">

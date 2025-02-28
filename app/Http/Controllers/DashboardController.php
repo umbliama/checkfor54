@@ -302,7 +302,7 @@ class DashboardController extends Controller
     {
         $equipment_categories = EquipmentCategories::all();
         $contragents = Contragents::all();
-        $equipment_location = EquipmentLocation::all();
+        $equipment_location = EquipmentLocation::where('id', '!=', '-1')->get();
         $category_id = $request->input('category_id');
         $size_id = $request->input('size_id');
         $perPage = $request->input('perPage', 10);
@@ -310,6 +310,31 @@ class DashboardController extends Controller
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
         $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
+        $manufacturers = Equipment::distinct()->pluck('manufactor')->map(function ($manufactor) {
+            return [
+                'title' => $manufactor,
+                'value' => $manufactor,
+            ];
+        })->toArray();
+
+        $statusesList = [
+            'new'          => 'Новое',
+            'good'         => 'Хорошее',
+            'satisfactory' => 'Удовлетворительно',
+            'bad'          => 'Плохое',
+            'off'          => 'Списано',
+            'unknown'      => 'Неизвестный статус',
+        ];
+
+        $statusesArray = Equipment::whereNotNull('status')
+            ->distinct()
+            ->pluck('status')
+            ->map(function ($status) use ($statusesList) {
+                return [
+                    'title' => $statusesList[$status] ?? ucfirst($status),
+                    'value' => $status,
+                ];
+            })->values()->toArray();
 
         $equipment_categories_counts = Equipment::select('category_id', DB::raw('COUNT(*) as count'))
             ->groupBy('category_id')
@@ -416,13 +441,16 @@ class DashboardController extends Controller
             'equipment_sizes' => $equipment_sizes,
             'equipment_location' => $equipment_location,
             'location_counts' => $location_counts,
+            'manufacturers' => $manufacturers,
+            'statusesArray' => $statusesArray
+
         ]);
     }
     public function serviced(Request $request)
     {
         $equipment_categories = EquipmentCategories::all();
         $contragents = Contragents::all();
-        $equipment_location = EquipmentLocation::all();
+        $equipment_location = EquipmentLocation::where('id','!=','-1')->get();
         $category_id = $request->input('category_id');
         $size_id = $request->input('size_id');
         $perPage = $request->input('perPage', 10);
@@ -430,6 +458,31 @@ class DashboardController extends Controller
         $equipment_categories_counts_all = 0;
         $equipment_categories_counts = [];
         $equipment_sizes = EquipmentSize::where('category_id', $category_id)->get();
+        $manufacturers = Equipment::distinct()->pluck('manufactor')->map(function ($manufactor) {
+            return [
+                'title' => $manufactor,
+                'value' => $manufactor,
+            ];
+        })->toArray();
+
+        $statusesList = [
+            'new'          => 'Новое',
+            'good'         => 'Хорошее',
+            'satisfactory' => 'Удовлетворительно',
+            'bad'          => 'Плохое',
+            'off'          => 'Списано',
+            'unknown'      => 'Неизвестный статус',
+        ];
+
+        $statusesArray = Equipment::whereNotNull('status')
+            ->distinct()
+            ->pluck('status')
+            ->map(function ($status) use ($statusesList) {
+                return [
+                    'title' => $statusesList[$status] ?? ucfirst($status),
+                    'value' => $status,
+                ];
+            })->values()->toArray();
 
         $equipment = Equipment::whereHas('repairs', function ($query) {
             $query->whereNull('repair_date');
@@ -470,6 +523,9 @@ class DashboardController extends Controller
             'equipment_location' => $equipment_location,
             'equipment_sizes_counts' => $equipment_sizes_counts,
             'equipment_locations_counts' => $equipment_locations_counts,
+            'manufacturers' => $manufacturers,
+            'statusesArray' => $statusesArray
+
         ]);
     }
     public function analysis()
