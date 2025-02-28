@@ -90,22 +90,18 @@ const sumLocs = () => {
 const sortedEquipment = computed(() => {
     return props.equipment.data
         .filter((item) => {
-            // ✅ Manufacturer filter
             if (selectedManufacturer.value && item.manufactor !== selectedManufacturer.value) {
                 return false;
             }
 
-            // ✅ Status filter
             if (selectedStatus.value && item.status !== selectedStatus.value) {
                 return false;
             }
 
-            // ✅ Notes search filter
             if (searchNotes.value.trim() && !item.notes?.toLowerCase().includes(searchNotes.value.trim().toLowerCase())) {
                 return false;
             }
 
-            // ✅ Price filtering
             const price = item.price ?? 0; // Ensure `price` is always a number
             const min = minPrice.value !== null ? Number(minPrice.value) : null;
             const max = maxPrice.value !== null ? Number(maxPrice.value) : null;
@@ -309,7 +305,7 @@ const aa = ref('');
                     </li>
                     <li class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === location.id }"
-                        @click="setLocation(location.id)" v-for="location in store.getters.cities" :key="location.id">
+                        @click="setLocation(location.id)" v-for="location in equipment_location" :key="location.id">
                         {{ location.name }}
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
@@ -510,7 +506,9 @@ const aa = ref('');
                         </div>
                         <template v-for="item in sortedEquipment">
                             <div
-                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                            :class="{'bg-gray-200' : item.location_id === -1}"
+                                class="flex  border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <div class="mr-2">
                                         <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
@@ -762,6 +760,22 @@ const aa = ref('');
                                                         </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
+                                                        <Link method="POST" :href="route('equip.off', item.id)"
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                        Списать
+                                                        <svg class="block ml-2" width="16" height="16"
+                                                            viewBox="0 0 16 16" fill="none"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"
+                                                                fill="#464F60" />
+                                                            <path
+                                                                d="M2.95406 13.9107C2.4542 14.0029 2.20427 14.049 2.07763 13.9224C1.95099 13.7957 1.99709 13.5458 2.0893 13.0459L2.31175 11.84C2.35173 11.6233 2.37172 11.515 2.43005 11.4101C2.48838 11.3052 2.57913 11.2145 2.76064 11.033L8.31438 5.47921C8.73303 5.06056 8.94236 4.85123 9.16197 4.81072C9.38158 4.77021 9.5257 4.91433 9.81396 5.20259L10.7974 6.18604C11.0857 6.4743 11.2298 6.61842 11.1893 6.83803C11.1488 7.05764 10.9394 7.26697 10.5208 7.68562L4.96705 13.2394C4.78554 13.4209 4.69479 13.5116 4.58991 13.5699C4.48503 13.6283 4.37668 13.6483 4.15997 13.6882L2.95406 13.9107Z"
+                                                                fill="#464F60" />
+                                                        </svg>
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem v-if="$page.props.user.isAdmin === 1"> 
                                                         <Link :href="route('equip.destroy', item.id)" method="DELETE"
                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                         Удалить

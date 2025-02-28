@@ -97,14 +97,14 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::post('/equip/location', [EquipmentController::class, 'storeLocation'])->name('equip.storeLocation');
     Route::delete('/equip/location/delete/{id}', action: [EquipmentController::class, 'deleteLocation'])->name('equip.deleteLocation');
     Route::post('/equipment/{id}/hyperlink', [EquipmentController::class, 'storeHyperLink']);
-    Route::post('/equipment/repair/{id}/hyperlink', action: [EquipmentController::class, 'storeRepairHyperLink']);
-    Route::post('/equipment/tests/{id}/hyperlink', action: [EquipmentController::class, 'storeTestHyperLink']);
-    Route::post('/equipment/service/{id}/hyperlink', action: [ServiceController::class, 'storeHyperLink']);
-    Route::post('/equipment/price/{id}/hyperlink', action: [EquipmentController::class, 'storeHyperlinkPrice']);
-    Route::post('/equipment/sale/{id}/hyperlink', action: [SaleController::class, 'storeHyperlink']);
-    Route::post('/equipment/contragent/{id}/hyperlink', action: [ContragentsController::class, 'storeHyperlink']);
-    
-    Route::delete('/equipment/contragent/{id}/hyperlink', action: [ContragentsController::class, 'deleteHyperLink']);
+    Route::post('/equipment/repair/{id}/hyperlink', [EquipmentController::class, 'storeRepairHyperLink']);
+    Route::post('/equipment/tests/{id}/hyperlink', [EquipmentController::class, 'storeTestHyperLink']);
+    Route::post('/equipment/service/{id}/hyperlink', [ServiceController::class, 'storeHyperLink']);
+    Route::post('/equipment/price/{id}/hyperlink', [EquipmentController::class, 'storeHyperlinkPrice']);
+    Route::post('/equipment/sale/{id}/hyperlink', [SaleController::class, 'storeHyperlink']);
+    Route::post('/equipment/contragent/{id}/hyperlink', [ContragentsController::class, 'storeHyperlink']);
+    Route::post('/equipment/equip/off/{id}', [EquipmentController::class,'fakeDestroy'])->name('equip.off');
+    Route::delete('/equipment/contragent/{id}/hyperlink', [ContragentsController::class, 'deleteHyperLink']);
 
     Route::get('/contragents', [ContragentsController::class, 'index'])->name('contragents.index');
     Route::get('/contragents/create', [ContragentsController::class, 'create'])->name('contragents.create');

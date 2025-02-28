@@ -53,7 +53,7 @@ class EquipmentController extends Controller
             })->values()->toArray();
 
         $equipment_categories = EquipmentCategories::all();
-        $equipment_location   = EquipmentLocation::all();
+        $equipment_location   = EquipmentLocation::where('id','!=','-1')->get();
         $categoryId           = $request->query('category_id', 1);
         $sizeId               = $request->query('size_id');
         $equipment_sizes      = EquipmentSize::where('category_id', $categoryId)->get();
@@ -229,12 +229,20 @@ class EquipmentController extends Controller
 
         $equipment = $query->paginate($perPage);
 
-        $equipment->getCollection()->map(function ($sale) {
-            if (isset($sale->directory['files'])) {
-                $sale->directory['files'] = json_decode($sale->directory['files'], true) ?? [];
+        $equipment->getCollection()->map(function ($equip) {
+            if (isset($equip->directory['files'])) {
+                $equip->directory['files'] = json_decode($equip->directory['files'], true) ?? [];
             }
-            return $sale;
+        
+            $income = ServiceEquip::where('equipment_id', $equip->id)->sum('income');
+            $subincome = ServiceSub::where('equipment_id', $equip->id)->sum('income');
+            
+            $equip->income = $income;
+            $equip->subincome = $subincome;
+        
+            return $equip;
         });
+
 
         return Inertia::render('Equip/Index', [
             'equipment'                   => $equipment,
@@ -315,7 +323,7 @@ class EquipmentController extends Controller
 
         $sizeId                      = $request->query('size_id');
         $series                      = $request->query('series');
-        $equipment_location          = EquipmentLocation::all();
+        $equipment_location          = EquipmentLocation::where('id','!=','-1')->get();
         $categoryId                  = $request->query('category_id', 1);
         $equipment_sizes             = EquipmentSize::where('category_id', $categoryId)->get();
         $equipment_categories        = EquipmentCategories::all();
@@ -972,6 +980,21 @@ class EquipmentController extends Controller
         $equipment_item = Equipment::findOrFail($id);
 
         $equipment_item->delete();
+    }
+
+    public function fakeDestroy(string $id) 
+    {
+        try {
+            $equipment = Equipment::findOrFail($id);
+
+            $equipment->status = 'off';
+            
+            $equipment->save();
+
+            return back()->with('message','Оборудование списано');
+        }catch(\Exception $e){
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function changeLocation(Request $request)
