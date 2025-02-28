@@ -57,7 +57,7 @@ onMounted(() => {
 });
 
 function setValue(v) {
-    if ($props.onlyValue) model.value = v.value;
+    if ($props.onlyValue) model.value = v?.value || '';
     else                  model.value = { ...v };
 }
 
