@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
 
 class Equipment extends Model
 {
@@ -15,7 +13,7 @@ class Equipment extends Model
     {
         return $this->hasMany(EquipmentTest::class, 'equipment_id', 'id');
     }
-    
+
     public function repairs()
     {
         return $this->hasMany(EquipmentRepair::class, 'equipment_id', 'id');
@@ -33,9 +31,10 @@ class Equipment extends Model
     {
         return $this->hasMany(ServiceEquip::class);
     }
-    
-    public function directory(){
-        return $this->hasOne(Directory::class,'equipment_id', 'id');
+
+    public function directory()
+    {
+        return $this->hasOne(Directory::class, 'equipment_id', 'id');
     }
 
     protected $fillable = [
@@ -59,7 +58,7 @@ class Equipment extends Model
         'size_id',
         'price',
         'commentary',
-        'hyperlink'
+        'hyperlink',
     ];
 
     public function category()
@@ -71,15 +70,24 @@ class Equipment extends Model
     {
         return $this->belongsTo(EquipmentSize::class, 'size_id');
     }
-    
+
     public function services()
     {
         return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id');
     }
-    
+    public function activeServices()
+    {
+        return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id')->where('services.active', 1);
+    }
+
+    public function getUsedAttribute()
+    {
+        return $this->activeServices()->exists() || $this->repairs()->exists() || $this->tests()->exists();
+    }
+
     public function serviceSubs()
     {
         return $this->hasMany(ServiceSub::class, 'subequipment_id', 'id');
     }
-    
+
 }

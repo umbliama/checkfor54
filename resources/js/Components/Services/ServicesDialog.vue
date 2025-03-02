@@ -235,6 +235,11 @@ onMounted(() => {
                                             </div>
                                             <span class="line-clamp-2">{{ item.manufactor }}</span>
                                         </div>
+
+                                        <!-- Для замка -->
+                                        <!-- <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.used??
+                                            '-' }}
+                                        </div> -->
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ??
                                             '-' }}
                                         </div>
