@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 
 
 const model = defineModel();
@@ -8,11 +8,16 @@ const $props = defineProps({
     title      : String,
     description: String,
 
+    defaultOpen: {
+        type: Boolean,
+        default: false
+    },
+
     type: {
         type: String,
         default: 'message',
         validator(v) {
-            return ['message', 'error'].includes(v)
+            return ['message', 'error', 'success'].includes(v)
         }
     }
 });
@@ -21,20 +26,25 @@ const $emit = defineEmits(['close']);
 
 const color = computed(() => ({
     'border-l-gray1': $props.type === 'message',
-    'border-l-danger text-danger': $props.type === 'error',
+    'border-l-danger bg-danger bg-opacity-10': $props.type === 'error',
+    'border-l-[#25A249] bg-[#25A249] bg-opacity-10': $props.type === 'success',
 }));
 
 watch(model, new_val => !new_val && $emit('close'));
 
+onMounted(() => {
+    if ($props.defaultOpen) model.value = true;
+})
+
 </script>
 
 <template>
-    <div v-if="model" :class="color" class="flex items-center mt-4 p-3 border-l-[3px] bg-white">
-        <svg v-if="$props.type === 'message'" class="shrink-0 block mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.486 16.73C10.3547 16.7303 10.2247 16.7046 10.1034 16.6545C9.98206 16.6044 9.87182 16.5308 9.779 16.438L5.537 12.195C5.44143 12.1028 5.36517 11.9925 5.31268 11.8705C5.26018 11.7486 5.23251 11.6174 5.23126 11.4846C5.23001 11.3518 5.25522 11.2201 5.30542 11.0972C5.35561 10.9743 5.42978 10.8626 5.52361 10.7686C5.61744 10.6747 5.72903 10.6003 5.85189 10.55C5.97475 10.4996 6.10641 10.4742 6.23919 10.4752C6.37197 10.4763 6.50321 10.5038 6.62525 10.5561C6.74729 10.6084 6.85769 10.6845 6.95 10.78L10.485 14.315L16.85 7.95199C17.0375 7.76434 17.2919 7.65888 17.5571 7.65878C17.8224 7.65869 18.0769 7.76398 18.2645 7.95149C18.4521 8.13899 18.5576 8.39336 18.5577 8.65863C18.5578 8.9239 18.4525 9.17834 18.265 9.36599L11.193 16.438C11.1002 16.5308 10.9899 16.6044 10.8686 16.6545C10.7473 16.7046 10.6173 16.7303 10.486 16.73Z" fill="currentColor"/>
+    <div v-if="model" :class="color" class="flex items-center mt-4 p-3 border-l-[3px] text-sm">
+        <svg v-if="$props.type === 'message' || $props.type === 'success'" class="shrink-0 block mr-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.486 16.73C10.3547 16.7303 10.2247 16.7046 10.1034 16.6545C9.98204 16.6044 9.87181 16.5308 9.77899 16.438L5.53699 12.195C5.44141 12.1028 5.36516 11.9925 5.31266 11.8706C5.26017 11.7486 5.23249 11.6174 5.23125 11.4846C5.23 11.3519 5.25521 11.2202 5.3054 11.0972C5.3556 10.9743 5.42977 10.8626 5.52359 10.7686C5.61742 10.6747 5.72902 10.6004 5.85188 10.55C5.97474 10.4996 6.1064 10.4742 6.23918 10.4753C6.37196 10.4763 6.50319 10.5038 6.62523 10.5562C6.74727 10.6085 6.85767 10.6846 6.94999 10.78L10.485 14.315L16.85 7.95202C17.0375 7.76438 17.2919 7.65891 17.5571 7.65881C17.8224 7.65872 18.0768 7.76401 18.2645 7.95152C18.4521 8.13902 18.5576 8.39339 18.5577 8.65866C18.5578 8.92393 18.4525 9.17838 18.265 9.36602L11.193 16.438C11.1002 16.5308 10.9899 16.6044 10.8686 16.6545C10.7473 16.7046 10.6173 16.7303 10.486 16.73Z" fill="#25A249"/>
         </svg>
-        <svg v-else-if="$props.type === 'error'" class="shrink-0 block mr-2" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18.75 6.81984L17.1802 5.25L12 10.4302L6.81984 5.25L5.25 6.81984L10.4302 12L5.25 17.1802L6.81984 18.75L12 13.5698L17.1802 18.75L18.75 17.1802L13.5698 12L18.75 6.81984Z" fill="currentColor"/>
+        <svg v-else-if="$props.type === 'error'" class="shrink-0 block mr-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.094 18.32C8.63317 19.5165 10.5563 20.1098 12.5021 19.9885C14.4478 19.8671 16.2823 19.0394 17.6608 17.6608C19.0394 16.2823 19.8671 14.4478 19.9885 12.5021C20.1098 10.5563 19.5165 8.63317 18.32 7.094L7.094 18.32ZM5.68 16.906L16.906 5.68C15.3668 4.48347 13.4437 3.89016 11.4979 4.01154C9.55218 4.13291 7.7177 4.96062 6.33916 6.33916C4.96062 7.7177 4.13291 9.55218 4.01154 11.4979C3.89016 13.4437 4.48347 15.3668 5.68 16.906ZM12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22Z" fill="#DA1E28"/>
         </svg>
         <div class="grow mr-2">
             <b>{{ $props.title }}</b>

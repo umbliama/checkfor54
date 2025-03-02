@@ -253,7 +253,7 @@ onMounted(() => {
             <div v-if="selectedCategory" class="flex mt-5">
                 <ul class="hidden w-[100px] mr-3.5 lg:block">
                     <li :class="{ 'pointer-events-none bg-my-gray': seriesActive === series }"
-                        class="py-3 px-2 font-medium cursor-pointer border-b border-b-my-gray"
+                        class="py-3 px-2 font-medium cursor-pointer text-sm border-b border-b-my-gray"
                         @click="setSeriesId(series)" v-for="series in equipmentSeries">{{ series }}</li>
                 </ul>
                 <div v-if="seriesActive" class="w-full space-y-5 lg:w-[calc(100%-100px-14px)]">

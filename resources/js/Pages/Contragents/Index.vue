@@ -146,7 +146,7 @@ onMounted(() => {
             <div class="overflow-x-auto border-2 border-gray lg:overflow-x-visible pb-30">
                 <div class="w-[1136px] mt-2 break-all lg:w-auto">
                     <div class="border-b-2">
-                        <div class="flex items-center min-h-12 py-2 font-medium text-sm">
+                        <div class="flex items-center min-h-12 py-2 font-medium text-xs">
                             <div class="flex items-center w-10 px-3">
                                 <UiCheckbox v-model="selectAll" @change="toggleSelectAll" />
                             </div>
@@ -196,7 +196,7 @@ onMounted(() => {
                             v-for="(item, i) in sortedContragets"
                             :key="item.id"
                             :class="{ 'bg-my-gray': selectedItems.includes(item.id), 'border-b': i < sortedContragets.length }"
-                            class="relative flex items-center text-sm"
+                            class="relative flex items-center text-xs"
                         >
                             <span v-if="selectedItems.includes(item.id)" class="absolute left-0 top-0 w-[3px] h-full py-2 bg-[#697077]"></span>
 

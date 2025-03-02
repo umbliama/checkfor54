@@ -266,7 +266,7 @@ onMounted(() => {
 
             <div class="relative mt-5">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
-                <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto text-nowrap text-gray1">
+                <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto text-nowrap text-sm text-gray1">
                     <li
                         :class="{ '!border-[#001D6C] text-[#001D6C]': getTabActive == 'price' }"
                         class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"

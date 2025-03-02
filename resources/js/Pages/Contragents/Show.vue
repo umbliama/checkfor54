@@ -15,6 +15,7 @@ import store from '../../../store';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import UiUserAvatar from '@/Components/Ui/UiUserAvatar.vue';
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 const updateContrAgentID = (id) => {
     store.dispatch('contragent/updateCreatedContragentID', id)
@@ -335,6 +336,9 @@ const setTab = (tab) => {
 
                         </div>
                     </div>
+
+                    <UiNotification type="error" title="Title" description="Description" default-open />
+                    <UiNotification type="success" title="Title" description="Description" default-open />
                 </div>
                 <div class="shrink-0 w-full mt-4 space-y-4 lg:w-60 lg:mt-0 lg:ml-6 lg:space-y-1">
                     <div class="py-4 px-2 content-block">

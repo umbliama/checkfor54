@@ -258,7 +258,7 @@ onMounted(() => {
                     <li
                         v-for="series in equipment_series"
                         :class="{ 'pointer-events-none bg-my-gray': seriesActive === series }"
-                        class="py-3 px-2 font-medium cursor-pointer border-b border-b-my-gray"
+                        class="py-3 px-2 font-medium cursor-pointer border-b text-sm border-b-my-gray"
                         @click="setSeriesId(series)"
                     >
                         {{ series }}

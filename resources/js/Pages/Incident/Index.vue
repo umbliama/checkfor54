@@ -262,23 +262,23 @@ onBeforeMount(() => {
                 <ul
                     class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto lg:overflow-x-visible">
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': getMenuActiveItem === 'tasks' }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg cursor-pointer"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-base cursor-pointer"
                         @click="updateActiveMenuItem('tasks')">
                         Задачи
                     </li>
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': getMenuActiveItem === 'adv' }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg cursor-pointer"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-base cursor-pointer"
                         @click="updateActiveMenuItem('adv')">
                         Рекламация
                     </li>
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': getMenuActiveItem === 'history' || getMenuActiveItem === 'history_tasks' || getMenuActiveItem === 'history_adv' }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg cursor-pointer"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-base cursor-pointer"
                         @click="updateActiveMenuItem('history_tasks')">
                         История
                     </li>
                     <li>
                         <Link v-if="user.isAdmin" :href="route('equip.tests')"
-                            class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-lg">
+                            class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-base">
                         Admin
                         </Link>
                     </li>
