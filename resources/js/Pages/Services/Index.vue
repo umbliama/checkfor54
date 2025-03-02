@@ -170,9 +170,6 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
     ? Object.values(props.activeServices?.data || {})
     : Object.values(props.services?.data || {});
 
-console.log("Selected Active:", selectedActive.value);
-console.log("Data Array Length:", dataArray.length);
-console.log("Data Array Contents:", dataArray);
     const filteredArray = dataArray.filter(service => {
         if (!service.contragent_data || service.contragent_data.length === 0) {
             console.log('Skipping service with no contragent_data:', service.id);
