@@ -54,8 +54,8 @@ const props = defineProps({
         <div class="py-4">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <h3>Аватар</h3>
                     <input type="file" name="avatar" @change="handleAvatar">
-                    <button type="button" @click="updateAvatar">Submit</button>
                 </div>
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status"
@@ -66,9 +66,7 @@ const props = defineProps({
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
 
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <DeleteUserForm class="max-w-xl" />
-                </div>
+
             </div>
         </div>
     </AuthenticatedLayout>
