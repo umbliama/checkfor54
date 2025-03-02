@@ -54,7 +54,9 @@ const filters = reactive({
 const contragentData = (id) => {
     return props.contragents[id];
 }
-
+const clearAgents = () => {
+    chosenAgents.value = []
+}
 const chooseAgent = (id) => {
     if (id === "all") {
         if (chosenAgents.value.length === props.rented_services_grouped.data.length) {
@@ -76,6 +78,7 @@ const props = defineProps({
     equipment_categories: Array,
     equipment_categories_counts: Array,
     equipment_categories_counts_all: Number,
+    equipment_sizes_counts_all: Number,
     contragents: Array,
     rented_equipment: Array,
     rented_services_grouped: Array,
@@ -188,7 +191,7 @@ const filteredServicesGrouped = computed(() => {
 
                     const isAfterStart = startDateFilter ? serviceDate >= startDateFilter : true;
                     const isBeforeEnd = endDateFilter ? serviceDate <= endDateFilter : true;
-                    if (!isAfterStart || !isBeforeEnd) return null; 
+                    if (!isAfterStart || !isBeforeEnd) return null;
 
                     let filteredMainEquipment = service.service_equipment.filter(equipment => {
                         const matchesCategory = categoryFilter ? equipment.equipment.category_id === categoryFilter : true;
@@ -218,10 +221,10 @@ const filteredServicesGrouped = computed(() => {
 
                     return null;
                 })
-                .filter(service => service !== null); 
+                .filter(service => service !== null);
 
             return filteredServices.length > 0 ? { ...contragent, services: filteredServices } : null;
-        }).filter(contragent => contragent !== null); 
+        }).filter(contragent => contragent !== null);
     }
 
     return {
@@ -240,7 +243,8 @@ onMounted(() => {
 </script>
 <template>
     <AuthenticatedLayout>
-        <DashboardToolbar  v-model:start-date="start_date" v-model:end-date="end_date"  dashboard-page-type="rent" filter />
+        <DashboardToolbar v-model:start-date="start_date" v-model:end-date="end_date" dashboard-page-type="rent"
+            filter />
 
         <div class="p-5">
             <nav class="py-2.5 px-6 rounded-xl text-sm bg-my-gray">
@@ -255,7 +259,7 @@ onMounted(() => {
                                 Все
                                 <span
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
-                                        total_equipment_categories }}</span>
+                                        equipment_categories_counts_all }}</span>
                             </div>
                         </li>
 
@@ -285,7 +289,7 @@ onMounted(() => {
                                 Все
                                 <span
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
-total_equipment_sizes}}</span>
+                                    equipment_sizes_counts_all}}</span>
                             </div>
                         </li>
 
@@ -344,8 +348,7 @@ total_equipment_sizes}}</span>
 
                 </div>
                 <div class="flex justify-between bg-my-gray mt-3 p-1 text-sm lg:hidden">
-                    <UiFieldSelect v-model="selected_series"
-                        :items="mobileAgentsParsed"
+                    <UiFieldSelect v-model="chosenAgents[0]" :items="mobileAgentsParsed"
                         :trigger-attrs="{ class: 'bg-white' }" placeholder="Заказчики" class="w-[calc(50%-10px)]"
                         only-value />
 
@@ -363,7 +366,7 @@ total_equipment_sizes}}</span>
                     <form action="" method="GET" class="w-[calc(50%-10px)]">
                         <button
                             class="flex items-center justify-between w-full py-2 px-3 text-gray1 bg-white lg:py-3 lg:px-4"
-                            type="button">
+                            type="button" @click="clearAgents">
                             Весь список
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -388,7 +391,8 @@ total_equipment_sizes}}</span>
 
             <div class="flex w-full mt-5">
                 <ul class="hidden w-[168px] mr-3.5 lg:block">
-                    <li class="flex items-center justify-between py-3 px-2 font-medium text-sm cursor-pointer bg-bg1">
+                    <li class="flex items-center justify-between py-3 px-2 font-medium text-sm cursor-pointer "
+                        @click="clearAgents" :class="{ 'bg-bg1': chosenAgents.length === 0 }">
                         Весь список
 
                         <svg class="block ml-2" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -428,20 +432,23 @@ total_equipment_sizes}}</span>
                             </div>
                             <div class="space-y-6">
                                 <AccordionRoot type="multiple" :collapsible="true">
-                                    <AccordionItem v-for="item in item.services" :value="'head-item-'+item.service_id" class="mt-3">
+                                    <AccordionItem v-for="item in item.services" :value="'head-item-' + item.service_id"
+                                        class="mt-3">
                                         <AccordionHeader
                                             class="items-center justify-between py-3 px-2.5 text-base border border-[#EEEEF2] border-l-danger lg:flex">
                                             <div class="flex items-center font-bold text-xs">
                                                 {{ item.service_date }}
                                                 <AccordionTrigger class="group ml-1.5">
                                                     <svg class="group-data-[state=open]:hidden" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        viewBox="0 0 24 24" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
                                                         <path fill-rule="evenodd" clip-rule="evenodd"
                                                             d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
                                                             fill="#242533" />
                                                     </svg>
-                                                    <svg class="hidden group-data-[state=open]:block" width="18" height="18"
-                                                        viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <svg class="hidden group-data-[state=open]:block" width="18"
+                                                        height="18" viewBox="0 0 18 18" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
                                                         <path fill-rule="evenodd" clip-rule="evenodd"
                                                             d="M2.27198 9.29131C2.27198 8.95993 2.54061 8.69131 2.87198 8.69131H14.6285C14.9599 8.69131 15.2285 8.95993 15.2285 9.29131C15.2285 9.62268 14.9599 9.8913 14.6285 9.89131H2.87198C2.54061 9.8913 2.27198 9.62268 2.27198 9.29131Z"
                                                             fill="#242533" />
@@ -454,7 +461,8 @@ total_equipment_sizes}}</span>
                                             </div>
                                         </AccordionHeader>
 
-                                        <AccordionContent class="w-full max-w-full bg-bg2 overflow-x-auto border border-gray3 data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
+                                        <AccordionContent
+                                            class="w-full max-w-full bg-bg2 overflow-x-auto border border-gray3 data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                             <div class="min-w-[1136px] text-xs">
                                                 <div
                                                     class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
@@ -467,14 +475,14 @@ total_equipment_sizes}}</span>
                                                             <rect width="28" height="28" rx="14" fill="#644DED"
                                                                 fill-opacity="0.08" />
                                                             <path d="M8.26783 12.1904L10.6249 9.83325L12.9821 12.1904"
-                                                                stroke="#644DED" stroke-width="1.2" stroke-linecap="round"
-                                                                stroke-linejoin="round" />
+                                                                stroke="#644DED" stroke-width="1.2"
+                                                                stroke-linecap="round" stroke-linejoin="round" />
                                                             <path d="M10.625 9.8333L10.625 18.0832" stroke="#644DED"
                                                                 stroke-width="1.2" stroke-linecap="round"
                                                                 stroke-linejoin="round" />
                                                             <path d="M19.5654 16.5594L17.2083 18.9165L14.8511 16.5594"
-                                                                stroke="#644DED" stroke-width="1.2" stroke-linecap="round"
-                                                                stroke-linejoin="round" />
+                                                                stroke="#644DED" stroke-width="1.2"
+                                                                stroke-linecap="round" stroke-linejoin="round" />
                                                             <path d="M17.2082 10.6667L17.2082 18.9166" stroke="#644DED"
                                                                 stroke-width="1.2" stroke-linecap="round"
                                                                 stroke-linejoin="round" />
@@ -507,27 +515,36 @@ total_equipment_sizes}}</span>
                                                     </div>
                                                 </div>
                                                 <AccordionRoot type="multiple" :collapsible="true">
-                                                    <AccordionItem v-for="item in item.service_equipment" value="item-1">
+                                                    <AccordionItem v-for="item in item.service_equipment"
+                                                        value="item-1">
                                                         <AccordionHeader>
-                                                            <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                                            <div
+                                                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                                                 <div
                                                                     class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                                                     <UiHyperlink endpoint="/services" />
                                                                 </div>
                                                                 <div :class="{ 'bg-violet/5': true }"
                                                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-[#644DED]">
-                                                                    {{ item.equipment.category }} {{ item.equipment.size }}
+                                                                    {{ item.equipment.category }} {{ item.equipment.size
+                                                                    }}
                                                                     {{ item.equipment.series }}
                                                                     <AccordionTrigger class="group ml-1.5">
-                                                                        <svg class="group-data-[state=open]:hidden" width="24" height="24"
-                                                                            viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        <svg class="group-data-[state=open]:hidden"
+                                                                            width="24" height="24" viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path fill-rule="evenodd"
+                                                                                clip-rule="evenodd"
                                                                                 d="M12.9444 6.69444C12.9444 6.31091 12.6335 6 12.25 6C11.8665 6 11.5556 6.31091 11.5556 6.69444V11.5556H6.69444C6.31091 11.5556 6 11.8665 6 12.25C6 12.6335 6.31091 12.9444 6.69444 12.9444H11.5556V17.8056C11.5556 18.1891 11.8665 18.5 12.25 18.5C12.6335 18.5 12.9444 18.1891 12.9444 17.8056V12.9444H17.8056C18.1891 12.9444 18.5 12.6335 18.5 12.25C18.5 11.8665 18.1891 11.5556 17.8056 11.5556H12.9444V6.69444Z"
                                                                                 fill="#242533" />
                                                                         </svg>
-                                                                        <svg class="hidden group-data-[state=open]:block" width="18" height="18"
-                                                                            viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                        <svg class="hidden group-data-[state=open]:block"
+                                                                            width="18" height="18" viewBox="0 0 18 18"
+                                                                            fill="none"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path fill-rule="evenodd"
+                                                                                clip-rule="evenodd"
                                                                                 d="M2.27198 9.29131C2.27198 8.95993 2.54061 8.69131 2.87198 8.69131H14.6285C14.9599 8.69131 15.2285 8.95993 15.2285 9.29131C15.2285 9.62268 14.9599 9.8913 14.6285 9.89131H2.87198C2.54061 9.8913 2.27198 9.62268 2.27198 9.29131Z"
                                                                                 fill="#242533" />
                                                                         </svg>
@@ -560,8 +577,8 @@ total_equipment_sizes}}</span>
                                                                     </Link>
                                                                     <PopoverRoot v-else>
                                                                         <PopoverTrigger class="mr-2">
-                                                                            <svg width="24" height="24" viewBox="0 0 24 24"
-                                                                                fill="none"
+                                                                            <svg width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none"
                                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                                 <path fill-rule="evenodd"
                                                                                     clip-rule="evenodd"
@@ -583,16 +600,20 @@ total_equipment_sizes}}</span>
                                                                             <PopoverContent side="bottom" align="end"
                                                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                                 <div>Комментарий:</div>
-                                                                                <p class="mt-2.5 text-xs">Далеко-далеко за
+                                                                                <p class="mt-2.5 text-xs">Далеко-далеко
+                                                                                    за
                                                                                     словесными горами
                                                                                     в стране
-                                                                                    гласных и согласных живут рыбные тексты.
+                                                                                    гласных и согласных живут рыбные
+                                                                                    тексты.
                                                                                     Страна если
                                                                                     бросил, он
-                                                                                    всемогущая запятых грамматики себя ipsum
+                                                                                    всемогущая запятых грамматики себя
+                                                                                    ipsum
                                                                                     точках,
                                                                                     несколько меня
-                                                                                    строчка маленькая страну предупреждал
+                                                                                    строчка маленькая страну
+                                                                                    предупреждал
                                                                                     которой раз
                                                                                     проектах. Ему
                                                                                     выйти составитель дал то ...</p>
@@ -604,7 +625,8 @@ total_equipment_sizes}}</span>
                                                                                             file name</span>
                                                                                         <svg class="shrink-0 block ml-2"
                                                                                             width="20" height="20"
-                                                                                            viewBox="0 0 24 24" fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path fill-rule="evenodd"
                                                                                                 clip-rule="evenodd"
@@ -626,7 +648,8 @@ total_equipment_sizes}}</span>
                                                                                         <DropdownMenuRoot>
                                                                                             <DropdownMenuTrigger
                                                                                                 aria-label="Customise options">
-                                                                                                <svg width="20" height="20"
+                                                                                                <svg width="20"
+                                                                                                    height="20"
                                                                                                     viewBox="0 0 24 24"
                                                                                                     fill="none"
                                                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -695,9 +718,10 @@ total_equipment_sizes}}</span>
                                                                     </PopoverRoot>
 
                                                                     <DropdownMenuRoot>
-                                                                        <DropdownMenuTrigger aria-label="Customise options">
-                                                                            <svg width="24" height="24" viewBox="0 0 24 24"
-                                                                                fill="none"
+                                                                        <DropdownMenuTrigger
+                                                                            aria-label="Customise options">
+                                                                            <svg width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none"
                                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                                 <path
                                                                                     d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
@@ -721,8 +745,9 @@ total_equipment_sizes}}</span>
                                                                                             :href="route('services.edit', 12)"
                                                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                                         Редактировать
-                                                                                        <svg class="block ml-2" width="16"
-                                                                                            height="16" viewBox="0 0 16 16"
+                                                                                        <svg class="block ml-2"
+                                                                                            width="16" height="16"
+                                                                                            viewBox="0 0 16 16"
                                                                                             fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path
@@ -740,8 +765,9 @@ total_equipment_sizes}}</span>
                                                                                             method="delete"
                                                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                                         Удалить
-                                                                                        <svg class="block ml-2" width="16"
-                                                                                            height="16" viewBox="0 0 16 16"
+                                                                                        <svg class="block ml-2"
+                                                                                            width="16" height="16"
+                                                                                            viewBox="0 0 16 16"
                                                                                             fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path fill-rule="evenodd"
@@ -768,7 +794,8 @@ total_equipment_sizes}}</span>
                                                                 </div>
                                                                 <div :class="{ 'bg-violet/5': true }"
                                                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 !border-l-[#F1C21B]">
-                                                                    {{ sub.equipment.category }} {{ sub.equipment.size }} {{
+                                                                    {{ sub.equipment.category }} {{ sub.equipment.size
+                                                                    }} {{
                                                                         sub.equipment.series }}
                                                                 </div>
                                                                 <div
@@ -797,8 +824,8 @@ total_equipment_sizes}}</span>
                                                                     </Link>
                                                                     <PopoverRoot v-else>
                                                                         <PopoverTrigger class="mr-2">
-                                                                            <svg width="24" height="24" viewBox="0 0 24 24"
-                                                                                fill="none"
+                                                                            <svg width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none"
                                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                                 <path fill-rule="evenodd"
                                                                                     clip-rule="evenodd"
@@ -820,16 +847,20 @@ total_equipment_sizes}}</span>
                                                                             <PopoverContent side="bottom" align="end"
                                                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                                 <div>Комментарий:</div>
-                                                                                <p class="mt-2.5 text-xs">Далеко-далеко за
+                                                                                <p class="mt-2.5 text-xs">Далеко-далеко
+                                                                                    за
                                                                                     словесными горами
                                                                                     в стране
-                                                                                    гласных и согласных живут рыбные тексты.
+                                                                                    гласных и согласных живут рыбные
+                                                                                    тексты.
                                                                                     Страна если
                                                                                     бросил, он
-                                                                                    всемогущая запятых грамматики себя ipsum
+                                                                                    всемогущая запятых грамматики себя
+                                                                                    ipsum
                                                                                     точках,
                                                                                     несколько меня
-                                                                                    строчка маленькая страну предупреждал
+                                                                                    строчка маленькая страну
+                                                                                    предупреждал
                                                                                     которой раз
                                                                                     проектах. Ему
                                                                                     выйти составитель дал то ...</p>
@@ -841,7 +872,8 @@ total_equipment_sizes}}</span>
                                                                                             file name</span>
                                                                                         <svg class="shrink-0 block ml-2"
                                                                                             width="20" height="20"
-                                                                                            viewBox="0 0 24 24" fill="none"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path fill-rule="evenodd"
                                                                                                 clip-rule="evenodd"
@@ -863,7 +895,8 @@ total_equipment_sizes}}</span>
                                                                                         <DropdownMenuRoot>
                                                                                             <DropdownMenuTrigger
                                                                                                 aria-label="Customise options">
-                                                                                                <svg width="20" height="20"
+                                                                                                <svg width="20"
+                                                                                                    height="20"
                                                                                                     viewBox="0 0 24 24"
                                                                                                     fill="none"
                                                                                                     xmlns="http://www.w3.org/2000/svg">
@@ -932,9 +965,10 @@ total_equipment_sizes}}</span>
                                                                     </PopoverRoot>
 
                                                                     <DropdownMenuRoot>
-                                                                        <DropdownMenuTrigger aria-label="Customise options">
-                                                                            <svg width="24" height="24" viewBox="0 0 24 24"
-                                                                                fill="none"
+                                                                        <DropdownMenuTrigger
+                                                                            aria-label="Customise options">
+                                                                            <svg width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none"
                                                                                 xmlns="http://www.w3.org/2000/svg">
                                                                                 <path
                                                                                     d="M13.5 6C13.5 6.82843 12.8284 7.5 12 7.5C11.1716 7.5 10.5 6.82843 10.5 6C10.5 5.17157 11.1716 4.5 12 4.5C12.8284 4.5 13.5 5.17157 13.5 6Z"
@@ -958,8 +992,9 @@ total_equipment_sizes}}</span>
                                                                                             :href="route('services.edit', 2)"
                                                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                                         Редактировать
-                                                                                        <svg class="block ml-2" width="16"
-                                                                                            height="16" viewBox="0 0 16 16"
+                                                                                        <svg class="block ml-2"
+                                                                                            width="16" height="16"
+                                                                                            viewBox="0 0 16 16"
                                                                                             fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path
@@ -977,8 +1012,9 @@ total_equipment_sizes}}</span>
                                                                                             methods="delete"
                                                                                             class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                                         Удалить
-                                                                                        <svg class="block ml-2" width="16"
-                                                                                            height="16" viewBox="0 0 16 16"
+                                                                                        <svg class="block ml-2"
+                                                                                            width="16" height="16"
+                                                                                            viewBox="0 0 16 16"
                                                                                             fill="none"
                                                                                             xmlns="http://www.w3.org/2000/svg">
                                                                                             <path fill-rule="evenodd"
