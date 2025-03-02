@@ -391,7 +391,7 @@ onMounted(() => {
                     <div
                         v-for="(price, index) in getTabActive === 'price' ? sortedPrices : sortedPricesArchived"
                         :key="index"
-                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3"
+                        class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 hover:bg-bg1"
                     >
                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                             <UiHyperlink :item-id="price.id" :hyperlink="price.hyperlink" endpoint="/equipment/price" />

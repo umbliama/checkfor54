@@ -387,7 +387,7 @@ onMounted(() => {
                                 </div>
                                 <template v-for="repair in repairs">
                                     <div
-                                        class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                        class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="repair.id" :hyperlink="repair.hyperlink"
                                                 endpoint="/equipment/repair" />

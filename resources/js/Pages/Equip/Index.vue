@@ -446,7 +446,7 @@ const aa = ref('');
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Производитель
                             </div>
                             <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
-                                class="relative shrink-0 flex items-center justify-between w-[9.96%] py-2.5 px-2 cursor-pointer"
+                                class="relative shrink-0 flex items-center justify-between w-[8.8%] py-2.5 px-2 cursor-pointer"
                                 @click="toggleSortBy('series')">
                                 <span class="absolute left-0 top-0 w-full h-[1px] bg-[#644DED]"></span>
                                 Серия
@@ -472,21 +472,19 @@ const aa = ref('');
                             <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">Статор
                                 <br>Ротор
                             </div>
-                            <div class="shrink-0 flex items-center justify-center w-[6.11%] py-2.5 px-2">Нара- <br>ботка
+                            <div class="shrink-0 flex items-center justify-center w-[6.11%] py-2.5 px-2">Нара <br>ботка</div>
+                            <div class="shrink-0 flex items-center justify-center text-center w-[6.11%] py-2.5 px-2">
+                                Нара <br>ботка <br>дс.
                             </div>
-                            <div class="shrink-0 flex items-center justify-center text-center w-[7.08%] py-2.5 px-2">
-                                Наработка
-                                <br>дс.
+                            <div class="shrink-0 flex items-center justify-center text-center w-[7.5%] py-2.5 px-2">
+                                Изготовлен
                             </div>
-                            <div class="shrink-0 flex items-center justify-center text-center w-[8.56%] py-2.5 px-2">
-                                Дата
-                                <br>изготовления
-                            </div>
-                            <div class="shrink-0 flex items-center justify-center w-[8.04%] py-2.5 px-2">Стоимость</div>
-                            <div class="shrink-0 flex items-center justify-center w-[8.04%] py-2.5 px-2">Примечание
+                            <div class="shrink-0 flex items-center justify-center w-[7.69%] py-2.5 px-2">Стоимость</div>
+                            <div class="shrink-0 flex items-center justify-center w-[7.69%] py-2.5 px-2">Выручка</div>
+                            <div class="shrink-0 flex items-center justify-center w-[calc(100%-9.96%-8.8%-5.15%-4.89%-5.15%-7.08%-6.11%-6.11%-8.56%-7.69%-7.69%-9.96%-70px)] py-2.5 px-2">Примечание
                             </div>
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Состояние</div>
-                            <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                            <div class="shrink-0 flex items-center w-[70px] py-2.5 px-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -507,7 +505,7 @@ const aa = ref('');
                         <template v-for="item in sortedEquipment">
                             <div
                             :class="{'bg-gray-200' : item.location_id === -1}"
-                                class="flex  border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                class="flex  border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                 
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <div class="mr-2">
@@ -517,7 +515,11 @@ const aa = ref('');
                                     <span class="line-clamp-2">{{ item.manufactor }}</span>
                                 </div>
                                 <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
-                                    class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ?? '-' }}
+                                    class="shrink-0 flex items-center w-[8.8%] py-2.5 px-2">
+                                    {{ item.series ?? '-' }}
+                                    <svg class="shrink-0 block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z" fill="#484964"/>
+                                    </svg>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                     item.zahodnost ?? '-'
@@ -536,19 +538,21 @@ const aa = ref('');
                                     item.operating ?? '-'
                                     }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
+                                <div class="shrink-0 flex items-center w-[6.11%] py-2.5 px-2">{{
                                     item.narabotka_ds ??
                                     '-'
                                     }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[8.56%] py-2.5 px-2">{{
+                                <div class="shrink-0 flex items-center w-[7.5%] py-2.5 px-2">{{
                                     item.manufactor_date ??
                                     '-'
                                     }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
+                                <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
                                 </div>
-                                <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">
+                                <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
+                                </div>
+                                <div class="shrink-0 flex items-center w-[calc(100%-9.96%-8.8%-5.15%-4.89%-5.15%-7.08%-6.11%-6.11%-8.56%-7.69%-7.69%-9.96%-70px)] py-2.5 px-2">
                                     <span class="line-clamp-2">{{ item.notes ?? '-' }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
@@ -558,7 +562,7 @@ const aa = ref('');
                                         statuses[item.status]
                                         }}</span>
                                 </div>
-                                <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
+                                <div class="shrink-0 flex items-center w-[70px] py-2.5 px-2">
                                     <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id"
                                         class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

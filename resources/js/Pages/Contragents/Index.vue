@@ -196,7 +196,7 @@ onMounted(() => {
                             v-for="(item, i) in sortedContragets"
                             :key="item.id"
                             :class="{ 'bg-my-gray': selectedItems.includes(item.id), 'border-b': i < sortedContragets.length }"
-                            class="relative flex items-center text-xs"
+                            class="relative flex items-center text-xs hover:bg-bg1"
                         >
                             <span v-if="selectedItems.includes(item.id)" class="absolute left-0 top-0 w-[3px] h-full py-2 bg-[#697077]"></span>
 

@@ -289,7 +289,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="item in props.equipment">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink" endpoint="/equipment" />
                                         </div>
@@ -424,7 +424,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="item in props.equipment">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink" endpoint="/equipment" />
                                         </div>
@@ -560,7 +560,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="item in props.equipment">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink" endpoint="/equipment" />
                                         </div>
@@ -701,7 +701,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="repair in repairs">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="repair.id" :hyperlink="repair.hyperlink" endpoint="/equipment/repair" />
                                         </div>
@@ -840,7 +840,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="test in tests" :key="test.id">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="test.id" :hyperlink="test.hyperlink" endpoint="/equipment/test" />
                                         </div>
@@ -1097,7 +1097,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="test in tests" :key="test.id">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="test.id" :hyperlink="test.hyperlink" endpoint="/equipment/test" />
                                         </div>
@@ -1240,7 +1240,7 @@ onMounted(() => {
                                     </div>
                                 </div>
                                 <template v-for="history_item in history" :key="history_item.id">
-                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                    <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="history_item.id" :hyperlink="history_item.hyperlink" endpoint="/equipment/history" />
                                         </div>

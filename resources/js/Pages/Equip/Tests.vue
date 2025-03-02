@@ -261,7 +261,7 @@ onMounted(() => {
                                 </div>
                             </div>
                             <div
-                                class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -359,7 +359,7 @@ onMounted(() => {
                                 </div>
                                 <template v-for="test in tests">
                                     <div
-                                        class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all">
+                                        class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
                                         <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
                                             <UiHyperlink :item-id="test.id" :hyperlink="test.hyperlink"
                                                 endpoint="/equipment/repair" />
