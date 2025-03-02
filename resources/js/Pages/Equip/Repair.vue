@@ -563,7 +563,7 @@ onMounted(() => {
                                                         <DropdownMenuContent
                                                             class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                             :side-offset="5" align="end">
-                                                            <DropdownMenuItem v-if="!test.isLocked || $page.props.user.isAdmin">
+                                                            <DropdownMenuItem v-if="!repair.isLocked || $page.props.user.isAdmin">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                                     @click="openDialog(repair.id)">
