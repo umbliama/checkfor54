@@ -59,38 +59,12 @@ const props = defineProps({
     tenderCount: Number,
 })
 
-const sortedDocuments = reactive({});
 
-watch(() => props.documents, (newDocuments) => {
-    Object.keys(newDocuments).forEach(contragentId => {
-        sortedDocuments[contragentId] = [...toRaw(newDocuments[contragentId])];
-    });
-}, { immediate: true, deep: true });
 
 const sortBy = ref('created_at'); 
-const sortOrder = ref('asc'); 
-
-watch([sortBy, sortOrder], () => {
-
-    Object.keys(sortedDocuments).forEach(contragentId => {
-        let rawDocs = [...toRaw(sortedDocuments[contragentId])];
+const sortOrder = ref('desc'); 
 
 
-        let sorted = rawDocs.sort((a,b) => {
-        })
-
-    });
-}, { immediate: true });
-
-const updateSort = (field) => {
-    if (sortBy.value === field) {
-        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortBy.value = field;
-        sortOrder.value = 'asc';
-    }
-    console.log(`Updated sort field: ${sortBy.value}, Order: ${sortOrder.value}`);
-};
 function formatDateToDDMMYYYY(isoDateString) {
     const date = new Date(isoDateString);
 
@@ -103,7 +77,42 @@ function formatDateToDDMMYYYY(isoDateString) {
 }
 
 
+const sortedDocuments = computed(() => {
+      const documentArray = Object.values(props.documents);
 
+      return documentArray.sort((a, b) => {
+        let valA, valB;
+
+        // Determine the sorting value based on field type
+        if (sortBy.value === 'created_at') {
+          valA = new Date(a.created_at);
+          valB = new Date(b.created_at);
+        } else if (sortBy.value === 'status') {
+          valA = a.status;
+          valB = b.status;
+        } else if (sortBy.value === 'contragent.name') {
+          valA = a.contragent?.name?.toLowerCase() || '';
+          valB = b.contragent?.name?.toLowerCase() || '';
+        }
+
+        // Sorting logic
+        if (valA < valB) return sortOrder.value === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder.value === 'asc' ? 1 : -1;
+        return 0;
+      });
+    });
+
+
+const updateSort = (field) => {
+    if (sortBy.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortBy.value = field;
+        sortOrder.value = 'asc';
+    }
+    console.log(`Updated sort field: ${sortBy.value}, Order: ${sortOrder.value}`);
+    console.log(sortedDocuments.value);
+};
 const statuses = {
     '1': 'Сделка',
     '2': 'Переговоры',
@@ -144,74 +153,6 @@ const editKP = () => {
     edit_dialog_state.value = false;
 }
 
-const filteredDocuments = computed(() => {
-    console.groupCollapsed('Filtering Documents');
-
-    // Ensure documents is valid and convert it to an array of arrays
-    if (!props.documents || typeof props.documents !== 'object' || Array.isArray(props.documents)) {
-        console.warn('Documents prop is missing or invalid.');
-        console.groupEnd();
-        return [];
-    }
-
-    const docArrays = Object.values(props.documents); // Convert object values to an array of arrays
-
-    console.log('Converted Document Arrays:', docArrays);
-
-    // Parse start_date and end_date into Date objects
-    const startDate = start_date.value ? new Date(start_date.value) : null;
-    const endDate = end_date.value ? new Date(end_date.value) : null;
-
-    console.log('Start Date:', start_date.value, startDate);
-    console.log('End Date:', end_date.value, endDate);
-
-    // Filter logic: Preserve document groups
-    const result = docArrays.map(docGroup => {
-        if (!Array.isArray(docGroup)) {
-            console.warn('Skipping invalid document group:', docGroup);
-            return [];
-        }
-
-        // Filter documents within the group
-        return docGroup.filter(doc => {
-            if (!doc || !doc.created_at) {
-                console.warn('Skipping document with missing created_at:', doc);
-                return false;
-            }
-
-            const createdAt = new Date(doc.created_at); // Use built-in Date constructor
-
-            if (isNaN(createdAt.getTime())) {
-                console.warn('Invalid created_at value:', doc.created_at);
-                return false;
-            }
-
-            console.log(`Processing document with created_at: ${createdAt.toISOString()}`);
-
-            // Apply date range filtering
-            if (startDate && endDate) {
-                console.log(`Checking if ${createdAt.toISOString()} is between ${startDate.toISOString()} and ${endDate.toISOString()}`);
-                return createdAt >= startDate && createdAt <= endDate;
-            } else if (startDate) {
-                console.log(`Checking if ${createdAt.toISOString()} is after or equal to ${startDate.toISOString()}`);
-                return createdAt >= startDate;
-            } else if (endDate) {
-                console.log(`Checking if ${createdAt.toISOString()} is before or equal to ${endDate.toISOString()}`);
-                return createdAt <= endDate;
-            }
-
-            // If no date range is set, include all documents
-            console.log('No date range set, including document.');
-            return true;
-        });
-    }).filter(group => group.length > 0); // Remove empty groups
-
-    console.log('Filtered Document Groups:', result);
-    console.groupEnd();
-
-    return result;
-
-})
 
 </script>
 
@@ -307,7 +248,7 @@ const filteredDocuments = computed(() => {
                         class="flex font-bold border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                         <div class="shrink-0 flex items-center justify-center w-[40px] py-2.5 px-2"></div>
                         <div class="shrink-0 flex items-center justify-center w-[32px] py-2.5 px-2"></div>
-                        <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2" @click="updateSort('name')">
+                        <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2" @click="updateSort('contragent.name')">
                             Наименование
 
                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -322,7 +263,7 @@ const filteredDocuments = computed(() => {
                             class="relative shrink-0 flex items-center justify-between w-[14.08%] py-2.5 px-2 cursor-pointer">
                             Автор</div>
                         <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Тип</div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">Дата
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2" @click="updateSort('created_at')">Дата 
 
 
 
@@ -338,7 +279,7 @@ const filteredDocuments = computed(() => {
                         </div>
                         <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">Примечание
                         </div>
-                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
+                        <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2"  @click="updateSort('status')">
                             Статус
 
                             <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
@@ -354,7 +295,7 @@ const filteredDocuments = computed(() => {
                         </div>
                     </div>
                     <AccordionRoot type="multiple" :collapsible="true">
-                        <AccordionItem v-for="(doc, index) in filteredDocuments" :value="'item-' + index">
+                        <AccordionItem v-for="(doc, index) in sortedDocuments" :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 bg-white">
                                 <div class="shrink-0 flex items-center justify-center w-[40px]">
@@ -376,33 +317,32 @@ const filteredDocuments = computed(() => {
                                 <div class="shrink-0 flex items-center justify-center w-[32px]">
                                     <span
                                         class="flex items-center justify-center w-[18px] h-[18px] rounded-full text-xs bg-gray1 text-white">{{
-                                            nameContragent(doc[0].contragent_id - 1).documents.filter(doc => ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'].includes(doc.type)).length
+                                            nameContragent(doc.contragent_id - 1).documents.filter(doc => ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'].includes(doc.type)).length
                                         }}</span>
                                 </div>
                                 
                                 <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">
-                                    <UiUserAvatar :image="nameContragent(doc[0].contragent_id - 1).avatar"  size="40px" class="shrink-0 mr-2" />
-
+                                    <UiUserAvatar :image="nameContragent(doc.contragent_id - 1).avatar"  size="40px" class="shrink-0 mr-2" />
                                     <div>
                                         <span class="flex justify-start items-start font-medium">
-                                            {{ nameContragent(doc[0].contragent_id - 1).name }}
+                                            {{ nameContragent(doc.contragent_id - 1).name }}
                                         </span>
                                         <span class="flex text-gray-500 items-start text-xs">
-                                            ИНН {{ nameContragent(doc[0].contragent_id - 1).inn }}
+                                            ИНН {{ nameContragent(doc.contragent_id - 1).inn }}
                                         </span>
                                     </div>
                                 </div>
                                 <div class="relative shrink-0 flex items-center w-[14.08%] py-2.5 px-2 cursor-pointer">
-                                    {{ doc[0].user.name }}</div>
-                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ doc[0].translatedType }}</div>
+                                    {{ doc.user.name }}</div>
+                                <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{ doc.translatedType }}</div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">{{
-                                    formatDateToDDMMYYYY(doc[0].created_at) }}</div>
-                                <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ doc[0].notes }}
+                                    formatDateToDDMMYYYY(doc.created_at) }}</div>
+                                <div class="shrink-0 flex items-center w-[15.14%] py-2.5 px-2">{{ doc.notes }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[14.08%] py-2.5 px-2">
                                     <span :class="statuses_colors['good']"
                                         class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
-                                    <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[doc[0].status]
+                                    <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[doc.status]
                                         }}</span>
                                 </div>
                                 
@@ -585,7 +525,7 @@ const filteredDocuments = computed(() => {
                                     </DropdownMenuRoot>
                                 </div>
                             </AccordionHeader>
-                            <AccordionContent v-for="item in doc.slice(1)"
+                            <AccordionContent v-for="item in doc.nestedItems"
                                 class="data-[state=open]:animate-[accordionSlideDown_300ms_ease-in] data-[state=closed]:animate-[accordionSlideUp_300ms_ease-in] overflow-hidden">
                                 <div
                                     class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all bg-[#F3F1FE]">
