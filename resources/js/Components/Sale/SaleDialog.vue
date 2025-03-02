@@ -289,6 +289,9 @@ onMounted(() => {
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ??
                                             '-' }}
                                         </div>
+                                        <!-- <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.used ??
+                                            '-' }}
+                                        </div> -->
                                         <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                             item.zahodnost ?? '-'
                                             }}
