@@ -68,23 +68,53 @@ class ServiceController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('perPage', 10);
-
         $inActiveServices = Service::with([
             'mainServices.serviceSubs.equipment.category',
             'mainServices.serviceSubs.equipment.size',
+            'mainServices.serviceSubs.equipment.directory',
             'mainServices.equipment.category',
             'mainServices.equipment.size',
+            'mainServices.equipment.directory',
             'equipment.category',
             'equipment.size',
             'directory',
-        ])->where('active', 0)->get()->groupBy('contragent_id')
-            ->map(function ($services) {
-                return $services->map(function ($service) {
-                    if (isset($service->directory['files'])) {
-                        $service->directory['files'] = json_decode($service->directory['files'], true) ?? [];
-                    }
-                    return $service;
-                });
+        ])
+            ->where('active', 0)
+            ->get()
+            ->groupBy('contragent_id')
+            ->map(function ($services, $contragentId) {
+                // Fetch all ServiceContragent records for this contragent
+                $serviceContragents = ServiceContragent::where('contragent_id', $contragentId)->get();
+
+                // Fetch the associated contragent with directory & hyperlink
+                $contragent = Contragents::with('directory')->find($contragentId);
+
+                return [
+                    'services' => $services->map(function ($service) {
+                        if (isset($service->directory['files'])) {
+                            $service->directory['files'] = json_decode($service->directory['files'], true) ?? [];
+                        }
+                        return $service;
+                    }),
+                    'contragent_data' => $serviceContragents->map(function ($serviceContragent) use ($contragent) {
+                        return [
+                            'contragent_id' => $serviceContragent->contragent_id,
+                            'shipping_date' => $serviceContragent->shipping_date,
+                            'commentary' => $serviceContragent->commentary,
+                            'hyperlink' => $contragent->hyperlink ?? null,
+                            'directory' => $contragent->directory ? [
+                                'commentary' => $contragent->directory->commentary,
+                                'files' => $contragent->directory->files->map(function ($file) {
+                                    return [
+                                        'id' => $file->id,
+                                        'filename' => $file->file_name,
+                                        'path' => $file->file_path,
+                                    ];
+                                }),
+                            ] : null,
+                        ];
+                    }),
+                ];
             });
         $activeServices = Service::with([
             'mainServices.serviceSubs.equipment.category',
@@ -204,7 +234,7 @@ class ServiceController extends Controller
                 'contract' => 'nullable',
                 'equipment' => 'required|array',
                 'equipment.*.equipment_id' => 'required|int|exists:equipment,id',
-                'equipment.*.commentary' => 'required|string',
+                'equipment.*.commentary' => 'nullable|string',
                 'equipment.*.shipping_date  ' => 'nullable|date',
                 'equipment.*.period_start_date' => 'required|date',
                 'equipment.*.return_date' => 'nullable|date',

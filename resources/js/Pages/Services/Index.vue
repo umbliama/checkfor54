@@ -159,16 +159,26 @@ const normalizeMonth = (month) => {
     return null;
 };
 
+watch(() => props.services, (newVal) => {
+    console.log("Updated services data:", newVal);
+}, { deep: true });
 
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = date_sort.value) => {
     const formattedMonth = normalizeMonth(month);
-    const dataArray = Object.values(props.activeServices.data || {}); 
 
+    const dataArray = selectedActive
+    ? Object.values(props.activeServices?.data || {})
+    : Object.values(props.services?.data || {});
+
+console.log("Selected Active:", selectedActive.value);
+console.log("Data Array Length:", dataArray.length);
+console.log("Data Array Contents:", dataArray);
     const filteredArray = dataArray.filter(service => {
         if (!service.contragent_data || service.contragent_data.length === 0) {
             console.log('Skipping service with no contragent_data:', service.id);
-            return false; 
+            return false;
         }
+
 
         const shippingDate = service.contragent_data[0]?.shipping_date;
         console.log('Raw shipping_date:', shippingDate);
@@ -180,13 +190,13 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
 
         if (!isValidDate(shippingDate)) {
             console.log('Invalid shipping_date:', shippingDate);
-            return false; 
+            return false;
         }
 
         const dateParts = shippingDate.split('-');
         if (dateParts.length !== 3) {
             console.log('Invalid date parts:', dateParts);
-            return false; 
+            return false;
         }
 
         const [serviceYear, serviceMonth, serviceDay] = dateParts.map(Number);
@@ -196,13 +206,13 @@ const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_da
 
         return (
             (month === 'all' || !month || (serviceMonth === Number(formattedMonth))) &&
-            (year === 'all' || !year || serviceYear === Number(year)) &&  // Fix: Ensure Year Matches
+            (year === 'all' || !year || serviceYear === Number(year)) &&  
             (!startDate || serviceDate >= startDate) &&
             (!endDate || serviceDate <= endDate)
         );
     });
 
-    if (sortKey) { 
+    if (sortKey) {
         return filteredArray.sort((a, b) => {
             let valueA, valueB;
 
@@ -245,7 +255,7 @@ function isValidDate(dateString) {
     if (!dateString || typeof dateString !== 'string') return false;
 
     dateString = dateString.trim();
-    const regex = /^\d{4}-\d{2}-\d{2}$/; 
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (!regex.test(dateString)) return false;
 
     const date = new Date(dateString);
@@ -436,13 +446,14 @@ function openEditDialog(id) {
                     <!-- 1 уровень -->
                     <AccordionRoot type="multiple" :collapsible="true">
                         <AccordionItem
-                            v-for="(service, index) in selectedActive ? filteredServices(getMonth, getYear) : services.data"
+                            v-for="(service, index) in filteredServices(getMonth, getYear) "
                             :value="'item-' + index">
                             <AccordionHeader
                                 class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                    <UiHyperlink :item-id="service.contragent_data[0].contragent_id" :hyperlink="service.contragent_data[0].hyperlink"
-                                                    endpoint="/equipment/contragent" />
+                                    <UiHyperlink :item-id="service.contragent_data[0].contragent_id"
+                                        :hyperlink="service.contragent_data[0].hyperlink"
+                                        endpoint="/equipment/contragent" />
                                 </div>
                                 <div
                                     class="shrink-0 flex items-center justify-between w-[15.84%] py-2.5 px-2 bg-violet-full/10">
@@ -487,7 +498,8 @@ function openEditDialog(id) {
                                     <span>Итого:</span> {{ calcFullIncome()[service.services[0].contragent_id] }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                    <Link v-if="service.contragent_data[0].directory === null" :href="'/directory/service/' + 2" class="mr-3.5">
+                                    <Link v-if="service.contragent_data[0].directory === null"
+                                        :href="'/directory/service/' + 2" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -520,11 +532,15 @@ function openEditDialog(id) {
                                             <PopoverContent side="bottom" align="end"
                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                 <div>Комментарий:</div>
-                                                <p class="mt-2.5 text-xs">{{ service.contragent_data[0].directory.commentary }}</p>
-                                                <div v-if="service.contragent_data[0].directory.files" v-for="file in service.contragent_data[0].directory.files" class="mt-3 p-4 bg-bg1 text-xs">
+                                                <p class="mt-2.5 text-xs">{{
+                                                    service.contragent_data[0].directory.commentary }}</p>
+                                                <div v-if="service.contragent_data[0].directory.files"
+                                                    v-for="file in service.contragent_data[0].directory.files"
+                                                    class="mt-3 p-4 bg-bg1 text-xs">
                                                     <div class="flex items-center max-w-full">
                                                         <span
-                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.filename }}</span>
+                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{
+                                                            file.filename }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -563,20 +579,20 @@ function openEditDialog(id) {
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <a download :href="'/'+file.path"
+                                                                            <a download :href="'/' + file.path"
                                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                            Скачать
-                                                                            <svg class="block ml-2"
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                width="16" height="16"
-                                                                                viewBox="0 0 24 24">
-                                                                                <path fill="none" stroke="#464F60"
-                                                                                    stroke-linecap="round"
-                                                                                    stroke-linejoin="round"
-                                                                                    stroke-width="2"
-                                                                                    d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
-                                                                            </svg>
-                                                                        </a>
+                                                                                Скачать
+                                                                                <svg class="block ml-2"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    width="16" height="16"
+                                                                                    viewBox="0 0 24 24">
+                                                                                    <path fill="none" stroke="#464F60"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        stroke-width="2"
+                                                                                        d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
+                                                                                </svg>
+                                                                            </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>
@@ -584,7 +600,8 @@ function openEditDialog(id) {
                                                         </DropdownMenuRoot>
                                                     </div>
                                                 </div>
-                                                <Link :href="'/directory/contragent/' + service.contragent_data[0].contragent_id"
+                                                <Link
+                                                    :href="'/directory/contragent/' + service.contragent_data[0].contragent_id"
                                                     class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                 Редактировать
 
@@ -1199,7 +1216,9 @@ function openEditDialog(id) {
                                                                         <PopoverContent side="bottom" align="end"
                                                                             class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                                             <div>Комментарий:</div>
-                                                                            <p class="mt-2.5 text-xs">{{sub.equipment.directory.commentary}}</p>
+                                                                            <p class="mt-2.5 text-xs">
+                                                                                {{ sub.equipment.directory.commentary }}
+                                                                            </p>
                                                                             <div class="mt-3 p-4 bg-bg1 text-xs">
                                                                                 <div
                                                                                     class="flex items-center max-w-full">
