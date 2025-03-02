@@ -25,10 +25,14 @@ const props = defineProps({
     contragentincome: Array,
     categoryDataIncome: Array,
     categoriesProgress: Array,
-    categoryPercentages: Array
+    categoryPercentages: Array,
 })
 
-const graphColors = ['bg-[#0F62FE]', 'bg-[#DAC41E]', 'bg-[#31C246]', 'bg-[#DA1E28]', 'bg-[#7300FF]', 'bg-[#DDE1E6]', 'bg-[#DDE1E6]'];
+const firstFour = ref(Object.values(props.categoryDataIncome).slice(0, 4));
+const remaining = ref(Object.values(props.categoryDataIncome).slice(4));
+
+
+const graphColors = ['bg-[#0F62FE]', 'bg-[#DAC41E]', 'bg-[#31C246]', 'bg-[#DA1E28]', 'bg-[#7300FF]', 'bg-[#041328]', 'bg-[#DDE1E6]'];
 const chosenCategory = ref(1);
 const percent = ref(0)
 let semi_circle2 = null;
@@ -37,6 +41,7 @@ const setCategory = (id) => {
     percent.value = props.categoryPercentages[chosenCategory.value - 1]?.percent || 0;
 };
 onMounted(() => {
+    const maxProgress = 0.7;
 
     setCategory(1);
     const semi_circle = new ProgressBar.Circle('.progress-bar-bg', {
@@ -61,7 +66,7 @@ onMounted(() => {
     });
 
     semi_circle2.path.style.strokeLinecap = 'round';
-    semi_circle2.animate(percent.value / 100);
+    semi_circle2.animate(Math.min(percent.value / 100, maxProgress));
 
 
     watch(chosenCategory, (newValue) => {
@@ -103,17 +108,18 @@ onMounted(() => {
             datasets: [
                 {
                     label: 'My First Dataset',
-                    data: Object.values(props.categoryData).map(category => category.total_service_count),
+                    data: firstFour.value.map(category => category.percentage),
                     backgroundColor: [
                         '#0F62FE',
-                        '#31C246',
                         '#DAC41E',
+                        '#31C246',
                         '#DA1E28',
+
                     ]
                 },
                 {
                     label: 'My Second Dataset',
-                    data: Object.values(props.categoryData).map(category => category.total_service_count),
+                    data: remaining.value.map(category => category.percentage),
                     backgroundColor: [
                         '#7300FF',
                         '#041328',
@@ -251,7 +257,7 @@ onMounted(() => {
                                         :class="'' + graphColors[index]"></span>
                                     <span class="block mr-auto">{{ item.name }}</span>
                                     <span class="text-gray1">{{ item.total_service_count }} из {{ item.total_equipment
-                                    }}</span>
+                                        }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -271,7 +277,6 @@ onMounted(() => {
                 </div>
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="font-bold text-lg">Процент выручки</div>
-
                     <div class="flex flex-col items-center mt-6 lg:flex-row lg:items-start">
                         <div class="w-[220px] mr-0 lg:mr-6">
                             <canvas id="income-graphic"></canvas>
@@ -279,12 +284,13 @@ onMounted(() => {
                         <div
                             class="w-full mt-10 pt-4 border-t border-t-gray1 text-gray1 lg:w-[calc(100%-220px-24px)] lg:mt-0 lg:pt-0 lg:border-t-0">
                             <ul class="space-y-4 text-sm">
-                                <li v-for="(item, index) in categoryDataIncome" class="flex items-center">
+                                <li v-for="(item, categoryName, index) in categoryDataIncome" class="flex items-center">
                                     <span class="block w-3 h-3 mr-1 rounded-full "
-                                        :class="'' + graphColors[index]"></span>
+                                        :class="'' + graphColors[index % graphColors.length]"></span> 
+
                                     <span class="block mr-auto">{{ item.category }}</span>
-                                    <span class="w-10 lg:w-14 mr-3 text-gray1">{{ item.percent }}%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽{{ item.income }}</span>
+                                    <span class="w-10 lg:w-14 mr-3 text-gray1">{{ item.percentage }}%</span>
+                                    <span class="w-10 lg:w-14 text-gray1">₽{{ item.full_income }}</span>
                                 </li>
                             </ul>
                         </div>
