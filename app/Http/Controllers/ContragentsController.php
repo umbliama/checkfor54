@@ -173,11 +173,11 @@ class ContragentsController extends Controller
                 'contact_person_commentary' => 'nullable|string',
                 'status' => 'nullable|boolean',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'contracts.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
             ]);
 
             if ($request->hasFile('avatar')) {
@@ -234,7 +234,7 @@ class ContragentsController extends Controller
 
     public function edit($id)
     {
-        $contragent = Contragents::with('documents')->whereNotNull("user_id")->findOrFail($id);
+        $contragent = Contragents::with(['documents.user'])->whereNotNull("user_id")->findOrFail($id);
 
         $groupedDocuments = $contragent->documents->map(function ($document) {
             $types = ['contracts', 'financial', 'transport', 'commercials', 'adddocs'];
@@ -292,11 +292,11 @@ class ContragentsController extends Controller
                 'email' => 'nullable|email',
                 'contact_person_email' => 'nullable|email',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'transport.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'financial.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*' => 'nullable|file|mimes:pdf,doc,docx,zip,txt|max:5120',
+                'contracts.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
             ]);
     
             if ($request->hasFile('avatar')) {
@@ -340,7 +340,7 @@ class ContragentsController extends Controller
     
             $this->sendNotificationToUsers($notification, $userId);
     
-            return back()->with('message', "Контрагент '{$contragent->name}' успешно обновлён.");
+            return redirect()->route('contragents.edit',['id' => $contragent->id])->with('message', "Контрагент '{$contragent->name}' успешно обновлён.");
         } catch (\Exception $e) {
             return back()->with('error', 'Ошибка: ' . $e->getMessage());
         }
