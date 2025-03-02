@@ -187,7 +187,7 @@ onMounted(() => {
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                 <ul
                     class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
-                    <li v-for="location in store.getters.cities" :key="location.id"
+                    <li v-for="location in equipment_location" :key="location.id"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': form.location_id === location.id }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="form.location_id = location.id">
