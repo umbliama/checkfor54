@@ -557,9 +557,9 @@ const setTab = (tab) => {
                         </ul>
                         <div class="flex items-center justify-between mt-2">
                             <ul class="flex -space-x-2">
-                                <li
+                                <li v-if="form.commercials_incoming !== null || (props?.contragent?.documents && props.contragent.documents.some(doc => doc.type === 'commercials_incoming'))"
                                     v-for="file in [...(form.commercials_incoming || []), ...(props?.contragent?.documents?.filter(doc => doc.type === 'commercials_incoming') || [])]">
-                                    <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                                    <UiUserAvatar v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                         :image="file.user.avatar || ''" />
                                 </li>
                             </ul>
@@ -635,7 +635,7 @@ const setTab = (tab) => {
                             <ul class="flex -space-x-2">
                                 <li v-if="form.commercials_outcoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_outcoming')"
                                     v-for="file in (form.commercials_outcoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_outcoming'))">
-                                    <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                                    <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                         :image="file.user.avatar || ''" />
                                 </li>
                             </ul>
@@ -712,7 +712,7 @@ const setTab = (tab) => {
                                 <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
                                     v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))"
                                     class="flex items-center">
-                                    <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                                    <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                         :image="file.user.avatar || ''" />
                                 </li>
                             </ul>
@@ -789,7 +789,7 @@ const setTab = (tab) => {
                     <ul class="flex -space-x-2">
                         <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
                             v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))">
-                            <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -865,7 +865,7 @@ const setTab = (tab) => {
                         <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
                             v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                             class="flex items-center">
-                            <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -940,7 +940,7 @@ const setTab = (tab) => {
                         <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
                             v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                             class="flex items-center">
-                            <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -1015,7 +1015,7 @@ const setTab = (tab) => {
                         <li v-if="form.adddocs !== null || props?.contragent?.documents.some(doc => doc.type === 'adddocs')"
                             v-for="file in (form.adddocs || props?.contragent?.documents.filter(doc => doc.type === 'adddocs'))"
                             class="flex items-center">
-                            <UiUserAvatar size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
