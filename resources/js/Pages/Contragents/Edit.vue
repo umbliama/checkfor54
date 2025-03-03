@@ -68,7 +68,7 @@ const setTab = (tab) => {
                     class="min-w-44 ml-3 lg:hidden" />
             </div>
             <UiNotification v-model="$page.props.flash.message"  :description="$page.props.flash.message"
-                type="message" @close="handleClose" />
+                type="success" @close="handleClose" />
             <UiNotification v-model="$page.props.flash.error"  :description="$page.props.flash.error"
                 type="error" @close="handleClose" />
 
