@@ -193,16 +193,61 @@ const handleFileUpload = async (event, columnId, blockId) => {
     }
 };
 
+
+const handleMediaFileUploadAdv = async (event, columnId, blockId) => {
+    const selectedFiles = Array.from(event.target.files);
+
+    const rawBlocks = toRaw(props.advColumns.data.find(eq => eq.id === columnId));
+    const blockIndex = rawBlocks.blocks.findIndex(block => block.id === blockId);
+
+    if (blockIndex !== -1) {
+        const existingFiles = rawBlocks.blocks[blockIndex].media_url || [];
+
+        const updatedFiles = [...existingFiles, ...selectedFiles];
+
+        rawBlocks.blocks[blockIndex].media_url = updatedFiles;
+
+        await saveBlock(blockId, {
+            media_file: selectedFiles,
+            existing_media_urls: existingFiles,
+        });
+    } else {
+        console.error(`Block with ID ${blockId} not found in column ${columnId}`);
+    }
+};
+
+const handleFileUploadAdv = async (event, columnId, blockId) => {
+    const selectedFiles = Array.from(event.target.files);
+
+    const rawBlocks = toRaw(props.advColumns.data.find(eq => eq.id === columnId));
+    const blockIndex = rawBlocks.blocks.findIndex(block => block.id === blockId);
+
+    if (blockIndex !== -1) {
+        const existingFiles = rawBlocks.blocks[blockIndex].file_url || [];
+
+        const updatedFiles = [...existingFiles, ...selectedFiles];
+
+        rawBlocks.blocks[blockIndex].file_url = updatedFiles;
+
+        await saveBlock(blockId, {
+            files: selectedFiles,
+            existing_file_urls: existingFiles,
+        });
+    } else {
+        console.error(`Block with ID ${blockId} not found in column ${columnId}`);
+    }
+};
+
 watch(getSelectedEquipment, async (newValue, oldValue) => {
     if (newValue) {
         try {
             const response = await fetch(`/api/equipmentExtra/${newValue}`);
             const data = await response.json();
             const extended = {
-                id:data.equipment.id,
-                category:data.equipment.category,
-                size:data.equipment.size,
-                series:data.equipment.series
+                id: data.equipment.id,
+                category: data.equipment.category,
+                size: data.equipment.size,
+                series: data.equipment.series
             };
             equipment_list.value.push(extended)
         } catch (error) {
@@ -253,8 +298,8 @@ onBeforeMount(() => {
 
 <template>
     <AuthenticatedLayout>
-        <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
-        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error"  />
+        <UiNotification type="success" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
         <IncidentsDialog v-model="is_dialog_open" />
         <div class="p-5">
             <div class="relative flex items-center justify-between flex-col lg:flex-row">
@@ -678,20 +723,21 @@ onBeforeMount(() => {
                                             <ul>
                                                 <li v-for="item in equipment_list" :key="item.id">
 
-                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} <button @click="removeEquipment(item.id)">удалить</button>
+                                                    {{ item.category.name }} - {{ item.size.name }} - {{ item.series }}
+                                                    <button @click="removeEquipment(item.id)">удалить</button>
                                                 </li>
                                             </ul>
                                         </div>
-                                        
+
                                         <div>
                                             <ul>
                                                 <li v-for="item in block.equipment" :key="item.id">
 
-                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} 
+                                                    {{ item.category.name }} - {{ item.size.name }} - {{ item.series }}
                                                 </li>
                                             </ul>
                                         </div>
-                                        
+
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
 
@@ -851,7 +897,7 @@ onBeforeMount(() => {
                                             <div v-for="(file, i) in block.file_url"
                                                 class="flex items-center max-w-full">
                                                 <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file
-                                                    }}</span>
+                                                }}</span>
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path
@@ -1298,20 +1344,21 @@ onBeforeMount(() => {
                                             <ul>
                                                 <li v-for="item in equipment_list" :key="item.id">
 
-                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} <button @click="removeEquipment(item.id)">удалить</button>
+                                                    {{ item.category.name }} - {{ item.size.name }} - {{ item.series }}
+                                                    <button @click="removeEquipment(item.id)">удалить</button>
                                                 </li>
                                             </ul>
                                         </div>
-                                        
+
                                         <div>
                                             <ul>
                                                 <li v-for="item in block.equipment" :key="item.id">
 
-                                                {{ item.category.name }} - {{ item.size.name }} - {{ item.series }} 
+                                                    {{ item.category.name }} - {{ item.size.name }} - {{ item.series }}
                                                 </li>
                                             </ul>
                                         </div>
-                                        
+
                                         <div class="flex items-center justify-between">
                                             <ul class="flex mt-2 -space-x-2">
 
@@ -1433,7 +1480,7 @@ onBeforeMount(() => {
                                                                 <label
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all cursor-pointer">
                                                                     <input type="file" multiple hidden
-                                                                        @change="handleMediaFileUpload($event, column.id - 1, block.id)" />
+                                                                        @change="handleMediaFileUploadAdv($event, column.id, block.id)" />
                                                                     Добавить медиа
                                                                 </label>
                                                             </DropdownMenuItem>
@@ -1444,6 +1491,8 @@ onBeforeMount(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
+                                                                <Link method="DELETE"
+                                                                    :href="route('constructor.deleteBlock', block.id)">
                                                                 <button type="button"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                     Удалить блок
@@ -1455,6 +1504,7 @@ onBeforeMount(() => {
                                                                             fill="currentColor" />
                                                                     </svg>
                                                                 </button>
+                                                                </Link>
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </transition>
@@ -1467,7 +1517,7 @@ onBeforeMount(() => {
                                         <ul class="py-1 px-3 space-y-3 text-xs bg-bg1">
                                             <div v-for="file in block.file_url" class="flex items-center max-w-full">
                                                 <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file
-                                                    }}</span>
+                                                }}</span>
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
                                                     <path
@@ -1558,7 +1608,7 @@ onBeforeMount(() => {
                                                                 <label
                                                                     class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all cursor-pointer">
                                                                     <input type="file" hidden multiple
-                                                                        @change="handleFileUpload($event, column.id, block.id)" />
+                                                                        @change="handleFileUploadAdv($event, column.id, block.id)" />
                                                                     Добавить файл
                                                                 </label>
                                                             </DropdownMenuItem>
@@ -1620,10 +1670,10 @@ onBeforeMount(() => {
                                         </AccordionTrigger>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.created_at)
-                                        }}</span>
+                                            }}</span>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.archive_date)
-                                        }}</span>
+                                            }}</span>
                                         <DropdownMenuRoot>
                                             <!-- DropdownMenuTrigger and content as before -->
                                         </DropdownMenuRoot>
@@ -1646,8 +1696,16 @@ onBeforeMount(() => {
                                                     <div>{{ block.commentary }}</div>
                                                 </div>
                                                 <div v-if="block.type == 'equipment'" class="text-xs">
-                                                    <label class="block">Оборудование:</label>
-                                                    <div>{{ block.equipment }}</div>
+                                                    <label class="block">Оборудование: </label>
+                                                    <div>
+                                                        <ul>
+                                                            <li v-for="item in block.equipment" :key="item.id">
+                                                                {{ item.category.name }} - {{ item.size.name }} - {{
+                                                                item.series }}
+
+                                                            </li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                                 <div v-if="block.type == 'mediafiles'">
                                                     <label class="block mb-2 text-xs">Медиа:</label>
@@ -1703,10 +1761,10 @@ onBeforeMount(() => {
                                         </AccordionTrigger>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.created_at)
-                                        }}</span>
+                                            }}</span>
                                         <span class="block w-1/3 text-center text-sm">{{
                                             formatDate(column.archive_date)
-                                        }}</span>
+                                            }}</span>
                                         <DropdownMenuRoot>
                                             <!-- DropdownMenuTrigger and content as before -->
                                         </DropdownMenuRoot>

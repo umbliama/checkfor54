@@ -1,8 +1,6 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Events\NewNotification;
-use App\Events\NotificationCountUpdated;
 use App\Models\Block;
 use App\Models\Column;
 use App\Models\Contragents;
@@ -26,17 +24,14 @@ class IncidentController extends Controller
         $page    = request()->get('page', 1);
         $search  = $request->input('search', null);
 
-        // Query for Tasks
         $tasksQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->where('type', 'tasks')
             ->where('isArchive', 0);
 
-        // Query for Advertisements
         $advQuery = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->where('type', 'adv')
             ->where('isArchive', 0);
 
-        // Apply search filter if provided
         if ($search) {
             $tasksQuery->whereHas('blocks', function ($query) use ($search) {
                 $query->where('commentary', 'LIKE', "%{$search}%")
@@ -52,17 +47,16 @@ class IncidentController extends Controller
         $tasksColumns = $tasksQuery->orderBy('position')->paginate($perPage);
         $advColumns   = $advQuery->orderBy('position')->paginate($perPage);
 
-        // Archived Queries
-        $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
-            ->where('type', 'tasks')
-            ->where('isArchive', 1)
-            ->orderBy('position')
-            ->get()
-            ->groupBy('contragent_id');
-
+        $tasksColumnsArchived = Column::with('blocks.contragent', 'blocks', 'blocks.user')
+        ->where('type', 'tasks')
+        ->where('isArchive', 1)
+        ->orderBy('position')
+        ->get()
+        ->groupBy('contragent_id');
+    
         $paginatedGroups = $tasksColumnsArchived->forPage($page, $perPage);
 
-        $advColumnsArchived = Column::with('blocks.contragent', 'blocks.user', 'blocks')
+        $advColumnsArchived = Column::with('blocks.contragent', 'blocks', 'blocks.user')
             ->where('type', 'adv')
             ->where('isArchive', 1)
             ->orderBy('position')
@@ -71,7 +65,6 @@ class IncidentController extends Controller
 
         $advPaginatedGroups = $advColumnsArchived->forPage($page, $perPage);
 
-        // Pagination for Archived Data
         $tasksColumnsArchivedCount = $tasksColumnsArchived->count();
         $advColumnsArchivedCount   = $advColumnsArchived->count();
 
@@ -91,13 +84,12 @@ class IncidentController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        // Additional Data
         $contragents = Contragents::all();
         $employees   = User::where('isAdmin', 0)->get();
 
         $tasksColumns->getCollection()->transform(function ($column) {
             $column->blocks->transform(function ($block) {
-                $block->equipment = json_decode($block->equipment, true); // Decode equipment field
+                $block->equipment = json_decode($block->equipment, true); 
                 return $block;
             });
             return $column;
@@ -105,12 +97,26 @@ class IncidentController extends Controller
 
         $advColumns->getCollection()->transform(function ($column) {
             $column->blocks->transform(function ($block) {
-                $block->equipment = json_decode($block->equipment, true); // Decode equipment field
+                $block->equipment = json_decode($block->equipment, true);
                 return $block;
             });
             return $column;
         });
-
+        $advColumnsArchived->each(function ($group) {
+            $group->each(function ($column) {
+                $column->blocks->each(function ($block) {
+                    $block->equipment = json_decode($block->equipment, true);
+                });
+            });
+        });
+        $tasksColumnsArchived->each(function ($group) {
+            $group->each(function ($column) {
+                $column->blocks->each(function ($block) {
+                    $block->equipment = json_decode($block->equipment, true);
+                });
+            });
+        });
+        
         return Inertia::render('Incident/Index', [
             'advColumnsArchivedCount'   => $advColumnsArchivedCount,
             'tasksColumnsArchivedCount' => $tasksColumnsArchivedCount,
@@ -153,8 +159,6 @@ class IncidentController extends Controller
                 'created_by' => $user_id,
             ]);
 
-            event(new NewNotification($notification));
-
             $otherUserIds = User::where('id', '!=', $user_id)->pluck('id')->toArray();
 
             foreach ($otherUserIds as $userId) {
@@ -168,7 +172,6 @@ class IncidentController extends Controller
                     ->whereNull('read_at')
                     ->count();
 
-                event(new NotificationCountUpdated($unreadCount, $userId));
             }
 
             $this->createBlock($column, 'customer');
@@ -183,12 +186,18 @@ class IncidentController extends Controller
     public function archiveColumn(Request $request, Column $column)
     {
         try {
-            $column->isArchive = 1;
 
-            $column->archive_date = now();
+            if ($column->contragent_id === null) {
+                return back()->with('error', 'Не выбран контрагент');
+            } else {
+                $column->isArchive = 1;
 
-            $column->save();
-            return back()->with('message', 'Колонка успешно архивирована');
+                $column->archive_date = now();
+
+                $column->save();
+                return back()->with('message', 'Колонка успешно архивирована');
+
+            }
 
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

@@ -1,4 +1,4 @@
-<script setup>
+  <script setup>
 
 import SideMenu from '@/Layouts/SideMenu.vue';
 import { MenuItem, MenuItems, Menu, MenuButton } from '@headlessui/vue';
