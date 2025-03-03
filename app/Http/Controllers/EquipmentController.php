@@ -510,8 +510,10 @@ class EquipmentController extends Controller
             }
             return $sale;
         });
-
+        $firstEquipment = $equipment->first();
         $equipment_repairs = EquipmentRepair::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series);
+        $equipment_moves = EquipmentMove::where('category_id', $categoryId)->where('size_id', $sizeId)->where('series', $series)->with('directory.files')->get();
+
         $equipment_tests   = Equipment::where('category_id', $categoryId)
 
             ->when($sizeId, function ($query) use ($sizeId) {
@@ -519,7 +521,7 @@ class EquipmentController extends Controller
             })
             ->where('series', $series)
             ->get();
-        // $equipment_repairs = EquipmentRepair::all();
+            
 
         return Inertia::render('Equip/Report', [
             'equipment_repairs'           => $equipment_repairs,
@@ -529,6 +531,7 @@ class EquipmentController extends Controller
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts'      => $equipment_sizes_counts,
             'equipment_series'            => $equipment_series,
+            'equipment_moves'            => $equipment_moves,
             'equipment_tests'             => $equipment_tests,
             'equipment'                   => $equipment,
         ]);

@@ -33,7 +33,8 @@ const props = defineProps({
     equipment_location: Array,
     equipment_series: Array,
     equipment_repairs: Object,
-    equipment_tests: Object
+    equipment_tests: Object,
+    equipment_moves: Object
 })
 
 const get_equipment_series = computed(() => {
@@ -1096,11 +1097,11 @@ onMounted(() => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="test in tests" :key="test.id">
+                                <template v-for="move in equipment_moves" :key="move.id">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-gray3 break-all hover:bg-bg1">
-                                        <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
-                                            <UiHyperlink :item-id="test.id" :hyperlink="test.hyperlink" endpoint="/equipment/test" />
-                                        </div>
+                                        <!-- <div class="shrink-0 flex items-center justify-center w-[44px] py-2.5 px-2">
+                                            <UiHyperlink :item-id="move.id" :hyperlink="move.hyperlink" endpoint="/equipment/move" />
+                                        </div> -->
                                         <div class="shrink-0 flex items-center justify-center w-[calc(12.14%-44px)] py-2.5 px-2">11.03.2024</div>
                                         <div class="shrink-0 flex items-center w-[10.68%] py-2.5 px-2">г. Пермь </div>
                                         <div class="shrink-0 flex items-center w-[10.68%] py-2.5 px-2">г. Нефтеюганск</div>
@@ -1123,7 +1124,7 @@ onMounted(() => {
                                                 </svg>
                                             </button> -->
                                             
-                                            <Link v-if="true" :href="'/directory/test/'+test.id">
+                                            <Link v-if="move.directory === null" :href="'/directory/move/'+move.id">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M4.125 5.25C3.50368 5.25 3 5.75368 3 6.375V17.625C3 18.2463 3.50368 18.75 4.125 18.75H19.875C20.4963 18.75 21 18.2463 21 17.625V6.375C21 5.75368 20.4963 5.25 19.875 5.25H4.125ZM1.5 6.375C1.5 4.92525 2.67525 3.75 4.125 3.75H19.875C21.3247 3.75 22.5 4.92525 22.5 6.375V17.625C22.5 19.0747 21.3247 20.25 19.875 20.25H4.125C2.67525 20.25 1.5 19.0747 1.5 17.625V6.375Z" fill="#21272A"/>
                                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M4.65799 7.03955C4.91229 6.71259 5.3835 6.65369 5.71046 6.90799L12 11.7999L18.2895 6.90799C18.6165 6.65369 19.0877 6.71259 19.342 7.03955C19.5963 7.36651 19.5374 7.83772 19.2105 8.09202L12.4605 13.342C12.1896 13.5527 11.8104 13.5527 11.5395 13.342L4.78955 8.09202C4.46259 7.83772 4.40369 7.36651 4.65799 7.03955Z" fill="#21272A"/>
@@ -1141,10 +1142,10 @@ onMounted(() => {
                                                 <PopoverPortal>
                                                     <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                         <div>Комментарий:</div>
-                                                        <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                                        <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                        <p class="mt-2.5 text-xs">{{ move.directory.commentary }}</p>
+                                                        <div v-for="file in move.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                             <div class="flex items-center max-w-full">
-                                                                <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                                <span class="grow block mr-auto text-ellipsis overflow-hidden">{{ file.file_name }}</span>
                                                                 <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1182,13 +1183,13 @@ onMounted(() => {
                                                                                 class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                                 :side-offset="5" align="end">
                                                                                 <DropdownMenuItem>
-                                                                                    <Link :href="'/'"
+                                                                                    <a :href="'/' + file.file_path" download
                                                                                         class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                                         Скачать
                                                                                         <svg class="block ml-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                                                                                             <path fill="none" stroke="#464F60" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12"/>
                                                                                         </svg>
-                                                                                    </Link>
+                                                                                    </a>
                                                                                 </DropdownMenuItem>
                                                                             </DropdownMenuContent>
                                                                         </transition>
@@ -1197,7 +1198,7 @@ onMounted(() => {
                                                             </div>
                                                         </div>
                                                         <Link
-                                                            :href="'/directory/test/'+test.id"
+                                                            :href="'/directory/move/'+move.id"
                                                             class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all"
                                                         >
                                                             Редактировать
