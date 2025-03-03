@@ -176,7 +176,7 @@ const editKP = () => {
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Сделка сост.</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{ dealsCount }}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ dealsCount  ?? 0}}</div>
                         <div
                             class="flex items-center h-6 px-3 rounded-full text-sm border border-gray1 bg-gray1 text-white">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#31C246]"></span>
@@ -188,7 +188,7 @@ const editKP = () => {
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Переговоры
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{ dialogueCount }}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ dialogueCount ?? 0 }}</div>
                         <div
                             class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-gray1 text-white">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#0F62FE]"></span>
@@ -201,7 +201,7 @@ const editKP = () => {
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Тендер
                     </div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{ tenderCount }}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ tenderCount  ?? 0}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-[#F2F4F8]">
                             <span class="block w-1.5 h-1.5 mr-1.5 rounded-full bg-[#DAC41E]"></span>
                             {{tenderPercent}}%
@@ -211,7 +211,7 @@ const editKP = () => {
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Исходящий</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{outcomingCount}}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{outcomingCount ?? 0}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -227,7 +227,7 @@ const editKP = () => {
                 <div class="p-4 border border-[#DDE1E6] bg-white">
                     <div class="text-nowrap text-[15px] text-ellipsis overflow-hidden text-gray1">Входящий</div>
                     <div class="flex items-center justify-between">
-                        <div class="font-bold text-xl lg:text-2xl">{{ incomingCount }}</div>
+                        <div class="font-bold text-xl lg:text-2xl">{{ incomingCount  ?? 0}}</div>
                         <div class="flex items-center h-6 px-2 rounded-full text-sm border border-gray1 bg-bg1">
                             <svg class="inline-block mr-1.5" width="17" height="16" viewBox="0 0 17 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">

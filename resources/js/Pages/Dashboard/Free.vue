@@ -483,7 +483,7 @@ onMounted(() => {
                                     }}</span>
                             </div>
                             <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                <Link v-if="true" :href="'/directory/service/' + 2" class="mr-3.5">
+                                <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -494,7 +494,7 @@ onMounted(() => {
                                             fill="#21272A" />
                                     </svg>
                                 </Link>
-                                <PopoverRoot>
+                                <PopoverRoot v-else>
                                     <PopoverTrigger class="mr-2">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M2.26884 4.51884C2.76113 4.02656 3.42881 3.75 4.125 3.75H15C15.4142 3.75 15.75 4.08579 15.75 4.5C15.75 4.91421 15.4142 5.25 15 5.25H4.125C3.82663 5.25 3.54048 5.36853 3.3295 5.5795C3.11853 5.79048 3 6.07663 3 6.375V17.625C3 17.9234 3.11853 18.2095 3.3295 18.4205C3.54048 18.6315 3.82663 18.75 4.125 18.75H19.8155C20.1138 18.75 20.4 18.6315 20.611 18.4205C20.8219 18.2095 20.9405 17.9234 20.9405 17.625V11.2031C20.9405 10.7889 21.2763 10.4531 21.6905 10.4531C22.1047 10.4531 22.4405 10.7889 22.4405 11.2031V17.625C22.4405 18.3212 22.1639 18.9889 21.6716 19.4812C21.1793 19.9734 20.5117 20.25 19.8155 20.25H4.125C3.42881 20.25 2.76113 19.9734 2.26884 19.4812C1.77656 18.9889 1.5 18.3212 1.5 17.625V6.375C1.5 5.67881 1.77656 5.01113 2.26884 4.51884Z" fill="#21272A"/>
@@ -506,10 +506,10 @@ onMounted(() => {
                                     <PopoverPortal>
                                         <PopoverContent side="bottom" align="end" class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                             <div>Комментарий:</div>
-                                            <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране гласных и согласных живут рыбные тексты. Страна если бросил, он всемогущая запятых грамматики себя ipsum точках, несколько меня строчка маленькая страну предупреждал которой раз проектах. Ему выйти составитель дал то ...</p>
-                                            <div class="mt-3 p-4 bg-bg1 text-xs">
+                                            <p class="mt-2.5 text-xs">{{ item.directory.commentary }}</p>
+                                            <div v-for="file in item.directory.files" class="mt-3 p-4 bg-bg1 text-xs">
                                                 <div class="flex items-center max-w-full">
-                                                    <span class="grow block mr-auto text-ellipsis overflow-hidden">Some file name</span>
+                                                    <span class="grow block mr-auto text-ellipsis overflow-hidden">{{file.file_name}}</span>
                                                     <svg class="shrink-0 block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -527,7 +527,7 @@ onMounted(() => {
                                                     </svg>
                                                 </div>
                                             </div>
-                                            <Link
+                                            <Link :href="'/directory/equipment/' + item.id"
                                                 class="inline-flex items-center mt-2 py-1 px-2 rounded hover:bg-my-gray transition-all"
                                             >
                                                 Редактировать

@@ -359,33 +359,27 @@ class DashboardController extends Controller
 
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->whereDoesntHave('repairs')->whereDoesntHave('tests')->whereDoesntHave('activeServices')->count();
 
-            $equipment_sizes_counts_all += $equipment_sizes_counts[$sizeIDForCount];    
+            $equipment_sizes_counts_all += $equipment_sizes_counts[$sizeIDForCount];
         }
-
 
         $location_counts = [];
-        if ($category_id && $size_id) {
-            $location_counts = Equipment::where('category_id', $category_id)
-                ->where('size_id', $size_id)
-                ->select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        } elseif ($category_id) {
-            $location_counts = Equipment::where('category_id', $category_id)
-                ->select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        } else {
-            $location_counts = Equipment::select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        }
+        $location_counts = Equipment::whereDoesntHave('repairs')
+            ->whereDoesntHave('tests')
+            ->whereDoesntHave('activeServices')
+            ->when($category_id, function ($query, $category_id) {
+                return $query->where('category_id', $category_id);
+            })
+            ->when($size_id, function ($query, $size_id) {
+                return $query->where('size_id', $size_id);
+            })
+            ->select('location_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('location_id')
+            ->pluck('count', 'location_id')
+            ->toArray();
 
         $equipment = Equipment::whereDoesntHave('repairs')
             ->whereDoesntHave('tests')
+            ->with('directory.files')
             ->whereDoesntHave('activeServices')
             ->when($category_id, function ($query, $category_id) {
                 return $query->where('category_id', $category_id);
@@ -397,8 +391,6 @@ class DashboardController extends Controller
                 return $query->where('location_id', $location_id);
             })
             ->paginate($perPage);
-
-
 
         return Inertia::render('Dashboard/Free', [
             'equipment'                       => $equipment,
@@ -452,7 +444,6 @@ class DashboardController extends Controller
                     'value' => $status,
                 ];
             })->values()->toArray();
-
         $equipment = Equipment::whereHas('repairs', function ($query) {
             $query->whereNull('repair_date');
         });
@@ -469,7 +460,8 @@ class DashboardController extends Controller
             $equipment->where('location_id', $location_id);
         }
 
-        $equipment                   = $equipment->paginate($perPage);
+        $equipment = $equipment->with('directory.files')->paginate($perPage);
+
         $equipment_categories_counts = EquipmentRepair::groupBy('category_id')
             ->selectRaw('category_id, COUNT(*) as count')
             ->pluck('count', 'category_id');
@@ -478,27 +470,27 @@ class DashboardController extends Controller
             ->selectRaw('size_id, COUNT(*) as count')
             ->pluck('count', 'size_id');
 
-        $equipment_locations_counts = [];
-        if ($category_id && $size_id) {
-            $equipment_locations_counts = Equipment::where('category_id', $category_id)
-                ->where('size_id', $size_id)
-                ->select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        } elseif ($category_id) {
-            $equipment_locations_counts = Equipment::where('category_id', $category_id)
-                ->select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        } else {
-            $equipment_locations_counts = Equipment::select('location_id', DB::raw('COUNT(*) as count'))
-                ->groupBy('location_id')
-                ->pluck('count', 'location_id')
-                ->toArray();
-        }
+        // Фильтруем так же, как и в $equipment
+        $equipment_locations_counts = Equipment::whereHas('repairs', function ($query) {
+            $query->whereNull('repair_date');
+        })
+            ->when($category_id, function ($query, $category_id) {
+                return $query->where('category_id', $category_id);
+            })
+            ->when($size_id, function ($query, $size_id) {
+                return $query->where('size_id', $size_id);
+            })
+            ->select('location_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('location_id')
+            ->pluck('count', 'location_id')
+            ->toArray();
 
+        // Заполняем локации с нулями
+        foreach ($equipment_location as $loc) {
+            if (! isset($equipment_locations_counts[$loc->id])) {
+                $equipment_locations_counts[$loc->id] = 0;
+            }
+        }
 
         return Inertia::render('Dashboard/Serviced', [
             'equipment'                       => $equipment,
@@ -540,32 +532,31 @@ class DashboardController extends Controller
         $equipment_count_active_sum         = $equipment_in_active_services_count + $equipment_in_active_subservices_count;
         $equipment_count_active_sum_percent = $equipment_count_active_sum > 0 ? ($equipment_count_active_sum / $equipment_count) * 100 : 0;
 
-        $equipment_on_repair  = EquipmentRepair::count();
-        $equipment_on_test    = EquipmentTest::count();
-        $unavailable          = $equipment_in_active_services_count + $equipment_on_repair + $equipment_on_test;
+        $equipment_on_repair = EquipmentRepair::count();
+        $equipment_on_test   = EquipmentTest::count();
+        $unavailable         = $equipment_in_active_services_count + $equipment_on_repair + $equipment_on_test;
         // dd($equipment_count,$equipment_in_active_services_count,$equipment_on_repair, $equipment_on_test);
 
         $on_store             = $equipment_count - $unavailable;
         $equipment_categories = EquipmentCategories::all();
-        $categoryData = EquipmentCategories::select(
+        $categoryData         = EquipmentCategories::select(
             'equipment_categories.id',
             'equipment_categories.name',
             DB::raw('COUNT(DISTINCT equipment.id) as total_equipment'),
             DB::raw('SUM(CASE WHEN service_equipment.id IS NOT NULL THEN 1 ELSE 0 END) + SUM(CASE WHEN service_subequipment.id IS NOT NULL THEN 1 ELSE 0 END) as total_service_count')
         )
-        ->leftJoin('equipment', 'equipment.category_id', '=', 'equipment_categories.id')
-        ->leftJoin('service_equipment', function ($join) {
-            $join->on('equipment.id', '=', 'service_equipment.equipment_id');
-        })
-        ->leftJoin('service_subequipment', function ($join) {
-            $join->on('equipment.id', '=', 'service_subequipment.subequipment_id');
-        })
-        ->groupBy('equipment_categories.id', 'equipment_categories.name')
-        ->get();
-        
+            ->leftJoin('equipment', 'equipment.category_id', '=', 'equipment_categories.id')
+            ->leftJoin('service_equipment', function ($join) {
+                $join->on('equipment.id', '=', 'service_equipment.equipment_id');
+            })
+            ->leftJoin('service_subequipment', function ($join) {
+                $join->on('equipment.id', '=', 'service_subequipment.subequipment_id');
+            })
+            ->groupBy('equipment_categories.id', 'equipment_categories.name')
+            ->get();
+
         $firstFour = $categoryData->take(4);
-        $remaining = $categoryData->slice(4); 
-        
+        $remaining = $categoryData->slice(4);
 
         $serviceIncome = Service::select('contragent_id', DB::raw('SUM(full_income) as total_income'))
             ->groupBy('contragent_id');
@@ -592,7 +583,6 @@ class DashboardController extends Controller
                 'percent'        => $totalIncomeSum > 0 ? round(($item->full_income / $totalIncomeSum) * 100, 2) : 0,
             ];
         })->sortByDesc('fullincome')->values();
-        
 
         $services = ServiceEquip::whereHas('services', function ($query) {
             $query->where('active', 1);
@@ -600,23 +590,23 @@ class DashboardController extends Controller
             ->with('equipment.category', 'serviceSubs.equipment.category')
             ->get();
 
-            $categoryDataIncome = $services->groupBy('equipment.category.name')->map(function ($services, $categoryName) {
-                return [
-                    'category'    => $categoryName,
-                    'full_income' => $services->sum('income'),
-                ];
-            });
-            
-            // Calculate the total full_income
-            $totalIncome = $categoryDataIncome->sum('full_income');
-            
-            // Add percentage calculation
-            $categoryDataIncome = $categoryDataIncome->map(function ($data) use ($totalIncome) {
-                return array_merge($data, [
-                    'percentage' => $totalIncome > 0 ? round(($data['full_income'] / $totalIncome) * 100) : 0
-                ]);
-            });
-            
+        $categoryDataIncome = $services->groupBy('equipment.category.name')->map(function ($services, $categoryName) {
+            return [
+                'category'    => $categoryName,
+                'full_income' => $services->sum('income'),
+            ];
+        });
+
+        // Calculate the total full_income
+        $totalIncome = $categoryDataIncome->sum('full_income');
+
+        // Add percentage calculation
+        $categoryDataIncome = $categoryDataIncome->map(function ($data) use ($totalIncome) {
+            return array_merge($data, [
+                'percentage' => $totalIncome > 0 ? round(($data['full_income'] / $totalIncome) * 100) : 0,
+            ]);
+        });
+
         $subequipmentIncome = $services->pluck('serviceSubs')->flatten()->groupBy('equipment.category.name')->map(function ($subs, $categoryName) {
             return $subs->sum('income');
         });
@@ -742,38 +732,14 @@ class DashboardController extends Controller
             'categoryDataIncome'                     => $categoryDataIncome,
             'categoriesProgress'                     => $categories,
             'categoryPercentages'                    => $categoryPercentages,
-            'firstFour' => $firstFour,
-            'remaining' => $remaining
+            'firstFour'                              => $firstFour,
+            'remaining'                              => $remaining,
         ]);
     }
     public function commercial()
     {
 
-        // $contragents = Contragents::with('documents','documents.user')->get();
-
-        // $contragents->each(function ($contragent) {
-        //     if ($contragent->documents) {
-        //         $contragent->documents->each(function ($document) {
-        //             if (isset($document->contracts)) {
-        //                 $document->contracts = json_decode($document->contracts, true) ?? [];
-        //             }
-        //             if (isset($document->financial)) {
-        //                 $document->financial = json_decode($document->financial, true) ?? [];
-        //             }
-        //             if (isset($document->transport)) {
-        //                 $document->transport = json_decode($document->transport, true) ?? [];
-        //             }
-        //             if (isset($document->commercials)) {
-        //                 $document->commercials = json_decode($document->commercials, true) ?? [];
-        //             }
-        //             if (isset($document->adddocs)) {
-        //                 $document->adddocs = json_decode($document->adddocs, true) ?? [];
-        //             }
-
-        //             $document->setRawAttributes($document->getAttributes());
-        //         });
-        //     }
-        // });
+      
 
         $contragents = Contragents::with(['documents'])->get();
 
@@ -782,15 +748,28 @@ class DashboardController extends Controller
             'commercials_outcoming' => 'Исходящий',
             'commercials_tender'    => 'Тендер',
         ];
-
         $documents = ContrDocuments::whereIn('type', ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'])
-            ->with('contragent', 'user')
-            ->get()
-            ->map(function ($item) use ($translations) {
-                $item->translatedType = $translations[$item->type] ?? 'Unknown Type';
-                return $item;
-            })
-            ->groupBy('contragent_id');
+        ->with('contragent', 'user')
+        ->get()
+        ->map(function ($item) use ($translations) {
+            $item->translatedType = $translations[$item->type] ?? 'Unknown Type';
+            return $item;
+        })
+        ->groupBy('contragent_id')
+        ->mapWithKeys(function ($items, $contragentId) {
+            $itemsArray = $items->toArray();
+            if (!empty($itemsArray)) {
+                // Extract the first item
+                $mainItem = $itemsArray[0];
+    
+                // Move other items inside `nestedItems`
+                $mainItem['nestedItems'] = array_slice($itemsArray, 1);
+    
+                // Return as an object, not inside an array
+                return [$contragentId => $mainItem];
+            }
+            return [$contragentId => null]; // Handle empty cases
+        });
 
         $KPcount = ContrDocuments::whereIn('type', ['commercials_incoming', 'commercials_outcoming', 'commercials_tender'])->count();
 
