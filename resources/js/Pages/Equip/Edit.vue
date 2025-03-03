@@ -19,6 +19,7 @@ const statuses = [
     { title: 'Удволетворительное', value: 'satisfactory' },
     { title: 'Плохое', value: 'bad' },
     { title: 'Списано', value: 'off' },
+    { title: 'Неизвестно', value: 'unknown' },
 ];
 
 const locationId = computed(() => store.getters['equipment/getLocationActive']);
@@ -39,7 +40,9 @@ const props = defineProps({
     equipment_sizes: Array,
     equipment_location: Array,
     equipment_sizes_counts: Object,
-    equipment_categories_counts: Object
+    equipment_categories_counts: Object,
+    ownershipArray: Array
+
 });
 
 const formLocation = reactive({
@@ -66,7 +69,8 @@ const form = reactive({
     'length': props.equipment.length,
     'operating': props.equipment.operating,
     'commentary': props.equipment.commentary,
-    'dlina_ds': props.equipment.dlina_ds
+    'dlina_ds': props.equipment.dlina_ds,
+    'ownership': props.equipment.ownership
 })
 
 const setCategoryId = (categoryId) => {
@@ -88,7 +92,7 @@ const updateUrl = () => {
     const params = {};
 
     if (selectedCategory.value) params.category_id = selectedCategory.value;
-    if (selectedSize.value)     params.size_id     = selectedSize.value;
+    if (selectedSize.value) params.size_id = selectedSize.value;
 
     Object.keys(params).length && router.get(route('equip.edit', params));
 };
@@ -124,7 +128,8 @@ function submit() {
             length: form.length,
             operating: form.operating,
             dlina_ds: form.dlina_ds,
-            commentary: form.commentary
+            commentary: form.commentary,
+            ownership: form.ownership.value
         },
             {
                 onSuccess: () => console.log(page.props.flash.success),
@@ -154,16 +159,11 @@ onMounted(() => {
         <div class="py-9 px-6">
             <h3 class="mb-6 font-bold text-lg">Редактировать оборудование:</h3>
 
-            <EquipFilter
-                :selected-category="selectedCategory"
-                :selected-size="selectedSize"
-                :categories-counts="equipment_categories_counts"
-                :sizes-counts="equipment_sizes_counts"
-                :categories="equipment_categories"
-                :sizes="equipment_sizes" required-size
+            <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
+                :categories-counts="equipment_categories_counts" :sizes-counts="equipment_sizes_counts"
+                :categories="equipment_categories" :sizes="equipment_sizes" required-size
                 @category-click="cat_id => store.dispatch('equipment/updateCategory', cat_id)"
-                @size-click="size_id => store.dispatch('equipment/updateSize', size_id)"
-            />
+                @size-click="size_id => store.dispatch('equipment/updateSize', size_id)" />
 
 
             <div class="relative mt-5 text-sm">
@@ -211,6 +211,8 @@ onMounted(() => {
                     <UiField v-model="form.price" label="Стоимость" :inp-attrs="{ required: true }" />
                     <UiField v-model="form.notes" label="Примечание" :inp-attrs="{ required: true }" />
                     <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" />
+                    <UiFieldSelect v-model="form.ownership" :items="ownershipArray" label="Право собственности" />
+
                 </div>
 
                 <UiField v-model="form.commentary" label="Комментарий" textarea />

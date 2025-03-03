@@ -5,9 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_app
+    container_name: bm-service-server
     volumes:
       - .:/var/www
+      - sqlite_data:/var/www/database 
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -45,3 +46,8 @@ services:
 networks:
   laravel:
     driver: bridge
+
+
+volumes:
+  sqlite_data:  
+

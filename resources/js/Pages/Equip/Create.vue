@@ -61,7 +61,8 @@ const form = reactive({
     'length': null,
     'operating': null,
     'commentary': null,
-    'dlina_ds': null
+    'dlina_ds': null,
+    'ownership': null
 })
 
 const setCategoryId = (categoryId) => {
@@ -94,7 +95,8 @@ const props = defineProps({
     equipment_sizes: Array,
     equipment_location: Array,
     equipment_sizes_counts: Object,
-    equipment_categories_counts: Object
+    equipment_categories_counts: Object,
+    ownershipArray: Array
 })
 
 function submitLocation() {
@@ -128,7 +130,8 @@ function submit() {
             length: form.length,
             operating: form.operating,
             dlina_ds: form.dlina_ds,
-            commentary: form.commentary
+            commentary: form.commentary,
+            ownership: form.ownership.value
         },
             {
                 onSuccess: () => console.log(page.props.flash.success),
@@ -229,6 +232,8 @@ onMounted(() => {
                     <UiField v-model="form.price" label="Стоимость" :inp-attrs="{ required: true }" />
                     <UiField v-model="form.notes" label="Примечание" />
                     <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" />
+                    <UiFieldSelect v-model="form.ownership" :items="ownershipArray" label="Право собственности" />
+
                 </div>
 
                 <UiField v-model="form.commentary" label="Комментарий" textarea />

@@ -786,6 +786,7 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes      = EquipmentSize::all();
         $equipment_location   = EquipmentLocation::where('id', '!=', '-1')->get();
+        $ownershipArray = Equipment::getOwnershipOptions();
 
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
@@ -799,7 +800,7 @@ class EquipmentController extends Controller
             $sizeIDForCount                          = $size->id;
             $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
-        $categoryId      = $request->query('category_id', 1); // Default to category_id = 1 if not provided
+        $categoryId      = $request->query('category_id', 1); 
         $sizeId          = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
 
@@ -809,7 +810,8 @@ class EquipmentController extends Controller
             'equipment_location'          => $equipment_location,
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts'      => $equipment_sizes_counts,
-        ]);
+            'ownershipArray' => $ownershipArray
+         ]);
     }
 
     public function storeLocation(Request $request)
@@ -848,6 +850,7 @@ class EquipmentController extends Controller
             'commentary'      => 'nullable|string',
             'length'          => 'nullable|string',
             'operating'       => 'nullable|string',
+            'ownership'       => 'required|in:our,sub',
 
         ]);
 
@@ -903,6 +906,7 @@ class EquipmentController extends Controller
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes      = EquipmentSize::all();
         $equipment_location   = EquipmentLocation::all();
+        $ownershipArray = Equipment::getOwnershipOptions();
 
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
@@ -926,6 +930,7 @@ class EquipmentController extends Controller
             'equipment_location'          => $equipment_location,
             'equipment_categories_counts' => $equipment_categories_counts,
             'equipment_sizes_counts'      => $equipment_sizes_counts,
+            'ownershipArray' => $ownershipArray
         ]);
     }
 
@@ -941,12 +946,14 @@ class EquipmentController extends Controller
             'size_id'         => 'required|integer',
             'series'          => 'nullable|string',
             'manufactor_date' => 'nullable|date',
-            'status'          => ['nullable', 'string', 'in:new,good,satisfactory,bad,off'],
+            'status'          => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown'],
             'notes'           => 'nullable|string',
             'price'           => 'nullable|integer',
             'commentary'      => 'nullable|string',
             'length'          => 'nullable|string',
             'operating'       => 'nullable|string',
+            'ownership'       => 'nullable|in:our,sub',
+
 
         ]);
         $equipment = Equipment::findOrFail($id);

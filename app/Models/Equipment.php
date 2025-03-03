@@ -59,6 +59,7 @@ class Equipment extends Model
         'price',
         'commentary',
         'hyperlink',
+        'ownership'
     ];
 
     public function category()
@@ -89,5 +90,12 @@ class Equipment extends Model
     {
         return $this->hasMany(ServiceSub::class, 'subequipment_id', 'id');
     }
-
+    public static function getOwnershipOptions()
+    {
+        return [
+            ['title' => 'Собственное', 'value' => 'our'],
+            ['title' => 'Субаренда', 'value' => 'sub'],
+        ];
+    }
+    
 }
