@@ -421,7 +421,7 @@ function submit() {
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
         <ServicesServicesDialog v-if="modalShownServices" />
-        <UiNotification v-model="$page.props.flash.message" :description="$page.props.flash.message" type="message" />
+        <UiNotification v-model="$page.props.flash.message" :description="$page.props.flash.message" type="success" />
         <UiNotification v-model="$page.props.flash.error" :description="$page.props.flash.error" type="error" />
         <div class="p-5">
             <ServicesNav2 title="Редактор аренды" />

@@ -178,7 +178,7 @@ onMounted(() => {
 <template>
     <AuthenticatedLayout>
         <EquipNav></EquipNav>
-        <UiNotification type="message" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="success" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
         <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
         <div class="p-5">
             <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
