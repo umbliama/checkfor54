@@ -80,7 +80,7 @@ class DirectoryController extends Controller
                 $uploadedFiles = $request->file('files');
 
                 foreach ($uploadedFiles as $file) {
-                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $fileName = $file->getClientOriginalName() . '_' . uniqid();
                     $filePath = 'files/' . $fileName;
 
                     $file->move(public_path('files'), $fileName);
