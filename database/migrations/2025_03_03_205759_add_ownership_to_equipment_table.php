@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('equipment', function (Blueprint $table) {
             $table->enum('ownership', ['our', 'sub'])->nullable()->after('hyperlink');
+
         });
     }
 
