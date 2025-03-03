@@ -197,7 +197,6 @@ class EquipmentController extends Controller
 
     }
 
-
     public function getEquipmentCategoriesCount()
     {
 
@@ -284,11 +283,12 @@ class EquipmentController extends Controller
     {
         $equipment = Equipment::where('category_id', $categoryId)
             ->where('size_id', $sizeId)
-            ->with(['activeServices', 'repairs', 'tests']) 
+            ->where('status', '!=', 'off') 
+            ->with(['activeServices', 'repairs', 'tests'])
             ->paginate(10);
 
         $equipment->map(function ($item) {
-            $item->used = $item->used; 
+            $item->used = $item->used;
             return $item;
         });
 
@@ -299,16 +299,18 @@ class EquipmentController extends Controller
     {
         $equipment = Equipment::where('category_id', $categoryId)
             ->where('size_id', $sizeId)
+            ->where('status', '!=', 'off') 
             ->with(['activeServices', 'repairs', 'tests'])
             ->paginate(10);
-    
+
         $equipment->map(function ($item) {
             $item->used = $item->used;
             return $item;
         });
+
         return response()->json($equipment);
     }
-    
+
     public function getEquipmentByID($id)
     {
         $equipment = Equipment::with(['category', 'size'])

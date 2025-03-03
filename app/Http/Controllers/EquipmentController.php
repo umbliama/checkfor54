@@ -142,6 +142,8 @@ class EquipmentController extends Controller
             });
         }
 
+
+        
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
             $categoryIDForCount                               = $category->id;
@@ -240,6 +242,9 @@ class EquipmentController extends Controller
             
             $equip->income = $income;
             $equip->subincome = $subincome;
+
+            $equip->used = $equip->used;
+
         
             return $equip;
         });
