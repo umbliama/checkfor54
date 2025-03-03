@@ -785,7 +785,7 @@ class EquipmentController extends Controller
 
         $equipment_categories = EquipmentCategories::all();
         $equipment_sizes      = EquipmentSize::all();
-        $equipment_location   = EquipmentLocation::all();
+        $equipment_location   = EquipmentLocation::where('id', '!=', '-1')->get();
 
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
@@ -842,7 +842,7 @@ class EquipmentController extends Controller
             'size_id'         => 'required|integer',
             'series'          => 'required|string',
             'manufactor_date' => 'nullable|date',
-            'status'          => ['nullable', 'string', 'in:new,good,satisfactory,bad,off'],
+            'status'          => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown'],
             'notes'           => 'nullable|string',
             'price'           => 'nullable|integer',
             'commentary'      => 'nullable|string',

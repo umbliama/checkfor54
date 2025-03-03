@@ -20,7 +20,8 @@ const statuses = [
     { title: 'Хорошее', value: 'good' },
     { title: 'Удволетворительное', value: 'satisfactory' },
     { title: 'Плохое', value: 'bad' },
-    { title: 'Списано', value: 'off' },
+    { title: 'Списано', value: 'off', },
+    { title: 'Неизвестно', value: 'unknown', },
 ];
 
 const locationId = computed(() => store.getters['equipment/getLocationActive']);

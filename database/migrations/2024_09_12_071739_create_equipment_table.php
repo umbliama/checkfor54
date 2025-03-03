@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->string('length')->nullable();
             $table->string('operating')->nullable();
             $table->date('manufactor_date')->nullable();
-            $table->enum('status', ['new', 'good', 'satisfactory', 'bad', 'off'])->nullable();
+            $table->enum('status', ['new', 'good', 'satisfactory', 'bad', 'off','unknown'])->nullable();
             $table->text('notes')->nullable();
             $table->integer('price')->nullable();
             $table->text('commentary')->nullable();
