@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile
     container_name: bm-service-server
     volumes:
-      - .:/var/www
       - sqlite_data:/var/www/database 
     environment:
       - APP_ENV=local
