@@ -149,11 +149,12 @@ const toggleInputLocation = (value) => {
     store.dispatch('equipment/updateInputLocationShown', value);
 };
 
-onMounted(() => {
-    store.dispatch('services/fetchEquipmentCategories');
-    store.dispatch('services/fetchEquipmentCategoriesCount');
+watch(model, (newValue) => {
+    if (newValue) {
+        store.dispatch('services/fetchEquipmentCategories');
+        store.dispatch('services/fetchEquipmentCategoriesCount');
+    }
 });
-
 </script>
 
 <template>

@@ -12,23 +12,20 @@ import store from '../../../store/index';
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 
-
 const model = defineModel();
-
 const subEquipmentArray = computed(() => store.getters['services/getSubEquipmentArray']);
-const subSelectedEquipment = computed(() => store.getters['services/getSubEquipment']);
-const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
+const selectedEquipment = computed(() => store.getters['sale/getSelectedEquipment']);
 const selectedCategory = computed(() => store.getters['equipment/getCategoryActive']);
 const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const equipment_categories = computed(() => store.getters['services/getEquipmentCategories']);
 const equipment_categories_counts = computed(() => store.getters['services/getEquipmentCategoriesCounts']);
 const equipment_sizes = computed(() => store.getters['services/getEquipmentSizes']);
 const equipment_sizes_counts = computed(() => store.getters['services/getEquipmentSizesCounts']);
+const activeMainEquipmentId = computed(() => store.getters['sale/getActiveMainEquipment']);
+const activeSubEquipmentId = computed(() => store.getters['sale/getActiveSubEquipment']);
 const equipment = computed(() => store.getters['services/getEquipment']);
-const equipmentType = computed(() => store.getters['services/getEquipmentType']);
-const chosenEquipment = computed(() => store.getters['services/getChosenEquipment']);
-const activeEquipmentId = computed(() => store.getters['services/getActiveEquipmentId']);
-const activeSubEquipmentId = computed(() => store.getters['services/getActiveSubEquipmentId']);
+const addingMainEquipment = computed(() => store.getters['sale/getAddingMainEquipment']);
+const getEditorMode = computed(() => store.getters['sale/getEditorMode']);
 
 const statuses = {
     'new': 'Новое',
@@ -62,28 +59,77 @@ const fetchEquipmentSizes = () => {
     store.dispatch('services/fetchEquipmentSizesCount')
 }
 
-const updateSubSelectedEquipment = (equipment_id, subEquipmentItem) => {
-    store.dispatch('updateSubSelectedEquipment', { equipment_id, subEquipmentItem })
-}
+const updateSelectedEquipment = (value) => {
 
-
-const updateSelectedEquipment = async (used, value) => {
-
-    if (used) {
-        return
-    } else {
-        if (equipmentType.value === 0) {
-            store.dispatch('services/updateActiveEquipmentId', value);
+    if (!getEditorMode.value) {
+        if (addingMainEquipment.value) {
+            store.dispatch('sale/updateActiveMainEquipment', value)
+            store.dispatch('sale/updateActiveSubEquipment', null);
         } else {
-            store.dispatch('services/updateActiveSubEquipmentId', value);
+            store.dispatch('sale/updateActiveSubEquipment', value);
         }
+    }else{
+        if(addingMainEquipment.value){
+            store.dispatch('sale/updateActiveMainEquipment', value)
+            store.dispatch('sale/updateActiveSubEquipment', null);
+            console.log('11')
 
-        model.value = false;
-        selectCategory(null);
-        selectSize(null);
+        }else{
+            store.dispatch('sale/updateActiveSubEquipment', value);
+
+        }
     }
 
+    model.value = false;
+    selectCategory(null);
+    selectSize(null);
 };
+
+
+watch(activeMainEquipmentId, async (newValue) => {
+    const equipment = selectedEquipment.value.find(eq => eq.id === newValue)
+    if (equipment) {
+        return
+    } else {
+        if (newValue) {
+            try {
+                const response = await fetch(`/api/equipment/${newValue}`);
+                const data = await response.json();
+
+                store.dispatch('sale/addMainEquipmentAction', data);
+
+            } catch (error) {
+                console.error("Ошибка загрузки оборудования:", error);
+            }
+        }
+    }
+
+}, { deep: true });
+
+
+watch(activeSubEquipmentId, async (newValue) => {
+    console.log("watch activeSubEquipmentId сработал, новое значение:", newValue);
+    if (newValue) {
+        try {
+            const response = await fetch(`/api/equipment/${newValue}`);
+            const data = await response.json();
+            console.log("Загруженные данные дополнительного оборудования:", data);
+
+            store.dispatch('sale/addExtraEquipmentAction', {
+                mainEquipmentId: activeMainEquipmentId.value,
+                subEquipment: data
+            });
+
+        } catch (error) {
+            console.error("Ошибка загрузки оборудования:", error);
+        }
+    }
+}, { deep: true });
+
+
+
+
+
 const selectSize = (size) => {
     store.dispatch('equipment/updateSize', size);
     if (selectedCategory.value && selectedSize.value) {
@@ -93,7 +139,6 @@ const selectSize = (size) => {
         })
     }
 };
-
 
 
 watch(model, () => {
@@ -106,7 +151,7 @@ const toggleInputLocation = (value) => {
 
 watch(model, (newValue) => {
     if (newValue) {
-        store.dispatch('services/fetchEquipmentCategories');
+        store.dispatch('services/fetchSubEquipmentCategories');
         store.dispatch('services/fetchEquipmentCategoriesCount');
     }
 });
@@ -234,7 +279,7 @@ watch(model, (newValue) => {
                                 </div>
                                 <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
-                                        @click="updateSelectedEquipment(item.used, item.id)">
+                                        @click="updateSelectedEquipment(item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                             <div class="mr-2">
                                                 <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
@@ -242,23 +287,18 @@ watch(model, (newValue) => {
                                             </div>
                                             <span class="line-clamp-2">{{ item.manufactor }}</span>
                                         </div>
-
-                                        <!-- Для замка -->
-                                        <!-- <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.used??
+                                        <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ??
                                             '-' }}
-                                        </div> -->
-                                        <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
-                                            {{ item.series ?? '-' }}
-                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16"
-                                                viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z"
-                                                    fill="#484964" />
+                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z" fill="#484964"/>
                                             </svg>
                                         </div>
+                                        <!-- <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.used ??
+                                            '-' }}
+                                        </div> -->
                                         <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                             item.zahodnost ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ??
                                             '-' }}
@@ -269,21 +309,21 @@ watch(model, (newValue) => {
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.stator_rotor ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[6.11%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.narabotka_ds ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.56%] py-2.5 px-2">{{
                                             item.manufactor_date ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -296,7 +336,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -372,11 +412,8 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ??
                                             '-' }}
-                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16"
-                                                viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z"
-                                                    fill="#484964" />
+                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z" fill="#484964"/>
                                             </svg>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.length ??
@@ -384,12 +421,12 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.manufactor_date
                                             ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -403,7 +440,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -489,32 +526,29 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ??
                                             '-' }}
-                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16"
-                                                viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z"
-                                                    fill="#484964" />
+                                            <svg v-if="item.used" class="shrink-0 block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4.66671 9.33334V13.3333H11.3334V9.33334H4.66671ZM11.3334 8.00001C11.687 8.00001 12.0261 8.14049 12.2762 8.39053C12.5262 8.64058 12.6667 8.97972 12.6667 9.33334V13.3333C12.6667 13.687 12.5262 14.0261 12.2762 14.2762C12.0261 14.5262 11.687 14.6667 11.3334 14.6667H4.66671C4.31309 14.6667 3.97395 14.5262 3.7239 14.2762C3.47385 14.0261 3.33337 13.687 3.33337 13.3333V9.33334C3.33337 8.97972 3.47385 8.64058 3.7239 8.39053C3.97395 8.14049 4.31309 8.00001 4.66671 8.00001V4.66668C4.66671 3.78262 5.0179 2.93478 5.64302 2.30965C6.26814 1.68453 7.11599 1.33334 8.00004 1.33334C8.8841 1.33334 9.73194 1.68453 10.3571 2.30965C10.9822 2.93478 11.3334 3.78262 11.3334 4.66668V8.00001ZM10 8.00001V4.66668C10 4.40403 9.94831 4.14396 9.8478 3.90131C9.74729 3.65866 9.59997 3.43818 9.41425 3.25246C9.22854 3.06675 9.00806 2.91943 8.76541 2.81892C8.52276 2.71841 8.26268 2.66668 8.00004 2.66668C7.7374 2.66668 7.47732 2.71841 7.23467 2.81892C6.99202 2.91943 6.77154 3.06675 6.58583 3.25246C6.40011 3.43818 6.25279 3.65866 6.15228 3.90131C6.05177 4.14396 6.00004 4.40403 6.00004 4.66668V8.00001H10ZM8.00004 12.6667C7.64642 12.6667 7.30728 12.5262 7.05723 12.2762C6.80718 12.0261 6.66671 11.687 6.66671 11.3333C6.66671 10.9797 6.80718 10.6406 7.05723 10.3905C7.30728 10.1405 7.64642 10 8.00004 10C8.35366 10 8.6928 10.1405 8.94285 10.3905C9.1929 10.6406 9.33337 10.9797 9.33337 11.3333C9.33337 11.687 9.1929 12.0261 8.94285 12.2762C8.6928 12.5262 8.35366 12.6667 8.00004 12.6667Z" fill="#484964"/>
                                             </svg>
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.diameter ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.length ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.73%] py-2.5 px-2">{{
                                             item.length_rezba ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.rezbi ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center justify-center text-center w-[8.56%] py-2.5 px-2">
@@ -533,7 +567,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -554,6 +588,7 @@ watch(model, (newValue) => {
                             </div>
                         </div>
                     </template>
+
                 </DialogContent>
             </transition>
         </DialogPortal>

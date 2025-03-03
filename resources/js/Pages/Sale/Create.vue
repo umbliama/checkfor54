@@ -26,6 +26,7 @@ import {
 } from "radix-vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import SaleDialog from "@/Components/Sale/SaleDialog.vue";
+import SaleSubDialog from "@/Components/Sale/SaleSubDialog.vue";
 import SaleServicesDialog from "@/Components/Sale/SaleServicesDialog.vue";
 import UiNotification from '@/Components/Ui/UiNotification.vue';
 
@@ -37,6 +38,7 @@ const props = defineProps({
 });
 
 const is_dialog_open = ref(false);
+const is_dialog_sub_open = ref(false);
 const saleEquip = ref([])
 const rows = ref(saleEquip.value.length - 1);
 const chosenAgent = ref(null);
@@ -336,6 +338,7 @@ function submit() {
 <template>
     <AuthenticatedLayout>
         <SaleDialog v-model="is_dialog_open" />
+        <SaleSubDialog v-model="is_dialog_sub_open" />
         <SaleNav />
         <SaleServicesDialog v-if="modalShownServices" />
         <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
@@ -890,7 +893,7 @@ function submit() {
                                                 :hyperlink="selectedEquipmentService?.hyperlink"
                                                 :item-id="selectedEquipmentService?.id" endpoint="/services" />
                                         </div>
-                                        <div @click="is_dialog_open = true"
+                                        <div @click="is_dialog_sub_open = true"
                                             class="shrink-0 flex items-center w-[15.84%] !border-l-violet-full">
                                             <div class="flex py-2.5 px-2">
                                                 Нажмите, чтобы выбрать оборудование
