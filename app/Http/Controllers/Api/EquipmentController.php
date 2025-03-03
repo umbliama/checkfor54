@@ -188,6 +188,16 @@ class EquipmentController extends Controller
         return response()->json($EquipmentCategories);
 
     }
+    public function getSubEquipmentCategories()
+    {
+
+        $EquipmentCategories = EquipmentCategories::whereNotIn('id', [1, 2])->get();
+
+        return response()->json($EquipmentCategories);
+
+    }
+
+
     public function getEquipmentCategoriesCount()
     {
 
@@ -285,6 +295,20 @@ class EquipmentController extends Controller
         return response()->json($equipment);
     }
 
+    public function getSubEquipmentByCategoryAndBySize($categoryId, $sizeId)
+    {
+        $equipment = Equipment::where('category_id', $categoryId)
+            ->where('size_id', $sizeId)
+            ->with(['activeServices', 'repairs', 'tests'])
+            ->paginate(10);
+    
+        $equipment->map(function ($item) {
+            $item->used = $item->used;
+            return $item;
+        });
+        return response()->json($equipment);
+    }
+    
     public function getEquipmentByID($id)
     {
         $equipment = Equipment::with(['category', 'size'])

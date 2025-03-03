@@ -222,6 +222,15 @@ export default {
                 console.log(error);
             }
         },
+        async fetchSubEquipmentCategories({ commit }) {
+            try {
+                const response = await fetch(`/api/equipment/subcategories`);
+                const data = await response.json();
+                commit("setEquipmentCategories", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async fetchEquipmentSizesCount({ commit }) {
             try {
                 const response = await fetch(`/api/equipment/sizes/count`);
@@ -264,6 +273,17 @@ export default {
             try {
                 const response = await fetch(
                     `/api/equipment/${category_id}/${size_id}`
+                );
+                const data = await response.json();
+                commit("setEquipment", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async fetchEquipmentSub({ commit }, { category_id, size_id }) {
+            try {
+                const response = await fetch(
+                    `/api/equipmentSub/${category_id}/${size_id}`
                 );
                 const data = await response.json();
                 commit("setEquipment", data);

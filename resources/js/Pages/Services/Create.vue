@@ -11,6 +11,7 @@ import ServiceModal from '@/Components/ServiceModal.vue';
 import ServicesNav2 from "@/Components/Services/ServicesNav2.vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import ServicesDialog from "@/Components/Services/ServicesDialog.vue";
+import ServicesSubDialog from "@/Components/Services/ServicesSubDialog.vue";
 import {
     DropdownMenuContent,
     DropdownMenuItem,
@@ -31,8 +32,7 @@ const props = defineProps({
 const selectedEquipment = ref([]);
 const selectedServices = ref([]);
 const is_dialog_open = ref(false);
-
-
+const is_dialog_open_sub = ref(false);
 
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
 const rows = ref(selectedEquipment.value.length - 1)
@@ -143,6 +143,10 @@ const showModal = (value) => {
 
 function openDialog() {
     is_dialog_open.value = true;
+}
+
+function openDialogSub() {
+    is_dialog_open_sub.value = true;
 }
 
 const deleteMainEquipment = (id) => {
@@ -279,6 +283,7 @@ function submit() {
 <template>
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
+        <ServicesSubDialog v-model="is_dialog_open_sub" />
         <ServicesServicesDialog v-if="modalShownServices" />
         <UiNotification type="meesage" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
         <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
@@ -817,7 +822,7 @@ function submit() {
                                     <div :class="{ '!border-l-violet-full': equipmentType === 1 }"
                                         class="shrink-0 flex items-center w-[15.84%] ">
                                         <button class="block w-full h-full px-2 bg-transparent text-left"
-                                            @click="openDialog">
+                                            @click="openDialogSub">
                                             Нажмите чтобы выбрать оборудование
                                         </button>
                                     </div>

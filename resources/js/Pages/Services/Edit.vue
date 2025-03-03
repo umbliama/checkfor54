@@ -9,6 +9,7 @@ import store from '../../../store/index';
 import { computed, onMounted, ref } from 'vue';
 import ServiceModal from '@/Components/ServiceModal.vue';
 import ServicesDialog from "@/Components/Services/ServicesDialog.vue";
+import ServicesSubDialog from "@/Components/Services/ServicesSubDialog.vue";
 import ServicesNav2 from "@/Components/Services/ServicesNav2.vue";
 import {
     DropdownMenuContent,
@@ -40,6 +41,7 @@ const props = defineProps({
 })
 
 const is_dialog_open = ref(false);
+const is_dialog_open_sub = ref(false);
 
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
 const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
@@ -168,6 +170,11 @@ onMounted(() => {
 function openDialog() {
     is_dialog_open.value = true;
 }
+
+function openDialogSub() {
+    is_dialog_open_sub.value = true;
+}
+
 const addSubEquipment = (id, data) => {
     const equipment = props.serviceEquip[id];
     if (equipment) {
@@ -420,6 +427,7 @@ function submit() {
 <template>
     <AuthenticatedLayout>
         <ServicesDialog v-model="is_dialog_open" />
+        <ServicesSubDialog v-model="is_dialog_open_sub" />
         <ServicesServicesDialog v-if="modalShownServices" />
         <UiNotification v-model="$page.props.flash.message" :description="$page.props.flash.message" type="success" />
         <UiNotification v-model="$page.props.flash.error" :description="$page.props.flash.error" type="error" />
@@ -908,7 +916,7 @@ function submit() {
                                     <UiHyperlink :hyperlink="'some.ru'" :item-id="12" endpoint="/services" />
                                 </div>
                                 <div class="shrink-0 flex items-center w-[15.84%] py-2.5 px-2 !border-l-violet-full">
-                                    <button @click="openDialog" type="button" class="text-left">Нажмите чтобы выбрать
+                                    <button @click="openDialogSub" type="button" class="text-left">Нажмите чтобы выбрать
                                         оборудование</button>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[8.97%]">

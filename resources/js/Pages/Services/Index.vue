@@ -472,12 +472,12 @@ function openEditDialog(id) {
                                 </div>
                                 <div v-if="service.contragent_data.length > 0"
                                     class="shrink-0 flex items-center w-[14.08%]">
-                                    <input v-model="service.contragent_data[0].shipping_date" type="date"
+                                    <input disabled v-model="service.contragent_data[0].shipping_date" type="date"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div v-if="service.contragent_data.length > 0"
                                     class="shrink-0 flex items-center w-[calc(100%-44px-15.84%-14.08%-14.08%-100px)]">
-                                    <input v-model="service.contragent_data[0].commentary" type="text"
+                                    <input disabled v-model="service.contragent_data[0].commentary" type="text"
                                         class="block w-full h-full px-2 bg-transparent" onclick="this.showPicker()" />
                                 </div>
                                 <div v-if="service.contragent_data.length === 0"
