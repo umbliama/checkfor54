@@ -290,10 +290,10 @@ const aa = ref('');
                 :categories="equipment_categories" :sizes="equipment_sizes"
                 @category-click="cat_id => setCategoryId(cat_id)" @size-click="size_id => setSizeId(size_id)" />
 
-            <div class="relative mt-5 text-sm">
+            <div class="flex justify-between relative mt-5 text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                 <ul
-                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === 0 && !rentActive }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="setLocationAll">
@@ -318,6 +318,25 @@ const aa = ref('');
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                             {{ equipment_on_rent_count }}
+                        </span>
+                    </li>
+                </ul>
+                <ul
+                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                    <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
+                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
+                        В аренде
+                        <span
+                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                            2
+                        </span>
+                    </li>
+                    <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
+                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
+                        В пути
+                        <span
+                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                            3
                         </span>
                     </li>
                 </ul>
