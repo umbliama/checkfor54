@@ -524,7 +524,7 @@ const aa = ref('');
                         <template v-for="item in sortedEquipment">
                             <div
                             :class="{'bg-gray-200' : item.location_id === -1}"
-                                class="flex  border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
+                                class="relative flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all hover:bg-bg1">
                                 
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <div class="mr-2">
@@ -533,6 +533,7 @@ const aa = ref('');
                                     </div>
                                     <span class="line-clamp-2">{{ item.manufactor }}</span>
                                 </div>
+                                <span v-if="item.ownership" class="absolute left-9 top-0 w-px h-full bg-danger z-10 border-none"></span>
                                 <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
                                     class="shrink-0 flex items-center w-[8.8%] py-2.5 px-2">
                                     {{ item.series ?? '-' }}
@@ -545,8 +546,6 @@ const aa = ref('');
                                     item.zahodnost ?? '-'
                                     }}
                                 </div>
-                                <!-- Право владения -->
-                                <!-- {{ item.ownership }} -->
                                 <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ?? '-' }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{ item.dlina_ds ?? '-' }}
