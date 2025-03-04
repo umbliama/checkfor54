@@ -53,8 +53,8 @@ const formLocation = reactive({
 const form = reactive({
     'manufactor': props.equipment.manufactor,
     'status': props.equipment.status,
-    'size_id': props.equipment.size_id,
-    'category_id': props.equipment.category_id,
+    'size_id': selectedSize,
+    'category_id': selectedCategory,
     'series': props.equipment.series,
     'price': props.equipment.price,
     'manufactor_date': props.equipment.manufactor_date,
