@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: bm-service-reverb
-    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0","--port=6001"]
+    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0","--port=6001", "--debug"]
     stop_signal: SIGTERM
     ports:
       - "6001:6001"
@@ -49,4 +49,5 @@ networks:
 
 volumes:
   sqlite_data:  
+  reverb:
 
