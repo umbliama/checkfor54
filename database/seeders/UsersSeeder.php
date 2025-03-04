@@ -40,17 +40,6 @@ class UsersSeeder extends Seeder
             'isApproved' => 1,
         ]);
 
-        foreach (range(1, 35) as $index) {
-            DB::table('users')->insert([
-                'name' => $faker->name,
-                'lastname' => $faker->name,
-                'email' => $faker->email,
-                'password' => $faker->password,
-                'isAdmin' => 0,   
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
 
     }
 }

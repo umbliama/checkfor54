@@ -22,3 +22,4 @@ database/database.sqlite
 public/files
 public/media_files
 database.sqlite
+.env

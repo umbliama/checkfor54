@@ -49,7 +49,9 @@ RUN apt-get update && apt-get install -y \
     && npm install \
     && npm run build \
     && rm -rf /var/lib/apt/lists/*
-
+RUN apt-get update && apt-get install -y supervisor
+COPY supervisord.conf /etc/supervisord.conf
+    
 # Configure Apache and PHP
 RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && a2enmod rewrite ssl \

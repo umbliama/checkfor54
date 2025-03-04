@@ -104,28 +104,27 @@ const notifCount = ref(localStorage.getItem('notifCount') ? parseInt(localStorag
 
 window.Echo.private(`notifications.${user.value.id}`)
     .listen('.NotificationCountUpdated', (response) => {
-        console.log('DEBUG: Received NotificationCountUpdated event:', response);
-        console.log('Notification count updated:', response.count);
-
-        notifCount.value = response.count;
-        localStorage.setItem('notifCount', response.count); // Сохраняем в localStorage
+        console.log("📩 Получено событие NotificationCountUpdated:", response);
+        
+        if (notifCount.value !== response.count) {
+            notifCount.value = response.count;
+            localStorage.setItem('notifCount', response.count);
+        }
     })
     .error((error) => {
-        console.error('DEBUG: Ошибка подписки на приватный канал:', error);
+        console.error("❌ Ошибка подписки на канал:", error);
     });
-
 window.addEventListener('storage', () => {
     notifCount.value = parseInt(localStorage.getItem('notifCount')) || 0;
 });
 
-// Следим за изменением notifCount и обновляем localStorage
 watch(notifCount, (newCount) => {
     localStorage.setItem('notifCount', newCount);
 });
 
 
 console.log('DEBUG: Подписка на канал notifications.' + user.value.id);
-
+console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
 </script>
 
 <template>
@@ -140,7 +139,7 @@ console.log('DEBUG: Подписка на канал notifications.' + user.valu
 
             </div>
             <span class="flex justify-end lg:flex hidden text-my-nav-text text-xs">{{ user.name }} {{ user.lastname
-            }}</span>
+                }}</span>
         </div>
         </Link>
 

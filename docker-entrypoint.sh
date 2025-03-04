@@ -8,16 +8,11 @@ sleep 5 # Adjust as needed
 chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Start services
+# Clear caches
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
 
-# Start Reverb (WebSockets)
-php artisan reverb:start --port=6001 &
-
-# Start Laravel Queue
-php artisan queue:work &
-
-# Start Apache
-exec apache2-foreground
+# Start Supervisor to manage Reverb & Queue
+echo "Starting Supervisor..."
+exec supervisord -c /etc/supervisord.conf

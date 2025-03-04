@@ -9,16 +9,16 @@ services:
     volumes:
       - sqlite_data:/var/www/database 
     environment:
-      - APP_ENV=local
+      - APP_ENV=production
       - APP_DEBUG=true
       - APP_KEY=base64:CC4W4w+ETyR24PRFDZWuFFk19AamHFpIHJz71FycZh4=
       - BROADCAST_DRIVER=reverb
       - REVERB_APP_ID=125566
       - REVERB_APP_KEY=1whzuivwq9cqn1dn4ilm
       - REVERB_APP_SECRET=yqix2nlsdvsw2csienwo
-      - REVERB_HOST=reverb
-      - REVERB_PORT=8000
-      - REVERB_SCHEME=http
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=6001
+      - REVERB_SCHEME=https
     depends_on:
       - reverb
     networks:
@@ -28,8 +28,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_reverb
-    command: ["php", "/var/www/artisan", "reverb:start", "--port=6001"]
+    container_name: bm-service-reverb
+    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0","--port=6001"]
     stop_signal: SIGTERM
     ports:
       - "6001:6001"

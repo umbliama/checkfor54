@@ -13,7 +13,6 @@ use Illuminate\Queue\SerializesModels;
 
 
 class NotificationCountUpdated implements ShouldBroadcast
-
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $count;
@@ -22,7 +21,7 @@ class NotificationCountUpdated implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct($count,$userId)
+    public function __construct($count, $userId)
     {
         $this->count = $count;
         $this->userId = $userId;
@@ -49,5 +48,11 @@ class NotificationCountUpdated implements ShouldBroadcast
         return [
             'count' => $this->count,
         ];
+    }
+
+    public function failed(\Exception $exception)
+    {
+        // Log the exception or notify the development team
+        \Log::error('NotificationCountUpdated job failed', ['error' => $exception->getMessage()]);
     }
 }
