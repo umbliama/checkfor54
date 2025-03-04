@@ -141,7 +141,8 @@ const props = defineProps({
     equipment_on_rent_count: Number,
     activeEquipment: Object,
     manufacturers: Array,
-    statusesArray: Array
+    statusesArray: Array,
+    in_way_count: Number
 });
 
 const statuses = {
@@ -312,6 +313,9 @@ const aa = ref('');
                             {{ location_counts[location.id] }}
                         </span>
                     </li>
+                </ul>
+                <ul
+                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': rentActive === 1 }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
                         В аренде
@@ -320,23 +324,12 @@ const aa = ref('');
                             {{ equipment_on_rent_count }}
                         </span>
                     </li>
-                </ul>
-                <ul
-                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
-                    <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
-                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
-                        В аренде
-                        <span
-                            class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            2
-                        </span>
-                    </li>
-                    <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': false }"
+                    <li @click="setLocation(-1)" :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === -1 }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
                         В пути
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                            3
+                            {{in_way_count}}
                         </span>
                     </li>
                 </ul>
