@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import axios from 'axios';
 
@@ -61,12 +61,15 @@ const props = defineProps({
                     <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status"
                         class="max-w-xl" />
                 </div>
-
+                
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     <UpdatePasswordForm class="max-w-xl" />
                 </div>
-
-
+                
+                
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <Link method="POST" :href="route('logout')" class="p-2 sm:p-4 bg-black text-white shadow sm:rounded-lg">Выйти из учётной записи</Link>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

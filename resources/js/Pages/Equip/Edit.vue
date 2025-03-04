@@ -166,7 +166,7 @@ onMounted(() => {
                 @size-click="size_id => store.dispatch('equipment/updateSize', size_id)" />
 
 
-            <div class="relative mt-5 text-sm">
+            <div v-if="$page.props.user.isAdmin" class="relative mt-5 text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                 <ul
                     class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
