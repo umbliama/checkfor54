@@ -5,9 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     container_name: bm-service-server
     volumes:
-      - sqlite_data:/var/www/database 
+      - sqlite_data:/var/www/database
+      - .env:/var/www/.env 
     environment:
       - APP_ENV=production
       - APP_DEBUG=true
