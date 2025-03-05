@@ -21,6 +21,7 @@ services:
       REVERB_HOST: reverb
       REVERB_PORT: 6001
       REVERB_SCHEME: https
+    entrypoint: ["/docker-entrypoint.sh"]
     depends_on:
       - reverb
     networks:
