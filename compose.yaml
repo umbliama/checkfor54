@@ -18,10 +18,9 @@ services:
       REVERB_APP_ID: ${REVERB_APP_ID}
       REVERB_APP_KEY: ${REVERB_APP_KEY}
       REVERB_APP_SECRET: ${REVERB_APP_SECRET}
-      REVERB_HOST: ${REVERB_HOST}
-      REVERB_PORT: ${REVERB_PORT}
-      REVERB_SCHEME: ${REVERB_SCHEME}
-
+      REVERB_HOST: reverb
+      REVERB_PORT: 6001
+      REVERB_SCHEME: https
     depends_on:
       - reverb
     networks:
@@ -32,7 +31,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: bm-service-reverb
-    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0","--port=6001", "--debug"]
+    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0", "--port=6001", "--debug"]
     stop_signal: SIGTERM
     ports:
       - "6001:6001"
@@ -44,13 +43,9 @@ services:
     networks:
       - laravel
 
-
 networks:
   laravel:
     driver: bridge
 
-
 volumes:
-  sqlite_data:  
-  reverb:
-
+  sqlite_data:
