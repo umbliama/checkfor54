@@ -8,7 +8,6 @@ services:
     container_name: bm-service-server
     volumes:
       - sqlite_data:/var/www/database
-      - .env:/var/www/.env 
     env_file:
       - .env
     environment:
@@ -54,5 +53,4 @@ networks:
 volumes:
   sqlite_data:  
   reverb:
-  .env:
 

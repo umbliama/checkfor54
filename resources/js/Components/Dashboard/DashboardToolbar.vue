@@ -11,25 +11,26 @@ const $props = defineProps({
 });
 const rentCount = ref(null);
 const repairCount = ref(null);
-const free = ref(null);
+const freeCount = ref(null); 
 
 const getDashboardData = async () => {
     try {
         const response = await axios.get('/api/getDashboardData');
-        const { rentCount: rent, repairCount: repair, free: free} = response.data; // Destructuring
-        return { rent, repair,free };
+        const { rentCount, repairCount, free } = response.data; 
+        return { rentCount, repairCount, free };
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        return { rent: null, repair: null, free:null }; 
+        return { rentCount: null, repairCount: null, free: null }; 
     }
 };
 
 onMounted(async () => {
-    const { rent, repair, free } = await getDashboardData();
+    const { rentCount: rent, repairCount: repair, free } = await getDashboardData();
+    console.log(rent, repair, free);
+
     rentCount.value = rent;
     repairCount.value = repair;
-    free.value = free
-    
+    freeCount.value = free;
 });
 
 const start_date = defineModel('startDate');
@@ -64,7 +65,7 @@ function resetDates() {
                     class="border-b-2 border-transparent cursor-pointer">
                     <Link :href="route('free')" class="flex items-center py-3">
                     Свободно
-                    <span v-if="free !== null || free > 0" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{free}}</span>
+                    <span v-if="freeCount !== null || freeCount > 0" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{freeCount}}</span>
                     </Link>
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'serviced' }"
@@ -72,7 +73,7 @@ function resetDates() {
                     <Link :href="route('serviced')" class="flex items-center py-3">
                     На сервисе
                     <span v-if="repairCount > 0 || repairCount === null" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{repairCount}}</span>
-                    </Link>
+                        </Link>
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'commercial' }"
                     class="border-b-2 border-transparent cursor-pointer">
