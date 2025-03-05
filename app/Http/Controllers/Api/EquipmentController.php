@@ -9,8 +9,9 @@ use App\Models\EquipmentMove;
 use App\Models\EquipmentRepair;
 use App\Models\EquipmentSize;
 use App\Models\EquipmentTest;
-use App\Models\Service;
+use App\Models\ServiceEquip;
 use App\Models\ServiceSub;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class EquipmentController extends Controller
@@ -278,7 +279,36 @@ class EquipmentController extends Controller
         return response()->json($equipment_sizes_counts);
 
     }
+    
+    public function getDashboardData()
+    {
+        $serviceSubCount = ServiceSub::whereHas('service', function ($query) {
+            $query->where('active', 1);
+        })
+            ->count();
 
+        $serviceEquipCount = ServiceEquip::whereHas('services', function ($query) {
+            $query->where('active', 1);
+        })
+            ->count();
+
+        $rentCount = $serviceSubCount + $serviceEquipCount;
+    
+        $repairCount =   Equipment::whereHas('repairs', function ($query) {
+            $query->latest('repair_date')->limit(1);
+        })->count();
+
+        $free = Equipment::whereDoesntHave('repairs')
+        ->whereDoesntHave('tests')
+        ->whereDoesntHave('activeServices')->count();
+
+        return response()->json([
+            'rentCount' => $rentCount,
+            'repairCount' => $repairCount,
+            'free' => $free
+        ]);
+    }
+    
     public function getEquipmentByCategoryAndBySize($categoryId, $sizeId)
     {
         $equipment = Equipment::where('category_id', $categoryId)

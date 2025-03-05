@@ -27,6 +27,7 @@ const props = defineProps({
     contragents: Array,
     equipmentFormatted: Array,
     contracts: Array,
+    lastServiceNum: Number
 })
 
 const selectedEquipment = ref([]);
@@ -226,11 +227,21 @@ watch(getActiveSubEquipmentId, async (newValue, oldValue) => {
 
 const modalShown = computed(() => store.getters['services/getModalShown']);
 
+const generateName = () => {
+    let now = new Date();
+    let day = String(now.getDate()).padStart(2, '0');
+    let month = String(now.getMonth() + 1).padStart(2, '0'); 
+    let year = String(now.getFullYear()).slice(-2);
 
+
+    const name = `${day}${month}${year}` + '-' + Number(props.lastServiceNum.id + 1)
+
+    return name
+}
 const form = reactive({
-    contragent_id: props.contragents[0].id,
+    contragent_id: null,
     shipping_date: null,
-    service_number: null,
+    service_number: generateName(),
     service_date: null,
     period_start_date: null,
     return_date: null,
@@ -245,6 +256,9 @@ const form = reactive({
     equipment: null,
 
 })
+
+
+
 
 function submit() {
     console.log(selectedEquipment.value)

@@ -89,12 +89,19 @@ const updateLocationModal = (value) => {
 }
 
 const updateUrl = () => {
-    const params = {};
+    const params = {
+        id: props.equipment.id,
+    };
 
-    if (selectedCategory.value) params.category_id = selectedCategory.value;
-    if (selectedSize.value) params.size_id = selectedSize.value;
+    if ( props.equipment.category_id || selectedCategory.value ) {
+        params.category_id = selectedCategory.value ?? props.equipment.category_id;
+    }
 
-    Object.keys(params).length && router.get(route('equip.edit', params));
+    if ( props.equipment.size_id || selectedSize.value ) {
+        params.size_id = selectedSize.value ?? props.equipment.size_id;
+    }
+
+    Object.keys(params).length && router.replace(route('equip.edit', params));
 };
 
 function submitLocation() {
@@ -145,9 +152,9 @@ onMounted(() => {
     store.dispatch('equipment/updateEquipmentCategoriesCounts', props.equipment_categories_counts)
     store.dispatch('equipment/updateEquipmentSizes', props.equipment_sizes)
 
-    store.dispatch('equipment/updateCategory', form.category_id);
-    store.dispatch('equipment/updateSize', form.size_id);
-
+    store.dispatch('equipment/updateCategory', form.category_id ?? props.equipment.category_id);
+    store.dispatch('equipment/updateSize', form.size_id ?? props.equipment.size_id);
+    updateUrl()
     store.dispatch('equipment/updateMenuItem', EquipMenuItems.EQUIPMENT)
 });
 </script>
@@ -162,8 +169,7 @@ onMounted(() => {
             <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
                 :categories-counts="equipment_categories_counts" :sizes-counts="equipment_sizes_counts"
                 :categories="equipment_categories" :sizes="equipment_sizes" required-size
-                @category-click="cat_id => store.dispatch('equipment/updateCategory', cat_id)"
-                @size-click="size_id => store.dispatch('equipment/updateSize', size_id)" />
+                @category-click="cat_id => setCategoryId(cat_id)" @size-click="size_id => setSizeId(size_id)" />
 
 
             <div v-if="$page.props.user.isAdmin" class="relative mt-5 text-sm">

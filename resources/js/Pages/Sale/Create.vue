@@ -35,6 +35,7 @@ const props = defineProps({
     equipmentFormatted: Array,
     saleStatuses: Object,
     extraServices: Object,
+    lastServiceNum: Number
 });
 
 const is_dialog_open = ref(false);
@@ -209,7 +210,17 @@ const updateByKey = (index, field, value) => {
     store.dispatch('services/updateSubSelectedEquipmentObjectsByKey', { index, field, value });
 
 }
+const generateName = () => {
+    let now = new Date();
+    let day = String(now.getDate()).padStart(2, '0');
+    let month = String(now.getMonth() + 1).padStart(2, '0'); 
+    let year = String(now.getFullYear()).slice(-2);
 
+
+    const name = `${day}${month}${year}` + '-' + props.lastServiceNum
+
+    return name
+}
 const showModal = (value) => {
     store.dispatch('services/updateModalShown', value)
 }
@@ -219,7 +230,7 @@ const showModalServices = (value) => {
 const form = reactive({
     contragent_id: null,
     shipping_date: null,
-    sale_number: null,
+    sale_number: generateName(),
     sale_date: null,
     commentary: null,
     status: null,

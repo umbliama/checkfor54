@@ -6,6 +6,7 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import { Head, Link, router } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import axios from 'axios';
+import UiNotification from '@/Components/Ui/UiNotification.vue';
 
 
 const form = reactive({
@@ -43,6 +44,8 @@ const props = defineProps({
 </script>
 
 <template>
+        <UiNotification type="success" :description="$page.props.flash.message" v-model="$page.props.flash.message" />
+        <UiNotification type="error" :description="$page.props.flash.error" v-model="$page.props.flash.error" />
 
     <Head title="Profile" />
 

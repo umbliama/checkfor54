@@ -62,15 +62,8 @@ function resetDates() {
                         {{ $props.countServicesInactive }}
                     </span>
                 </li>
-                <li>
-                    <Link
-                        v-if="user.isAdmin"
-                        :href="route('equip.tests')"
-                        class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                    >
-                        Admin
-                    </Link>
-                </li>
+                <li v-if="user.isAdmin" class="border-b-2 border-transparent py-3 cursor-pointer text-[#A2A9B0]"> <a
+                        :href="route('admin.index')">Admin</a> </li>
                 <li>
                     <DropdownMenuRoot>
                         <DropdownMenuTrigger

@@ -146,7 +146,7 @@ console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
         <div class="flex items-center lg:mt-4">
             <span class="inline-flex rounded-md order-2 lg:order-[unset]">
                 <Link href="/profile" class="block">
-                <UiUserBadge :size="{ pc: '48px', mob: '40px' }" />
+                <UiUserBadge :image="user.avatar" :size="{ pc: '48px', mob: '40px' }" />
                 <!--                        <button
                             type="button"
                             class="flex items-center justify-center w-12 h-12 rounded-full bg-my-gray"

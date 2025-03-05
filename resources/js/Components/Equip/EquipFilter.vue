@@ -30,7 +30,7 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
                         class="flex items-center justify-between"
                     >
                         {{ item.name }}
-                        <span
+                        <span v-if="$props.categoriesCounts[item.id] !== 0"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ $props.categoriesCounts[item.id] || 0 }}
@@ -73,7 +73,7 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
 
                     <div class="flex items-center justify-between">
                         {{ item.name }}
-                        <span
+                        <span v-if="$props.sizesCounts[item.id] !== 0"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
                         >
                             {{ $props.sizesCounts[item.id] || 0}}

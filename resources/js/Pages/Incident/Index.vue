@@ -321,12 +321,9 @@ onBeforeMount(() => {
                         @click="updateActiveMenuItem('history_tasks')">
                         История
                     </li>
-                    <li>
-                        <Link v-if="user.isAdmin" :href="route('equip.tests')"
-                            class="flex items-center border-b-2 border-transparent py-3 text-base lg:text-base">
-                        Admin
-                        </Link>
-                    </li>
+                    <li v-if="user.isAdmin" class="border-b-2 border-transparent py-3 cursor-pointer text-[#A2A9B0]"> <a
+                        :href="route('admin.index')">Admin</a> </li>
+
                     <li>
                         <DropdownMenuRoot>
                             <DropdownMenuTrigger aria-label="Customise options">

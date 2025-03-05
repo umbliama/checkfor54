@@ -109,11 +109,8 @@ onMounted(() => {
             <div class="p-6">
 
 
-                <!-- Two main sections: Equipment Status and Progress -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <!-- Left column -->
                     <div class="bg-white rounded shadow-sm p-2 ">
-                        <!-- Equipment status (e.g. VSD, YSS, etc.) -->
                         <div class="flex justify-between items-center mb-4 sm:overflow-x-auto">
                             <div v-for="item in categories" :key="item.id" class="p-4 bg-white rounded shadow-sm">
                                 <div class="text-sm text-gray-500">{{ item.name }}</div>

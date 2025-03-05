@@ -112,7 +112,12 @@ class SaleController extends Controller
         $saleStatuses  = Sale::getStatusesMapping();
         $extraServices = Sale::getExtraServices();
 
-        return Inertia::render('Sale/Create', ['contragents' => $contragents, 'saleStatuses' => $saleStatuses, "extraServices" => $extraServices]);
+        $lastServiceNum = Sale::latest()->first();
+        if ($lastServiceNum === null) {
+            $lastServiceNum = 1;
+        }
+
+        return Inertia::render('Sale/Create', ['contragents' => $contragents, 'saleStatuses' => $saleStatuses, "extraServices" => $extraServices,'lastServiceNum' => $lastServiceNum]);
     }
 
     /**
