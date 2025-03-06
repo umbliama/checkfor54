@@ -5,23 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
     container_name: bm-service-server
     volumes:
       - sqlite_data:/var/www/database
-      - .env:/var/www/.env 
+    env_file:
+      - .env
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=true
-      - APP_KEY=base64:CC4W4w+ETyR24PRFDZWuFFk19AamHFpIHJz71FycZh4=
-      - BROADCAST_DRIVER=reverb
-      - REVERB_APP_ID=125566
-      - REVERB_APP_KEY=1whzuivwq9cqn1dn4ilm
-      - REVERB_APP_SECRET=yqix2nlsdvsw2csienwo
-      - REVERB_HOST=0.0.0.0
-      - REVERB_PORT=6001
-      - REVERB_SCHEME=https
+      APP_ENV: production
+      APP_DEBUG: "true"
+      APP_KEY: ${APP_KEY}
+      BROADCAST_DRIVER: ${BROADCAST_DRIVER}
+      REVERB_APP_ID: ${REVERB_APP_ID}
+      REVERB_APP_KEY: ${REVERB_APP_KEY}
+      REVERB_APP_SECRET: ${REVERB_APP_SECRET}
+      REVERB_HOST: ${REVERB_HOST}
+      REVERB_PORT: ${REVERB_PORT}
+      REVERB_SCHEME: ${REVERB_SCHEME}
+
     depends_on:
       - reverb
     networks:
@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: bm-service-reverb
-    command: ["php", "/var/www/artisan", "reverb:start", "--host=0.0.0.0","--port=6001", "--debug"]
+    command: ["php", "/var/www/artisan", "reverb:start", "--host=terra-crm.ru","--port=6001", "--debug"]
     stop_signal: SIGTERM
     ports:
       - "6001:6001"
@@ -53,5 +53,4 @@ networks:
 volumes:
   sqlite_data:  
   reverb:
-  .env:
-
+  

@@ -32,7 +32,7 @@ Route::get('/equipment/category/{categoryId}', [EquipmentController::class, 'get
 Route::get('/equipment/size/{sizeId}', [EquipmentController::class, 'getEquipmentBySizeID']);
 Route::get('/equipment/{categoryId}/{sizeId}', [EquipmentController::class, 'getEquipmentByCategoryAndBySize']);
 Route::get('/equipmentSub/{categoryId}/{sizeId}', [EquipmentController::class, 'getSubEquipmentByCategoryAndBySize']);
-
+Route::get('/getDashboardData', [EquipmentController::class,'getDashboardData']);
 
 Route::get('/equip/repair', [EquipmentController::class, 'getFilteredRepairs']);
 Route::get('/equip/report', [EquipmentController::class, 'getFilteredReports']);

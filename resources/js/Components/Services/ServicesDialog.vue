@@ -70,6 +70,7 @@ const updateSubSelectedEquipment = (equipment_id, subEquipmentItem) => {
 const updateSelectedEquipment = async (used, value) => {
 
     if (used) {
+        console.log('12'+used)
         return
     } else {
         if (equipmentType.value === 0) {
@@ -362,7 +363,7 @@ watch(model, (newValue) => {
                                 </div>
                                 <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
-                                        @click="updateSelectedEquipment(item.id)">
+                                        @click="updateSelectedEquipment(item.used,item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                             <div class="mr-2">
                                                 <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
@@ -479,7 +480,7 @@ watch(model, (newValue) => {
                                 </div>
                                 <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
-                                        @click="updateSelectedEquipment(item.id)">
+                                        @click="updateSelectedEquipment(item.used,item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                             <div class="mr-2">
                                                 <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"

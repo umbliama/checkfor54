@@ -201,6 +201,10 @@ class ServiceController extends Controller
     {
         $equipment = Equipment::with('category', 'size')->get();
         $equipment_all = Equipment::all();
+        $lastServiceNum = Service::latest()->first();
+        if ($lastServiceNum === null) {
+            $lastServiceNum = 1;
+        }
         $contragents = Contragents::with(['documents'])->get();
         $contracts = ContrDocuments::whereNotNull('contracts')->get();
         foreach ($contracts as $document) {
@@ -213,7 +217,7 @@ class ServiceController extends Controller
                 'display' => $item->category->name . ' ' . $item->size->name . ' ' . $item->series,
             ];
         });
-        return Inertia::render("Services/Create", ['equipmentFormatted' => $equipmentFormatted, 'contragents' => $contragents, 'equipment' => $equipment, 'contracts' => $contracts]);
+        return Inertia::render("Services/Create", ['equipmentFormatted' => $equipmentFormatted, 'contragents' => $contragents, 'equipment' => $equipment, 'contracts' => $contracts, 'lastServiceNum' => $lastServiceNum]);
     }
 
     public function store(Request $request)
@@ -223,7 +227,6 @@ class ServiceController extends Controller
             $user_id = Auth::id();
             $user = User::find($user_id);
 
-            // Validate request data
             $request->validate([
                 'contragent_id' => 'required|int|exists:contragents,id',
                 'service_number' => 'required|string',

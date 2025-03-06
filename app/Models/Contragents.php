@@ -55,6 +55,9 @@ class Contragents extends Model
         return [
             'RU' => 'Российская Федерация',
             'BY' => 'Беларусь',
+            'AZ' => 'Азербайджан',
+            'KZ' => 'Казахстан',
+            'CN' => 'Китай',
         ];
     }
     public static function getLegalMapping(): array

@@ -244,7 +244,7 @@ function submit() {
     formData.append('agentTypeLegal', form.agentTypeLegal.value);
     formData.append('country', form.country.value);
     formData.append('name', form.name);
-    formData.append('fullname', form.fullname);
+    formData.append('fullname', form.fullname ?? '');
     formData.append('inn', form.inn);
     formData.append('kpp', form.kpp);
     formData.append('ogrn', form.ogrn);
@@ -259,8 +259,9 @@ function submit() {
     formData.append('bank_kpp', form.bank_kpp);
     formData.append('bank_ca', form.bank_ca);
     formData.append('bank_commnetary', form.bank_commnetary);
-    formData.append('supplier', form.supplier);
-    formData.append('customer', form.customer);
+    formData.append('status', form.status ? '1' : '0');
+    formData.append('supplier', form.supplier ? '1' : '0');
+    formData.append('customer', form.customer ? '1' : '0');
     formData.append('address', form.address);
     formData.append('site', form.site);
     formData.append('phone', form.phone);
@@ -270,7 +271,7 @@ function submit() {
     formData.append('contact_person_email', form.contact_person_email);
     formData.append('contact_person_notes', form.contact_person_notes);
     formData.append('contact_person_commentary', form.contact_person_commentary);
-    formData.append('status', form.status === true ? 1 : 0);
+    formData.append('_method', 'PUT'); 
 
     if (form.avatar) {
         formData.append('avatar', form.avatar);
@@ -291,6 +292,7 @@ function submit() {
 
     router[router_method](router_url, formData, {
         headers: {
+            'Accept': 'application/json',
             'Content-Type': 'multipart/form-data'
         },
         onError: error => console.log(error)
@@ -635,7 +637,10 @@ const setTab = (tab) => {
                             <ul class="flex -space-x-2">
                                 <li v-if="form.commercials_outcoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_outcoming')"
                                     v-for="file in (form.commercials_outcoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_outcoming'))">
-                                    <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                                    <UiUserAvatar  v-if="file.user" 
+                                    
+                                    
+                                    size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                         :image="file.user.avatar || ''" />
                                 </li>
                             </ul>
@@ -712,7 +717,10 @@ const setTab = (tab) => {
                                 <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
                                     v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))"
                                     class="flex items-center">
-                                    <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                                    <UiUserAvatar  v-if="file.user" 
+                                    
+                                    
+                                    size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                         :image="file.user.avatar || ''" />
                                 </li>
                             </ul>
@@ -789,7 +797,10 @@ const setTab = (tab) => {
                     <ul class="flex -space-x-2">
                         <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
                             v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))">
-                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" 
+                            
+                            
+                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -865,7 +876,10 @@ const setTab = (tab) => {
                         <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
                             v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                             class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" 
+                            
+                            
+                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -940,7 +954,10 @@ const setTab = (tab) => {
                         <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
                             v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
                             class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" 
+                            
+                            
+                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>
@@ -1015,7 +1032,10 @@ const setTab = (tab) => {
                         <li v-if="form.adddocs !== null || props?.contragent?.documents.some(doc => doc.type === 'adddocs')"
                             v-for="file in (form.adddocs || props?.contragent?.documents.filter(doc => doc.type === 'adddocs'))"
                             class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
+                            <UiUserAvatar  v-if="file.user" 
+                            
+                            
+                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
                                 :image="file.user.avatar || ''" />
                         </li>
                     </ul>

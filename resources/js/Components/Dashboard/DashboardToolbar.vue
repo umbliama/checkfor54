@@ -1,14 +1,37 @@
 <script setup>
 import { usePage } from '@inertiajs/inertia-vue3';
 import UiFieldDate from '../Ui/UiFieldDate.vue';
-import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { onMounted, ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import axios from 'axios';
 
 const $props = defineProps({
     dashboardPageType: String,
     filter: Boolean
 });
+const rentCount = ref(null);
+const repairCount = ref(null);
+const freeCount = ref(null); 
 
+const getDashboardData = async () => {
+    try {
+        const response = await axios.get('/api/getDashboardData');
+        const { rentCount, repairCount, free } = response.data; 
+        return { rentCount, repairCount, free };
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        return { rentCount: null, repairCount: null, free: null }; 
+    }
+};
+
+onMounted(async () => {
+    const { rentCount: rent, repairCount: repair, free } = await getDashboardData();
+    console.log(rent, repair, free);
+
+    rentCount.value = rent;
+    repairCount.value = repair;
+    freeCount.value = free;
+});
 
 const start_date = defineModel('startDate');
 const end_date = defineModel('endDate');
@@ -35,22 +58,22 @@ function resetDates() {
                     class="border-b-2 border-transparent cursor-pointer">
                     <Link :href="route('rent')" class="flex items-center py-3">
                     В аренде
-                    <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">10</span>
+                    <span v-if="rentCount > 0 || rentCount === null" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{rentCount}}</span>
                     </Link>
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'free' }"
                     class="border-b-2 border-transparent cursor-pointer">
                     <Link :href="route('free')" class="flex items-center py-3">
                     Свободно
-                    <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">10</span>
+                    <span v-if="freeCount !== null || freeCount > 0" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{freeCount}}</span>
                     </Link>
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'serviced' }"
                     class="border-b-2 border-transparent cursor-pointer">
                     <Link :href="route('serviced')" class="flex items-center py-3">
                     На сервисе
-                    <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">10</span>
-                    </Link>
+                    <span v-if="repairCount > 0 || repairCount === null" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{repairCount}}</span>
+                        </Link>
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'commercial' }"
                     class="border-b-2 border-transparent cursor-pointer">
