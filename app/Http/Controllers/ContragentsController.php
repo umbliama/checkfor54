@@ -18,7 +18,7 @@ class ContragentsController extends Controller
     public function index(Request $request)
     {
         $searchTerm = $request->query('query');
-        $perPage    = $request->query('perPage', 10);
+        $perPage = $request->query('perPage', 10);
 
         $query = Contragents::query()->with('directory.files');
 
@@ -44,7 +44,7 @@ class ContragentsController extends Controller
         $contragents_customers = Contragents::where('customer', 1)->paginate($perPage);
         $contragents_suppliers = Contragents::where('supplier', 1)->paginate($perPage);
 
-        $contragents_count          = Contragents::count();
+        $contragents_count = Contragents::count();
         $contragents_customer_count = Contragents::where('customer', 1)->count();
         $contragents_supplier_count = Contragents::where('supplier', 1)->count();
 
@@ -71,22 +71,22 @@ class ContragentsController extends Controller
             return $contragent->append('legal_statuses');
         });
 
-        $countries     = Contragents::getCountryMapping();
+        $countries = Contragents::getCountryMapping();
         $legalStatuses = Contragents::getLegalMapping();
         return Inertia::render('Contragents/Index', [
-            'contragents'                => $contragents,
-            'contragents_count'          => $contragents_count,
-            'countries'                  => $countries,
+            'contragents' => $contragents,
+            'contragents_count' => $contragents_count,
+            'countries' => $countries,
             'contragents_customer_count' => $contragents_customer_count,
             'contragents_supplier_count' => $contragents_supplier_count,
-            'contragents_customers'      => $contragents_customers,
-            'contragents_suppliers'      => $contragents_suppliers,
-            'legalStatuses'              => $legalStatuses,
+            'contragents_customers' => $contragents_customers,
+            'contragents_suppliers' => $contragents_suppliers,
+            'legalStatuses' => $legalStatuses,
         ]);
     }
     public function create()
     {
-        $countries     = Contragents::getCountryMapping();
+        $countries = Contragents::getCountryMapping();
         $legalStatuses = Contragents::getLegalMapping();
 
         return Inertia::render('Contragents/Create', ['countries' => $countries, 'legalStatuses' => $legalStatuses]);
@@ -99,85 +99,85 @@ class ContragentsController extends Controller
             $userId = Auth::id();
 
             $request->merge([
-                'supplier'                  => filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN),
-                'customer'                  => filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN),
-                'status'                    => filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
+                'supplier' => filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN),
+                'customer' => filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN),
+                'status' => filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN),
 
-                'site'                      => filter_var($request->input('site'), FILTER_VALIDATE_URL) ?:
-                ($request->input('site') ? 'https://' . ltrim($request->input('site'), 'http://') : null),
+                'site' => filter_var($request->input('site'), FILTER_VALIDATE_URL) ?:
+                    ($request->input('site') ? 'https://' . ltrim($request->input('site'), 'http://') : null),
 
-                'email'                     => $request->input('email') === 'null' ? null :
-                (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ?:
-                    ($request->input('email') ? strtolower(trim($request->input('email'))) : null)),
-                'contact_person_email'      => $request->input('contact_person_email') === 'null' ? null :
-                (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ?:
-                    ($request->input('contact_person_email') ? strtolower(trim($request->input('contact_person_email'))) : null)),
-                'agentTypeLegal'            => $request->input('agentTypeLegal') === 'null' ? null : trim($request->input('agentTypeLegal')),
-                'country'                   => $request->input('country') === 'null' ? null : trim($request->input('country')),
-                'name'                      => $request->input('name') === 'null' ? null : trim($request->input('name')),
-                'fullname'                  => $request->input('fullname') === 'null' ? null : trim($request->input('fullname')),
-                'inn'                       => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
-                'kpp'                       => $request->input('kpp') === 'null' ? null : trim($request->input('kpp')),
-                'ogrn'                      => $request->input('ogrn') === 'null' ? null : trim($request->input('ogrn')),
-                'reason'                    => $request->input('reason') === 'null' ? null : trim($request->input('reason')),
-                'notes'                     => $request->input('notes') === 'null' ? null : trim($request->input('notes')),
-                'commentary'                => $request->input('commentary') === 'null' ? null : trim($request->input('commentary')),
-                'group'                     => $request->input('group') === 'null' ? null : trim($request->input('group')),
-                'bankname'                  => $request->input('bankname') === 'null' ? null : trim($request->input('bankname')),
-                'bank_bik'                  => $request->input('bank_bik') === 'null' ? null : trim($request->input('bank_bik')),
-                'bank_inn'                  => $request->input('bank_inn') === 'null' ? null : trim($request->input('bank_inn')),
-                'bank_rs'                   => $request->input('bank_rs') === 'null' ? null : trim($request->input('bank_rs')),
-                'bank_kpp'                  => $request->input('bank_kpp') === 'null' ? null : trim($request->input('bank_kpp')),
-                'bank_ca'                   => $request->input('bank_ca') === 'null' ? null : trim($request->input('bank_ca')),
-                'bank_commnetary'           => $request->input('bank_commnetary') === 'null' ? null : trim($request->input('bank_commnetary')),
-                'address'                   => $request->input('address') === 'null' ? null : trim($request->input('address')),
-                'phone'                     => $request->input('phone') === 'null' ? null : trim($request->input('phone')),
-                'contact_person'            => $request->input('contact_person') === 'null' ? null : trim($request->input('contact_person')),
-                'contact_person_phone'      => $request->input('contact_person_phone') === 'null' ? null : trim($request->input('contact_person_phone')),
-                'contact_person_notes'      => $request->input('contact_person_notes') === 'null' ? null : trim($request->input('contact_person_notes')),
+                'email' => $request->input('email') === 'null' ? null :
+                    (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('email') ? strtolower(trim($request->input('email'))) : null)),
+                'contact_person_email' => $request->input('contact_person_email') === 'null' ? null :
+                    (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ?:
+                        ($request->input('contact_person_email') ? strtolower(trim($request->input('contact_person_email'))) : null)),
+                'agentTypeLegal' => $request->input('agentTypeLegal') === 'null' ? null : trim($request->input('agentTypeLegal')),
+                'country' => $request->input('country') === 'null' ? null : trim($request->input('country')),
+                'name' => $request->input('name') === 'null' ? null : trim($request->input('name')),
+                'fullname' => $request->input('fullname') === 'null' ? null : trim($request->input('fullname')),
+                'inn' => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
+                'kpp' => $request->input('kpp') === 'null' ? null : trim($request->input('kpp')),
+                'ogrn' => $request->input('ogrn') === 'null' ? null : trim($request->input('ogrn')),
+                'reason' => $request->input('reason') === 'null' ? null : trim($request->input('reason')),
+                'notes' => $request->input('notes') === 'null' ? null : trim($request->input('notes')),
+                'commentary' => $request->input('commentary') === 'null' ? null : trim($request->input('commentary')),
+                'group' => $request->input('group') === 'null' ? null : trim($request->input('group')),
+                'bankname' => $request->input('bankname') === 'null' ? null : trim($request->input('bankname')),
+                'bank_bik' => $request->input('bank_bik') === 'null' ? null : trim($request->input('bank_bik')),
+                'bank_inn' => $request->input('bank_inn') === 'null' ? null : trim($request->input('bank_inn')),
+                'bank_rs' => $request->input('bank_rs') === 'null' ? null : trim($request->input('bank_rs')),
+                'bank_kpp' => $request->input('bank_kpp') === 'null' ? null : trim($request->input('bank_kpp')),
+                'bank_ca' => $request->input('bank_ca') === 'null' ? null : trim($request->input('bank_ca')),
+                'bank_commnetary' => $request->input('bank_commnetary') === 'null' ? null : trim($request->input('bank_commnetary')),
+                'address' => $request->input('address') === 'null' ? null : trim($request->input('address')),
+                'phone' => $request->input('phone') === 'null' ? null : trim($request->input('phone')),
+                'contact_person' => $request->input('contact_person') === 'null' ? null : trim($request->input('contact_person')),
+                'contact_person_phone' => $request->input('contact_person_phone') === 'null' ? null : trim($request->input('contact_person_phone')),
+                'contact_person_notes' => $request->input('contact_person_notes') === 'null' ? null : trim($request->input('contact_person_notes')),
                 'contact_person_commentary' => $request->input('contact_person_commentary') === 'null' ? null : trim($request->input('contact_person_commentary')),
             ]);
             $validatedData = $request->validate([
-                'agentTypeLegal'            => 'required|string',
-                'country'                   => 'required|string',
-                'name'                      => 'required|string',
-                'fullname'                  => 'nullable|string',
-                'inn'                       => 'required|string',
-                'kpp'                       => 'nullable|string',
-                'ogrn'                      => 'nullable|string',
-                'reason'                    => 'nullable|string',
-                'notes'                     => 'nullable|string',
-                'commentary'                => 'nullable|string',
-                'group'                     => 'nullable|string',
-                'bankname'                  => 'nullable|string',
-                'bank_bik'                  => 'nullable|string',
-                'bank_inn'                  => 'nullable|string',
-                'bank_rs'                   => 'nullable|string',
-                'bank_kpp'                  => 'nullable|string',
-                'bank_ca'                   => 'nullable|string',
-                'bank_commnetary'           => 'nullable|string',
-                'supplier'                  => 'nullable|boolean',
-                'customer'                  => 'nullable|boolean',
-                'address'                   => 'nullable|string',
-                'site'                      => 'nullable|url',
-                'phone'                     => 'nullable|string',
-                'email'                     => 'nullable|email',
-                'contact_person'            => 'nullable|string',
-                'contact_person_phone'      => 'nullable|string',
-                'contact_person_email'      => 'nullable|email',
-                'contact_person_notes'      => 'nullable|string',
+                'agentTypeLegal' => 'required|string',
+                'country' => 'required|string',
+                'name' => 'required|string',
+                'fullname' => 'nullable|string',
+                'inn' => 'required|string',
+                'kpp' => 'nullable|string',
+                'ogrn' => 'nullable|string',
+                'reason' => 'nullable|string',
+                'notes' => 'nullable|string',
+                'commentary' => 'nullable|string',
+                'group' => 'nullable|string',
+                'bankname' => 'nullable|string',
+                'bank_bik' => 'nullable|string',
+                'bank_inn' => 'nullable|string',
+                'bank_rs' => 'nullable|string',
+                'bank_kpp' => 'nullable|string',
+                'bank_ca' => 'nullable|string',
+                'bank_commnetary' => 'nullable|string',
+                'supplier' => 'nullable|boolean',
+                'customer' => 'nullable|boolean',
+                'address' => 'nullable|string',
+                'site' => 'nullable|url',
+                'phone' => 'nullable|string',
+                'email' => 'nullable|email',
+                'contact_person' => 'nullable|string',
+                'contact_person_phone' => 'nullable|string',
+                'contact_person_email' => 'nullable|email',
+                'contact_person_notes' => 'nullable|string',
                 'contact_person_commentary' => 'nullable|string',
-                'status'                    => 'nullable|boolean',
-                'avatar'                    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*'               => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*'             => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'transport.*'               => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'financial.*'               => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*'                 => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'status' => 'nullable|boolean',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+                'contracts.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
             ]);
 
             if ($request->hasFile('avatar')) {
-                $avatar     = $request->file('avatar');
+                $avatar = $request->file('avatar');
                 $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
                 $avatar->move(public_path('avatars'), $avatarName);
                 $validatedData['avatar'] = 'avatars/' . $avatarName;
@@ -185,7 +185,7 @@ class ContragentsController extends Controller
 
             $contragent = Contragents::create($validatedData);
 
-            $data      = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
+            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
             $docFields = ['commercials_incoming', 'commercials_outcoming', 'commercials_tender', 'contracts', 'transport', 'financial', 'adddocs'];
 
             foreach ($docFields as $field) {
@@ -198,10 +198,10 @@ class ContragentsController extends Controller
 
                         ContrDocuments::create([
                             'contragent_id' => $contragent->id,
-                            'user_id'       => $userId,
-                            'type'          => $field,
-                            'file_path'     => $filePath,
-                            'status'        => 1,
+                            'user_id' => $userId,
+                            'type' => $field,
+                            'file_path' => $filePath,
+                            'status' => 1,
                         ]);
 
                     }
@@ -209,8 +209,8 @@ class ContragentsController extends Controller
             }
 
             $notification = Notification::create([
-                'type'       => 'Создан новый контрагент',
-                'data'       => ['name' => $contragent->name],
+                'type' => 'Создан новый контрагент',
+                'data' => ['name' => $contragent->name],
                 'created_by' => $userId,
             ]);
 
@@ -230,13 +230,13 @@ class ContragentsController extends Controller
             $types = ['contracts', 'financial', 'transport', 'commercials', 'adddocs'];
 
             foreach ($types as $type) {
-                $document->$type = ! empty($document->$type) ? json_decode($document->$type, true) : [];
+                $document->$type = !empty($document->$type) ? json_decode($document->$type, true) : [];
             }
 
             return $document;
         })->reduce(function ($carry, $document) {
             foreach (['contracts', 'financial', 'transport', 'commercials', 'adddocs'] as $type) {
-                if (! empty($document->$type)) {
+                if (!empty($document->$type)) {
                     $carry[$type] = array_merge($carry[$type] ?? [], $document->$type);
                 }
             }
@@ -244,8 +244,8 @@ class ContragentsController extends Controller
         }, []);
 
         $contragent->documents = $groupedDocuments;
-        $countries             = Contragents::getCountryMapping();
-        $legalStatuses         = Contragents::getLegalMapping();
+        $countries = Contragents::getCountryMapping();
+        $legalStatuses = Contragents::getLegalMapping();
 
         return Inertia::render('Contragents/Edit', ['contragent' => $contragent, 'legalStatuses' => $legalStatuses, 'countries' => $countries]);
     }
@@ -254,24 +254,24 @@ class ContragentsController extends Controller
 
         try {
             $contragent = Contragents::findOrFail($id);
-            $userId     = Auth::id();
+            $userId = Auth::id();
             $request->merge([
-                'supplier'             => $request->input('supplier') === 'null' ? null : intval(filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN)),
-                'customer'             => $request->input('customer') === 'null' ? null : intval(filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN)),
-                'status'               => $request->input('status') === 'null' ? null : intval(filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN)),
+                'supplier' => $request->input('supplier') === 'null' ? null : intval(filter_var($request->input('supplier'), FILTER_VALIDATE_BOOLEAN)),
+                'customer' => $request->input('customer') === 'null' ? null : intval(filter_var($request->input('customer'), FILTER_VALIDATE_BOOLEAN)),
+                'status' => $request->input('status') === 'null' ? null : intval(filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN)),
 
-                'site'                 => ($request->input('site') !== "null" && ! empty($request->input('site')))
-                ? (filter_var($request->input('site'), FILTER_VALIDATE_URL) ?: 'https://' . ltrim($request->input('site'), 'http://'))
-                : null,
+                'site' => ($request->input('site') !== "null" && !empty($request->input('site')))
+                    ? (filter_var($request->input('site'), FILTER_VALIDATE_URL) ?: 'https://' . ltrim($request->input('site'), 'http://'))
+                    : null,
 
-                'email'                => $request->input('email') === 'null' ? null :
-                (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ? strtolower(trim($request->input('email'))) : null),
+                'email' => $request->input('email') === 'null' ? null :
+                    (filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ? strtolower(trim($request->input('email'))) : null),
 
                 'contact_person_email' => $request->input('contact_person_email') === 'null' ? null :
-                (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ? strtolower(trim($request->input('contact_person_email'))) : null),
+                    (filter_var($request->input('contact_person_email'), FILTER_VALIDATE_EMAIL) ? strtolower(trim($request->input('contact_person_email'))) : null),
 
-                'name'                 => $request->input('name') === 'null' ? null : trim($request->input('name')),
-                'inn'                  => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
+                'name' => $request->input('name') === 'null' ? null : trim($request->input('name')),
+                'inn' => $request->input('inn') === 'null' ? null : trim($request->input('inn')),
             ]);
 
             $nullableFields = ['bankname', 'bank_bik', 'bank_kpp', 'bank_inn', 'bank_rs', 'bank_ca', 'bank_commnetary', 'address', 'phone', 'email', 'contact_person', 'contact_person_phone', 'contact_person_email', 'contact_person_notes', 'contact_person_commentary'];
@@ -283,56 +283,58 @@ class ContragentsController extends Controller
             }
 
             $validatedData = $request->validate([
-                'name'                      => 'sometimes|nullable|string',
-                'inn'                       => 'sometimes|nullable|string',
-                'kpp'                       => 'sometimes|nullable|string',
-                'ogrn'                      => 'sometimes|nullable|string',
-                'notes'                     => 'sometimes|nullable|string',
-                'reason'                    => 'sometimes|nullable|string',
-                'bankname'                  => 'sometimes|nullable|string',
-                'bank_bik'                  => 'sometimes|nullable|string',
-                'bank_kpp'                  => 'sometimes|nullable|string',
-                'bank_inn'                  => 'sometimes|nullable|string',
-                'bank_rs'                   => 'sometimes|nullable|string',
-                'bank_ca'                   => 'sometimes|nullable|string',
-                'bank_commnetary'           => 'sometimes|nullable|string',
-                'address'                   => "sometimes|nullable|string",
-                'contact_person'            => "sometimes|nullable|string",
-                'contact_person_phone'      => "sometimes|nullable|string",
-                'contact_person_email'      => "sometimes|nullable|string",
-                'phone'                     => "sometimes|nullable|string",
-                'email'                     => "sometimes|nullable|string",
-                'contact_person_notes'      => "sometimes|nullable|string",
+                'name' => 'sometimes|nullable|string',
+                'inn' => 'sometimes|nullable|string',
+                'kpp' => 'sometimes|nullable|string',
+                'ogrn' => 'sometimes|nullable|string',
+                'notes' => 'sometimes|nullable|string',
+                'reason' => 'sometimes|nullable|string',
+                'bankname' => 'sometimes|nullable|string',
+                'bank_bik' => 'sometimes|nullable|string',
+                'bank_kpp' => 'sometimes|nullable|string',
+                'bank_inn' => 'sometimes|nullable|string',
+                'bank_rs' => 'sometimes|nullable|string',
+                'bank_ca' => 'sometimes|nullable|string',
+                'bank_commnetary' => 'sometimes|nullable|string',
+                'address' => "sometimes|nullable|string",
+                'contact_person' => "sometimes|nullable|string",
+                'contact_person_phone' => "sometimes|nullable|string",
+                'contact_person_email' => "sometimes|nullable|string",
+                'phone' => "sometimes|nullable|string",
+                'email' => "sometimes|nullable|string",
+                'contact_person_notes' => "sometimes|nullable|string",
                 'contact_person_commentary' => "sometimes|nullable|string",
-                'commentary'                => 'sometimes|nullable|string',
-                'group'                     => 'sometimes|nullable|string',
-                'status'                    => 'sometimes|nullable|boolean',
-                'supplier'                  => 'sometimes|nullable|boolean',
-                'customer'                  => 'sometimes|nullable|boolean',
-                'site'                      => 'sometimes|nullable|url',
-                'email'                     => 'sometimes|nullable|email',
-                'contact_person_email'      => 'sometimes|nullable|email',
-                'avatar'                    => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*'               => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*'             => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'transport.*'               => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'financial.*'               => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*'                 => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'commentary' => 'sometimes|nullable|string',
+                'group' => 'sometimes|nullable|string',
+                'status' => 'sometimes|nullable|boolean',
+                'supplier' => 'sometimes|nullable|boolean',
+                'customer' => 'sometimes|nullable|boolean',
+                'site' => 'sometimes|nullable|url',
+                'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
+                'contracts.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'commercials.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'transport.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'financial.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'adddocs.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
             ]);
+
 
             $request->merge(array_map(function ($value) {
                 return $value === "null" ? null : $value;
             }, $request->all()));
 
             if ($request->hasFile('avatar')) {
-                $avatar     = $request->file('avatar');
+                $avatar = $request->file('avatar');
                 $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
                 $avatar->move(public_path('avatars'), $avatarName);
                 $validatedData['avatar'] = 'avatars/' . $avatarName;
+
+
             }
+
             $contragent->update($validatedData);
 
-            $data      = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
+            $data = ['contragent_id' => $contragent->id, 'user_id' => Auth::id()];
             $docFields = ['commercials_incoming', 'commercials_outcoming', 'commercials_tender', 'contracts', 'transport', 'financial', 'adddocs'];
 
             foreach ($docFields as $field) {
@@ -345,10 +347,10 @@ class ContragentsController extends Controller
 
                         ContrDocuments::create([
                             'contragent_id' => $contragent->id,
-                            'user_id'       => $userId,
-                            'type'          => $field,
-                            'file_path'     => $filePath,
-                            'status'        => 1,
+                            'user_id' => $userId,
+                            'type' => $field,
+                            'file_path' => $filePath,
+                            'status' => 1,
                         ]);
 
                     }
@@ -356,8 +358,8 @@ class ContragentsController extends Controller
             }
 
             $notification = Notification::create([
-                'type'       => 'Обновлён контрагент',
-                'data'       => ['name' => $contragent->name],
+                'type' => 'Обновлён контрагент',
+                'data' => ['name' => $contragent->name],
                 'created_by' => $userId,
             ]);
 
@@ -376,13 +378,13 @@ class ContragentsController extends Controller
             $types = ['contracts', 'financial', 'transport', 'commercials', 'adddocs'];
 
             foreach ($types as $type) {
-                $document->$type = ! empty($document->$type) ? json_decode($document->$type, true) : [];
+                $document->$type = !empty($document->$type) ? json_decode($document->$type, true) : [];
             }
 
             return $document;
         })->reduce(function ($carry, $document) {
             foreach (['contracts', 'financial', 'transport', 'commercials', 'adddocs'] as $type) {
-                if (! empty($document->$type)) {
+                if (!empty($document->$type)) {
                     $carry[$type] = array_merge($carry[$type] ?? [], $document->$type);
                 }
             }
@@ -393,7 +395,7 @@ class ContragentsController extends Controller
         $contragent->append('formatted_country');
         $contragent->append('legal_statuses');
 
-        $countries     = Contragents::getCountryMapping();
+        $countries = Contragents::getCountryMapping();
         $legalStatuses = Contragents::getLegalMapping();
 
         return Inertia::render('Contragents/Show', ['contragent' => $contragent, 'countries' => $countries, 'legalStatuses' => $legalStatuses]);
@@ -425,16 +427,16 @@ class ContragentsController extends Controller
     public function destroy($id)
     {
         try {
-            $contragent     = Contragents::findOrFail($id);
+            $contragent = Contragents::findOrFail($id);
             $contragentName = $contragent->name;
-            $user_id        = Auth::id();
+            $user_id = Auth::id();
 
             $contragent->delete();
 
             // 🔹 Создаём уведомление
             $notification = Notification::create([
-                'type'       => 'Удалён контрагент',
-                'data'       => ['name' => $contragentName],
+                'type' => 'Удалён контрагент',
+                'data' => ['name' => $contragentName],
                 'created_by' => $user_id,
             ]);
 
@@ -450,13 +452,13 @@ class ContragentsController extends Controller
     public function deleteDocumentFileByContragent(Request $request)
     {
         $contragentId = $request->query('contragentId');
-        $fileId       = $request->query('fileId');
+        $fileId = $request->query('fileId');
 
         $document = ContrDocuments::where('contragent_id', $contragentId)
             ->where('id', $fileId)
             ->first();
 
-        if (! $document) {
+        if (!$document) {
             return response()->json(['message' => 'Document not found for this contragent.'], 404);
         }
 
@@ -473,13 +475,13 @@ class ContragentsController extends Controller
 
     public function editKP(Request $request)
     {
-        $id       = $request->input('fileId');
-        $notes    = $request->input('notes');
-        $status   = $request->input('status');
+        $id = $request->input('fileId');
+        $notes = $request->input('notes');
+        $status = $request->input('status');
         $document = ContrDocuments::find($id);
 
         if ($document) {
-            $document->notes  = $notes;
+            $document->notes = $notes;
             $document->status = $status;
             $document->save();
 
@@ -496,7 +498,7 @@ class ContragentsController extends Controller
         ]);
         $contragent = Contragents::find($id);
 
-        if (! $contragent) {
+        if (!$contragent) {
             return response()->json(['error' => 'contragent not found'], 404);
         }
 
@@ -530,8 +532,8 @@ class ContragentsController extends Controller
             // 🔹 Создаём запись о непрочитанном уведомлении
             NotificationRead::create([
                 'notification_id' => $notification->id,
-                'user_id'         => $userId,
-                'read_at'         => null,
+                'user_id' => $userId,
+                'read_at' => null,
             ]);
 
             // 🔹 Подсчитываем количество непрочитанных уведомлений

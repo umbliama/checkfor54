@@ -32,7 +32,6 @@ const submit = () => {
 </script>
 
 <template>
-        <p class="fixed t-0 r-0 ">Version from 17 Dec</p>
 
     <GuestLayout>
         <Head title="Вход" />

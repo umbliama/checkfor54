@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, defineProps, ref, watch } from 'vue'
+import { reactive, defineProps, ref, watch, onMounted } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { Switch } from '@headlessui/vue';
 import { computed } from 'vue';
@@ -58,18 +58,6 @@ const updateContrAgentID = (id) => {
 }
 
 const getActiveTab = computed(() => store.getters['contragent/getActiveTab']);
-
-const mobile_nav_items = [
-    { title: 'Профиль', value: 'profile' },
-    { title: 'Банк', value: 'bank' },
-    { title: 'Контакты', value: 'contacts' }
-];
-
-const deleteFile = (id, fileName) => {
-    router.delete(`/contragents/file/delete?contragentId=${id}&fileName=${fileName}`);
-}
-const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item => item.value === getActiveTab.value) } : { ...mobile_nav_items[0] });
-
 const form = reactive({
     agentTypeLegal: { ...(legal_status_list.value.find(l => l.value === props.contragent?.agentTypeLegal) || legal_status_list?.value[0]) },
     country: { ...(country_list.value.find(l => l.value === props.contragent?.country) || country_list?.value[0]) },
@@ -110,6 +98,100 @@ const form = reactive({
     financial: props.contragent?.documents.financial || null,
     adddocs: props.contragent?.documents.adddocs || null,
 })
+
+const mobile_nav_items = [
+    { title: 'Профиль', value: 'profile' },
+    { title: 'Банк', value: 'bank' },
+    { title: 'Контакты', value: 'contacts' }
+];
+
+const deleteFile = (id, fileName) => {
+    router.delete(`/contragents/file/delete?contragentId=${id}&fileName=${fileName}`);
+}
+const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item => item.value === getActiveTab.value) } : { ...mobile_nav_items[0] });
+const countryMapping = {
+    BY: 'Belarus',
+    RU: 'Russia',
+    KZ: 'Kazakhstan',
+    AZ: 'Azerbaijan',
+    CN: 'China'
+};
+
+const selectedCountry = ref(
+    form.country?.value && countryMapping[form.country.value.toUpperCase()]
+        ? countryMapping[form.country.value.toUpperCase()]
+        : "Russia"
+);
+
+watch(
+    () => form.country?.value,
+    (newCode) => {
+        if (newCode && countryMapping[newCode.toUpperCase()]) {
+            selectedCountry.value = countryMapping[newCode.toUpperCase()];
+            form.agentTypeLegal = countryMapping[newCode.toUpperCase()]
+        } else {
+            selectedCountry.value = "Russia";
+        }
+    }
+);
+
+
+const legalFormsData = {
+    Russia: {
+        OOO: "ООО",
+        ZAO: "ЗАО",
+        OAO: "ОАО",
+        PAO: "ПАО",
+        individual: "ИП",
+    },
+    Azerbaijan: {
+        MMC: "Məhdud Məsuliyyətli Cəmiyyət (MMC)",
+        SC: "Səhmdar Cəmiyyət (SC)",
+        ASC: "Açıq Səhmdar Cəmiyyəti",
+        CSC: "Qapalı Səhmdar Cəmiyyəti",
+        DM: "Dövlət Müəssisəsi",
+        Cooperative: "Kooperativ",
+    },
+    Belarus: {
+        OOO: "Общество с ограниченной ответственностью (ООО)",
+        AO: "Акционерное общество (АО)",
+        OAO: "Открытое (ОАО)",
+        ZAO: "Закрытое (ЗАО)",
+        individual: "Индивидуальный предприниматель (ИП)",
+    },
+    China: {
+        individual: "个体工商户 (Geti Gongshanghu)",
+        LLC: "有限责任公司 (Youxian Zeren Gongsi)",
+        JSC: "股份有限公司 (Gufen Youxian Gongsi)",
+        SOE: "国有企业 (Guoqi)",
+        JV: "Совместные предприятия (JV)",
+        WFOE: "Полностью иностранные компании (WFOE)",
+    },
+    Kazakhstan: {
+        TOO: "Товарищество с ограниченной ответственностью (ТОО)",
+        AO: "Акционерное общество (АО)",
+        PAO: "Публичное (ПАО)",
+        NAO: "Непубличное (НАО)",
+        individual: "Индивидуальный предприниматель (ИП)",
+    },
+};
+
+
+const listLegalStatuses = ref([]);
+
+const updateLegalStatuses = () => {
+    const countryData = legalFormsData[selectedCountry.value];
+    listLegalStatuses.value = Object.entries(countryData).map(([key, value]) => ({
+        title: value,
+        value: key,
+    }));
+    console.log(listLegalStatuses)
+};
+
+onMounted(updateLegalStatuses);
+watch(selectedCountry, updateLegalStatuses);
+
+
 const handleFileUpload = (event, type) => {
     if (!event.target.files.length) return;
 
@@ -233,6 +315,23 @@ function onFileDelete(id = null) {
 
 }
 
+
+const uniqueUsers = (doctype) => {
+    if (!doctype) return [];
+
+    const documents = props?.contragent?.documents.filter(doc => doc.type === doctype) || [];
+
+    const usersMap = new Map();
+
+    documents.forEach(doc => {
+        if (doc.user && !usersMap.has(doc.user.id)) {
+            usersMap.set(doc.user.id, { ...doc.user, documentType: doc.type });
+        }
+    });
+
+    return Array.from(usersMap.values());
+};
+
 function submit() {
     updateForm();
 
@@ -243,7 +342,7 @@ function submit() {
 
     formData.append('agentTypeLegal', form.agentTypeLegal.value);
     formData.append('country', form.country.value);
-    formData.append('name', form.name);
+    formData.append('name', form.name ?? '');
     formData.append('fullname', form.fullname ?? '');
     formData.append('inn', form.inn);
     formData.append('kpp', form.kpp);
@@ -271,7 +370,7 @@ function submit() {
     formData.append('contact_person_email', form.contact_person_email);
     formData.append('contact_person_notes', form.contact_person_notes);
     formData.append('contact_person_commentary', form.contact_person_commentary);
-    formData.append('_method', 'PUT'); 
+    formData.append('_method', 'PATCH');
 
     if (form.avatar) {
         formData.append('avatar', form.avatar);
@@ -293,7 +392,6 @@ function submit() {
     router[router_method](router_url, formData, {
         headers: {
             'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data'
         },
         onError: error => console.log(error)
     });
@@ -400,7 +498,7 @@ const setTab = (tab) => {
                             <UiFieldSelect v-model="form.country" :items="country_list" label="Страна регистрации"
                                 placeholder="Выбрать..." required @blur="updateForm" />
 
-                            <UiFieldSelect v-model="form.agentTypeLegal" :items="legal_status_list"
+                            <UiFieldSelect v-model="form.agentTypeLegal" :items="listLegalStatuses"
                                 label="Организационно-правовая форма" placeholder="Выбрать..." @blur="updateForm"
                                 required />
 
@@ -410,12 +508,34 @@ const setTab = (tab) => {
 
                             <UiField v-model="form.name" :inpAttrs="{ placeholder: 'ООО Компания', required: true }"
                                 label="Наименование" @blur="updateForm" />
-                            <UiField v-model="form.inn" :inpAttrs="{ placeholder: '0123456789', required: true }"
-                                label="ИНН" @blur="updateForm" />
-                            <UiField v-model="form.kpp" :inpAttrs="{ placeholder: '0123456789' }" label="КПП"
+                            <UiField v-if="selectedCountry === 'Russia'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="ИНН"
                                 @blur="updateForm" />
-                            <UiField v-model="form.ogrn" :inpAttrs="{ placeholder: '0123456789' }" label="ОГРН"
+                            <UiField v-if="selectedCountry === 'Belarus'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="УНП"
                                 @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Azerbaijan'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="VÖEN"
+                                @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'China'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }"
+                                label="Unified Social Credit Code" @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Kazakhstan'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="ИИН/БИН"
+                                @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Russia'" v-model="form.kpp"
+                                :inpAttrs="{ placeholder: '0123456789' }" label="КПП" @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Belarus'" v-model="form.ogrn"
+                                :inpAttrs="{ placeholder: '0123456789' }" label="РНУ" @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Azerbaijan'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="Qeydiyyat nömrəsi"
+                                @blur="updateForm" />
+
+                            <UiField v-if="selectedCountry === 'China'" v-model="form.ogrn"
+                                :inpAttrs="{ placeholder: '0123456789' }" label="Business License Registration Number" @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Kazakhstan'" v-model="form.ogrn"
+                                :inpAttrs="{ placeholder: '0123456789' }" label="РНН" @blur="updateForm" />
+
                             <UiField v-model="form.notes" :inpAttrs="{ placeholder: 'текст примечания' }"
                                 label="Примечание" @blur="updateForm" />
                             <UiField v-model="form.group" :inpAttrs="{ placeholder: 'наименование группы' }"
@@ -559,10 +679,10 @@ const setTab = (tab) => {
                         </ul>
                         <div class="flex items-center justify-between mt-2">
                             <ul class="flex -space-x-2">
-                                <li v-if="form.commercials_incoming !== null || (props?.contragent?.documents && props.contragent.documents.some(doc => doc.type === 'commercials_incoming'))"
-                                    v-for="file in [...(form.commercials_incoming || []), ...(props?.contragent?.documents?.filter(doc => doc.type === 'commercials_incoming') || [])]">
-                                    <UiUserAvatar v-if="file.user" size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                        :image="file.user.avatar || ''" />
+                                <li class="flex items-center" v-if="uniqueUsers.length">
+                                    <UiUserAvatar v-for="(user) in uniqueUsers('commercials_incoming')" :key="user.id"
+                                        size="24px" class="border border-[#DDE1E6]" :user-id="user.id"
+                                        :image="user.avatar || ''" />
                                 </li>
                             </ul>
                             <DropdownMenuRoot>
@@ -635,13 +755,10 @@ const setTab = (tab) => {
                         </ul>
                         <div class="flex items-center justify-between mt-2">
                             <ul class="flex -space-x-2">
-                                <li v-if="form.commercials_outcoming !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_outcoming')"
-                                    v-for="file in (form.commercials_outcoming || props?.contragent?.documents.filter(doc => doc.type === 'commercials_outcoming'))">
-                                    <UiUserAvatar  v-if="file.user" 
-                                    
-                                    
-                                    size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                        :image="file.user.avatar || ''" />
+                                <li class="flex items-center" v-if="uniqueUsers.length">
+                                    <UiUserAvatar v-for="(user) in uniqueUsers('commercials_outcoming')" :key="user.id"
+                                        size="24px" class="border border-[#DDE1E6]" :user-id="user.id"
+                                        :image="user.avatar || ''" />
                                 </li>
                             </ul>
                             <DropdownMenuRoot>
@@ -714,14 +831,10 @@ const setTab = (tab) => {
                         </ul>
                         <div class="flex items-center justify-between mt-2">
                             <ul class="flex -space-x-2">
-                                <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
-                                    v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))"
-                                    class="flex items-center">
-                                    <UiUserAvatar  v-if="file.user" 
-                                    
-                                    
-                                    size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                        :image="file.user.avatar || ''" />
+                                <li class="flex items-center" v-if="uniqueUsers.length">
+                                    <UiUserAvatar v-for="(user) in uniqueUsers('commercials_tender')" :key="user.id"
+                                        size="24px" class="border border-[#DDE1E6]" :user-id="user.id"
+                                        :image="user.avatar || ''" />
                                 </li>
                             </ul>
                             <DropdownMenuRoot>
@@ -795,13 +908,9 @@ const setTab = (tab) => {
                 </ul>
                 <div class="flex items-center justify-between mt-2">
                     <ul class="flex -space-x-2">
-                        <li v-if="form.commercials_tender !== null || props?.contragent?.documents.some(doc => doc.type === 'commercials_tender')"
-                            v-for="file in (form.commercials_tender || props?.contragent?.documents.filter(doc => doc.type === 'commercials_tender'))">
-                            <UiUserAvatar  v-if="file.user" 
-                            
-                            
-                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                :image="file.user.avatar || ''" />
+                        <li class="flex items-center" v-if="uniqueUsers.length">
+                            <UiUserAvatar v-for="(user) in uniqueUsers('contracts')" :key="user.id" size="24px"
+                                class="border border-[#DDE1E6]" :user-id="user.id" :image="user.avatar || ''" />
                         </li>
                     </ul>
                     <DropdownMenuRoot>
@@ -873,14 +982,9 @@ const setTab = (tab) => {
                 </ul>
                 <div class="flex items-center justify-between mt-2">
                     <ul class="flex -space-x-2">
-                        <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
-                            v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
-                            class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" 
-                            
-                            
-                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                :image="file.user.avatar || ''" />
+                        <li class="flex items-center" v-if="uniqueUsers.length">
+                            <UiUserAvatar v-for="(user) in uniqueUsers('transport')" :key="user.id" size="24px"
+                                class="border border-[#DDE1E6]" :user-id="user.id" :image="user.avatar || ''" />
                         </li>
                     </ul>
                     <DropdownMenuRoot>
@@ -951,14 +1055,9 @@ const setTab = (tab) => {
                 </ul>
                 <div class="flex items-center justify-between mt-2">
                     <ul class="flex -space-x-2">
-                        <li v-if="form.transport !== null || props?.contragent?.documents.some(doc => doc.type === 'transport')"
-                            v-for="file in (form.transport || props?.contragent?.documents.filter(doc => doc.type === 'transport'))"
-                            class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" 
-                            
-                            
-                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                :image="file.user.avatar || ''" />
+                        <li class="flex items-center" v-if="uniqueUsers.length">
+                            <UiUserAvatar v-for="(user) in uniqueUsers('financial')" :key="user.id" size="24px"
+                                class="border border-[#DDE1E6]" :user-id="user.id" :image="user.avatar || ''" />
                         </li>
                     </ul>
                     <DropdownMenuRoot>
@@ -1029,14 +1128,9 @@ const setTab = (tab) => {
                 </ul>
                 <div class="flex items-center justify-between mt-2">
                     <ul class="flex -space-x-2">
-                        <li v-if="form.adddocs !== null || props?.contragent?.documents.some(doc => doc.type === 'adddocs')"
-                            v-for="file in (form.adddocs || props?.contragent?.documents.filter(doc => doc.type === 'adddocs'))"
-                            class="flex items-center">
-                            <UiUserAvatar  v-if="file.user" 
-                            
-                            
-                            size="24px" class="border border-[#DDE1E6]" :user-id="file.user.id"
-                                :image="file.user.avatar || ''" />
+                        <li class="flex items-center" v-if="uniqueUsers.length">
+                            <UiUserAvatar v-for="(user) in uniqueUsers('adddocs')" :key="user.id" size="24px"
+                                class="border border-[#DDE1E6]" :user-id="user.id" :image="user.avatar || ''" />
                         </li>
                     </ul>
                     <DropdownMenuRoot>
