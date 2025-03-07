@@ -309,6 +309,8 @@ class ContragentsController extends Controller
                 'status' => 'sometimes|nullable|boolean',
                 'supplier' => 'sometimes|nullable|boolean',
                 'customer' => 'sometimes|nullable|boolean',
+                'agentTypeLegal' => 'sometimes|nullable|string',
+                'country' => 'sometimes|nullable|string',
                 'site' => 'sometimes|nullable|url',
                 'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
                 'contracts.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
@@ -317,7 +319,6 @@ class ContragentsController extends Controller
                 'financial.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
                 'adddocs.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
             ]);
-
 
             $request->merge(array_map(function ($value) {
                 return $value === "null" ? null : $value;

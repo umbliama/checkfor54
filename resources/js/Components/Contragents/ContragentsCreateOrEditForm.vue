@@ -32,6 +32,56 @@ const page = usePage()
 const imageUrl = ref(null);
 const errors = computed(() => page.props.errors)
 const success = computed(() => page.props.flash.success)
+const countryMapping = {
+    BY: 'Belarus',
+    RU: 'Russia',
+    KZ: 'Kazakhstan',
+    AZ: 'Azerbaijan',
+    CN: 'China'
+};
+
+
+const legalFormsData = {
+    Russia: {
+        OOO: "ООО",
+        ZAO: "ЗАО",
+        OAO: "ОАО",
+        PAO: "ПАО",
+        individual: "ИП",
+    },
+    Azerbaijan: {
+        MMC: "Məhdud Məsuliyyətli Cəmiyyət (MMC)",
+        SC: "Səhmdar Cəmiyyət (SC)",
+        ASC: "Açıq Səhmdar Cəmiyyəti",
+        CSC: "Qapalı Səhmdar Cəmiyyəti",
+        DM: "Dövlət Müəssisəsi",
+        Cooperative: "Kooperativ",
+    },
+    Belarus: {
+        OOO: "Общество с ограниченной ответственностью (ООО)",
+        AO: "Акционерное общество (АО)",
+        OAO: "Открытое (ОАО)",
+        ZAO: "Закрытое (ЗАО)",
+        individual: "Индивидуальный предприниматель (ИП)",
+    },
+    China: {
+        individual: "个体工商户 (Geti Gongshanghu)",
+        LLC: "有限责任公司 (Youxian Zeren Gongsi)",
+        JSC: "股份有限公司 (Gufen Youxian Gongsi)",
+        SOE: "国有企业 (Guoqi)",
+        JV: "Совместные предприятия (JV)",
+        WFOE: "Полностью иностранные компании (WFOE)",
+    },
+    Kazakhstan: {
+        TOO: "Товарищество с ограниченной ответственностью (ТОО)",
+        AO: "Акционерное общество (АО)",
+        PAO: "Публичное (ПАО)",
+        NAO: "Непубличное (НАО)",
+        individual: "Индивидуальный предприниматель (ИП)",
+    },
+};
+
+
 const country_list = computed(() => {
     const res = [];
 
@@ -42,16 +92,26 @@ const country_list = computed(() => {
     return res;
 });
 
+const selectedCountry = ref(
+    props.contragent?.country && countryMapping[props.contragent.country.toUpperCase()]
+        ? countryMapping[props.contragent.country.toUpperCase()]
+        : "Russia"
+);
 const legal_status_list = computed(() => {
     const res = [];
 
-    for (let key in props.legalStatuses) {
-        res.push({ title: props.legalStatuses[key], value: key });
+    // Получаем текущую страну
+    const country = selectedCountry.value;
+
+    // Проверяем, есть ли данные для выбранной страны
+    if (legalFormsData[country]) {
+        for (let key in legalFormsData[country]) {
+            res.push({ title: legalFormsData[country][key], value: key });
+        }
     }
 
     return res;
 });
-
 
 const updateContrAgentID = (id) => {
     store.dispatch('contragent/updateCreatedContragentID', id)
@@ -109,72 +169,23 @@ const deleteFile = (id, fileName) => {
     router.delete(`/contragents/file/delete?contragentId=${id}&fileName=${fileName}`);
 }
 const contragent_navigation = ref(getActiveTab.value ? { ...mobile_nav_items.find(item => item.value === getActiveTab.value) } : { ...mobile_nav_items[0] });
-const countryMapping = {
-    BY: 'Belarus',
-    RU: 'Russia',
-    KZ: 'Kazakhstan',
-    AZ: 'Azerbaijan',
-    CN: 'China'
-};
-
-const selectedCountry = ref(
-    form.country?.value && countryMapping[form.country.value.toUpperCase()]
-        ? countryMapping[form.country.value.toUpperCase()]
-        : "Russia"
-);
 
 watch(
     () => form.country?.value,
     (newCode) => {
         if (newCode && countryMapping[newCode.toUpperCase()]) {
-            selectedCountry.value = countryMapping[newCode.toUpperCase()];
-            form.agentTypeLegal = countryMapping[newCode.toUpperCase()]
+            const newCountry = countryMapping[newCode.toUpperCase()];
+            selectedCountry.value = newCountry;
+            
+            // Обновляем `agentTypeLegal` в форме
+            form.agentTypeLegal = Object.keys(legalFormsData[newCountry] || {})[0] || ""; 
         } else {
             selectedCountry.value = "Russia";
+            form.agentTypeLegal = Object.keys(legalFormsData["Russia"] || {})[0] || "";
         }
     }
 );
 
-
-const legalFormsData = {
-    Russia: {
-        OOO: "ООО",
-        ZAO: "ЗАО",
-        OAO: "ОАО",
-        PAO: "ПАО",
-        individual: "ИП",
-    },
-    Azerbaijan: {
-        MMC: "Məhdud Məsuliyyətli Cəmiyyət (MMC)",
-        SC: "Səhmdar Cəmiyyət (SC)",
-        ASC: "Açıq Səhmdar Cəmiyyəti",
-        CSC: "Qapalı Səhmdar Cəmiyyəti",
-        DM: "Dövlət Müəssisəsi",
-        Cooperative: "Kooperativ",
-    },
-    Belarus: {
-        OOO: "Общество с ограниченной ответственностью (ООО)",
-        AO: "Акционерное общество (АО)",
-        OAO: "Открытое (ОАО)",
-        ZAO: "Закрытое (ЗАО)",
-        individual: "Индивидуальный предприниматель (ИП)",
-    },
-    China: {
-        individual: "个体工商户 (Geti Gongshanghu)",
-        LLC: "有限责任公司 (Youxian Zeren Gongsi)",
-        JSC: "股份有限公司 (Gufen Youxian Gongsi)",
-        SOE: "国有企业 (Guoqi)",
-        JV: "Совместные предприятия (JV)",
-        WFOE: "Полностью иностранные компании (WFOE)",
-    },
-    Kazakhstan: {
-        TOO: "Товарищество с ограниченной ответственностью (ТОО)",
-        AO: "Акционерное общество (АО)",
-        PAO: "Публичное (ПАО)",
-        NAO: "Непубличное (НАО)",
-        individual: "Индивидуальный предприниматель (ИП)",
-    },
-};
 
 
 const listLegalStatuses = ref([]);

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
     /**
@@ -11,15 +12,17 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('contragents', function (Blueprint $table) {
-            DB::statement("
-            ALTER TABLE your_table_name
-            MODIFY COLUMN agentTypeLegal ENUM(
-                'OOO', 'OAO', 'ZAO', 'PAO', 'individual',
-                'MMC', 'SC', 'ASC', 'CSC', 'DM', 'Cooperative',
-                'AO', 'LLC', 'JSC', 'SOE', 'JV', 'WFOE',
-                'TOO', 'NAO'
-            )
-        ");
+            $table->string('agentTypeLegal_new')->nullable();
+        });
+
+        DB::statement("UPDATE contragents SET agentTypeLegal_new = agentTypeLegal");
+
+        Schema::table('contragents', function (Blueprint $table) {
+            $table->dropColumn('agentTypeLegal');
+        });
+
+        Schema::table('contragents', function (Blueprint $table) {
+            $table->renameColumn('agentTypeLegal_new', 'agentTypeLegal');
         });
     }
 
@@ -29,10 +32,17 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('contragents', function (Blueprint $table) {
-            DB::statement("
-            ALTER TABLE your_table_name
-            MODIFY COLUMN agentTypeLegal ENUM('OOO','OAO','ZAO','PAO','individual')
-        ");
+            $table->string('agentTypeLegal_old')->nullable();
+        });
+
+        DB::statement("UPDATE contragents SET agentTypeLegal_old = agentTypeLegal");
+
+        Schema::table('contragents', function (Blueprint $table) {
+            $table->dropColumn('agentTypeLegal');
+        });
+
+        Schema::table('contragents', function (Blueprint $table) {
+            $table->renameColumn('agentTypeLegal_old', 'agentTypeLegal');
         });
     }
 };
