@@ -12,6 +12,7 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
+php artisan storage:link
 
 # Start Supervisor to manage Reverb & Queue
 echo "Starting Supervisor..."
