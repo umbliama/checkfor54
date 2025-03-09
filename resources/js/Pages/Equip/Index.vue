@@ -275,9 +275,6 @@ onMounted(() => {
     store.dispatch('equipment/updateMenuItem', EquipMenuItems.EQUIPMENT);
 });
 
-
-const aa = ref('');
-
 </script>
 
 <template>
@@ -294,7 +291,7 @@ const aa = ref('');
             <div class="flex justify-between relative mt-5 text-sm">
                 <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                 <ul
-                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
+                    class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === 0 && !rentActive }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
                         @click="setLocationAll">
@@ -304,18 +301,18 @@ const aa = ref('');
                             {{ sumLocs() }}
                         </span>
                     </li>
-                    <li class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
-                        :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === location.id }"
-                        @click="setLocation(location.id)" v-for="location in equipment_location" :key="location.id">
+                    <li
+                        v-for="(location, i) in equipment_location" :key="location.id"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': locationId === location.id, '!mr-auto': i === equipment_location.length - 1 }"
+                        class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer"
+                        @click="setLocation(location.id)"
+                    >
                         {{ location.name }}
                         <span
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                             {{ location_counts[location.id] }}
                         </span>
                     </li>
-                </ul>
-                <ul
-                    class="relative flex items-center font-medium space-x-6 overflow-x-auto lg:overflow-x-visible">
                     <li @click="setRentActive(1)" :class="{ '!border-[#001D6C] text-[#001D6C]': rentActive === 1 }"
                         class="shrink-0 flex items-center justify-between border-b-2 border-transparent py-3 cursor-pointer">
                         В аренде
