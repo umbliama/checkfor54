@@ -448,6 +448,8 @@ onMounted(() => {
                                 </div>
                                 <span class="line-clamp-2">{{item.manufactor}}</span>
                             </div>
+                            <span v-if="item.ownership === 'sub'" class="absolute left-9 top-0 w-px h-full bg-danger z-10 border-none"></span>
+
                             <div :class="{ 'bg-[#644DED] bg-opacity-10': true }"
                                     class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series }}
                             </div>

@@ -20,6 +20,7 @@ const statuses = [
     { title: 'Плохое', value: 'bad' },
     { title: 'Списано', value: 'off' },
     { title: 'Неизвестно', value: 'unknown' },
+    { title: 'Продан', value: 'sold' },
 ];
 
 const locationId = computed(() => store.getters['equipment/getLocationActive']);
@@ -200,7 +201,6 @@ onMounted(() => {
                         <UiField v-model="form.narabotka_ds" label="Наработка дс." :inp-attrs="{ required: true }" />
                     </template>
                     <template v-else-if="selectedCategory == 2">
-                        <UiField v-model="form.zahodnost" label="Заходность" :inp-attrs="{ required: true }" />
                         <UiField v-model="form.length" label="Длина" :inp-attrs="{ required: true }" />
                         <UiField v-model="form.operating" label="Наработка" :inp-attrs="{ required: true }" />
                     </template>

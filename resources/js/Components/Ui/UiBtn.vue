@@ -11,8 +11,12 @@ const $props = defineProps({
         }
     },
     href: String,
-    badgeCond: Boolean,
     badge: [String, Number],
+    badgeCond: Boolean,
+    badgeColor: {
+        type: String,
+        default: 'bg-danger',
+    },
     icon: {
         type: Boolean,
         default: false
@@ -37,7 +41,8 @@ const sizes = computed(() => {
         <span
             v-if="$props.badge && $props.badgeCond"
             v-text="$props.badge"
-            class="absolute top-2 left-1/2 flex justify-center items-center min-w-[18px] rounded-full text-white text-xs bg-danger"
+            :class="[$props.badgeColor]"
+            class="absolute top-2 left-1/2 flex justify-center items-center min-w-[18px] rounded-full text-white text-xs"
         />
 
         <slot />

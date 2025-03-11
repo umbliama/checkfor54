@@ -110,7 +110,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/contragents/create', [ContragentsController::class, 'create'])->name('contragents.create');
     Route::get('/contragents/edit/{id}', [ContragentsController::class, 'edit'])->name('contragents.edit');
     Route::get('/contragents/show/{id}', [ContragentsController::class, 'show'])->name('contragents.show');
-    Route::patch('/contragents/update/{id}', [ContragentsController::class, 'update'])->name('contragents.update');
+    Route::post('/contragents/update/{id}', [ContragentsController::class, 'update'])->name('contragents.update');
     Route::post('/contragents', [ContragentsController::class, 'store'])->name('contragents.store');
     Route::delete('/contragents/delete/{id}', [ContragentsController::class, 'destroy'])->name('contragents.destroy');
     Route::get('/contragents/{id}', [ContragentsController::class, 'show'])->name('contragents.show');

@@ -135,7 +135,7 @@ console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
             <div class="flex justify-center items-center">
                 <ApplicationLogo class="w-5 h-5 fill-current text-gray-500" />
 
-                <h1 class="ml-1 font-bold text-side-gray-text text-2xl">БМ Сервис</h1>
+                <h1 class="ml-1 font-bold text-side-gray-text text-lg lg:text-2xl">БМ Сервис</h1>
 
             </div>
             <span class="flex justify-end lg:flex hidden text-my-nav-text text-xs">{{ user.name }} {{ user.lastname
@@ -171,6 +171,22 @@ console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
                     <path
                         d="M13.666 11.782L13 11.186V6C13 4.93913 12.5786 3.92172 11.8284 3.17157C11.0783 2.42143 10.0609 2 9 2C7.93914 2 6.92172 2.42143 6.17158 3.17157C5.42143 3.92172 5.00001 4.93913 5.00001 6V11.186L4.33401 11.782C3.36755 12.6445 2.65987 13.7586 2.29001 15H15.71C15.3401 13.7586 14.6325 12.6445 13.666 11.782ZM12 17C12 17.7956 11.6839 18.5587 11.1213 19.1213C10.5587 19.6839 9.79565 20 9 20C8.20436 20 7.44129 19.6839 6.87868 19.1213C6.31608 18.5587 6.00001 17.7956 6.00001 17H5.17321e-06C-0.0013543 15.7335 0.265243 14.4811 0.782286 13.325C1.29933 12.1689 2.05512 11.1353 3.00001 10.292V6C3.00001 4.4087 3.63215 2.88258 4.75736 1.75736C5.88258 0.632141 7.40871 0 9 0C10.5913 0 12.1174 0.632141 13.2426 1.75736C14.3679 2.88258 15 4.4087 15 6V10.292C15.9449 11.1353 16.7007 12.1689 17.2177 13.325C17.7348 14.4811 18.0014 15.7335 18 17H12ZM9 18C9.26522 18 9.51958 17.8946 9.70711 17.7071C9.89465 17.5196 10 17.2652 10 17H8C8 17.2652 8.10536 17.5196 8.2929 17.7071C8.48043 17.8946 8.73479 18 9 18Z"
                         fill="#001D6C" />
+                </svg>
+            </ui-btn>
+            <ui-btn :href="'/chatify/messenger'" :badge="12" badge-color="bg-[#0F62FE]" class="-order-1 lg:order-[unset]" badge-cond icon>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clip-path="url(#clip0_4021_3189)">
+                    <path d="M0 0H24V24H0V0Z" fill="white"/>
+                    <path d="M3 20L4.3 16.1C3.17644 14.4383 2.76999 12.4704 3.15622 10.5623C3.54244 8.65419 4.69506 6.93567 6.39977 5.72627C8.10447 4.51688 10.2453 3.8989 12.4241 3.98724C14.6029 4.07558 16.6715 4.86423 18.2453 6.20656C19.819 7.54888 20.7909 9.35354 20.9801 11.285C21.1693 13.2164 20.563 15.1432 19.2739 16.7071C17.9848 18.271 16.1007 19.3656 13.9718 19.7874C11.8429 20.2091 9.6142 19.9293 7.7 19L3 20" stroke="#001D6C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 12V12.01" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 12V12.01" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 12V12.01" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <defs>
+                    <clipPath id="clip0_4021_3189">
+                    <rect width="24" height="24" fill="white"/>
+                    </clipPath>
+                    </defs>
                 </svg>
             </ui-btn>
         </div>

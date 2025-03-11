@@ -38,6 +38,7 @@ class EquipmentController extends Controller
             'good' => 'Хорошее',
             'satisfactory' => 'Удовлетворительно',
             'bad' => 'Плохое',
+            'sold' => 'Продан',
             'off' => 'Списано',
             'unknown' => 'Неизвестный статус',
         ];
@@ -851,7 +852,7 @@ class EquipmentController extends Controller
             'size_id' => 'required|integer',
             'series' => 'required|string',
             'manufactor_date' => 'nullable|date',
-            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown'],
+            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown,sold'],
             'notes' => 'nullable|string',
             'price' => 'nullable|integer',
             'commentary' => 'nullable|string',
@@ -953,7 +954,7 @@ class EquipmentController extends Controller
             'size_id' => 'required|integer',
             'series' => 'nullable|string',
             'manufactor_date' => 'nullable|date',
-            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown'],
+            'status' => ['nullable', 'string', 'in:new,good,satisfactory,bad,off,unknown,sold'],
             'notes' => 'nullable|string',
             'price' => 'nullable|integer',
             'commentary' => 'nullable|string',
@@ -990,6 +991,11 @@ class EquipmentController extends Controller
                 break;
         }
 
+        $existingEquipment = Equipment::where('series', $request->input('series'))->first();
+
+        if ($existingEquipment) {
+            return redirect()->back()->withErrors(['series' => 'Оборудование с такой серией уже существует.']);
+        }
         $equipment->update($validatedData);
 
         return redirect()->route('equip.index')->with('success', 'Оборудование успешно обновлено.');

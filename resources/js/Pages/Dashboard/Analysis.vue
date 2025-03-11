@@ -290,7 +290,7 @@ onMounted(() => {
 
                                     <span class="block mr-auto">{{ item.category }}</span>
                                     <span class="w-10 lg:w-14 mr-3 text-gray1">{{ item.percentage }}%</span>
-                                    <span class="w-10 lg:w-14 text-gray1">₽{{ item.full_income }}</span>
+                                    <span class="w-10 lg:w-14 text-gray1">₽{{ item.full_income.toFixed(1) }}</span>
                                 </li>
                             </ul>
                         </div>
