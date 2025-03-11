@@ -151,7 +151,8 @@ const statuses = {
     'satisfactory': 'Удовлетворительно',
     'bad': 'Плохое',
     'off': 'Списано',
-    'unknown': 'Неизвестно'
+    'unknown': 'Неизвестно',
+    'sold': 'Продан'
 };
 const statuses_colors = {
     'new': 'bg-[#0F62FE]',
@@ -159,7 +160,8 @@ const statuses_colors = {
     'satisfactory': 'bg-[#DAC41E]',
     'bad': 'bg-[#DA1E28]',
     'off': 'bg-[#000000]',
-    'unknown': 'bg-[#C9BFFF]'
+    'unknown': 'bg-[#C9BFFF]',
+    'sold': 'bg-[#000000]'
 };
 
 const form = reactive({

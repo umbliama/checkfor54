@@ -271,7 +271,6 @@ function submit() {
     formData.append('contact_person_email', form.contact_person_email);
     formData.append('contact_person_notes', form.contact_person_notes);
     formData.append('contact_person_commentary', form.contact_person_commentary);
-    formData.append('_method', 'PUT'); 
 
     if (form.avatar) {
         formData.append('avatar', form.avatar);
