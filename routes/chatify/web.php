@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\vendor\Chatify\MessagesController;
-use App\Http\Controllers\ChatGroup;
+use App\Http\Controllers\ChatGroupController;
 
 /*
 * Main Chatify Route
@@ -14,13 +14,14 @@ Route::get('/', [MessagesController::class, 'index'])->name(config('chatify.rout
  */
 Route::post('/idInfo', [MessagesController::class, 'idFetchData']);
 
-Route::post('//groupidInfo', [ChatGroup::class, 'idFetchData']);
+Route::post('/groupidInfo', [ChatGroupController::class, 'idFetchData']);
 
+Route::post('/create-group', [ChatGroupController::class, 'createGroup']);
 /**
  * Send message route
  */
 Route::post('/sendMessage', [MessagesController::class, 'send'])->name('send.message');
-Route::post('/sendMessageGroup', [ChatGroup::class, 'send'])->name('send.groupMessage');
+Route::post('/sendMessageGroup', [ChatGroupController::class, 'send'])->name('send.groupMessage');
 
 /**
  * Fetch messages

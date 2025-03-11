@@ -5,6 +5,7 @@ namespace App\Providers;
 use Inertia\Inertia;
 use Auth;
 use Illuminate\Support\ServiceProvider;
+use App\Services\CustomChatifyMessenger;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('MyChatifyMessenger', function ($app) {
+            return new CustomChatifyMessenger();
+        });
     }
 
     /**
