@@ -441,7 +441,7 @@ onMounted(() => {
                             </div>
                         </div>
                         <div  v-for="item in sortedEquipment"
-                            class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                            class="relative flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                             <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                 <div class="mr-2">
                                     <UiHyperlink endpoint="/equipment" />
