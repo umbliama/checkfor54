@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: bm-service-server
     volumes:
-      - sqlite_data:/var/www/database
+      # - sqlite_data:/var/www/database
     env_file:
       - .env
     environment:
