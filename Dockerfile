@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Copy application files into the container
 COPY . .
+RUN ls -lah /app/database/migrations
 
 # Run composer install
 RUN --mount=type=cache,target=/tmp/cache \
