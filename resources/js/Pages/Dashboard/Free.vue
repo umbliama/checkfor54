@@ -23,6 +23,7 @@ import { onMounted, ref,reactive, watch, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 
 import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
+import UiHyperlink from '@/Components/Ui/UiHyperlink.vue';
 
 
 const props = defineProps({
@@ -441,7 +442,7 @@ onMounted(() => {
                             </div>
                         </div>
                         <div  v-for="item in sortedEquipment"
-                            class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                            class="relative flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                             <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                 <div class="mr-2">
                                     <UiHyperlink endpoint="/equipment" />
@@ -453,9 +454,11 @@ onMounted(() => {
                             <div :class="{ 'bg-[#644DED] bg-opacity-10': true }"
                                     class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series }}
                             </div>
+
                             <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">
                                 {{item.zahodnost}}
                             </div>
+                            
                             <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length }}
                             </div>
                             <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{ item.dlina_ds }}

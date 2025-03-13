@@ -24,8 +24,8 @@ const messagesContainer = $(".messenger-messagingView .m-body"),
 
 const getMessengerId = () => $("meta[name=id]").attr("content");
 const setMessengerId = (id) => $("meta[name=id]").attr("content", id);
-const getGroupId = (id) => $("meta[name=group]").attr("content", id);
-const setGroupId = (id) => $("meta[name=group]").attr("content", id);
+const getGroupId = (id) => $("meta[name=groupId]").attr("content");
+const setGroupId = (id) => $("meta[name=groupId]").attr("content", id);
 
 
 /**

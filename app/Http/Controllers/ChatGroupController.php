@@ -1,14 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Services\CustomChatifyMessenger;
 use Chatify\Facades\ChatifyMessenger as Chatify;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\ChatGroup;
+use App\Models\ChatGroupMember;
 
-class ChatGroup extends Controller
+class ChatGroupController extends Controller
 {
-    public function createGroup(Request $request) {
+    public function createGroup(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'members' => 'required|array'
@@ -29,7 +34,8 @@ class ChatGroup extends Controller
         return response()->json(['message' => 'Group created successfully', 'group' => $group], 201);
     }
 
-    public function getGroupMessages($groupId) {
+    public function getGroupMessages($groupId)
+    {
         $group = ChatGroup::with('messages')->findOrFail($groupId);
         return response()->json($group);
     }
@@ -37,45 +43,34 @@ class ChatGroup extends Controller
     public function idFetchData(Request $request)
     {
         $id = $request['id'];
-        
-        // Check if ID belongs to a group
+
         $isGroup = \App\Models\ChatGroup::where('id', $id)->exists();
-    
-        if ($isGroup) {
-            // Fetch group details
-            $group = \App\Models\ChatGroup::find($request['id']);
-    
-            if (!$group) {
-                return Response::json([
-                    'error' => 'Group not found.',
-                ], 404);
-            }
-    
+
+        $group = \App\Models\ChatGroup::find($request['id']);
+
+        if (!$group) {
             return Response::json([
-                'favorite' => false, // Adjust as needed for groups
-                'fetch' => [
-                    'id' => $group->id,
-                    'name' => $group->name,
-                    'is_group' => true,
-                ],
-            ]);
-        } 
-    
-        // If not a group, handle as user
-        $fetch = User::find($request['id']);
-        $favorite = Chatify::inFavorite($request['id']);
-        $userAvatar = $fetch ? Chatify::getUserWithAvatar($fetch)->avatar : null;
-    
-        return \Response::json([
-            'favorite' => $favorite,
-            'fetch' => $fetch,
-            'user_avatar' => $userAvatar,
+                'error' => 'Group not found.',
+            ], 404);
+        }
+
+        return Response::json([
+            'favorite' => false, 
+            'fetch' => [
+                'id' => $group->id,
+                'name' => $group->name,
+                'is_group' => true,
+            ],
         ]);
+
+
     }
     public function send(Request $request)
     {
+        \Log::info('Group ID:', ['group_id' => $request->input('group_id')]);
+
         // default variables
-        $error = (object)[
+        $error = (object) [
             'status' => 0,
             'message' => null
         ];
@@ -86,8 +81,8 @@ class ChatGroup extends Controller
         if ($request->hasFile('file')) {
             // allowed extensions
             $allowed_images = Chatify::getAllowedImages();
-            $allowed_files  = Chatify::getAllowedFiles();
-            $allowed        = array_merge($allowed_images, $allowed_files);
+            $allowed_files = Chatify::getAllowedFiles();
+            $allowed = array_merge($allowed_images, $allowed_files);
 
             $file = $request->file('file');
             // check file size
@@ -107,21 +102,21 @@ class ChatGroup extends Controller
                 $error->message = "File size you are trying to upload is too large!";
             }
         }
-
+        $n = new CustomChatifyMessenger();
         if (!$error->status) {
-            $message = Chatify::newMessage([
+            $message = $n->newGroupMessage([
                 'from_id' => Auth::user()->id,
                 'to_id' => $request['id'],
-                'group_id' => $request['group_id'],
+                'group_id' => $request->input('group_id'),
                 'body' => htmlentities(trim($request['message']), ENT_QUOTES, 'UTF-8'),
-                'attachment' => ($attachment) ? json_encode((object)[
+                'attachment' => ($attachment) ? json_encode((object) [
                     'new_name' => $attachment,
                     'old_name' => htmlentities(trim($attachment_title), ENT_QUOTES, 'UTF-8'),
                 ]) : null,
             ]);
             $messageData = Chatify::parseMessage($message);
             if (Auth::user()->id != $request['id']) {
-                Chatify::push("private-chatify.".$request['id'], 'messaging', [
+                Chatify::push("private-chatify." . $request['id'], 'messaging', [
                     'from_id' => Auth::user()->id,
                     'to_id' => $request['id'],
                     'message' => Chatify::messageCard($messageData, true)
