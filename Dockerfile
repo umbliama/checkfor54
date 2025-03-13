@@ -7,6 +7,8 @@ WORKDIR /app
 
 # Copy application files into the container
 COPY . .
+
+# Проверяем, есть ли миграции в промежуточном контейнере
 RUN ls -lah /app/database/migrations
 
 # Run composer install
@@ -26,6 +28,7 @@ RUN npm install
 
 # Run the build command 
 RUN npm run build
+
 ################################################################################
 # Stage 2: Build the final image
 ################################################################################
@@ -36,12 +39,16 @@ WORKDIR /var/www
 # Copy all application files from the previous stage
 COPY --from=deps /app /var/www
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Копируем только миграции отдельно (на случай, если предыдущая команда не скопирует их корректно)
+COPY --from=deps /app/database/migrations /var/www/database/migrations
+
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
     openssl \
     certbot \
     git \
-    nano \ 
+    nano \
     python3-certbot-apache \
     curl \
     && rm -rf /var/lib/apt/lists/* \    
@@ -50,6 +57,7 @@ RUN apt-get update && apt-get install -y \
     && npm install \
     && npm run build \
     && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y supervisor
 COPY supervisord.conf /etc/supervisord.conf
     
@@ -59,11 +67,13 @@ RUN mv "/usr/local/etc/php/php.ini-development" "/usr/local/etc/php/php.ini" \
     && sed -i 's#/var/www/html#/var/www/public#' /etc/apache2/sites-available/000-default.conf \
     && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
+
 RUN docker-php-ext-install pcntl
 
-    
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
+
 CMD ["/docker-entrypoint.sh"]
+
 # Expose ports for HTTP and HTTPS
 EXPOSE 80 443 6001
