@@ -236,7 +236,7 @@ onMounted(() => {
                             class="w-full mt-10 pt-4 border-t border-t-gray1 text-gray1 lg:w-[calc(100%-170px-24px)] lg:mt-0 lg:pt-0 lg:border-t-0">
                             <ul class="grid grid-cols-2 gap-3 text-sm">
                                 <li v-for="item in categoriesProgress[chosenCategory - 1]">{{ item.size }}<span
-                                        class="font-medium"></span> {{ item.numberOfSizeOnRent }} из {{
+                                        class="font-medium"></span>: {{ item.numberOfSizeOnRent }} из {{
                                             item.equipmentLeft }}</li>
                             </ul>
                         </div>

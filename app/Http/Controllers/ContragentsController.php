@@ -169,11 +169,11 @@ class ContragentsController extends Controller
                 'contact_person_commentary' => 'nullable|string',
                 'status' => 'nullable|boolean',
                 'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'transport.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'financial.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'contracts.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'commercials.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'transport.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'financial.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'adddocs.*' => 'nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
             ]);
 
             if ($request->hasFile('avatar')) {
@@ -313,11 +313,11 @@ class ContragentsController extends Controller
                 'country' => 'sometimes|nullable|string',
                 'site' => 'sometimes|nullable|url',
                 'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'commercials.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'transport.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'financial.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
-                'adddocs.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt|max:5120',
+                'contracts.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'commercials.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'transport.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'financial.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
+                'adddocs.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:5120',
             ]);
 
             $request->merge(array_map(function ($value) {
