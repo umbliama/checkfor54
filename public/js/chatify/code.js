@@ -486,7 +486,7 @@ function Groupinfo(id) {
                 $(".messenger-infoView-btns .delete-conversation").show();
                 $(".messenger-infoView-shared").show();
                 // fetch messages
-                fetchMessages(id, true);
+                fetchGMessages(id, true);
                 // focus on messaging input
                 messageInput.focus();
                 // update info in view
@@ -642,6 +642,57 @@ function fetchMessages(id, newFetch = false) {
             data: {
                 _token: csrfToken,
                 id: id,
+                page: messagesPage,
+            },
+            dataType: "JSON",
+            success: (data) => {
+                setMessagesLoading(false);
+                if (messagesPage == 1) {
+                    messagesElement.html(data.messages);
+                    scrollToBottom(messagesContainer);
+                } else {
+                    const lastMsg = messagesElement.find(
+                        messagesElement.find(".message-card")[0]
+                    );
+                    const curOffset =
+                        lastMsg.offset().top - messagesContainer.scrollTop();
+                    messagesElement.prepend(data.messages);
+                    messagesContainer.scrollTop(
+                        lastMsg.offset().top - curOffset
+                    );
+                }
+                // trigger seen event
+                makeSeen(true);
+                // Pagination lock & messages page
+                noMoreMessages = messagesPage >= data?.last_page;
+                if (!noMoreMessages) messagesPage += 1;
+                // Enable message form if messenger not = 0; means if data is valid
+                if (messenger != 0) {
+                    disableOnLoad(false);
+                }
+            },
+            error: (error) => {
+                setMessagesLoading(false);
+                console.error(error);
+            },
+        });
+    }
+}
+function fetchGMessages(id, newFetch = false) {
+    if (newFetch) {
+        messagesPage = 1;
+        noMoreMessages = false;
+    }
+    if (messenger != 0 && !noMoreMessages && !messagesLoading) {
+        const messagesElement = messagesContainer.find(".messages");
+        setMessagesLoading(true);
+        $.ajax({
+            url: url + "/fetchMessagesGroup",
+            method: "POST",
+            data: {
+                _token: csrfToken,
+                id: id,
+                group_id: getGroupId(),
                 page: messagesPage,
             },
             dataType: "JSON",

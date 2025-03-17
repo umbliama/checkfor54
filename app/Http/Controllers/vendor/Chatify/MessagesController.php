@@ -214,6 +214,7 @@ class MessagesController extends Controller
         return Response::json($response);
     }
 
+    
     /**
      * Make messages as seen
      *

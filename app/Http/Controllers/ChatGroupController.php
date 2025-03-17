@@ -132,4 +132,47 @@ class ChatGroupController extends Controller
             'tempID' => $request['temporaryMsgId'],
         ]);
     }
+
+    public function fetchMessagesByGroup(Request $request)
+    {
+        $groupId = $request->group_id; // Ensure the request includes a group_id
+    
+        if (!$groupId) {
+            return Response::json(['error' => 'Group ID is required'], 400);
+        }
+        $n = new CustomChatifyMessenger();
+
+        $query = $n->fetchMessagesGQuery($request['id'])
+            ->where('group_id', $groupId) // Filter by group ID
+            ->latest();
+    
+        $messages = $query->paginate($request->per_page);
+        $totalMessages = $messages->total();
+        $lastPage = $messages->lastPage();
+    
+        $response = [
+            'total' => $totalMessages,
+            'last_page' => $lastPage,
+            'last_message_id' => collect($messages->items())->last()->id ?? null,
+            'messages' => '',
+        ];
+    
+        if ($totalMessages < 1) {
+            $response['messages'] = '<p class="message-hint center-el"><span>No messages found for this group.</span></p>';
+            return Response::json($response);
+        }
+    
+        if (count($messages->items()) < 1) {
+            $response['messages'] = '';
+            return Response::json($response);
+        }
+    
+        $allMessages = null;
+        foreach ($messages->reverse() as $message) {
+            $allMessages .= Chatify::messageCard(Chatify::parseMessage($message));
+        }
+    
+        $response['messages'] = $allMessages;
+        return Response::json($response);
+    }
 }

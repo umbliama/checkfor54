@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Chatify\ChatifyMessenger as BaseChatifyMessenger;
 use App\Models\ChMessage as Message;
+use Illuminate\Support\Facades\Auth;
+
 
 class CustomChatifyMessenger extends BaseChatifyMessenger
 {
@@ -18,5 +20,11 @@ class CustomChatifyMessenger extends BaseChatifyMessenger
         $message->save();
 
         return $message;
+    }
+
+    public function fetchMessagesGQuery($group_id)
+    {
+        return Message::where('group_id', Auth::user()->id)->where('group_id', $group_id)
+                    ->orWhere('group_id', $group_id)->where('group_id', Auth::user()->id);
     }
 }

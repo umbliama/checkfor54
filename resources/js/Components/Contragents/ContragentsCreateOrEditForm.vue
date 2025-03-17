@@ -37,7 +37,8 @@ const countryMapping = {
     RU: 'Russia',
     KZ: 'Kazakhstan',
     AZ: 'Azerbaijan',
-    CN: 'China'
+    CN: 'China',
+    CY: 'Cyprus'
 };
 
 
@@ -79,6 +80,15 @@ const legalFormsData = {
         NAO: "Непубличное (НАО)",
         individual: "Индивидуальный предприниматель (ИП)",
     },
+    Cyprus: {
+        LTD: 'Private Limited Company',
+        PLC: 'Public Limited Company',
+        GP: 'General Partnership',
+        LP: 'Limited Partnership',
+        SP: 'Sole Proprietorship',
+        BFC: 'Branch of Foreign Company',
+        IBC: 'International Business Company',
+    }
 };
 
 
@@ -526,6 +536,9 @@ const setTab = (tab) => {
                                 @blur="updateForm" />
                             <UiField v-if="selectedCountry === 'Azerbaijan'" v-model="form.inn"
                                 :inpAttrs="{ placeholder: '0123456789', required: true }" label="VÖEN"
+                                @blur="updateForm" />
+                            <UiField v-if="selectedCountry === 'Cyprus'" v-model="form.inn"
+                                :inpAttrs="{ placeholder: '0123456789', required: true }" label="TIN"
                                 @blur="updateForm" />
                             <UiField v-if="selectedCountry === 'China'" v-model="form.inn"
                                 :inpAttrs="{ placeholder: '0123456789', required: true }"

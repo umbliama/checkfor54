@@ -27,6 +27,7 @@ Route::post('/sendMessageGroup', [ChatGroupController::class, 'send'])->name('se
  * Fetch messages
  */
 Route::post('/fetchMessages', [MessagesController::class, 'fetch'])->name('fetch.messages');
+Route::post('/fetchMessagesGroup', [ChatGroupController::class, 'fetchMessagesByGroup'])->name('fetch.messages.group');
 
 /**
  * Download attachments route
