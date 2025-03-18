@@ -17,20 +17,22 @@ class ChatGroupController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'members' => 'required|array'
-        ]);
+    ]);
 
         $group = ChatGroup::create([
             'name' => $request->name,
             'created_by' => Auth::id()
         ]);
-
+        ChatGroupMember::create([
+            'group_id' => $group->id,
+            'user_id' => Auth::id(),
+        ]);
         foreach ($request->members as $memberId) {
             ChatGroupMember::create([
                 'group_id' => $group->id,
                 'user_id' => $memberId
             ]);
         }
-
         return response()->json(['message' => 'Group created successfully', 'group' => $group], 201);
     }
 
@@ -106,7 +108,7 @@ class ChatGroupController extends Controller
         if (!$error->status) {
             $message = $n->newGroupMessage([
                 'from_id' => Auth::user()->id,
-                'to_id' => $request['id'],
+                'to_id' => 0,
                 'group_id' => $request->input('group_id'),
                 'body' => htmlentities(trim($request['message']), ENT_QUOTES, 'UTF-8'),
                 'attachment' => ($attachment) ? json_encode((object) [
@@ -133,6 +135,7 @@ class ChatGroupController extends Controller
         ]);
     }
 
+
     public function fetchMessagesByGroup(Request $request)
     {
         $groupId = $request->group_id; // Ensure the request includes a group_id
@@ -145,6 +148,7 @@ class ChatGroupController extends Controller
         $query = $n->fetchMessagesGQuery($request['id'])
             ->where('group_id', $groupId) // Filter by group ID
             ->latest();
+        
     
         $messages = $query->paginate($request->per_page);
         $totalMessages = $messages->total();

@@ -24,7 +24,12 @@ class CustomChatifyMessenger extends BaseChatifyMessenger
 
     public function fetchMessagesGQuery($group_id)
     {
-        return Message::where('group_id', Auth::user()->id)->where('group_id', $group_id)
-                    ->orWhere('group_id', $group_id)->where('group_id', Auth::user()->id);
+        return Message::where('group_id', $group_id);
+    }
+
+    public static function getGroupItem($group)
+    {
+        // Customize this HTML structure as needed
+        return view('Chatify::layouts.groupItem', ['group' => $group])->render();
     }
 }

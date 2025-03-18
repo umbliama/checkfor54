@@ -4,11 +4,13 @@ namespace App\Http\Controllers\vendor\Chatify;
 
 
 
+use App\Services\CustomChatifyMessenger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
 use App\Models\User;
+use App\Models\ChatGroup;
 use App\Models\ChMessage as Message;
 use App\Models\ChFavorite as Favorite;
 use Chatify\Facades\ChatifyMessenger as Chatify;
@@ -46,11 +48,12 @@ class MessagesController extends Controller
         {
             $messenger_color = Auth::user()->messenger_color;
             $isGroup = \App\Models\ChatGroup::where('id', $id)->exists(); 
-            
+            $users = User::where('id', '!=', Auth::id())->get();
             return view('Chatify::pages.app', [
                 'id' => $id ?? 0,
                 'messengerColor' => $messenger_color ? $messenger_color : Chatify::getFallbackColor(),
                 'dark_mode' => Auth::user()->dark_mode < 1 ? 'light' : 'dark',
+                'users' => $users
             ]);
         }
 
@@ -59,12 +62,14 @@ class MessagesController extends Controller
             $messenger_color = Auth::user()->messenger_color;
             $isGroup = \App\Models\ChatGroup::where('id', $id)->exists(); 
             $group = \App\Models\ChatGroup::where('id', $id)->first(); 
-            
+            $users = User::where('id', '!=', Auth::id())->get();
+
             return view('Chatify::pages.groupchat', [
                 'id' => $id ?? 0,
                 'group' => $group,
                 'messengerColor' => $messenger_color ? $messenger_color : Chatify::getFallbackColor(),
                 'dark_mode' => Auth::user()->dark_mode < 1 ? 'light' : 'dark',
+                'users' => $users
             ]);
         }
 
@@ -272,6 +277,37 @@ class MessagesController extends Controller
         ], 200);
     }
 
+    public function getGroups(Request $request)
+    {
+        // Fetch all groups where the current user is a member
+        $groups = ChatGroup::join('chat_group_members', 'chat_groups.id', '=', 'chat_group_members.group_id')
+            ->where('chat_group_members.user_id', Auth::id())
+            ->select('chat_groups.*', DB::raw('MAX(ch_messages.created_at) as max_created_at'))
+            ->leftJoin('ch_messages', function ($join) {
+                $join->on('chat_groups.id', '=', 'ch_messages.group_id');
+            })
+            ->groupBy('chat_groups.id')
+            ->orderBy('max_created_at', 'desc')
+            ->paginate($request->per_page ?? $this->perPage);
+    
+        $groupsList = $groups->items();
+        $n = new CustomChatifyMessenger();
+        if (count($groupsList) > 0) {
+            $groupItems = '';
+            foreach ($groupsList as $group) {
+                $groupItems .= $n->getGroupItem($group);
+            }
+        } else {
+            $groupItems = '<p class="message-hint center-el"><span>Your group list is empty</span></p>';
+        }
+    
+        return Response::json([
+            'groups' => $groupItems,
+            'total' => $groups->total() ?? 0,
+            'last_page' => $groups->lastPage() ?? 1,
+        ], 200);
+    }
+
     /**
      * Update user's list item data
      *
@@ -288,6 +324,24 @@ class MessagesController extends Controller
             ], 401);
         }
         $contactItem = Chatify::getContactItem($user);
+
+        // send the response
+        return Response::json([
+            'contactItem' => $contactItem,
+        ], 200);
+    }
+
+    public function updateGroupItem(Request $request)
+    {
+        // Get user data
+        $group = ChatGroup::where('id', $request['group_id'])->first();
+        if(!$group){
+            return Response::json([
+                'message' => 'group not found!',
+            ], 401);
+        }
+        $n = new CustomChatifyMessenger();
+        $contactItem = $n->getGroupItem($group);
 
         // send the response
         return Response::json([

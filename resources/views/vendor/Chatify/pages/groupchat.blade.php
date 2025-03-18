@@ -39,6 +39,9 @@
                {{-- Contact --}}
                <p class="messenger-title"><span>All Messages</span></p>
                <div class="listOfContacts" style="width: 100%;height: calc(100% - 272px);position: relative;"></div>
+               <p class="messenger-title"><span>Группы</span></p>
+               <div class="listOfgroups" style="width: 100%;height: calc(100% - 272px);position: relative;"></div>
+
            </div>
              {{-- ---------------- [ Search Tab ] ---------------- --}}
            <div class="messenger-tab search-tab app-scroll" data-view="search">
@@ -110,70 +113,8 @@
         {!! view('Chatify::layouts.info')->render() !!}
     </div>
 </div>
-<div id="createGroupModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Создать группу</h2>
-        <input type="text" id="groupName" placeholder="Название группы">
-        <p>Выберите пользователей:</p>
-        <div id="userSelection">
-            <label><input type="checkbox" value="1"> Пользователь 1</label>
-            <label><input type="checkbox" value="2"> Пользователь 2</label>
-            <label><input type="checkbox" value="3"> Пользователь 3</label>
-        </div>
-        <button id="createGroupSubmit">Создать</button>
-    </div>
-</div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const modal = document.getElementById("createGroupModal");
-    const btn = document.querySelector(".create-group-btn");
-    const span = document.querySelector(".close");
-    const submitBtn = document.getElementById("createGroupSubmit");
 
-    btn.onclick = function () {
-        modal.style.display = "block";
-    };
-
-    span.onclick = function () {
-        modal.style.display = "none";
-    };
-
-    window.onclick = function (event) {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    };
-
-    submitBtn.onclick = function () {
-        const groupName = document.getElementById("groupName").value;
-        const selectedUsers = [...document.querySelectorAll("#userSelection input:checked")].map(el => el.value);
-
-        if (!groupName || selectedUsers.length === 0) {
-            alert("Введите название группы и выберите хотя бы одного пользователя");
-            return;
-        }
-
-        fetch("/chatify/create-group", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-            },
-            body: JSON.stringify({ name: groupName, members: selectedUsers })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            modal.style.display = "none";
-            location.reload();
-        })
-        .catch(error => console.error("Ошибка:", error));
-    };
-});
-
-</script>
 
 @include('Chatify::layouts.modals')
 @include('Chatify::layouts.footerLinks')

@@ -2,6 +2,7 @@
 
 use App\Events\NotificationCountUpdated;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ContragentsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryController;
@@ -136,6 +137,12 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
         Route::post('/block/{block}/save', [IncidentController::class, 'saveBlockInfo'])->name('constructor.saveBlock');
         Route::get('/search', [IncidentController::class, 'index'])->name('incidents.index');
+    });
+
+    Route::prefix('/chat')->group(function() {
+        
+        Route::get('/', [ChatController::class,'index'])->name('chat.index');
+        Route::post('/sendMessage', [ChatController::class,'sendMessage'])->name('chat.send');
     });
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');

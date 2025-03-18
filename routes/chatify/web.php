@@ -48,11 +48,13 @@ Route::post('/makeSeen', [MessagesController::class, 'seen'])->name('messages.se
  * Get contacts
  */
 Route::get('/getContacts', [MessagesController::class, 'getContacts'])->name('contacts.get');
+Route::get('/getGroups', [MessagesController::class, 'getGroups'])->name('contacts.get');
 
 /**
  * Update contact item data
  */
 Route::post('/updateContacts', [MessagesController::class, 'updateContactItem'])->name('contacts.update');
+Route::post('/updateGroups', [MessagesController::class, 'updateGroupItem'])->name('contacts.update');
 
 /**
  * Star in favorite list

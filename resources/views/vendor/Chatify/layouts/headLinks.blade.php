@@ -9,6 +9,9 @@
 @if(isset($group) && isset($group->id))
     <meta name="groupId" content="{{ $group->id }}">
 @endif<meta name="messenger-color" content="{{ $messengerColor }}">
+@if(isset($users))
+    <meta name="users" content='{{ json_encode($users, JSON_HEX_APOS | JSON_HEX_QUOT) }}'>
+@endif
 <meta name="messenger-theme" content="{{ $dark_mode }}">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="url" content="{{ url('').'/'.config('chatify.routes.prefix') }}" data-user="{{ Auth::user()->id }}">

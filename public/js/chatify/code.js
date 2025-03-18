@@ -528,7 +528,7 @@ function sendMessage() {
     if (inputValue.length > 0 || hasFile) {
         const formData = new FormData($("#message-form")[0]);
         formData.append("id", getMessengerId());
-        if(getGroupId) {
+        if (getGroupId) {
             formData.append("group_id", getGroupId());
         }
         formData.append("temporaryMsgId", tempID);
@@ -550,8 +550,8 @@ function sendMessage() {
                         .append(
                             sendTempMessageCard(
                                 sanitizeInput(inputValue) +
-                                    "\n" +
-                                    loadingSVG("28px"),
+                                "\n" +
+                                loadingSVG("28px"),
                                 tempID
                             )
                         );
@@ -580,7 +580,11 @@ function sendMessage() {
                     console.error(data.error_msg);
                 } else {
                     // update contact item
-                    updateContactItem(getMessengerId());
+                    if (getGroupId) {
+                        updateGroupItem(getGroupId());
+                    } else {
+                        updateContactItem(getMessengerId());
+                    }
                     // temporary message card
                     const tempMsgCardElement = messagesContainer.find(
                         `.message-card[data-id=${data.tempID}]`
@@ -1009,6 +1013,19 @@ function setContactsLoading(loading = false) {
     }
     contactsLoading = loading;
 }
+
+let groupsLoading = false;
+let noMoregroups = false;
+function setgroupsLoading(loading = false) {
+    if (!loading) {
+        $(".listOfgroups").find(".loading-groups").remove();
+    } else {
+        $(".listOfgroups").append(
+            `<div class="loading-groups">${listItemLoading(4)}</div>`
+        );
+    }
+    groupsLoading = loading;
+}
 function getContacts() {
     if (!contactsLoading && !noMoreContacts) {
         setContactsLoading(true);
@@ -1039,6 +1056,37 @@ function getContacts() {
     }
 }
 
+function getGroups() {
+    if (!groupsLoading && !noMoregroups) {
+
+        setContactsLoading(true);
+        $.ajax({
+            url: url + "/getGroups",
+            method: "GET",
+            data: { _token: csrfToken, page: contactsPage },
+            dataType: "JSON",
+            success: (data) => {
+                setContactsLoading(false);
+                if (contactsPage < 2) {
+                    $(".listOfgroups").html(data.groups);
+                } else {
+                    $(".listOfgroups").append(data.groups);
+                }
+                console.log(data)
+                updateSelectedContact();
+                // update data-action required with [responsive design]
+                cssMediaQueries();
+                // Pagination lock & messages page
+                noMoreContacts = contactsPage >= data?.last_page;
+                if (!noMoreContacts) contactsPage += 1;
+            },
+            error: (error) => {
+                setContactsLoading(false);
+                console.error(error);
+            },
+        });
+    }
+}
 /**
  *-------------------------------------------------------------
  * Update contact item
@@ -1078,6 +1126,39 @@ function updateContactItem(user_id) {
             },
         });
     }
+}
+function updateGroupItem(group_id) {
+    $.ajax({
+        url: url + "/updateGroups",
+        method: "POST",
+        data: {
+            _token: csrfToken,
+            group_id,
+        },
+        dataType: "JSON",
+        success: (data) => {
+            $(".listOfContacts")
+                .find(".messenger-list-item[data-contact=" + group_id + "]")
+                .remove();
+            if (data.contactItem)
+                $(".listOfContacts").prepend(data.contactItem);
+            if (group_id == getMessengerId()) updateSelectedContact(group_id);
+            // show/hide message hint (empty state message)
+            const totalContacts =
+                $(".listOfContacts").find(".messenger-list-item")?.length ||
+                0;
+            if (totalContacts > 0) {
+                $(".listOfContacts").find(".message-hint").hide();
+            } else {
+                $(".listOfContacts").find(".message-hint").show();
+            }
+            // update data-action required with [responsive design]
+            cssMediaQueries();
+        },
+        error: (error) => {
+            console.error(error);
+        },
+    });
 }
 
 /**
@@ -1406,10 +1487,10 @@ function initializeUserConversationFromURL() {
         updateSelectedContact(userID);
         setMessengerId(userID);
         if (window.location.href.includes("/chatify/group/")) {
-          Groupinfo(userID);
-      } else {
-          IDinfo(userID);
-      }
+            Groupinfo(userID);
+        } else {
+            IDinfo(userID);
+        }
     }
 }
 
@@ -1421,6 +1502,7 @@ function initializeUserConversationFromURL() {
 $(document).ready(function () {
     // get contacts list
     getContacts();
+    getGroups();
 
     // get contacts list
     getFavoritesList();
@@ -1451,10 +1533,10 @@ $(document).ready(function () {
                 }
 
                 if (window.location.href.includes("/chatify/group/")) {
-                  Groupinfo(getMessengerId());
-              } else {
-                  IDinfo(getMessengerId());
-              }
+                    Groupinfo(getMessengerId());
+                } else {
+                    IDinfo(getMessengerId());
+                }
             }
         });
     });
@@ -1773,6 +1855,7 @@ $(document).ready(function () {
     //Contacts pagination
     actionOnScroll(".messenger-tab.users-tab", function () {
         getContacts();
+        getGroups();
     });
     //Search pagination
     actionOnScroll(".messenger-tab.search-tab", function () {
