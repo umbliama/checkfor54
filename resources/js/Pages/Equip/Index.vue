@@ -563,7 +563,7 @@ onMounted(() => {
                                 </div>
                                 <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
                                 </div>
-                                <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
+                                <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ Number(item.income + item.subincome) ?? '-' }} ₽
                                 </div>
                                 <div class="shrink-0 flex items-center w-[calc(100%-9.96%-8.8%-5.15%-4.89%-5.15%-7.08%-6.11%-6.11%-8.56%-7.69%-7.69%-9.96%-70px)] py-2.5 px-2">
                                     <span class="line-clamp-2">{{ item.notes ?? '-' }}</span>
@@ -616,7 +616,7 @@ onMounted(() => {
                                                     <div class="flex items-center max-w-full">
                                                         <span
                                                             class="grow block mr-auto text-ellipsis overflow-hidden">{{
-                                                                file }}</span>
+                                                                file.file_name }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -655,9 +655,9 @@ onMounted(() => {
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <Link :href="'/'"
-                                                                                class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                            Скачать
+                                                                            <a download :href="'/' + file.file_path"
+                                                                                class= "inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                            Скачать 
                                                                             <svg class="block ml-2"
                                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                                 width="16" height="16"
@@ -668,7 +668,7 @@ onMounted(() => {
                                                                                     stroke-width="2"
                                                                                     d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                             </svg>
-                                                                            </Link>
+                                                                            </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>
@@ -847,6 +847,7 @@ onMounted(() => {
                                 <br>изготовления
                             </div>
                             <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">Стоимость</div>
+                            <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">Выручка</div>
                             <div
                                 class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-100px)] py-2.5 px-2">
                                 Примечание
@@ -872,12 +873,14 @@ onMounted(() => {
                         </div>
                         <template v-for="item in sortedEquipment">
                             <div
-                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                class="relative flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <div class="mr-2">
                                         <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
                                             endpoint="/equipment" />
                                     </div>
+                                    <span v-if="item.ownership === 'sub'" class="absolute left-9 top-0 w-px h-full bg-danger z-10 border-none"></span>
+
                                     <span class="line-clamp-2">{{ item.manufactor ?? '-' }}</span>
                                 </div>
                                 <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
@@ -896,6 +899,8 @@ onMounted(() => {
                                 </div>
                                 <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.price ?? '-' }} ₽
                                 </div>
+                                <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ Number(item.income + item.subincome) ?? '-' }} ₽
+                                </div>
                                 <div
                                     class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-100px)] py-2.5 px-2">
                                     <span class="line-clamp-2">{{ item.notes ?? '-' }}</span>
@@ -908,7 +913,7 @@ onMounted(() => {
                                         }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                    <Link v-if="true" :href="'/directory/equipment/' + item.id" class="mr-3.5">
+                                    <Link  v-if="item.directory === null" :href="'/directory/equipment/' + item.id" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -941,16 +946,13 @@ onMounted(() => {
                                             <PopoverContent side="bottom" align="end"
                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                 <div>Комментарий:</div>
-                                                <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране
-                                                    гласных и согласных живут рыбные тексты. Страна если бросил, он
-                                                    всемогущая запятых грамматики себя ipsum точках, несколько меня
-                                                    строчка маленькая страну предупреждал которой раз проектах. Ему
-                                                    выйти составитель дал то ...</p>
-                                                <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                <p class="mt-2.5 text-xs">{{ item.directory.commentary }}</p>
+                                                <div v-for="file in item.directory.files"
+                                                    class="mt-3 p-4 bg-bg1 text-xs">
                                                     <div class="flex items-center max-w-full">
                                                         <span
-                                                            class="grow block mr-auto text-ellipsis overflow-hidden">Some
-                                                            file name</span>
+                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{
+                                                                file.file_name }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -989,7 +991,7 @@ onMounted(() => {
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <Link :href="'/'"
+                                                                            <a download :href="'/' + file.file_path"
                                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
                                                                             Скачать
                                                                             <svg class="block ml-2"
@@ -1002,7 +1004,7 @@ onMounted(() => {
                                                                                     stroke-width="2"
                                                                                     d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                             </svg>
-                                                                            </Link>
+                                                                            </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>
@@ -1148,12 +1150,14 @@ onMounted(() => {
                         </div>
                         <template v-for="item in sortedEquipment">
                             <div
-                                class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
+                                class="relative flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all">
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <div class="mr-2">
                                         <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
                                             endpoint="/equipment" />
                                     </div>
+                                    <span v-if="item.ownership === 'sub'" class="absolute left-9 top-0 w-px h-full bg-danger z-10 border-none"></span>
+
                                     <span class="line-clamp-2">{{ item.manufactor ?? '-' }}</span>
                                 </div>
                                 <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
@@ -1198,7 +1202,7 @@ onMounted(() => {
                                         }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[100px] py-2.5 px-2">
-                                    <Link v-if="true" :href="'/directory/equipment/' + item.id" class="mr-3.5">
+                                    <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id" class="mr-3.5">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1231,16 +1235,13 @@ onMounted(() => {
                                             <PopoverContent side="bottom" align="end"
                                                 class="w-[300px] p-4 rounded-lg text-sm bg-white shadow-lg">
                                                 <div>Комментарий:</div>
-                                                <p class="mt-2.5 text-xs">Далеко-далеко за словесными горами в стране
-                                                    гласных и согласных живут рыбные тексты. Страна если бросил, он
-                                                    всемогущая запятых грамматики себя ipsum точках, несколько меня
-                                                    строчка маленькая страну предупреждал которой раз проектах. Ему
-                                                    выйти составитель дал то ...</p>
-                                                <div class="mt-3 p-4 bg-bg1 text-xs">
+                                                <p class="mt-2.5 text-xs">{{item.directory.commentary}}</p>
+                                                <div v-for="file in item.directory.files"
+                                                    class="mt-3 p-4 bg-bg1 text-xs">
                                                     <div class="flex items-center max-w-full">
                                                         <span
-                                                            class="grow block mr-auto text-ellipsis overflow-hidden">Some
-                                                            file name</span>
+                                                            class="grow block mr-auto text-ellipsis overflow-hidden">{{
+                                                                file.file_name }}</span>
                                                         <svg class="shrink-0 block ml-2" width="20" height="20"
                                                             viewBox="0 0 24 24" fill="none"
                                                             xmlns="http://www.w3.org/2000/svg">
@@ -1279,9 +1280,9 @@ onMounted(() => {
                                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                                         :side-offset="5" align="end">
                                                                         <DropdownMenuItem>
-                                                                            <Link :href="'/'"
-                                                                                class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                            Скачать
+                                                                            <a download :href="'/' + file.file_path"
+                                                                                class= "inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                                                            Скачать 
                                                                             <svg class="block ml-2"
                                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                                 width="16" height="16"
@@ -1292,7 +1293,7 @@ onMounted(() => {
                                                                                     stroke-width="2"
                                                                                     d="M4 16.004V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1M12 4.5v11m3.5-3.5L12 15.5L8.5 12" />
                                                                             </svg>
-                                                                            </Link>
+                                                                            </a>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </transition>

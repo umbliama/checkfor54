@@ -41,8 +41,8 @@ class ContragentsController extends Controller
 
         $contragents = $query->paginate($perPage);
 
-        $contragents_customers = Contragents::where('customer', 1)->paginate($perPage);
-        $contragents_suppliers = Contragents::where('supplier', 1)->paginate($perPage);
+        $contragents_customers = Contragents::where('customer', 1)->with('directory.files')->paginate($perPage);
+        $contragents_suppliers = Contragents::where('supplier', 1)->with('directory.files')->paginate($perPage);
 
         $contragents_count = Contragents::count();
         $contragents_customer_count = Contragents::where('customer', 1)->count();
