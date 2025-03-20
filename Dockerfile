@@ -40,8 +40,6 @@ WORKDIR /var/www
 COPY --from=deps /app /var/www
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Копируем только миграции отдельно (на случай, если предыдущая команда не скопирует их корректно)
-COPY --from=deps /database/migrations /var/www/database/migrations
 
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
