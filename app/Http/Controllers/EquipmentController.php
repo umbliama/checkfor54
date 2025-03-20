@@ -991,7 +991,7 @@ class EquipmentController extends Controller
                 break;
         }
 
-        $existingEquipment = Equipment::where('series', $request->input('series'))->first();
+        $existingEquipment = Equipment::where('series', $request->input('series'))->where('id', '!=',$id)->first();
 
         if ($existingEquipment) {
             return redirect()->back()->withErrors(['series' => 'Оборудование с такой серией уже существует.']);
