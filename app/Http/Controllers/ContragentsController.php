@@ -313,11 +313,11 @@ class ContragentsController extends Controller
                 'country' => 'sometimes|nullable|string',
                 'site' => 'sometimes|nullable|url',
                 'avatar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048|dimensions:min_width=400,min_height=400',
-                'contracts.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:51200',
-                'commercials.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:51200',
-                'transport.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:51200',
-                'financial.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:51200',
-                'adddocs.*' => 'sometimes|nullable|file|mimes:peg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:51200',
+                'contracts.*' => 'sometimes|nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:102400',
+                'commercials.*' => 'sometimes|nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:102400',
+                'transport.*' => 'sometimes|nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:102400',
+                'financial.*' => 'sometimes|nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:102400',
+                'adddocs.*' => 'sometimes|nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip,txt,xslx|max:102400',
             ]);
 
             $request->merge(array_map(function ($value) {
@@ -525,23 +525,23 @@ class ContragentsController extends Controller
         }
     }
 
-    private function sendNotificationToUsers($notification, $currentUserId)
+    private function sendNotificationToUsers($notification)
     {
-        $otherUserIds = User::where('id', '!=', $currentUserId)->pluck('id')->toArray();
-
-        foreach ($otherUserIds as $userId) {
+        $userIds = User::pluck('id')->toArray(); // Include all users
+    
+        foreach ($userIds as $userId) {
             // 🔹 Создаём запись о непрочитанном уведомлении
             NotificationRead::create([
                 'notification_id' => $notification->id,
                 'user_id' => $userId,
                 'read_at' => null,
             ]);
-
+    
             // 🔹 Подсчитываем количество непрочитанных уведомлений
             $unreadCount = NotificationRead::where('user_id', $userId)
                 ->whereNull('read_at')
                 ->count();
-
+    
             event(new NotificationCountUpdated($unreadCount, $userId));
         }
     }

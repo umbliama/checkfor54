@@ -726,27 +726,26 @@ class ServiceController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-
-    private function sendNotificationToUsers($notification, $currentUserId)
+    private function sendNotificationToUsers($notification)
     {
-        $otherUserIds = User::where('id', '!=', $currentUserId)->pluck('id')->toArray();
-
-        foreach ($otherUserIds as $userId) {
+        $userIds = User::pluck('id')->toArray(); // Include all users
+    
+        foreach ($userIds as $userId) {
             // 🔹 Создаём запись о непрочитанном уведомлении
             NotificationRead::create([
                 'notification_id' => $notification->id,
                 'user_id' => $userId,
                 'read_at' => null,
             ]);
-
+    
             // 🔹 Подсчитываем количество непрочитанных уведомлений
             $unreadCount = NotificationRead::where('user_id', $userId)
                 ->whereNull('read_at')
                 ->count();
-
-
+    
             event(new NotificationCountUpdated($unreadCount, $userId));
         }
     }
+
 
 }

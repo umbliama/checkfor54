@@ -59,6 +59,7 @@ class Contragents extends Model
             'KZ' => 'Казахстан',
             'CN' => 'Китай',
             'CY' => 'Кипр',
+            'UZ' => 'Узбекистан'
         ];
     }
     public static function getLegalMapping(): array

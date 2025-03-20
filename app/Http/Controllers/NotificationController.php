@@ -14,28 +14,30 @@ class NotificationController extends Controller
     public function index()
     {
         $user_id = Auth::id();
-    
-        $unreadNotifications = Notification::where('created_by', '!=', $user_id)
-            ->whereDoesntHave('reads', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id)->whereNotNull('read_at');
-            })
-            ->with('creator')
-            ->get();
-    
-        $readNotifications = Notification::where('created_by', '!=', $user_id)
-            ->whereHas('reads', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id)->whereNotNull('read_at');
-            })
-            ->with('creator')
-            ->get();
-    
+        $unreadNotifications = Notification::whereHas('reads', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id)
+                  ->whereNull('read_at');
+        })
+        ->orWhereDoesntHave('reads', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })
+        ->with('creator')
+        ->get();
+
+    // Read notifications for current user
+    $readNotifications = Notification::whereHas('reads', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id)
+                  ->whereNotNull('read_at');
+        })
+        ->with('creator')
+        ->get();
         return Inertia::render('Notifications/Index', [
             'notifications' => $unreadNotifications,
-            'read_notifications'   => $readNotifications,
-            'user_id'             => $user_id,
+            'read_notifications' => $readNotifications,
+            'user_id' => $user_id,
         ]);
     }
-        /**
+    /**
      * Получает уведомления, которые ещё не отмечены как прочитанные текущим пользователем.
      */
     public function getNotificationsByUserId($currentUserId)
@@ -70,25 +72,22 @@ class NotificationController extends Controller
      */
     public function markAllAsRead(Request $request)
     {
-        try{
+        try {
             $user_id = Auth::id();
-        
-            // Отмечаем все уведомления пользователя как прочитанные
-            NotificationRead::where('user_id', $user_id)
+    
+            $notifications = NotificationRead::where('user_id', $user_id)
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
-        
-            // Получаем обновленное количество непрочитанных уведомлений
+    
             $unreadCount = NotificationRead::where('user_id', $user_id)
                 ->whereNull('read_at')
                 ->count();
-        
-            // Отправляем обновленное количество через событие
+    
             event(new NotificationCountUpdated($unreadCount, $user_id));
-        
-            return back()->with('message','Все уведомления прочитаны');
-        }catch(\Exception $e) {
-            dd($e->getMessage);
+    
+            return back()->with('message', 'Все уведомления прочитаны');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
     }
 }

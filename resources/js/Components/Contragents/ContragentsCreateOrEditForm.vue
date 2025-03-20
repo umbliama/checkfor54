@@ -38,7 +38,8 @@ const countryMapping = {
     KZ: 'Kazakhstan',
     AZ: 'Azerbaijan',
     CN: 'China',
-    CY: 'Cyprus'
+    CY: 'Cyprus',
+    UZ: 'Uzbekistan'
 };
 
 
@@ -88,6 +89,17 @@ const legalFormsData = {
         SP: 'Sole Proprietorship',
         BFC: 'Branch of Foreign Company',
         IBC: 'International Business Company',
+    },
+    Uzbekistan: {
+        IP: 'Индивидуальный предприниматель (ЯТ)',
+        LLC: 'Общество с ограниченной ответственностью (МЧЖ)',
+        JSC: 'Акционерное общество (АЖ)',
+        PJSC: 'Публичное АО (ОАЖ)',
+        CJSC: 'Закрытое АО (ЁАЖ)',
+        PC: 'Производственный кооператив',
+        FH: 'Фермерское хозяйство (ФХ)',
+        UP: 'Унитарное предприятие',
+        BFC: 'Филиал иностранной компании',
     }
 };
 

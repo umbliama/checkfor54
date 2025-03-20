@@ -14,7 +14,7 @@ class Notification extends Model
      */
     public function reads()
     {
-        return $this->hasMany(NotificationRead::class);
+        return $this->hasMany(NotificationRead::class, 'notification_id', 'id');
     }
 
     /**
