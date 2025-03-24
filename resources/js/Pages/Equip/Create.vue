@@ -18,7 +18,7 @@ const page = usePage()
 const statuses = [
     { title: 'Новое', value: 'new' },
     { title: 'Хорошее', value: 'good' },
-    { title: 'Удволетворительное', value: 'satisfactory' },
+    { title: 'Удовлетворительно', value: 'satisfactory' },
     { title: 'Плохое', value: 'bad' },
     { title: 'Продан', value: 'sold', },
     { title: 'Списано', value: 'off', },

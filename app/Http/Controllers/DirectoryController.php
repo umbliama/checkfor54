@@ -57,7 +57,7 @@ class DirectoryController extends Controller
             // Validate request data
             $validatedData = $request->validate([
                 'files.*' => 'nullable|file',
-                'commentary' => 'required|string',
+                'commentary' => 'nullable|string',
             ]);
 
             // Determine if we are creating or updating a record
