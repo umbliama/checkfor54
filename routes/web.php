@@ -50,6 +50,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
 
     Route::get('/equip', [EquipmentController::class, 'index'])->name('equip.index');
+    Route::get('/equip/archive', [EquipmentController::class, 'archive'])->name('equip.archive');
     Route::get('/equip/report', [EquipmentController::class, 'report'])->name('equip.report');
 
     Route::get('/equip/move', [EquipmentController::class, 'move'])->name('equip.move');
@@ -142,7 +143,10 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::prefix('/chat')->group(function() {
         
         Route::get('/', [ChatController::class,'index'])->name('chat.index');
+        Route::get('/getContacts', [ChatController::class,'getContacts'])->name('chat.getContacts');
         Route::post('/sendMessage', [ChatController::class,'sendMessage'])->name('chat.send');
+        Route::get('/user/{id}', [ChatController::class, 'getChat'])->name('chat.getChat');
+        Route::get('/user/messages/{id}', [ChatController::class, 'getUserMessages'])->name('chat.getUserMessages');
     });
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
