@@ -847,9 +847,9 @@ onMounted(() => {
                                 <br>изготовления
                             </div>
                             <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">Стоимость</div>
-                            <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">Выручка</div>
+                            <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">Выручка</div>
                             <div
-                                class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-100px)] py-2.5 px-2">
+                                class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-7.69%-100px)] py-2.5 px-2">
                                 Примечание
                             </div>
                             <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">Состояние</div>
@@ -902,7 +902,7 @@ onMounted(() => {
                                 <div class="shrink-0 flex items-center w-[7.69%] py-2.5 px-2">{{ Number(item.income + item.subincome) ?? '-' }} ₽
                                 </div>
                                 <div
-                                    class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-100px)] py-2.5 px-2">
+                                    class="shrink-0 flex items-center w-[calc(100%-9.96%-9.96%-10.48%-10.48%-10.48%-10.48%-10.48%-7.69%-100px)] py-2.5 px-2">
                                     <span class="line-clamp-2">{{ item.notes ?? '-' }}</span>
                                 </div>
                                 <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">
@@ -1127,6 +1127,7 @@ onMounted(() => {
                                 <br>изготовления
                             </div>
                             <div class="shrink-0 flex items-center justify-center w-[9.6%] py-2.5 px-2">Стоимость</div>
+                            <div class="shrink-0 flex items-center justify-center w-[9.6%] py-2.5 px-2">Выручка</div>
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Примечание
                             </div>
                             <div class="shrink-0 flex items-center justify-center w-[9.96%] py-2.5 px-2">Состояние</div>
@@ -1190,6 +1191,8 @@ onMounted(() => {
                                     }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[9.6%] py-2.5 px-2">{{ item.price ?? '-' }}
+                                </div>
+                                <div class="shrink-0 flex items-center w-[9.6%] py-2.5 px-2">{{ Number(item.income + item.subincome) ?? '-' }} ₽
                                 </div>
                                 <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                     <span class="line-clamp-2">{{ item.notes ?? '-' }}</span>
