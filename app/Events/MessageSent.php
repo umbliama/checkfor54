@@ -18,11 +18,18 @@ class MessageSent implements ShouldBroadcast
     public function __construct(Message $message)
     {
         $this->message = $message;
+
+        \Log::info('Message broadcasted to: ', [
+            'sender' => $this->message->user_id,
+            'recipient' => $this->message->recipient_id,
+        ]);
     }
     public function broadcastOn(): array
     {
+
+        
         return [
-            new PrivateChannel('chat.' . $this->message->user_id),
+            new PrivateChannel('chat.' . $this->message->recipient_id),
         ];
     }
 

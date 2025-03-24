@@ -25,18 +25,24 @@ const fetchMessages = () => {
         });
 };
 window.Echo.private(`chat.${currentUserId.value}`)
-        .listen("MessageSent", (event) => {
-            console.log("New message received:", event.message);
-            fetchMessages()
-            // Add new message to the chat
-            messages.value.push(event.message);
-        });
-        
+    .listen("MessageSent", (event) => {
+        console.log("New message for user:", props.contactId);
+        console.log("Received message:", event.message);
+        fetchMessages();
+    });
+
+
+
+window.Echo.connector.pusher.connection.bind('error', function (err) {
+    console.error("Echo Error:", err);
+});
+
 const listenForMessages = () => {
 
 };
 
 onMounted(() => {
+    console.log(props.contactId)
     listenForMessages();
 });
 // Watch for contactId changes and fetch messages
@@ -49,18 +55,18 @@ watch(() => props.contactId, fetchMessages, { immediate: true });
         <h2 v-if="contactId">Chat with {{ contactId }}</h2>
         <div v-else>No contact selected</div>
         <div class="h-96 overflow-y-auto p-4 space-y-2">
-    <div v-for="message in messages.messages" :key="message.id"
-        :class="message.user.id === currentUserId ? 'flex justify-end' : 'flex justify-start'">
-        
-        <div :class="[
-            'max-w-xs md:max-w-md px-4 py-2 rounded-lg shadow',
-            message.user.id === currentUserId ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-gray-800 self-start'
-        ]">
-            <p class="text-sm">{{ message.message }}</p>
-            <p class="text-xs text-gray-500 mt-1">{{ message.created_at }}</p>
+            <div v-for="message in messages.messages" :key="message.id"
+                :class="message.user.id === currentUserId ? 'flex justify-end' : 'flex justify-start'">
+
+                <div :class="[
+                    'max-w-xs md:max-w-md px-4 py-2 rounded-lg shadow',
+                    message.user.id === currentUserId ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-gray-800 self-start'
+                ]">
+                    <p class="text-sm">{{ message.message }}</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ message.created_at }}</p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <SendForm :recipient_id="contactId" />
     </div>
