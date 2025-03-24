@@ -231,7 +231,7 @@ onMounted(() => {
                         :inp-attrs="{ type: 'date', required: true }" />
                     <UiField v-model="form.price" label="Стоимость" :inp-attrs="{ required: true }" />
                     <UiField v-model="form.notes" label="Примечание" />
-                    <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" />
+                    <UiFieldSelect v-model="form.status" :items="statuses" label="Состояние" dropdown-class="max-h-[unset]" />
                     <UiFieldSelect v-model="form.ownership" :items="ownershipArray" label="Право собственности" />
 
                 </div>
