@@ -1,10 +1,15 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import ContactList from './ContactList.vue';
 import ContactChat from './ContactChat.vue';
+import { usePage } from '@inertiajs/vue3';
+
+
+const page = usePage();
 
 const contacts = ref([]);
 const chosenContact = ref(null);
+const currentUserId = computed(() => page.props.auth.user.id);
 
 const setChosenContact = (id) => {
     chosenContact.value = id;
@@ -19,6 +24,9 @@ onMounted(() => {
             console.error('Error fetching contacts:', error);
         });
 });
+
+
+
 </script>
 
 <template>
