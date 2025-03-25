@@ -322,7 +322,7 @@ class EquipmentController extends Controller
             ->where('size_id', $sizeId)
             ->where('status', '!=', 'off') 
             ->with(['activeServices', 'repairs', 'tests'])
-            ->get();
+            ->paginate(100);
 
         $equipment->map(function ($item) {
             $item->used = $item->used;
@@ -338,7 +338,7 @@ class EquipmentController extends Controller
             ->where('size_id', $sizeId)
             ->where('status', '!=', 'off') 
             ->with(['activeServices', 'repairs', 'tests'])
-            ->paginate(10);
+            ->paginate(100);
 
         $equipment->map(function ($item) {
             $item->used = $item->used;
