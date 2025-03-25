@@ -70,6 +70,10 @@ const deleteRow = () => {
     rows.value -= 1;
 }
 
+const deleteSubRow = (id) => {
+    selectedEquipment.value[id].subRows -= 1;
+}
+
 watch(chosenAgent, async (newValue, oldValue) => {
     if (newValue) {
         try {
@@ -890,12 +894,13 @@ function submit() {
                                                     <DropdownMenuContent
                                                         class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                         :side-offset="5" align="end">
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem>  
                                                             <button type="button"
+                                                            @click="deleteSubRow(index)"
                                                                 class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
-                                                                Укомплектовать
+                                                                Удалить
                                                                 <svg class="block ml-2" width="16" height="16"
-                                                                    viewBox="0 0 16 16" fill="none"
+                                                                    viewBox="0 0 1  6 16" fill="none"
                                                                     xmlns="http://www.w3.org/2000/svg">
                                                                     <path
                                                                         d="M13.0981 5.10827C12.6795 5.52693 12.4702 5.73626 12.2506 5.77677C12.0309 5.81728 11.8868 5.67315 11.5986 5.3849L10.6151 4.40144C10.3269 4.11319 10.1827 3.96906 10.2232 3.74946C10.2638 3.52985 10.4731 3.32052 10.8917 2.90186L11.1184 2.67522C11.537 2.25656 11.7464 2.04723 11.966 2.00672C12.1856 1.96621 12.3297 2.11034 12.618 2.39859L13.6014 3.38204C13.8897 3.6703 14.0338 3.81442 13.9933 4.03403C13.9528 4.25364 13.7434 4.46297 13.3248 4.88162L13.0981 5.10827Z"

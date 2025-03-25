@@ -17,6 +17,7 @@ const menuActive = computed(() => store.getters['equipment/getMenuActiveItem']);
 const equipment_count = computed(() => store.getters['equipment/getEquipmentCount'])
 const equipment_count_repair = computed(() => store.getters['equipment/getEquipmentRepairCount'])
 const equipment_count_test = computed(() => store.getters['equipment/getEquipmentTestCount'])
+const equipment_count_archive = computed(() => store.getters['equipment/getArchiveCount'])
 
 const setMenuItem = (item) => {
     store.dispatch('equipment/downgradeSizeActive')
@@ -34,6 +35,9 @@ const getEquipmentRepairCount = () => {
 }
 const getEquipmentTestCount = () => {
     store.dispatch('equipment/updateEquipmentTestCount')
+}
+const getEquipmentArchiveCount = () => {
+    store.dispatch('equipment/updateEquipmentArchiveCount')
 }
 
 
@@ -53,7 +57,7 @@ onMounted(() => {
     getEquipmentCount();
     getEquipmentRepairCount()
     getEquipmentTestCount()
-
+    getEquipmentArchiveCount();
     if (selectedCategory.value) {
         filterByCategory();
     }
@@ -67,87 +71,71 @@ onMounted(() => {
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto lg:overflow-x-visible">
                 <li>
-                    <Link
-                        :href="route('equip.report')"
+                    <Link :href="route('equip.report')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base"
-                    >Отчет</Link>
+                        class="flex items-center border-b-2 border-transparent py-3 text-base">Отчет</Link>
                 </li>
                 <li>
-                    <Link
-                        :href="route('equip.index')"
+                    <Link :href="route('equip.index')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.EQUIPMENT }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent"
-                    >
-                        Оборудование
-                        <span
-                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
-                        >
-                            {{ equipment_count }}
-                        </span>
+                        class="flex items-center py-3 text-base border-b-2 border-transparent">
+                    Оборудование
+                    <span
+                        class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                        {{ equipment_count }}
+                    </span>
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        :href="route('equip.repair')"
+                    <Link :href="route('equip.repair')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPAIR }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent"
-                    >
-                        Ремонт
-                        <span
-                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
-                        >
-                            {{ equipment_count_repair }}
-                        </span>
+                        class="flex items-center py-3 text-base border-b-2 border-transparent">
+                    Ремонт
+                    <span
+                        class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                        {{ equipment_count_repair }}
+                    </span>
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        :href="route('equip.tests')"
+                    <Link :href="route('equip.tests')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.TESTS }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent"
-                    >
-                        Испытания
-                        <span
-                            class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text"
-                        >
-                            {{ equipment_count_test }}
-                        </span>
+                        class="flex items-center py-3 text-base border-b-2 border-transparent">
+                    Испытания
+                    <span
+                        class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                        {{ equipment_count_test }}
+                    </span>
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        :href="route('equip.move')"
+                    <Link :href="route('equip.move')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.MOVE }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent"
-                    >
-                        Перемещение
+                        class="flex items-center py-3 text-base border-b-2 border-transparent">
+                    Перемещение
 
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        :href="route('equip.archive')"
+                    <Link :href="route('equip.archive')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.ARCHIVE }"
-                        class="flex items-center py-3 text-base border-b-2 border-transparent"
-                    >
-                        Архив
-
+                        class="flex items-center py-3 text-base border-b-2 border-transparent">
+                    Архив
+                    <span
+                        class="flex items-center min-w-[18px] h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
+                        {{ equipment_count_archive }}
+                    </span>
                     </Link>
                 </li>
-                <li
-                    :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
-                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
-                >
-                    <Link :href="route('equip.price', {category_id: 1})" class="text-base">Стоимость</Link>
+                <li :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
+                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer">
+                    <Link :href="route('equip.price', { category_id: 1 })" class="text-base">Стоимость</Link>
                 </li>
-<!--                <Link @click="toggleDropdown">-->
+                <!--                <Link @click="toggleDropdown">-->
 
                 <li>
                     <DropdownMenuRoot>
-                        <DropdownMenuTrigger
-                            aria-label="Customise options"
-                        >
+                        <DropdownMenuTrigger aria-label="Customise options">
                             <svg class="block" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -160,23 +148,18 @@ onMounted(() => {
                             <transition name="fade">
                                 <DropdownMenuContent
                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
-                                    :side-offset="5"
-                                    align="end"
-                                >
+                                    :side-offset="5" align="end">
                                     <DropdownMenuItem>
-                                        <Link
-                                            :href="route('equip.create')"
-                                            class="flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
-                                        >
-                                            Добавить оборудование
+                                        <Link :href="route('equip.create')"
+                                            class="flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
+                                        Добавить оборудование
 
-                                            <svg class="block ml-2" width="16"
-                                                height="16" viewBox="0 0 16 16" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M8.74999 2.75003C8.74999 2.33582 8.4142 2.00003 7.99999 2.00003C7.58578 2.00003 7.24999 2.33582 7.24999 2.75003V7.25H2.75C2.33579 7.25 2 7.58578 2 8C2 8.41421 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41421 14 8C14 7.58578 13.6642 7.25 13.25 7.25H8.74999V2.75003Z"
-                                                    fill="#464F60" />
-                                            </svg>
+                                        <svg class="block ml-2" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M8.74999 2.75003C8.74999 2.33582 8.4142 2.00003 7.99999 2.00003C7.58578 2.00003 7.24999 2.33582 7.24999 2.75003V7.25H2.75C2.33579 7.25 2 7.58578 2 8C2 8.41421 2.33579 8.75 2.75 8.75H7.24999L7.25 13.25C7.25 13.6642 7.58579 14 8 14C8.41421 14 8.75 13.6642 8.75 13.25L8.74999 8.75H13.25C13.6642 8.75 14 8.41421 14 8C14 7.58578 13.6642 7.25 13.25 7.25H8.74999V2.75003Z"
+                                                fill="#464F60" />
+                                        </svg>
                                         </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -184,7 +167,7 @@ onMounted(() => {
                         </DropdownMenuPortal>
                     </DropdownMenuRoot>
                 </li>
-<!--                </Link>-->
+                <!--                </Link>-->
             </ul>
         </div>
     </nav>

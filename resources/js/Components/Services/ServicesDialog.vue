@@ -12,6 +12,8 @@ import store from '../../../store/index';
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 
+import Pagination from '@/Components/Pagination.vue';
+
 
 const model = defineModel();
 
@@ -70,7 +72,7 @@ const updateSubSelectedEquipment = (equipment_id, subEquipmentItem) => {
 const updateSelectedEquipment = async (used, value) => {
 
     if (used) {
-        console.log('12'+used)
+        console.log('12' + used)
         return
     } else {
         if (equipmentType.value === 0) {
@@ -233,7 +235,7 @@ watch(model, (newValue) => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="item in equipment.data">
+                                <template v-for="item in equipment">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
                                         @click="updateSelectedEquipment(item.used, item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
@@ -259,7 +261,7 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{
                                             item.zahodnost ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ??
                                             '-' }}
@@ -270,21 +272,21 @@ watch(model, (newValue) => {
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.stator_rotor ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[6.11%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[7.08%] py-2.5 px-2">{{
                                             item.narabotka_ds ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.56%] py-2.5 px-2">{{
                                             item.manufactor_date ??
                                             '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[8.04%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -297,7 +299,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -315,6 +317,11 @@ watch(model, (newValue) => {
                                         </div>
                                     </div>
                                 </template>
+                                <pagination :current-page="equipment.current_page"
+                                    :total-pages="equipment.last_page" :total-count="equipment.total"
+                                    :next-page-url="equipment.next_page_url" :links="equipment.links"
+                                    :prev-page-url="equipment.prev_page_url" class="mt-5 bg-bg1" />
+
                             </div>
                         </div>
 
@@ -363,7 +370,7 @@ watch(model, (newValue) => {
                                 </div>
                                 <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
-                                        @click="updateSelectedEquipment(item.used,item.id)">
+                                        @click="updateSelectedEquipment(item.used, item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                             <div class="mr-2">
                                                 <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
@@ -385,12 +392,12 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{
                                             item.manufactor_date
                                             ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center w-[10.48%] py-2.5 px-2">{{ item.price ??
                                             '-' }} ₽
@@ -404,7 +411,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
@@ -480,7 +487,7 @@ watch(model, (newValue) => {
                                 </div>
                                 <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
-                                        @click="updateSelectedEquipment(item.used,item.id)">
+                                        @click="updateSelectedEquipment(item.used, item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
                                             <div class="mr-2">
                                                 <UiHyperlink :item-id="item.id" :hyperlink="item.hyperlink"
@@ -499,23 +506,23 @@ watch(model, (newValue) => {
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.diameter ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
                                             item.length ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[6.73%] py-2.5 px-2">{{
                                             item.length_rezba ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.rezbi ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div class="shrink-0 flex items-center justify-center w-[7.08%] py-2.5 px-2">{{
                                             item.operating ?? '-'
-                                        }}
+                                            }}
                                         </div>
                                         <div
                                             class="shrink-0 flex items-center justify-center text-center w-[8.56%] py-2.5 px-2">
@@ -534,7 +541,7 @@ watch(model, (newValue) => {
                                                 class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                             <span class="text-nowrap text-ellipsis overflow-hidden">{{
                                                 statuses[item.status]
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
                                             <Link :href="route('directory.index', { type: 'equipment', id: item.id })"

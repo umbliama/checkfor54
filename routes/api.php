@@ -20,6 +20,8 @@ Route::get('/cities', [CityController::class, 'index']);
 Route::get('/equipment', [EquipmentController::class, 'getEquipment']);
 Route::get('/equipment/getCount', [EquipmentController::class, 'getEquipmentCount']);
 Route::get('/equipment/repair/getCount', [EquipmentController::class, 'getEquipmentRepairCount']);
+Route::get('/equipment/archiveGetCount', [EquipmentController::class, 'getArchiveCount']);
+
 Route::get('/equipment/test/getCount', [EquipmentController::class, 'getEquipmentTestCount']);
 Route::get('/equipment/categories', [EquipmentController::class, 'getEquipmentCategories']);
 Route::get('/equipment/subcategories', [EquipmentController::class, 'getSubEquipmentCategories']);
@@ -39,7 +41,6 @@ Route::get('/equip/report', [EquipmentController::class, 'getFilteredReports']);
 Route::get('/equip/tests', [EquipmentController::class, 'getFilteredTests']);
 Route::get('/equip/services', [EquipmentController::class, 'getFilteredServicesInActive']);
 Route::get('/equip/moves', [EquipmentController::class, 'getFilteredMoves']);
-
 
 Route::get('/getNotificationsByUserId/{id}', [NotificationController::class, 'getNotificationsByUserId']);
 Route::post('/notifications/read/{id}/{userId}', [NotificationController::class, 'markAsRead']);

@@ -42,6 +42,7 @@ const is_loc_create_dialog_open = ref(false);
 const loc_to_create             = ref('');
 const is_loc_edit_dialog_open   = ref(false);
 const loc_to_edit               = ref('');
+const loc_to_edit_id               = ref('');
 
 const changeLocationItemId = ref(null);
 const searchNotes = ref("");
@@ -66,6 +67,13 @@ const addLocation = (locName) => {
 }
 const deleteLocation = (locId) => {
     router.delete(`/equip/location/delete/${locId}`)
+}
+const editLocation = (locId,locName) => {
+    router.put(`/equip/location/`, {
+        id:locId,
+        name:locName
+    })
+    is_loc_edit_dialog_open.value = false
 }
 
 const setLocation = (location) => {
@@ -255,9 +263,10 @@ const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const currentPage = ref(props.equipment.current_page || 1);
 const lastPage = ref(props.equipment.last_page || 1);
 
-function openLocEdit(loc_name) {
+function openLocEdit(loc_id,loc_name) {
     is_loc_edit_dialog_open.value = true;
     loc_to_edit.value = loc_name;
+    loc_to_edit_id.value = loc_id
 }
 
 onMounted(() => {
@@ -378,7 +387,7 @@ onMounted(() => {
                                         >
                                             {{ location.name }}
 
-                                            <button type="button" class="shrink-0 block ml-2" @click="openLocEdit(location.name)">
+                                            <button type="button" class="shrink-0 block ml-2" @click="openLocEdit(location.id,location.name)">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M11.4848 2.79435L11.4849 2.79423C11.5819 2.6973 11.7925 2.60196 12.0574 2.59421C12.3168 2.58662 12.5345 2.66558 12.6632 2.79423L13.1345 3.26556C13.2632 3.3943 13.3423 3.61214 13.3348 3.8715C13.3271 4.1364 13.2318 4.34718 13.1345 4.44445L12.5455 5.03307L10.8953 3.38341L11.4848 2.79435ZM10.8956 6.68334L4.75059 12.8284L2.60567 13.3231L3.10036 11.1781L9.24539 5.03311L10.8956 6.68334Z" fill="#21272A" stroke="#464F60"/>
                                                 </svg>
@@ -1552,7 +1561,7 @@ onMounted(() => {
                     <div class="mt-6">
                         <UiField v-model="loc_to_edit" :inp-attrs="{ placeholder: 'Название локации' }" />
 
-                        <button class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Подтвердить</button>
+                        <button @click="editLocation(loc_to_edit_id,loc_to_edit)" class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Подтвердить</button>
                     </div>
                 </DialogContent>
             </transition>

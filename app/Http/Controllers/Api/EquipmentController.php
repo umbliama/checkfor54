@@ -64,6 +64,13 @@ class EquipmentController extends Controller
 
         return $repairs;
     }
+
+    public function getArchiveCount()
+    {
+        $count = Equipment::whereIn('status',['off','deleted','sold'])->count();
+
+        return response()->json($count);
+    }
     public function getFilteredReports(Request $request)
     {
         $series   = $request->input('series');
@@ -315,7 +322,7 @@ class EquipmentController extends Controller
             ->where('size_id', $sizeId)
             ->where('status', '!=', 'off') 
             ->with(['activeServices', 'repairs', 'tests'])
-            ->paginate(10);
+            ->get();
 
         $equipment->map(function ($item) {
             $item->used = $item->used;

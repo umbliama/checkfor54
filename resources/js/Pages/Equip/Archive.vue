@@ -274,7 +274,7 @@ onMounted(() => {
         store.dispatch('equipment/updateCategory', 1);
     }
 
-    store.dispatch('equipment/updateMenuItem', EquipMenuItems.EQUIPMENT);
+    store.dispatch('equipment/updateMenuItem', EquipMenuItems.ARCHIVE);
 });
 
 </script>
