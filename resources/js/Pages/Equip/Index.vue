@@ -56,6 +56,16 @@ const maxPrice = ref(null);
 const selectedManufacturer = ref(null);
 const selectedStatus = ref(null);
 
+
+const addLocation = (locName) => {
+    router.post('/equip/location', {
+        name:locName
+    })
+}
+const deleteLocation = (locId) => {
+    router.delete(`/equip/location/delete/${locId}`)
+}
+
 const setLocation = (location) => {
     store.dispatch('equipment/updateLocationActive', location)
     store.dispatch('equipment/updateIsRentActive', 0)
@@ -361,12 +371,12 @@ onMounted(() => {
                                         >
                                             {{ location.name }}
 
-                                            <button type="button" class="shrink-0 block ml-2">
+                                            <button  type="button" class="shrink-0 block ml-2">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M11.4848 2.79435L11.4849 2.79423C11.5819 2.6973 11.7925 2.60196 12.0574 2.59421C12.3168 2.58662 12.5345 2.66558 12.6632 2.79423L13.1345 3.26556C13.2632 3.3943 13.3423 3.61214 13.3348 3.8715C13.3271 4.1364 13.2318 4.34718 13.1345 4.44445L12.5455 5.03307L10.8953 3.38341L11.4848 2.79435ZM10.8956 6.68334L4.75059 12.8284L2.60567 13.3231L3.10036 11.1781L9.24539 5.03311L10.8956 6.68334Z" fill="#21272A" stroke="#464F60"/>
                                                 </svg>
                                             </button>
-                                            <button type="button" class="shrink-0 block ml-2">
+                                            <button @click="deleteLocation(location.id)" type="button" class="shrink-0 block ml-2">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M4.75 3.75V4.25H2.75C2.33579 4.25 2 4.58579 2 5C2 5.41421 2.33579 5.75 2.75 5.75H3.51389L3.89504 12.6109C3.95392 13.6708 4.8305 14.5 5.89196 14.5H10.108C11.1695 14.5 12.0461 13.6708 12.1049 12.6109L12.4861 5.75H13.25C13.6642 5.75 14 5.41421 14 5C14 4.58579 13.6642 4.25 13.25 4.25H11.25V3.75C11.25 2.50736 10.2426 1.5 9 1.5H7C5.75736 1.5 4.75 2.50736 4.75 3.75ZM7 3C6.58579 3 6.25 3.33579 6.25 3.75V4.25H9.75V3.75C9.75 3.33579 9.41421 3 9 3H7ZM7.25 7.75C7.25 7.33579 6.91421 7 6.5 7C6.08579 7 5.75 7.33579 5.75 7.75V12.25C5.75 12.6642 6.08579 13 6.5 13C6.91421 13 7.25 12.6642 7.25 12.25V7.75ZM10.25 7.75C10.25 7.33579 9.91421 7 9.5 7C9.08579 7 8.75 7.33579 8.75 7.75V12.25C8.75 12.6642 9.08579 13 9.5 13C9.91421 13 10.25 12.6642 10.25 12.25V7.75Z" fill="#DC4067"/>
                                                 </svg>
@@ -1494,7 +1504,6 @@ onMounted(() => {
             </transition>
             <transition name="fade">
                 <DialogContent
-                    as="form"
                     class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[85vh] w-[90vw] max-w-[300px] p-6 rounded bg-white overflow-y-auto z-[100]">
                     <DialogTitle class="flex items-center justify-between font-semibold">
                         Добавить локацию
@@ -1509,7 +1518,7 @@ onMounted(() => {
                     <div class="mt-6">
                         <UiField v-model="loc_to_create" :inp-attrs="{ placeholder: 'Название локации' }" />
 
-                        <button type="submit" class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Добавить</button>
+                        <button @click="addLocation(loc_to_create)" class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Добавить</button>
                     </div>
                 </DialogContent>
             </transition>
