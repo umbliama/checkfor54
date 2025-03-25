@@ -40,6 +40,8 @@ import UiFieldSelect from '@/Components/Ui/UiFieldSelect.vue';
 const is_loc_dialog_open        = ref(false);
 const is_loc_create_dialog_open = ref(false);
 const loc_to_create             = ref('');
+const is_loc_edit_dialog_open   = ref(false);
+const loc_to_edit               = ref('');
 
 const changeLocationItemId = ref(null);
 const searchNotes = ref("");
@@ -253,6 +255,11 @@ const selectedSize = computed(() => store.getters['equipment/getSizeActive']);
 const currentPage = ref(props.equipment.current_page || 1);
 const lastPage = ref(props.equipment.last_page || 1);
 
+function openLocEdit(loc_name) {
+    is_loc_edit_dialog_open.value = true;
+    loc_to_edit.value = loc_name;
+}
+
 onMounted(() => {
     const { current_page, total } = props.equipment;
 
@@ -371,7 +378,7 @@ onMounted(() => {
                                         >
                                             {{ location.name }}
 
-                                            <button  type="button" class="shrink-0 block ml-2">
+                                            <button type="button" class="shrink-0 block ml-2" @click="openLocEdit(location.name)">
                                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M11.4848 2.79435L11.4849 2.79423C11.5819 2.6973 11.7925 2.60196 12.0574 2.59421C12.3168 2.58662 12.5345 2.66558 12.6632 2.79423L13.1345 3.26556C13.2632 3.3943 13.3423 3.61214 13.3348 3.8715C13.3271 4.1364 13.2318 4.34718 13.1345 4.44445L12.5455 5.03307L10.8953 3.38341L11.4848 2.79435ZM10.8956 6.68334L4.75059 12.8284L2.60567 13.3231L3.10036 11.1781L9.24539 5.03311L10.8956 6.68334Z" fill="#21272A" stroke="#464F60"/>
                                                 </svg>
@@ -1518,7 +1525,34 @@ onMounted(() => {
                     <div class="mt-6">
                         <UiField v-model="loc_to_create" :inp-attrs="{ placeholder: 'Название локации' }" />
 
-                        <button @click="addLocation(loc_to_create)" class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Добавить</button>
+                        <button @click="addLocation(loc_to_create)" class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Подтвердить</button>
+                    </div>
+                </DialogContent>
+            </transition>
+        </DialogPortal>
+    </DialogRoot>
+    <DialogRoot v-model:open="is_loc_edit_dialog_open">
+        <DialogPortal>
+            <transition name="fade">
+                <DialogOverlay class="fixed left-0 top-0 w-full h-full bg-black bg-opacity-60 z-[60]" />
+            </transition>
+            <transition name="fade">
+                <DialogContent
+                    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-h-[85vh] w-[90vw] max-w-[300px] p-6 rounded bg-white overflow-y-auto z-[100]">
+                    <DialogTitle class="flex items-center justify-between font-semibold">
+                        Редактировать локацию
+                        <DialogClose class="shrink-0 ml-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M16.95 8.464a1 1 0 0 0-1.414-1.414L12 10.586L8.464 7.05A1 1 0 1 0 7.05 8.464L10.586 12L7.05 15.536a1 1 0 1 0 1.414 1.414L12 13.414l3.536 3.536a1 1 0 1 0 1.414-1.414L13.414 12z" />
+                            </svg>
+                        </DialogClose>
+                    </DialogTitle>
+
+                    <div class="mt-6">
+                        <UiField v-model="loc_to_edit" :inp-attrs="{ placeholder: 'Название локации' }" />
+
+                        <button class="w-full mt-3 bg-my-gray text-side-gray-text font-bold px-6 py-3">Подтвердить</button>
                     </div>
                 </DialogContent>
             </transition>
