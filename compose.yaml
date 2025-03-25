@@ -26,13 +26,45 @@ services:
       - reverb
     networks:
       - laravel
+      - monitoring
+  prometheus:
+      image: prom/prometheus
+      container_name: prometheus
+      ports:
+        - "9090:9090"
+      volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      networks:
+        - monitoring
+
+  grafana:
+      image: grafana/grafana
+      container_name: grafana
+      ports:
+        - "3000:3000"
+      environment:
+        - GF_SECURITY_ADMIN_PASSWORD=admin # Установите пароль для Grafana
+      networks:
+        - monitoring
+
+  cadvisor:
+    image: google/cadvisor
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring
 
   reverb:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: bm-service-reverb
-    command: ["php", "/var/www/artisan", "reverb:start", "--host=terra-crm.ru","--port=6001", "--debug"]
+    command: ["php", "/var/www/artisan", "reverb:start", "--host=127.0.0.1","--port=6001", "--debug"]
     stop_signal: SIGTERM
     ports:
       - "6001:6001"
@@ -43,6 +75,7 @@ services:
       retries: 3
     networks:
       - laravel
+      - monitoring
 
 
 networks:
@@ -52,5 +85,4 @@ networks:
 
 volumes:
   sqlite_data:  
-  reverb:
-  
+
