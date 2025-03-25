@@ -24,4 +24,5 @@ export const EquipMenuItems = {
     TESTS: 'tests',
     PRICE: 'price',
     MOVE: 'move',
+    ARCHIVE: 'archive',
 }

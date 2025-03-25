@@ -22,6 +22,7 @@ export default {
         equipmentCount: 0,
         equipmentRepairCount: 0,
         equipmentTestCount: 0,
+        equipmentArchiveCount: 0,
         priceTabActive: "price",
         locationModal: false,
         errors: {},
@@ -73,6 +74,9 @@ export default {
         },
         setEquipmentTestCount(state, value) {
             state.equipmentTestCount = value;
+        },
+        setEquipmentArchiveCount(state, value) {
+            state.equipmentArchiveCount = value;
         },
         setEquipmentRepairCount(state, value) {
             state.equipmentRepairCount = value;
@@ -182,6 +186,15 @@ export default {
                 const response = await fetch(`/api/equipment/test/getCount`);
                 const data = await response.json();
                 commit("setEquipmentTestCount", data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async updateEquipmentArchiveCount({ commit }) {
+            try {
+                const response = await fetch(`/api/equipment/archiveGetCount`);
+                const data = await response.json();
+                commit("setEquipmentArchiveCount", data);
             } catch (error) {
                 console.log(error);
             }
@@ -366,6 +379,7 @@ export default {
         getLocationActive: (state) => state.locationActive,
         getPriceTabActive: (state) => state.priceTabActive,
         getEquipmentCount: (state) => state.equipmentCount,
+        getArchiveCount: (state) => state.equipmentArchiveCount,
         getEquipmentRepairCount: (state) => state.equipmentRepairCount,
         getEquipmentTestCount: (state) => state.equipmentTestCount,
         getCategoryActive: (state) => state.categoryActive,

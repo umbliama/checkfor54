@@ -187,7 +187,7 @@ const updateUrl = () => {
     if (locationId.value) params.location_id = locationId.value;
     if (rentActive.value) params.isRentActive = rentActive.value;
 
-    Object.keys(params).length && router.get(route('equip.index', params));
+    Object.keys(params).length && router.get(route('equip.archive', params));
 };
 
 /*const updateUrl = () => {
@@ -274,7 +274,7 @@ onMounted(() => {
         store.dispatch('equipment/updateCategory', 1);
     }
 
-    store.dispatch('equipment/updateMenuItem', EquipMenuItems.EQUIPMENT);
+    store.dispatch('equipment/updateMenuItem', EquipMenuItems.ARCHIVE);
 });
 
 </script>

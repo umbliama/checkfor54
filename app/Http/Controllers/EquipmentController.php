@@ -64,7 +64,7 @@ class EquipmentController extends Controller
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
-        $query = Equipment::query()->with('directory')->where('status','!=','deleted');
+        $query = Equipment::query()->with('directory')->whereNotIn('status', ['deteled','sold','off']);
         $locationId = $request->query('location_id');
         $rentActive = $request->query('isRentActive');
 
@@ -835,6 +835,18 @@ class EquipmentController extends Controller
         ]);
 
         EquipmentLocation::create($request->all());
+    }
+    public function editLocation(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'name' => 'required|string|max:20',
+        ]);
+
+        $location = EquipmentLocation::findOrFail($request->id);
+
+        
+        $location->update($request->all());
     }
     public function deleteLocation($id)
     {
