@@ -70,7 +70,6 @@ const updateSubSelectedEquipment = (equipment_id, subEquipmentItem) => {
 const updateSelectedEquipment = async (used, value) => {
 
     if (used) {
-        console.log(used)
        return
     }else {
         if (equipmentType.value === 0) {
@@ -478,7 +477,7 @@ watch(model, (newValue) => {
                                         </svg>
                                     </div>
                                 </div>
-                                <template v-for="item in equipment">
+                                <template v-for="item in equipment.data">
                                     <div class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3 break-all cursor-pointer hover:bg-slate-200"
                                         @click="updateSelectedEquipment(item.used,item.id)">
                                         <div class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">
