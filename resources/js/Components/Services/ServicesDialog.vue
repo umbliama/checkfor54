@@ -302,7 +302,7 @@ watch(model, (newValue) => {
                                                 }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
-                                            <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
+                                            <!-- <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
                                                 class="mr-3.5">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -313,7 +313,7 @@ watch(model, (newValue) => {
                                                     d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
                                                     fill="#21272A" />
                                             </svg>
-                                            </Link>
+                                            </Link> -->
                                         </div>
                                     </div>
                                 </template>
@@ -414,7 +414,7 @@ watch(model, (newValue) => {
                                                 }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
-                                            <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
+                                            <!-- <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
                                                 class="mr-3.5">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -425,7 +425,7 @@ watch(model, (newValue) => {
                                                     d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
                                                     fill="#21272A" />
                                             </svg>
-                                            </Link>
+                                            </Link> -->
                                         </div>
                                     </div>
                                 </template>
@@ -544,7 +544,7 @@ watch(model, (newValue) => {
                                                 }}</span>
                                         </div>
                                         <div class="shrink-0 flex items-center w-[50px] py-2.5 px-2">
-                                            <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
+                                            <!-- <Link :href="route('directory.index', { type: 'equipment', id: item.id })"
                                                 class="mr-3.5">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -555,7 +555,7 @@ watch(model, (newValue) => {
                                                     d="M4.65802 7.03952C4.91232 6.71256 5.38353 6.65366 5.71049 6.90796L12 11.7998L18.2896 6.90796C18.6165 6.65366 19.0877 6.71256 19.342 7.03952C19.5964 7.36648 19.5375 7.83769 19.2105 8.09199L12.4605 13.342C12.1897 13.5526 11.8104 13.5526 11.5396 13.342L4.78958 8.09199C4.46262 7.83769 4.40372 7.36648 4.65802 7.03952Z"
                                                     fill="#21272A" />
                                             </svg>
-                                            </Link>
+                                            </Link> -->
                                         </div>
                                     </div>
                                 </template>
