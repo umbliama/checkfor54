@@ -232,7 +232,7 @@ class EquipmentController extends Controller
     }
     public function getEquipmentCount()
     {
-        $equipment_count = Equipment::count();
+        $equipment_count = Equipment::whereNotIn('status', ['deleted','off'])->count();
 
         return response()->json($equipment_count);
     }

@@ -18,8 +18,9 @@ const model = defineModel();
 const $emit = defineEmits([ 'blur' ]);
 
 const $props = defineProps({
-    label       : String,
-    placeholder : String,
+    label        : String,
+    placeholder  : String,
+    dropdownClass: String,
     size        : {
         type: String,
         default: 'default',
@@ -86,6 +87,7 @@ function setValue(v) {
             <SelectPortal>
                 <SelectContent
                     :side-offset="5"
+                    :class="$props.dropdownClass"
                     position="popper"
                     class="max-h-[202px] overflow-y-auto rounded bg-white z-[100] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                 >

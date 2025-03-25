@@ -125,6 +125,16 @@ onMounted(() => {
 
                     </Link>
                 </li>
+                <li>
+                    <Link
+                        :href="route('equip.archive')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.ARCHIVE }"
+                        class="flex items-center py-3 text-base border-b-2 border-transparent"
+                    >
+                        Архив
+
+                    </Link>
+                </li>
                 <li
                     :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.PRICE }"
                     class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
