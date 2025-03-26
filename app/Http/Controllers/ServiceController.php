@@ -493,6 +493,11 @@ class ServiceController extends Controller
                 }
             }
 
+
+            $serviceContragent = ServiceContragent::firstOrCreate([
+                'contragent_id' => $service->contragent_id,
+            ]);
+            
             foreach ($request->equipment as $index => $equipmentData) {
                 try {
                     $equipment_id = $equipmentData['equipment_id'];

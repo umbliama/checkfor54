@@ -166,6 +166,7 @@ watch(() => props.services, (newVal) => {
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = date_sort.value) => {
     const formattedMonth = normalizeMonth(month);
 
+
     const dataArray = selectedActive
     ? Object.values(props.activeServices?.data || {})
     : Object.values(props.services?.data || {});
