@@ -550,7 +550,7 @@ function submit() {
                                 </DropdownMenuRoot>
                             </div>
                         </div>
-                        <div v-if="rows === selectedEquipment.length"
+                        <div v-if="rows >= selectedEquipment.length"
                             class="flex border-b border-b-gray3 [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-gray3">
                             <div class="shrink-0 flex items-center w-[44px] py-2.5 px-2">
                                 <UiHyperlink v-if="selectedEquipmentService"
