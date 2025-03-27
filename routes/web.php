@@ -145,9 +145,16 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
         
         Route::get('/', [ChatController::class,'index'])->name('chat.index');
         Route::get('/getContacts', [ChatController::class,'getContacts'])->name('chat.getContacts');
+        Route::get('/getGroups', [ChatController::class,'getGroups'])->name('chat.getGroups');
+        Route::get('/getGroupInfo', [ChatController::class,'getGroupInfo'])->name('chat.getGroupInfo');
+        Route::get('/searchContactByName', [ChatController::class,'searchContactByName'])->name('chat.searchContactByName');
+        Route::get('/getUserInfo', [ChatController::class,'getUserInfo'])->name('chat.getUserInfo');
+        Route::get('/getAllUsers', [ChatController::class,'getAllUsers'])->name('chat.getAllUsers');
+        Route::post('/createGroup', [ChatController::class,'createGroup'])->name('chat.createGroup');
         Route::post('/sendMessage', [ChatController::class,'sendMessage'])->name('chat.send');
         Route::get('/user/{id}', [ChatController::class, 'getChat'])->name('chat.getChat');
         Route::get('/user/messages/{id}', [ChatController::class, 'getUserMessages'])->name('chat.getUserMessages');
+        Route::get('/group/messages/{id}', [ChatController::class, 'getGroupMessages'])->name('chat.getGroupMessages');
     });
 
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
