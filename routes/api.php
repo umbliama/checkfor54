@@ -28,7 +28,7 @@ Route::get('/equipment/subcategories', [EquipmentController::class, 'getSubEquip
 Route::get('/equipment/categories/count', [EquipmentController::class, 'getEquipmentCategoriesCount']);
 Route::get('/equipment/sizes', [EquipmentController::class, 'getEquipmentSizes']);
 Route::get('/equipment/sizes/{categoryId}', [EquipmentController::class, 'getEquipmentSizesByCategoryId']);
-Route::get('/equipment/sizes/count', [EquipmentController::class, 'getEquipmentSizesCount']);
+Route::get('/equipmentSizes/count', [EquipmentController::class, 'getEquipmentSizesCount']);
 Route::get('/equipment/{id}', [EquipmentController::class, 'getEquipmentByID']);
 Route::get('/equipment/category/{categoryId}', [EquipmentController::class, 'getEquipmentByCategoryID']);
 Route::get('/equipment/size/{sizeId}', [EquipmentController::class, 'getEquipmentBySizeID']);

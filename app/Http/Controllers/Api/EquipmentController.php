@@ -258,16 +258,21 @@ class EquipmentController extends Controller
     public function getEquipmentSizesCount()
     {
 
-        $equipment_sizes = EquipmentSize::all();
-
+        $equipment_sizes        = EquipmentSize::all();
         $equipment_sizes_counts = [];
 
         foreach ($equipment_sizes as $size) {
-            $sizeIDForCount                          = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
+            $sizeIDForCount            = $size->id;
+            $equipment_sizes_counts[] = [
+                'size_id' => $sizeIDForCount,
+                'count'       => Equipment::where('size_id', $sizeIDForCount)->count(),
+            ];
+        
         }
 
+
         return response()->json($equipment_sizes_counts);
+
 
     }
     public function getEquipmentSizesCountById()
