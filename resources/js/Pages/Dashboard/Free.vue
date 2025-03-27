@@ -229,7 +229,7 @@ onMounted(() => {
                         >
                             <div class="flex items-center justify-between">
                                 {{ size.name }}
-                                <span class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_sizes_counts[size.id] ?? 0 }}</span>
+                                <span v-if="equipment_sizes_counts[size.id]" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{ equipment_sizes_counts[size.id] ?? 0 }}</span>
                             </div>
                         </li>
                     </ul>
@@ -256,6 +256,7 @@ onMounted(() => {
                     >
                     {{ item.name }}
                         <span
+                            v-if="location_counts[item.id]"
                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
                             {{ location_counts[item.id] ?? 0}}
                         </span>
