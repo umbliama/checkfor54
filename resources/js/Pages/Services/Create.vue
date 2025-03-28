@@ -361,7 +361,7 @@ function submit() {
                                     :filter-function="(list, v) => list.filter(item=>item.name.toLowerCase().includes(v.toLowerCase()))"
                                     :display-value="v=>contragents.find(c=>c.id===v)?.name"
                                     class="w-full"
-                                    @update:model-value="v => service.contragent_id = v.id"
+                                    @update:model-value="v => form.contragent_id = v.id"
                                 >
                                     <ComboboxAnchor class="relative w-full">
                                         <ComboboxInput
