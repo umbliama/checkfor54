@@ -385,7 +385,7 @@ function submit() {
                                             <ComboboxItem
                                                 v-for="agent in contragents"
                                                 :key="agent.id"
-                                                :value="agent.id"
+                                                :value="agent"
                                                 class="flex items-center py-1 px-2 rounded cursor-pointer hover:bg-my-gray data-[state=checked]:bg-my-gray data-[highlighted]:bg-my-gray"
                                             >
                                                 {{ agent.name }}
