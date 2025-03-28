@@ -8,14 +8,17 @@ defineProps({
     },
     contactId: {
         type: Number
+    },
+    contactType: {
+        type: String
     }
 });
 
-defineEmits(['contact-selected']);
+defineEmits(['contact-selected','group-selected']);
 </script>
 
 <template>
-    <div class="bg-gray-500">
-        <ContactItem :contactId="contactId" :contacts="contacts" @contact-selected="$emit('contact-selected', $event)" />
+    <div class="bg-white-500">
+        <ContactItem :contactId="contactId" :contacts="contacts" @group-selected="$emit('group-selected', $event)" @contact-selected="$emit('contact-selected', $event)" />
     </div>
 </template>

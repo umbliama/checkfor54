@@ -1145,6 +1145,52 @@ onMounted(() => {
                                                 <DropdownMenuContent
                                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                     :side-offset="5" align="end">
+                                                    <DropdownMenuItem v-if="$page.props.user.isAdmin">
+                                                        <button type="button"
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
+                                                            @click="showLocationModal(item.id)">
+                                                            Переместить в
+                                                            <svg class="block ml-2" width="16" height="16"
+                                                                viewBox="0 0 16 16" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <g clip-path="url(#clip0_5211_15254)">
+                                                                    <path
+                                                                        d="M5.33333 12.6667C6.06971 12.6667 6.66667 12.0697 6.66667 11.3333C6.66667 10.5969 6.06971 10 5.33333 10C4.59695 10 4 10.5969 4 11.3333C4 12.0697 4.59695 12.6667 5.33333 12.6667Z"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-miterlimit="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M12 12.6667C12.7364 12.6667 13.3333 12.0697 13.3333 11.3333C13.3333 10.5969 12.7364 10 12 10C11.2636 10 10.6666 10.5969 10.6666 11.3333C10.6666 12.0697 11.2636 12.6667 12 12.6667Z"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-miterlimit="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M6.69996 11.3333H9.99996V4.4C9.99996 4.17909 9.82089 4 9.59996 4H0.666626"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path
+                                                                        d="M3.76667 11.3333H2.4C2.17909 11.3333 2 11.1543 2 10.9333V7.66666"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path d="M1.33337 6H4.00004" stroke="#464F60"
+                                                                        stroke-width="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M10 6H13.7401C13.8981 6 14.0414 6.09309 14.1056 6.23755L15.2989 8.9224C15.3216 8.9736 15.3333 9.02893 15.3333 9.08487V10.9333C15.3333 11.1543 15.1543 11.3333 14.9333 11.3333H13.6667"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path d="M10 11.3333H10.6667" stroke="#464F60"
+                                                                        stroke-width="1.5" stroke-linecap="round" />
+                                                                </g>
+                                                                <defs>
+                                                                    <clipPath id="clip0_5211_15254">
+                                                                        <rect width="16" height="16" fill="white" />
+                                                                    </clipPath>
+                                                                </defs>
+                                                            </svg>
+                                                        </button>
+                                                    </DropdownMenuItem>
+
                                                     <DropdownMenuItem>
                                                         <Link :href="route('equip.edit', item.id)"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">
@@ -1437,6 +1483,52 @@ onMounted(() => {
                                                 <DropdownMenuContent
                                                     class="py-2 px-1.5 rounded-md font-medium text-sm bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
                                                     :side-offset="5" align="end">
+                                                    <DropdownMenuItem v-if="$page.props.user.isAdmin">
+                                                        <button type="button"
+                                                            class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all"
+                                                            @click="showLocationModal(item.id)">
+                                                            Переместить в
+                                                            <svg class="block ml-2" width="16" height="16"
+                                                                viewBox="0 0 16 16" fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <g clip-path="url(#clip0_5211_15254)">
+                                                                    <path
+                                                                        d="M5.33333 12.6667C6.06971 12.6667 6.66667 12.0697 6.66667 11.3333C6.66667 10.5969 6.06971 10 5.33333 10C4.59695 10 4 10.5969 4 11.3333C4 12.0697 4.59695 12.6667 5.33333 12.6667Z"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-miterlimit="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M12 12.6667C12.7364 12.6667 13.3333 12.0697 13.3333 11.3333C13.3333 10.5969 12.7364 10 12 10C11.2636 10 10.6666 10.5969 10.6666 11.3333C10.6666 12.0697 11.2636 12.6667 12 12.6667Z"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-miterlimit="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M6.69996 11.3333H9.99996V4.4C9.99996 4.17909 9.82089 4 9.59996 4H0.666626"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path
+                                                                        d="M3.76667 11.3333H2.4C2.17909 11.3333 2 11.1543 2 10.9333V7.66666"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path d="M1.33337 6H4.00004" stroke="#464F60"
+                                                                        stroke-width="1.5" stroke-linecap="round"
+                                                                        stroke-linejoin="round" />
+                                                                    <path
+                                                                        d="M10 6H13.7401C13.8981 6 14.0414 6.09309 14.1056 6.23755L15.2989 8.9224C15.3216 8.9736 15.3333 9.02893 15.3333 9.08487V10.9333C15.3333 11.1543 15.1543 11.3333 14.9333 11.3333H13.6667"
+                                                                        stroke="#464F60" stroke-width="1.5"
+                                                                        stroke-linecap="round" />
+                                                                    <path d="M10 11.3333H10.6667" stroke="#464F60"
+                                                                        stroke-width="1.5" stroke-linecap="round" />
+                                                                </g>
+                                                                <defs>
+                                                                    <clipPath id="clip0_5211_15254">
+                                                                        <rect width="16" height="16" fill="white" />
+                                                                    </clipPath>
+                                                                </defs>
+                                                            </svg>
+                                                        </button>
+                                                    </DropdownMenuItem>
+
                                                     <DropdownMenuItem>
                                                         <Link :href="route('equip.edit', item.id)"
                                                             class="inline-flex items-center py-1 px-2 rounded hover:bg-my-gray transition-all">

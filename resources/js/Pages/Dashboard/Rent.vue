@@ -271,6 +271,7 @@ onMounted(() => {
                             <div class="flex items-center justify-between">
                                 {{ category.name }}
                                 <span
+                                    v-if="equipment_categories_counts[category.id]"
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
                                         equipment_categories_counts[category.id] }}</span>
                             </div>
@@ -301,6 +302,7 @@ onMounted(() => {
                             <div class="flex items-center justify-between">
                                 {{ size.name }}
                                 <span
+                                    v-if="equipment_categories_counts[size.id]"
                                     class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{
                                         equipment_sizes_counts[size.id] }}</span>
                             </div>
