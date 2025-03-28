@@ -17,14 +17,14 @@ import {
     DropdownMenuPortal,
     DropdownMenuRoot,
     DropdownMenuTrigger,
+    ComboboxAnchor,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxRoot,
+    ComboboxPortal
 } from 'radix-vue';
-import {
-    AccordionContent,
-    AccordionHeader,
-    AccordionItem,
-    AccordionRoot,
-    AccordionTrigger
-} from "radix-vue";
 import UiHyperlink from "@/Components/Ui/UiHyperlink.vue";
 import ServicesServicesDialog from "@/Components/Services/ServicesServicesDialog.vue";
 import UiNotification from '@/Components/Ui/UiNotification.vue';
@@ -42,6 +42,7 @@ const props = defineProps({
 
 const is_dialog_open = ref(false);
 const is_dialog_open_sub = ref(false);
+const is_agent_select_open = ref(false);
 
 const subEquipment = computed(() => store.getters['services/getSubEquipment']);
 const selectedEquipment = computed(() => store.getters['services/getSelectedEquipment']);
@@ -472,11 +473,50 @@ function submit() {
                                 class="block self-stretch w-0.5 my-2 mx-auto border-l border-dashed border-l-[#C1C7CD] bg-white lg:hidden"></span>
                             <div
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:grow lg:text-base lg:w-auto lg:bg-[#F3F3F8]">
-                                <select v-model="service.contragent_id"
+
+                                <ComboboxRoot
+                                    :model-value="service.contragent_id"
+                                    v-model:open="is_agent_select_open"
+                                    :filter-function="(list, v) => list.filter(item=>item.name.toLowerCase().includes(v.toLowerCase()))"
+                                    :display-value="v=>contragents.find(c=>c.id===v)?.name"
+                                    class="w-full"
+                                    @update:model-value="v => service.contragent_id = v.id"
+                                >
+                                    <ComboboxAnchor class="relative w-full">
+                                        <ComboboxInput
+                                            placeholder="Выберите"
+                                            @focus="is_agent_select_open = true"
+                                            class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]"
+                                        />
+                                        <svg class="absolute right-2 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 7.5L8.81802 10.682L5.63604 7.5" stroke="#242533" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </ComboboxAnchor>
+                                    <ComboboxPortal>
+                                        <ComboboxContent
+                                            align="start"
+                                            position="popper"
+                                            class="max-h-[300px] py-2 px-1.5 rounded-md font-medium text-sm overflow-y-auto bg-white text-[#464F60] shadow-[0px_0px_0px_1px_rgba(152,_161,_179,_0.1),_0px_15px_35px_-5px_rgba(17,_24,_38,_0.2),_0px_5px_15px_rgba(0,_0,_0,_0.08)]"
+                                        >
+                                            <ComboboxEmpty>
+                                                <div class="p-3 text-sm text-gray-500">Ничего не найдено</div>
+                                            </ComboboxEmpty>
+                                            <ComboboxItem
+                                                v-for="agent in contragents"
+                                                :key="agent.id"
+                                                :value="agent"
+                                                class="flex items-center py-1 px-2 rounded cursor-pointer hover:bg-my-gray data-[state=checked]:bg-my-gray data-[highlighted]:bg-my-gray"
+                                            >
+                                                {{ agent.name }}
+                                            </ComboboxItem>
+                                        </ComboboxContent>
+                                    </ComboboxPortal>
+                                </ComboboxRoot>
+                                <!-- <select v-model="service.contragent_id"
                                     class="block grow p-2 w-full h-9 rounded-lg bg-inherit font-medium lg:w-[186px]">
                                     <option value="">Выберите</option>
                                     <option  @click="setAgent(agent.id)" v-for="agent in contragents" :value="agent.id">{{ agent.name }}</option>
-                                </select>
+                                </select> -->
                             </div>
                         </label>
                     </div>
