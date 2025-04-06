@@ -41,6 +41,11 @@ WORKDIR /var/www
 COPY --from=deps /app /var/www
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
+# Add verification steps
+RUN echo "Checking migrations after copy:" && \
+    ls -la /var/www/database/migrations && \
+    echo "Checking directory structure:" && \
+    ls -la /var/www/database
 
 # Install dependencies including Certbot
 RUN apt-get update && apt-get install -y \
