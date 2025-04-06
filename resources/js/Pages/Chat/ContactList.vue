@@ -19,6 +19,6 @@ defineEmits(['contact-selected','group-selected']);
 
 <template>
     <div class="bg-white-500">
-        <ContactItem :contactId="contactId" :contacts="contacts" @group-selected="$emit('group-selected', $event)" @contact-selected="$emit('contact-selected', $event)" />
+        <ContactItem :contactId="contactId" :contacts="contacts" :contactType="contactType" @group-selected="$emit('group-selected', $event)" @contact-selected="$emit('contact-selected', $event)" />
     </div>
 </template>

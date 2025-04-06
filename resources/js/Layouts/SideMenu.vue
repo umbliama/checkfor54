@@ -173,7 +173,7 @@ console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
                         fill="#001D6C" />
                 </svg>
             </ui-btn>
-            <ui-btn :href="'/chatify/messenger'" :badge="12" badge-color="bg-[#0F62FE]" class="-order-1 lg:order-[unset]" badge-cond icon>
+            <ui-btn :href="'/chat'" :badge="12" badge-color="bg-[#0F62FE]" class="-order-1 lg:order-[unset]" badge-cond icon>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_4021_3189)">
                     <path d="M0 0H24V24H0V0Z" fill="white"/>
