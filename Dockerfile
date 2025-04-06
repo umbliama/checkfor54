@@ -15,6 +15,7 @@ RUN ls -lah /app/database/migrations
 RUN --mount=type=cache,target=/tmp/cache \
     composer install --no-dev --no-interaction
 
+RUN ls -la /var/www/database/migrations && echo "Migrations directory contents:"
 
 FROM node:lts as node-build
 
