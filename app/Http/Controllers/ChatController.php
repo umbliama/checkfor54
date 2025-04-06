@@ -123,7 +123,7 @@ class ChatController extends Controller
             return response()->json($groups);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Something went wrong'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

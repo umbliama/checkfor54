@@ -237,6 +237,7 @@ const filteredServicesGrouped = computed(() => {
 
 
 onMounted(() => {
+    clearAgents();
     updateFiltersAndFetchData();
 });
 

@@ -82,7 +82,7 @@ const createGroup = () => {
         </button>
 
         <!-- Модальное окно -->
-        <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div v-if="isModalOpen" class="fixed z-50 inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div class="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 class="text-xl font-bold mb-4">Создание группы</h2>
 
