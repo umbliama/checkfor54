@@ -24,7 +24,7 @@ Route::get('/welcome', function () {
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect('/rent');
+        return redirect('/analysis');
     } else {
         return redirect('/login');
     }

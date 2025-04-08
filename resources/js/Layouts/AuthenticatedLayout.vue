@@ -42,8 +42,8 @@ const selectMenu = (menuState) => {
         <div class="lg:hidden sticky bottom-0 left-0 z-50 w-full h-16 mt-auto bg-white border-t border-gray-200">
             <div class="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
                 <Link
-                    :href="route('rent')"
-                    :class="{ 'bg-my-gray': $page.url.startsWith('/rent') }"
+                    :href="route('analysis')"
+                    :class="{ 'bg-my-gray': $page.url.startsWith('/analysis') }"
                     class="flex flex-col justify-center items-center text-center text-xs"
                 >
                     <svg class="block mb-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
