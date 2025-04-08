@@ -10,6 +10,9 @@ defineProps({
     },
     contactId: {
         type: Number
+    },
+    contactType:{
+        type:String
     }
 })
 const emit = defineEmits(['contact-selected', 'group-selected']);
@@ -23,10 +26,10 @@ const handleClick = (contact) => {
 <template>
     <div v-if="contacts.length">
         <ul>
-            <li :class="{ 'bg-blue-500': contactId === contact.id }" class="p-4" v-for="contact in contacts"
+            <li :class="{ 'bg-blue-500': contactId === contact.id && contactType === contact.type }" class="p-4" v-for="contact in contacts"
                 :key="contact.id">
                 <button @click="handleClick(contact)" class="p-2 block w-full text-left">
-                    {{ contact.name }}
+                    {{ contact.name }} 
                 </button>
             </li>
         </ul>

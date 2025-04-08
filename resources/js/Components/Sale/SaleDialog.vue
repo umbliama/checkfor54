@@ -209,9 +209,9 @@ watch(model, (newValue) => {
                                     @click="selectSize(item.id)" v-for="item in equipment_sizes" :key="item.id">
                                     <button class="flex items-center justify-between">
                                         {{ item.name }}
-                                        <span v-if="equipment_sizes_counts[item.id]"
+                                        <span v-if="equipment_sizes_counts.find(s_c=>s_c.size_id===item.id)?.count"
                                             class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">
-                                            {{ equipment_sizes_counts[item.id] }}
+                                            {{ equipment_sizes_counts.find(s_c=>s_c.size_id===item.id)?.count }}
                                         </span>
                                     </button>
                                 </li>

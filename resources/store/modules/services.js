@@ -233,7 +233,7 @@ export default {
         },
         async fetchEquipmentSizesCount({ commit }) {
             try {
-                const response = await fetch(`/api/equipment/sizes/count`);
+                const response = await fetch(`/api/equipmentSizes/count`);
                 const data = await response.json();
                 commit("setEquipmentSizesCounts", data);
             } catch (error) {

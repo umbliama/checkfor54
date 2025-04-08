@@ -21,15 +21,9 @@ import {
     ComboboxAnchor,
     ComboboxContent,
     ComboboxEmpty,
-    ComboboxGroup,
     ComboboxInput,
     ComboboxItem,
-    ComboboxItemIndicator,
-    ComboboxLabel,
     ComboboxRoot,
-    ComboboxSeparator,
-    ComboboxTrigger,
-    ComboboxViewport,
     ComboboxPortal
 } from 'radix-vue';
 import ServicesServicesDialog from "@/Components/Services/ServicesServicesDialog.vue";
@@ -362,10 +356,12 @@ function submit() {
                             <div
                                 class="flex items-center w-[calc(50%-9px)] text-sm rounded-lg bg-white lg:grow lg:text-base lg:w-auto lg:bg-[#F3F3F8]">
                                 <ComboboxRoot
-                                    v-model="form.contragent_id"
+                                    :model-value="form.contragent_id"
                                     v-model:open="is_agent_select_open"
+                                    :filter-function="(list, v) => list.filter(item=>item.name.toLowerCase().includes(v.toLowerCase()))"
                                     :display-value="v=>contragents.find(c=>c.id===v)?.name"
                                     class="w-full"
+                                    @update:model-value="v => form.contragent_id = v.id"
                                 >
                                     <ComboboxAnchor class="relative w-full">
                                         <ComboboxInput
@@ -389,14 +385,10 @@ function submit() {
                                             <ComboboxItem
                                                 v-for="agent in contragents"
                                                 :key="agent.id"
-                                                :value="agent.id"
-                                                class="flex items-center py-1 px-2 rounded cursor-pointer hover:bg-my-gray data-[state=checked]:bg-my-gray"
+                                                :value="agent"
+                                                class="flex items-center py-1 px-2 rounded cursor-pointer hover:bg-my-gray data-[state=checked]:bg-my-gray data-[highlighted]:bg-my-gray"
                                             >
-                                                <div :class="{ 'bg-my-gray': selected }" >
-                                                    <span>
-                                                        {{ agent.name }}
-                                                    </span>
-                                                </div>
+                                                {{ agent.name }}
                                             </ComboboxItem>
                                         </ComboboxContent>
                                     </ComboboxPortal>

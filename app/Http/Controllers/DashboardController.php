@@ -444,9 +444,9 @@ class DashboardController extends Controller
                     'value' => $status,
                 ];
             })->values()->toArray();
-        $equipment = Equipment::whereHas('repairs', function ($query) {
-            $query->whereNull('repair_date');
-        });
+        $equipment = Equipment::whereHas('repairs');
+
+
 
         if ($category_id) {
             $equipment->where('category_id', $category_id);
