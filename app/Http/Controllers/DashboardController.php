@@ -509,9 +509,9 @@ class DashboardController extends Controller
     }
     public function analysis()
     {
-        $contragents_count             = Contragents::count();
+        $contragents_count             = Contragents::where('customer', true)->count();
         $contragents_inactive          = Contragents::where('status', false)->count();
-        $recent_contragents            = Contragents::where('created_at', '>=', now()->subMonths(3))->get();
+        $recent_contragents            = Contragents::where('created_at', '>=', now()->subMonths(3))->where('customer', true)->get();
         $recent_contragents_count      = $recent_contragents->count();
         $recent_contragents_percentage = $contragents_count > 0 ? ($recent_contragents_count / $contragents_count) * 100 : 0;
 
@@ -524,17 +524,27 @@ class DashboardController extends Controller
         $recent_equipment       = Equipment::where('created_at', '>=', now()->subMonths(3))->get();
         $recent_equipment_count = $recent_equipment->count();
 
+        $serviceSubCount = ServiceSub::whereHas('service', function ($query) {
+            $query->where('active', 1);
+        })
+            ->count();
+
+        $serviceEquipCount = ServiceEquip::whereHas('services', function ($query) {
+            $query->where('active', 1);
+        })
+            ->count();
+
         $equipment_in_active_services_count    = Equipment::whereHas('activeServices')->count();
         $equipment_in_active_subservices_count = ServiceSub::whereHas('service', function ($query) {
             $query->where('active', true);
         })->count();
 
-        $equipment_count_active_sum         = $equipment_in_active_services_count + $equipment_in_active_subservices_count;
+        $equipment_count_active_sum         = $serviceEquipCount + $serviceSubCount;
         $equipment_count_active_sum_percent = $equipment_count_active_sum > 0 ? ($equipment_count_active_sum / $equipment_count) * 100 : 0;
 
         $equipment_on_repair = EquipmentRepair::count();
         $equipment_on_test   = EquipmentTest::count();
-        $unavailable         = $equipment_in_active_services_count + $equipment_on_repair + $equipment_on_test;
+        $unavailable         = $equipment_count_active_sum + $equipment_on_repair + $equipment_on_test;
         // dd($equipment_count,$equipment_in_active_services_count,$equipment_on_repair, $equipment_on_test);
 
         $on_store             = $equipment_count - $unavailable;

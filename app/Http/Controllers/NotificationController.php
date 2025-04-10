@@ -22,14 +22,14 @@ class NotificationController extends Controller
             $query->where('user_id', $user_id);
         })
         ->with('creator')
+        ->orderByDesc('created_at')
         ->get();
-
-    // Read notifications for current user
     $readNotifications = Notification::whereHas('reads', function ($query) use ($user_id) {
             $query->where('user_id', $user_id)
                   ->whereNotNull('read_at');
         })
         ->with('creator')
+        ->orderByDesc('created_at')
         ->get();
         return Inertia::render('Notifications/Index', [
             'notifications' => $unreadNotifications,

@@ -70,11 +70,7 @@ onMounted(() => {
         <div class="relative flex items-center flex-col lg:flex-row">
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-8 overflow-x-auto lg:overflow-x-visible">
-                <li>
-                    <Link :href="route('equip.report')"
-                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base">Отчет</Link>
-                </li>
+
                 <li>
                     <Link :href="route('equip.index')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.EQUIPMENT }"
@@ -107,6 +103,11 @@ onMounted(() => {
                         {{ equipment_count_test }}
                     </span>
                     </Link>
+                </li>
+                <li>
+                    <Link :href="route('equip.report')"
+                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
+                        class="flex items-center border-b-2 border-transparent py-3 text-base">Отчет</Link>
                 </li>
                 <li>
                     <Link :href="route('equip.move')"
