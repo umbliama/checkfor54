@@ -734,24 +734,29 @@ class EquipmentController extends Controller
     }
     public function storePrice(Request $request)
     {
-        $validatedData = $request->validate([
-            'category_id' => "required|int",
-            'size_id' => "required|int",
-            'contragent_id' => "required|int",
-            'store_date' => "required|date",
-            'notes' => "required|string",
-            'store_price' => "required|int",
-            'operation_price' => "required|int",
-            'archive' => "required|boolean",
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'category_id' => "required|int",
+                'size_id' => "required|int",
+                'contragent_id' => "required|int",
+                'store_date' => "required|date",
+                'notes' => "nullable|string",
+                'store_price' => "required|int",
+                'operation_price' => "required|int",
+                'archive' => "required|boolean",
+            ]);
+            EquipmentPrice::where('category_id', $validatedData['category_id'])
+                ->where('size_id', $validatedData['size_id'])
+                ->where('contragent_id', $validatedData['contragent_id'])
+                ->where('archive', false)
+                ->update(['archive' => true]);
+    
+            EquipmentPrice::create(array_merge($validatedData, ['archive' => false]));
 
-        EquipmentPrice::where('category_id', $validatedData['category_id'])
-            ->where('size_id', $validatedData['size_id'])
-            ->where('contragent_id', $validatedData['contragent_id'])
-            ->where('archive', false)
-            ->update(['archive' => true]);
-
-        EquipmentPrice::create(array_merge($validatedData, ['archive' => false]));
+            return back()->with('success', 'Цена успешно установлена');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function updatePrice(Request $request, $id)
