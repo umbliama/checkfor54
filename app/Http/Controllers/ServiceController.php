@@ -360,7 +360,7 @@ class ServiceController extends Controller
         }
 
         $subservices = ServiceSub::where('service_id', '=', $service->id)->with(['equipment', 'equipment.category', 'equipment.size'])->get();
-        $serviceEquip = ServiceEquip::where('service_id', $service->id)->with('equipment', 'equipment.category', 'equipment.size', 'serviceSubs.equipment', 'serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
+        $serviceEquip = ServiceEquip::where('service_id', $service->id)->with('equipment', 'equipment.category', 'equipment.size','equipment.directory', 'serviceSubs.equipment', 'serviceSubs.equipment.directory','serviceSubs.equipment.category', 'serviceSubs.equipment.size')->get();
         return Inertia::render('Services/Edit', ['serviceEquip' => $serviceEquip, 'service' => $service, 'equipment' => $equipment, 'subservices' => $subservices, 'contragents' => $contragents, 'extraServices' => $extraServices]);
     }
 

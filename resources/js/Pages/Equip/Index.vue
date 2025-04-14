@@ -627,9 +627,9 @@ onMounted(() => {
                                     item.zahodnost ?? '-'
                                     }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.diameter ?? '-' }}
+                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.size.name ?? '-' }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ?? '-' }}
+                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.size.length ?? '-' }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{ item.dlina_ds ?? '-' }}
                                 </div>
@@ -978,7 +978,7 @@ onMounted(() => {
                                 <div :class="{ 'bg-[#644DED] bg-opacity-10': sortBy === 'series' }"
                                     class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ?? '-' }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[7%] py-2.5 px-2">{{ item.diameter ?? '-' }}
+                                <div class="shrink-0 flex items-center w-[7%] py-2.5 px-2">{{ item.size.name  ?? '-' }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[7%] py-2.5 px-2">{{ item.length ?? '-' }}
                                 </div>
@@ -1305,7 +1305,7 @@ onMounted(() => {
                                     class="shrink-0 flex items-center w-[9.96%] py-2.5 px-2">{{ item.series ?? '-' }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
-                                    item.diameter ?? '-'
+                                    item.size.name  ?? '-'
                                     }}
                                 </div>
                                 <div class="shrink-0 flex items-center justify-center w-[6.2%] py-2.5 px-2">{{
