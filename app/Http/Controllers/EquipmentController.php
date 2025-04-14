@@ -64,7 +64,7 @@ class EquipmentController extends Controller
         $categoryId = $request->query('category_id', 1);
         $sizeId = $request->query('size_id');
         $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
-        $query = Equipment::query()->with('directory')->whereNotIn('status', ['deteled','sold','off']);
+        $query = Equipment::query()->with(['directory','category','size'])->whereNotIn('status', ['deteled','sold','off']);
         $locationId = $request->query('location_id');
         $rentActive = $request->query('isRentActive');
 
@@ -154,13 +154,15 @@ class EquipmentController extends Controller
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
-            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->where('status','!=','deleted')->count();
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)
+                ->whereNotIn('status', ['deleted', 'off'])
+                ->count();
         }
 
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->where('status','!=','deleted')->count();
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->whereNotIn('status', ['deleted', 'off'])->count();
         }
 
         $location_counts = [];
@@ -255,7 +257,7 @@ class EquipmentController extends Controller
 
             $equip->income = $income;
             $equip->subincome = $subincome;
-
+            
             $equip->used = $equip->used;
 
 
@@ -1390,7 +1392,9 @@ class EquipmentController extends Controller
         $equipment_categories_counts = [];
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
-            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)->count();
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)
+                ->whereNotIn('status', ['deleted', 'off'])
+                ->count();
         }
 
         $equipment_sizes_counts = [];
