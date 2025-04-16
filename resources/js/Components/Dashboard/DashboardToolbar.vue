@@ -54,6 +54,12 @@ function resetDates() {
                     Анализ
                     </Link>
                 </li>
+                <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'dashequip' }"
+                    class="border-b-2 border-transparent cursor-pointer">
+                    <Link :href="route('dashequip')" class="flex items-center py-3">
+                    Оборудование
+                    </Link>
+                </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'rent' }"
                     class="border-b-2 border-transparent cursor-pointer">
                     <Link :href="route('rent')" class="flex items-center py-3">

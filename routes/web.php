@@ -43,6 +43,7 @@ Route::middleware(['auth', CheckIfApproved::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
     Route::get('/rent', [DashboardController::class, 'rent'])->middleware(['auth', 'verified'])->name('rent');
     Route::get('/free', [DashboardController::class, 'free'])->middleware(['auth', 'verified'])->name('free');
+    Route::get('/dashequip', [DashboardController::class, 'dashequip'])->middleware(['auth', 'verified'])->name('dashequip');
     Route::get('/serviced', [DashboardController::class, 'serviced'])->middleware(['auth', 'verified'])->name('serviced');
     Route::get('/analysis', [DashboardController::class, 'analysis'])->middleware(['auth', 'verified'])->name('analysis');
     Route::get('/commercial', [DashboardController::class, 'commercial'])->middleware(['auth', 'verified'])->name('commercial');

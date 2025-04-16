@@ -744,15 +744,20 @@ class EquipmentController extends Controller
                 'store_date' => "required|date",
                 'notes' => "nullable|string",
                 'store_price' => "required|int",
-                'operation_price' => "required|int",
+                'operation_price' => "nullable|int",
                 'archive' => "required|boolean",
             ]);
+
+            if ($validatedData['category_id'] === 2 || !isset($validatedData['operation_price'])) {
+                $validatedData['operation_price'] = 0;
+            }
+
             EquipmentPrice::where('category_id', $validatedData['category_id'])
                 ->where('size_id', $validatedData['size_id'])
                 ->where('contragent_id', $validatedData['contragent_id'])
                 ->where('archive', false)
                 ->update(['archive' => true]);
-    
+
             EquipmentPrice::create(array_merge($validatedData, ['archive' => false]));
 
             return back()->with('success', 'Цена успешно установлена');
