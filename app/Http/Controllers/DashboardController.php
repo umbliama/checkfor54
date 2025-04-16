@@ -470,10 +470,7 @@ class DashboardController extends Controller
             ->selectRaw('size_id, COUNT(*) as count')
             ->pluck('count', 'size_id');
 
-        // Фильтруем так же, как и в $equipment
-        $equipment_locations_counts = Equipment::whereHas('repairs', function ($query) {
-            $query->whereNull('repair_date');
-        })
+        $equipment_locations_counts = Equipment::whereNotIn('status', ['deleted', 'off'])
             ->when($category_id, function ($query, $category_id) {
                 return $query->where('category_id', $category_id);
             })
@@ -485,9 +482,9 @@ class DashboardController extends Controller
             ->pluck('count', 'location_id')
             ->toArray();
 
-        // Заполняем локации с нулями
+        // Fill locations with zeros if they have no equipment
         foreach ($equipment_location as $loc) {
-            if (! isset($equipment_locations_counts[$loc->id])) {
+            if (!isset($equipment_locations_counts[$loc->id])) {
                 $equipment_locations_counts[$loc->id] = 0;
             }
         }
@@ -746,6 +743,261 @@ class DashboardController extends Controller
             'remaining'                              => $remaining,
         ]);
     }
+
+    public function dashequip   (Request $request)
+    {
+        $searchTerm = $request->query('search');
+        $perPage = $request->query('perPage');
+        $manufacturers = Equipment::distinct()->pluck('manufactor')->map(function ($manufactor) {
+            return [
+                'title' => $manufactor,
+                'value' => $manufactor,
+            ];
+        })->toArray();
+
+        $statusesList = [
+            'new' => 'Новое',
+            'good' => 'Хорошее',
+            'satisfactory' => 'Удовлетворительно',
+            'bad' => 'Плохое',
+            'sold' => 'Продан',
+            'off' => 'Списано',
+            'unknown' => 'Неизвестный статус',
+        ];
+
+        $statusesArray = Equipment::whereNotNull('status')
+            ->distinct()
+            ->pluck('status')
+            ->map(function ($status) use ($statusesList) {
+                return [
+                    'title' => $statusesList[$status] ?? ucfirst($status),
+                    'value' => $status,
+                ];
+            })->values()->toArray();
+
+        $equipment_categories = EquipmentCategories::all();
+        $equipment_location = EquipmentLocation::where('id', '!=', '-1')->get();
+        $categoryId = $request->query('category_id', 1);
+        $sizeId = $request->query('size_id');
+        $equipment_sizes = EquipmentSize::where('category_id', $categoryId)->get();
+        $query = Equipment::query()->with(['directory','category','size','location'])->whereNotIn('status', ['deteled','sold','off']);
+        $locationId = $request->query('location_id');
+        $rentActive = $request->query('isRentActive');
+
+        $serviceSubCount = ServiceSub::whereHas('service', function ($query) {
+            $query->where('active', 1);
+        })
+            ->whereHas('equipment', function ($query) use ($categoryId, $sizeId) {
+                if ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                }
+                if ($sizeId) {
+                    $query->where('size_id', $sizeId);
+                }
+            })
+            ->count();
+
+        $serviceEquipCount = ServiceEquip::whereHas('services', function ($query) {
+            $query->where('active', 1);
+        })
+            ->whereHas('equipment', function ($query) use ($categoryId, $sizeId) {
+                if ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                }
+                if ($sizeId) {
+                    $query->where('size_id', $sizeId);
+                }
+            })
+            ->count();
+
+        $equipment_on_rent_count = $serviceSubCount + $serviceEquipCount;
+
+        $activeEquipment = ServiceEquip::with(['services', 'serviceSubs.equipment'])
+            ->whereHas('services', function ($query) {
+                $query->where('active', 1);
+            })
+            ->get()
+            ->flatMap(function ($serviceEquip) {
+                $subs = $serviceEquip->serviceSubs->map(function ($sub) {
+                    return [
+                        'id' => $sub->id,
+                        'equipment_id' => $sub->subequipment_id,
+                        'shipping_date' => $sub->shipping_date,
+                        'period_start_date' => $sub->period_start_date,
+                        'return_date' => $sub->return_date,
+                        'period_end_date' => $sub->period_end_date,
+                        'store' => $sub->store,
+                        'operating' => $sub->operating,
+                        'income' => $sub->income,
+                        'type' => 'sub',
+                        'category_id' => optional($sub->equipment)->category_id,
+                        'size_id' => optional($sub->equipment)->size_id,
+                    ];
+                });
+
+                $mainEquip = [
+                    'id' => $serviceEquip->id,
+                    'equipment_id' => $serviceEquip->equipment_id,
+                    'shipping_date' => $serviceEquip->shipping_date,
+                    'period_start_date' => $serviceEquip->period_start_date,
+                    'return_date' => $serviceEquip->return_date,
+                    'period_end_date' => $serviceEquip->period_end_date,
+                    'store' => $serviceEquip->store,
+                    'operating' => $serviceEquip->operating,
+                    'income' => $serviceEquip->income,
+                    'type' => 'main',
+                    'category_id' => optional($serviceEquip->equipment)->category_id,
+                    'size_id' => optional($serviceEquip->equipment)->size_id,
+                ];
+
+                return collect([$mainEquip])->concat($subs);
+            })
+            ->values();
+
+        if ($searchTerm) {
+            $query->where(function ($query) use ($searchTerm) {
+                $query->where('manufactor', 'LIKE', "%$searchTerm%")
+                    ->orWhere('series', 'LIKE', "%$searchTerm%")
+                    ->orWhere('manufactor_date', 'LIKE', "%$searchTerm%")
+                    ->orWhere('status', 'LIKE', "%$searchTerm%")
+                    ->orWhere('price', 'LIKE', "%$searchTerm%")
+                    ->orWhere('notes', 'LIKE', "%$searchTerm%");
+            });
+        }
+
+
+
+        $equipment_categories_counts = [];
+        foreach ($equipment_categories as $category) {
+            $categoryIDForCount = $category->id;
+            $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)
+                ->whereNotIn('status', ['deleted', 'off'])
+                ->count();
+        }
+
+        $equipment_sizes_counts = [];
+        foreach ($equipment_sizes as $size) {
+            $sizeIDForCount = $size->id;
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->whereNotIn('status', ['deleted', 'off'])->count();
+        }
+
+        $location_counts = [];
+        foreach ($equipment_location as $location) {
+            $locationIdCount = $location->id;
+            if ($categoryId > 0) {
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->where('status','!=','deleted')->count();
+            } else {
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
+            }
+        }
+
+        $in_way_count = Equipment::where('location_id', '-1')->where('category_id', $categoryId)->where('size_id', $sizeId)->count();
+
+
+        if ($rentActive) {
+            $query = Equipment::whereHas('serviceEquipment.services', function ($query) {
+                $query->where('active', 1);
+            })
+                ->orWhereHas('serviceSubs.service', function ($query) { // Corrected relationship usage
+                    $query->where('active', 1);
+                })
+                ->with([
+                    'serviceEquipment' => function ($query) use ($categoryId, $sizeId) {
+                        $query->whereHas('services', function ($subQuery) {
+                            $subQuery->where('active', 1);
+                        })->with([
+                                    'serviceSubs' => function ($subQuery) use ($categoryId, $sizeId) {
+                                        $subQuery->whereHas('service', function ($subSubQuery) {
+                                            $subSubQuery->where('active', 1);
+                                        })->with('equipment');
+
+                                        if ($categoryId) {
+                                            $subQuery->whereHas('equipment', function ($eqQuery) use ($categoryId) {
+                                                $eqQuery->where('category_id', $categoryId);
+                                            });
+                                        }
+
+                                        if ($sizeId) {
+                                            $subQuery->whereHas('equipment', function ($eqQuery) use ($sizeId) {
+                                                $eqQuery->where('size_id', $sizeId);
+                                            });
+                                        }
+                                    }
+                                ]);
+                    },
+                    'serviceSubs' => function ($query) use ($categoryId, $sizeId) {
+                        $query->whereHas('service', function ($subQuery) {
+                            $subQuery->where('active', 1);
+                        })->with('equipment');
+
+                        if ($categoryId) {
+                            $query->whereHas('equipment', function ($eqQuery) use ($categoryId) {
+                                $eqQuery->where('category_id', $categoryId);
+                            });
+                        }
+
+                        if ($sizeId) {
+                            $query->whereHas('equipment', function ($eqQuery) use ($sizeId) {
+                                $eqQuery->where('size_id', $sizeId);
+                            });
+                        }
+                    }
+                ]);
+        }
+
+
+
+
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($sizeId) {
+            $query->where('size_id', $sizeId);
+        }
+
+        if ($locationId) {
+            $query->where('location_id', $locationId);
+        }
+
+
+        $equipment = $query->paginate($perPage);
+
+        $equipment->getCollection()->map(function ($equip) {
+            if (isset($equip->directory['files'])) {
+                $equip->directory['files'] = json_decode($equip->directory['files'], true) ?? [];
+            }
+
+            $income = ServiceEquip::where('equipment_id', $equip->id)->sum('income');
+            $subincome = ServiceSub::where('equipment_id', $equip->id)->sum('income');
+
+            $equip->income = $income;
+            $equip->subincome = $subincome;
+            
+           $equip->used = $equip->used;
+
+
+            return $equip;
+        });
+
+
+        return Inertia::render('Dashboard/Equip', [
+            'equipment' => $equipment,
+            'manufacturers' => $manufacturers,
+            'statusesArray' => $statusesArray,
+            'equipment_categories' => $equipment_categories,
+            'equipment_categories_counts' => $equipment_categories_counts,
+            'equipment_sizes_counts' => $equipment_sizes_counts,
+            'equipment_sizes' => $equipment_sizes,
+            'equipment_location' => $equipment_location,
+            'selectedCategory' => $categoryId,
+            'location_counts' => $location_counts,
+            'equipment_on_rent_count' => $equipment_on_rent_count,
+            'activeEquipment' => $activeEquipment,
+            'in_way_count' => $in_way_count
+        ]);
+    }
+
     public function commercial()
     {
 
