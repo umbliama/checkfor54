@@ -97,5 +97,8 @@ class Equipment extends Model
             ['title' => 'Субаренда', 'value' => 'sub'],
         ];
     }
-    
+    public function location()
+    {
+        return $this->belongsTo(EquipmentLocation::class, 'location_id');
+    }       
 }
