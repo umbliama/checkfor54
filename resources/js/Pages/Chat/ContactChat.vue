@@ -56,13 +56,10 @@ window.Echo.private(`chat.${currentUserId.value}`)
         console.log("Received message:", event.message);
         if (props.contactType === 'contact') {
             fetchMessages();
-
         } else {
             fetchMessagesGroup();
-
         }
     });
-
 
 function formatDateToMDYHMS(dateString) {
     // Создаем объект Date из строки ISO 8601
@@ -107,7 +104,39 @@ const getGroupInfo = (id) => {
 }
 
 onMounted(() => {
-    listenForMessages();
+    // Подключение к WebSocket для личных сообщений
+    window.Echo.private(`chat.${currentUserId.value}`)
+        .listen("MessageSent", (event) => {
+            console.log("New message for user:", props.contactId);
+            console.log("Received message:", event.message);
+            if (props.contactType === 'contact') {
+                fetchMessages();
+            } else {
+                fetchMessagesGroup();
+            }
+        });
+
+    // Подключение к WebSocket для групповых сообщений
+    if (props.contactType === 'group') {
+        window.Echo.private(`chat.group.${props.contactId}`)
+            .listen("GroupMessageSent", (event) => {
+                console.log("New group message:", event.message);
+                fetchMessagesGroup();
+            });
+    }
+
+    // Обработка ошибок подключения
+    window.Echo.connector.pusher.connection.bind('error', function (err) {
+        console.error("Echo Error:", err);
+    });
+
+    // Загрузка сообщений при монтировании компонента
+    if (props.contactType === 'contact') {
+        fetchMessages();
+    } else {
+        fetchMessagesGroup();
+    }
+
     getUserInfo(props.contactId)
 });
 // Watch for contactId changes and fetch messages

@@ -38,6 +38,8 @@ const closeModal = () => {
     searchQuery.value = ''; // Очистить поисковый запрос
 };
 
+const emit = defineEmits(['group-created']);
+
 const createGroup = () => {
     if (!groupName.value.trim()) {
         alert('Введите название группы');
@@ -60,13 +62,12 @@ const createGroup = () => {
         .then(response => {
             console.log('Группа успешно создана:', response.data);
             alert('Группа успешно создана!');
+            emit('group-created');
+            closeModal(); // Закрыть модальное окно
         })
         .catch(error => {
             console.error('Ошибка при создании группы:', error);
             alert('Произошла ошибка при создании группы.');
-        })
-        .finally(() => {
-            closeModal(); // Закрыть модальное окно в любом случае
         });
 };
 </script>

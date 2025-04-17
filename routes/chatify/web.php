@@ -18,7 +18,7 @@ Route::post('/groupidInfo', [ChatGroupController::class, 'idFetchData']);
 
 Route::post('/create-group', [ChatGroupController::class, 'createGroup']);
 /**
- * Send message route
+ * Send message routes
  */
 Route::post('/sendMessage', [MessagesController::class, 'send'])->name('send.message');
 Route::post('/sendMessageGroup', [ChatGroupController::class, 'send'])->name('send.groupMessage');

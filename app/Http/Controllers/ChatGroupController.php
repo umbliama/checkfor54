@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\ChatGroup;
 use App\Models\ChatGroupMember;
+use App\Models\Message;
+use App\Events\GroupMessageSent;
+use Illuminate\Support\Str;
 
 class ChatGroupController extends Controller
 {
@@ -104,8 +107,9 @@ class ChatGroupController extends Controller
                 $error->message = "File size you are trying to upload is too large!";
             }
         }
-        $n = new CustomChatifyMessenger();
+
         if (!$error->status) {
+            $n = new CustomChatifyMessenger();
             $message = $n->newGroupMessage([
                 'from_id' => Auth::user()->id,
                 'to_id' => 0,
@@ -116,14 +120,11 @@ class ChatGroupController extends Controller
                     'old_name' => htmlentities(trim($attachment_title), ENT_QUOTES, 'UTF-8'),
                 ]) : null,
             ]);
+
+            // Broadcast the message to all group members
+            broadcast(new GroupMessageSent($message))->toOthers();
+
             $messageData = Chatify::parseMessage($message);
-            if (Auth::user()->id != $request['id']) {
-                Chatify::push("private-chatify." . $request['id'], 'messaging', [
-                    'from_id' => Auth::user()->id,
-                    'to_id' => $request['id'],
-                    'message' => Chatify::messageCard($messageData, true)
-                ]);
-            }
         }
 
         // send the response

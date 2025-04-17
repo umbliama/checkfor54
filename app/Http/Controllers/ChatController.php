@@ -22,7 +22,6 @@ class ChatController extends Controller
     public function sendMessage(Request $request)
     {
         try {
-
             $group_id = $request->input('group_id');
 
             if ($group_id) {
@@ -38,8 +37,8 @@ class ChatController extends Controller
                     'message' => $messageText,
                 ]);
 
-                // Pass the newly created Message model instance to the event
-                broadcast(new MessageSent($message))->toOthers();
+                // Broadcast group message event
+                broadcast(new GroupMessageSent($message))->toOthers();
 
                 return back()->with('success', 'Отправлено');
 
@@ -197,7 +196,8 @@ class ChatController extends Controller
 
     public function getAllUsers()
     {
-        $users = User::all();
+        $currentUserId = auth()->id();
+        $users = User::where('id', '!=', $currentUserId)->get();
 
         return response()->json($users);
     }

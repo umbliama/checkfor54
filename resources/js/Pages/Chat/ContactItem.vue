@@ -35,6 +35,6 @@ const handleClick = (contact) => {
         </ul>
     </div>
     <div v-else>
-        No contacts found.
+        Контакты не найдены
     </div>
 </template>

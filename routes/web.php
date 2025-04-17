@@ -41,13 +41,13 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', CheckIfApproved::class])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
-    Route::get('/rent', [DashboardController::class, 'rent'])->middleware(['auth', 'verified'])->name('rent');
-    Route::get('/free', [DashboardController::class, 'free'])->middleware(['auth', 'verified'])->name('free');
-    Route::get('/dashequip', [DashboardController::class, 'dashequip'])->middleware(['auth', 'verified'])->name('dashequip');
-    Route::get('/serviced', [DashboardController::class, 'serviced'])->middleware(['auth', 'verified'])->name('serviced');
-    Route::get('/analysis', [DashboardController::class, 'analysis'])->middleware(['auth', 'verified'])->name('analysis');
-    Route::get('/commercial', [DashboardController::class, 'commercial'])->middleware(['auth', 'verified'])->name('commercial');
-    Route::put('/commercial/editKP', [ContragentsController::class, 'editKP'])->middleware(['auth', 'verified'])->name('editKP');
+    Route::get('/dashboard/rent', [DashboardController::class, 'rent'])->middleware(['auth', 'verified'])->name('rent');
+    Route::get('/dashboard/free', [DashboardController::class, 'free'])->middleware(['auth', 'verified'])->name('free');
+    Route::get('/dashboard/dashequip', [DashboardController::class, 'dashequip'])->middleware(['auth', 'verified'])->name('dashequip');
+    Route::get('/dashboard/serviced', [DashboardController::class, 'serviced'])->middleware(['auth', 'verified'])->name('serviced');
+    Route::get('/dashboard/analysis', [DashboardController::class, 'analysis'])->middleware(['auth', 'verified'])->name('analysis');
+    Route::get('/dashboard/commercial', [DashboardController::class, 'commercial'])->middleware(['auth', 'verified'])->name('commercial');
+    Route::put('/dashboard/commercial/editKP', [ContragentsController::class, 'editKP'])->middleware(['auth', 'verified'])->name('editKP');
 
 
     Route::get('/equip', [EquipmentController::class, 'index'])->name('equip.index');

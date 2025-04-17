@@ -60,10 +60,9 @@ const sendMessage = async () => {
 
 <template>
     <div class="flex">
-        <input v-model="message"
+        <input @keyup.enter="sendMessage" v-model="message"
             class="block min-w-0 grow border-2 border-indigo-500 py-1.5 px-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm"
             type="text" :disabled="sending" placeholder="Введите сообщение...">
-
         <button class="p-4 bg-indigo-500 text-white hover:bg-indigo-600 transition disabled:opacity-50"
             @click="sendMessage" :disabled="sending">
             {{ sending ? 'Отправка...' : 'Отправить' }}
