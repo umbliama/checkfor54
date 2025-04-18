@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             // ContragentsTableSeeder::class,
             // MoveSeeder::class,
             // TestsRepairsSeeder::class,
-            // SaleSeeder::class,   
+            // SaleSeeder::class,
             // ServiceSeeder::class
         ]);
     }
