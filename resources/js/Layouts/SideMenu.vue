@@ -130,7 +130,7 @@ console.log("🔍 Echo WebSocket статус:", window.Echo.connector);
 <template>
     <div
         class="flex justify-between items-center w-full bg-white lg:h-screen lg:flex-col lg:justify-start lg:px-4 lg:py-6 lg:border-r-2 p-4">
-        <Link href="/analysis">
+        <Link href="/dashboard/analysis">
         <div class="flex flex-col items-end">
             <div class="flex justify-center items-center">
                 <ApplicationLogo class="w-5 h-5 fill-current text-gray-500" />
