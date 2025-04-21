@@ -1,4 +1,6 @@
 <script setup>
+import { SwitchRoot, SwitchThumb } from "radix-vue";
+
 const $props = defineProps({
     requiredSize: Boolean,
 
@@ -10,6 +12,11 @@ const $props = defineProps({
 
     categories: Array,
     sizes     : Array,
+
+    showSizeSwitch: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const $emit = defineEmits(['categoryClick', 'sizeClick']);
@@ -42,6 +49,30 @@ const $emit = defineEmits(['categoryClick', 'sizeClick']);
         <div class="relative mt-4">
             <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
             <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
+                <li v-if="$props.showSizeSwitch">
+                    <SwitchRoot
+                        id="airplane-mode"
+                        v-model="switchState"
+                        v-slot="{ checked }"
+                    >
+                        <div
+                            :class="{
+                                'bg-side-gray-text': checked,
+                                'bg-side-gray-text/40': !checked,
+                            }"
+                            class="w-[30px] h-4 flex relative rounded-full"
+                        >
+                            <SwitchThumb
+                                :class="{
+                                    'translate-x-[calc(100%+1px)]': checked,
+                                    'translate-x-px': !checked,
+                                }"
+                                class="w-3.5 h-3.5 my-auto bg-white rounded-full transition-transform will-change-transform"
+                            />
+                        </div>
+                    </SwitchRoot>
+                </li>
+
                 <li
                     v-if="!$props.requiredSize"
                     :class="{ '!border-[#001D6C] text-[#001D6C]': !$props.selectedSize }"

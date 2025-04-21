@@ -83,7 +83,7 @@ const updateRepairTable = (selectedCategory, selectedSize, seriesActive) => {
     .then(response => {
         moves.value = response.data;
         console.log(response.data);
-        
+
     })
     .catch(error => {
         console.error('Error fetching data:', error);
@@ -216,7 +216,7 @@ onMounted(() => {
             <EquipFilter :selected-category="selectedCategory" :selected-size="selectedSize"
                 :categories-counts="equipment_categories_counts" :sizes-counts="equipment_sizes_counts"
                 :categories="equipment_categories" :sizes="equipment_sizes"
-                @category-click="cat_id => setCategoryId(cat_id)" @size-click="size_id => setSizeId(size_id)" />
+                @category-click="cat_id => setCategoryId(cat_id)" @size-click="size_id => setSizeId(size_id)" show-size-switch />
 
             <div class="flex justify-between bg-my-gray mt-4 p-1 lg:hidden">
                 <UiFieldSelect v-model="localSeriesActive" :items="get_equipmentSeries"
@@ -251,11 +251,16 @@ onMounted(() => {
             </div>
 
             <div v-if="selectedCategory" class="flex mt-5">
-                <ul class="hidden w-[100px] mr-3.5 lg:block">
-                    <li :class="{ 'pointer-events-none bg-my-gray': seriesActive === series }"
-                        class="py-3 px-2 font-medium cursor-pointer text-sm border-b border-b-my-gray"
-                        @click="setSeriesId(series)" v-for="series in equipmentSeries">{{ series }}</li>
-                </ul>
+                <div class="hidden flex-col w-[100px] mr-3.5 lg:flex">
+                    <form action="" method="GET" class="w-full">
+                        <input type="text" placeholder="Поиск" class="w-full h-7 px-2.5 rounded-md font-semibold text-[11px] bg-bg1 border border-black/5" />
+                    </form>
+                    <ul class="max-h-[500px] overflow-y-auto">
+                        <li :class="{ 'pointer-events-none bg-my-gray': seriesActive === series }"
+                            class="py-3 px-2 font-medium cursor-pointer text-sm border-b border-b-my-gray"
+                            @click="setSeriesId(series)" v-for="series in equipmentSeries">{{ series }}</li>
+                    </ul>
+                </div>
                 <div v-if="seriesActive" class="w-full space-y-5 lg:w-[calc(100%-100px-14px)]">
                     <div class="font-bold text-gray1">Добавить новую запись перемещения</div>
                     <div class="w-full max-w-full mt-2.5 bg-bg2 overflow-x-auto border border-gray3">
@@ -595,7 +600,7 @@ onMounted(() => {
                                                                 </button>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem>
-                                                                <Link :href="route('equip.destroyMove', move.id)" @click="updateRepairTable(selectedCategory,selectedSize,seriesActive)"    
+                                                                <Link :href="route('equip.destroyMove', move.id)" @click="updateRepairTable(selectedCategory,selectedSize,seriesActive)"
                                                                     method="DELETE"
                                                                     class="inline-flex items-center py-1 px-2 rounded text-danger hover:bg-my-gray transition-all">
                                                                 Удалить
