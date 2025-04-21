@@ -76,7 +76,7 @@ function resetDates() {
                 </li>
                 <li :class="{ '!border-[#001D6C] text-[#001D6C]': $props.dashboardPageType === 'serviced' }"
                     class="border-b-2 border-transparent cursor-pointer">
-                    <Link :href="route('serviced')" class="flex items-center py-3">
+                    <Link :href="route('serviced', { category_id: 1, size_id: 1 })" class="flex items-center py-3">
                     На сервисе
                     <span v-if="repairCount > 0 || repairCount === null" class="flex items-center h-[18px] ml-1 px-1.5 rounded-full font-roboto text-xs text-white bg-side-gray-text">{{repairCount}}</span>
                         </Link>

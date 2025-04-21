@@ -169,7 +169,7 @@ class EquipmentController extends Controller
         foreach ($equipment_location as $location) {
             $locationIdCount = $location->id;
             if ($categoryId > 0) {
-                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->whereNotIn('status',['sold','off','deleted'])->count();
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->whereNotIn('status', ['deleted', 'off','sold'])->count();
             } else {
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
             }
@@ -1398,21 +1398,21 @@ class EquipmentController extends Controller
         foreach ($equipment_categories as $category) {
             $categoryIDForCount = $category->id;
             $equipment_categories_counts[$categoryIDForCount] = Equipment::where('category_id', $categoryIDForCount)
-                ->whereIn('status', ['deleted', 'off'])
+                ->whereNotIn('status', ['deleted', 'off'])
                 ->count();
         }
 
         $equipment_sizes_counts = [];
         foreach ($equipment_sizes as $size) {
             $sizeIDForCount = $size->id;
-            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->whereIn('status', ['deleted', 'off'])->count();
+            $equipment_sizes_counts[$sizeIDForCount] = Equipment::where('size_id', $sizeIDForCount)->count();
         }
 
         $location_counts = [];
         foreach ($equipment_location as $location) {
             $locationIdCount = $location->id;
             if ($categoryId > 0) {
-                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->whereIn('status', ['deleted', 'off'])->where('category_id', $categoryId)->count();
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->count();
             } else {
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
             }

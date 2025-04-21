@@ -885,7 +885,7 @@ class DashboardController extends Controller
         foreach ($equipment_location as $location) {
             $locationIdCount = $location->id;
             if ($categoryId > 0) {
-                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->where('status','!=','deleted')->count();
+                $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->where('category_id', $categoryId)->whereNotIn('status', ['off', 'deleted', 'sold'])->count();
             } else {
                 $location_counts[$locationIdCount] = Equipment::where('location_id', $locationIdCount)->count();
             }
