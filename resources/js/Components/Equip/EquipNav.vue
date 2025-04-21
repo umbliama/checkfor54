@@ -112,12 +112,7 @@ onMounted(() => {
                     Перемещение
 
                     </Link>
-                </li>
-                                <li>
-                    <Link :href="route('equip.report')"
-                        :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
-                        class="flex items-center border-b-2 border-transparent py-3 text-base">Отчет</Link>
-                </li>
+
                 <li>
                     <Link :href="route('equip.report')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"
