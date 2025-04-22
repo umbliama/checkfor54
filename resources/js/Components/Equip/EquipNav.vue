@@ -112,7 +112,7 @@ onMounted(() => {
                     Перемещение
 
                     </Link>
-
+    </li>
                 <li>
                     <Link :href="route('equip.report')"
                         :class="{ '!border-[#001D6C] text-[#001D6C]': menuActive === EquipMenuItems.REPORT }"

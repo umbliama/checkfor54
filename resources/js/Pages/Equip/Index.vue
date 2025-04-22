@@ -629,7 +629,7 @@ onMounted(() => {
                                 </div>
                                 <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.size.name ?? '-' }}
                                 </div>
-                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.size.length ?? '-' }}
+                                <div class="shrink-0 flex items-center w-[4.89%] py-2.5 px-2">{{ item.length ?? '-' }}
                                 </div>
                                 <div class="shrink-0 flex items-center w-[5.15%] py-2.5 px-2">{{ item.dlina_ds ?? '-' }}
                                 </div>
