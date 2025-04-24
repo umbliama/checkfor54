@@ -72,6 +72,11 @@ class Service extends Model
         return $query->where('active', true);
     }
 
+    public function contragent()
+    {
+        return $this->hasOne(Contragents::class,'id','contragent_id');
+    }
+
     public static function getExtraServices(): array
     {
         return [

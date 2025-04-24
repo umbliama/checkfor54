@@ -591,7 +591,11 @@ onMounted(() => {
                                         statuses[item.status]
                                         }}</span>
                                 </div>
-                                <div class="shrink-0 flex items-center w-[calc(100%-18.7%-7.86%-7.86%-7.86%-7.5%-9.96%-50px)] py-2.5 px-2">{{ item.location.name ?? '-' }}</div>
+                                <div class="shrink-0 flex items-center w-[calc(100%-18.7%-7.86%-7.86%-7.86%-7.5%-9.96%-50px)] py-2.5 px-2">
+                                    {{ item.customer?.contragent?.name ? item.customer.contragent.name : item.location?.name }}
+                                </div>
+
+
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                     <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -877,7 +881,7 @@ onMounted(() => {
                                     <span :class="statuses_colors[item.status]" class="shrink-0 block w-1.5 h-1.5 mr-2 rounded-full"></span>
                                     <span class="text-nowrap text-ellipsis overflow-hidden">{{ statuses[item.status] }}</span>
                                 </div>
-                              <div class="shrink-0 flex items-center w-[calc(100%-18.7%-7.86%-7.86%-7.5%-9.96%-50px)] py-2.5 px-2">{{ item.location.name ?? '-' }}</div>
+                              <div class="shrink-0 flex items-center w-[calc(100%-18.7%-7.86%-7.86%-7.5%-9.96%-50px)] py-2.5 px-2">{{ item.customer.contragent.name ?? item.location.name }}</div>
                                 <div class="shrink-0 flex items-center justify-center w-[50px] py-2.5 px-2">
                                     <Link v-if="item.directory === null" :href="'/directory/equipment/' + item.id">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"

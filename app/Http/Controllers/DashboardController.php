@@ -632,7 +632,7 @@ class DashboardController extends Controller
         }
 
         $categoryDataIncome = collect($categoryDataIncomeArray);
-        $categories         = EquipmentCategories::with([
+        $categories = EquipmentCategories::with([
             'equipment' => function ($query) {
                 $query->select('id', 'size_id', 'category_id', 'status')
                     ->with(['size:id,name']);
@@ -640,34 +640,35 @@ class DashboardController extends Controller
             'sizes:id,name,category_id',
         ])->get()->map(function ($category) {
             $allSizes = $category->sizes->keyBy('id');
-
+        
             $sizeData = $category->equipment->groupBy('size_id')->map(function ($equipmentGroup, $sizeId) use ($allSizes) {
                 $sizeName = $allSizes[$sizeId]->name ?? 'Unknown';
-
+        
                 $totalQuantity = $equipmentGroup->count();
                 $equipmentIds  = $equipmentGroup->pluck('id');
-
+        
                 $serviceEquipCount = ServiceEquip::whereIn('equipment_id', $equipmentIds)
                     ->whereHas('services', function ($query) {
                         $query->where('active', 1);
                     })
                     ->count();
-
+        
                 $serviceSubCount = ServiceSub::whereIn('subequipment_id', $equipmentIds)
                     ->whereHas('service', function ($query) {
                         $query->where('active', 1);
                     })
                     ->count();
-
+        
                 $onTestCount = EquipmentTest::whereIn('equipment_id', $equipmentIds)
                     ->whereNotNull('test_date')
                     ->count();
                 $onRepairCount = EquipmentTest::whereIn('equipment_id', $equipmentIds)
                     ->whereNotNull('repair_date')
                     ->count();
-
+        
                 $numberOfSizeOnRent = $serviceEquipCount + $serviceSubCount;
                 $equipmentLeft      = $totalQuantity + $onRepairCount;
+        
                 return [
                     'size'               => $sizeName,
                     'totalQuantity'      => $totalQuantity,
@@ -676,7 +677,8 @@ class DashboardController extends Controller
                     'percent'            => $equipmentLeft * ($numberOfSizeOnRent / 100),
                 ];
             });
-
+        
+            // Add missing sizes with zero values
             foreach ($allSizes as $sizeId => $size) {
                 if (! $sizeData->has($sizeId)) {
                     $sizeData[$sizeId] = [
@@ -687,8 +689,13 @@ class DashboardController extends Controller
                     ];
                 }
             }
-
-            return $sizeData->values()->toArray();
+        
+            // Filter out entries where totalQuantity, numberOfSizeOnRent, and equipmentLeft are all 0
+            $filteredSizeData = $sizeData->filter(function ($item) {
+                return !($item['totalQuantity'] === 0 && $item['numberOfSizeOnRent'] === 0 && $item['equipmentLeft'] === 0);
+            });
+        
+            return $filteredSizeData->values()->toArray();
         })->toArray();
 
         $categoriesForPecent = EquipmentCategories::with([
@@ -970,7 +977,20 @@ class DashboardController extends Controller
 
             $income = ServiceEquip::where('equipment_id', $equip->id)->sum('income');
             $subincome = ServiceSub::where('equipment_id', $equip->id)->sum('income');
-
+            $customer_ids = ServiceEquip::where('equipment_id', $equip->id)->pluck('service_id')->filter();
+            $subcustomer_ids = ServiceSub::where('equipment_id', $equip->id)->pluck('service_id')->filter();
+            
+            if (!$customer_ids->isEmpty()) {
+                $customer_id = $customer_ids->first();
+                $customer = Service::where('id', $customer_id)->with('contragent')->first();
+                $equip->customer = $customer;
+            }
+            
+            if (!$subcustomer_ids->isEmpty()) {
+                $subcustomer_id = $subcustomer_ids->first();
+                $subcustomer = Service::where('id', $subcustomer_id)->with('contragent')->first();
+                $equip->subcustomer = $subcustomer;
+            }
             $equip->income = $income;
             $equip->subincome = $subincome;
             
