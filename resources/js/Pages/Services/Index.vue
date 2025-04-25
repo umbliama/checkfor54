@@ -165,11 +165,13 @@ watch(() => props.services, (newVal) => {
 
 const filteredServices = (month, year, sortKey = 'contragent_data[0].shipping_date', sortOrder = date_sort.value) => {
     const formattedMonth = normalizeMonth(month);
+    const activeServicesData = props.activeServices?.data || {};
+    const servicesData = props.services?.data || {};
 
+const dataArray = selectedActive.value
+  ? Object.values(activeServicesData)
+  : Object.values(servicesData);
 
-    const dataArray = selectedActive
-    ? Object.values(props.activeServices?.data || {})
-    : Object.values(props.services?.data || {});
 
     const filteredArray = dataArray.filter(service => {
         if (!service.contragent_data || service.contragent_data.length === 0) {
