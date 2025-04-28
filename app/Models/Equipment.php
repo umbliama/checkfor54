@@ -78,7 +78,20 @@ class Equipment extends Model
     }
     public function activeServices()
     {
-        return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id')->where('services.active', 1);
+        return $this->hasManyThrough(Service::class, ServiceEquip::class, 'equipment_id', 'id', 'id', 'service_id')
+            ->where('services.active', 1)
+            ->where(function ($query) {
+                $query->whereHas('serviceEquipment', function ($q) {
+                    $q->whereNotNull('service_equipment.period_start_date')
+                      ->whereNotNull('service_equipment.return_date')
+                      ->whereNotNull('service_equipment.period_end_date');
+                })
+                ->orWhereHas('serviceSubequipment', function ($q) {
+                    $q->whereNotNull('service_subequipment.period_start_date')
+                      ->whereNotNull('service_subequipment.return_date')
+                      ->whereNotNull('service_subequipment.period_end_date');
+                });
+            });
     }
 
     public function getUsedAttribute()

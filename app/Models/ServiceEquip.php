@@ -40,4 +40,15 @@ class ServiceEquip extends Model
     {
         return $this->belongsTo(Service::class, 'service_id', 'id');
     }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id', 'id');
+    }
+
+    public function serviceSubequipment()
+    {
+        return $this->hasMany(ServiceSubequipment::class, 'service_equipment_id', 'id');
+    }
+
 }

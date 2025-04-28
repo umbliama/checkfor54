@@ -91,5 +91,19 @@ class Service extends Model
         ];
     }
 
+
+
+    public function serviceSubequipment()
+    {
+        return $this->hasManyThrough(
+            ServiceSub::class,
+            ServiceEquip::class,
+            'service_id', // Foreign key on service_equipment table
+            'service_equipment_id', // Foreign key on service_subequipment table
+            'id', // Local key on services table
+            'id' // Local key on service_equipment table
+        );
+    }
+
     use HasFactory;
 }

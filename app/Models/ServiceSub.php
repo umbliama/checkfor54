@@ -41,6 +41,13 @@ class ServiceSub extends Model
     {
         return $this->belongsTo(ServiceEquip::class, 'service_equipment_id', 'id');
     }
+
+    public function serviceEquipment()
+    {
+        return $this->belongsTo(ServiceEquip::class, 'service_equipment_id', 'id');
+    }
+
+
    
 
     use HasFactory;
