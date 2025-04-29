@@ -83,13 +83,11 @@ class Equipment extends Model
             ->where(function ($query) {
                 $query->whereHas('serviceEquipment', function ($q) {
                     $q->whereNotNull('service_equipment.period_start_date')
-                      ->whereNotNull('service_equipment.return_date')
-                      ->whereNotNull('service_equipment.period_end_date');
+                      ->whereNotNull('service_equipment.return_date');
                 })
                 ->orWhereHas('serviceSubequipment', function ($q) {
                     $q->whereNotNull('service_subequipment.period_start_date')
-                      ->whereNotNull('service_subequipment.return_date')
-                      ->whereNotNull('service_subequipment.period_end_date');
+                      ->whereNotNull('service_subequipment.return_date');
                 });
             });
     }

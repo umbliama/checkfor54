@@ -186,28 +186,37 @@ const toggleSortBy = (column) => {
 const updateFiltersAndFetchData = () => {
     const url_params = new URLSearchParams(window.location.search);
 
+    // Флаг, нужно ли будет обновить URL
+    let needUpdateUrl = false;
+
+    // category_id
     if (!url_params.has('category_id')) {
         filters.category_id = 1;
-        updateUrl();
+        needUpdateUrl = true;
     } else {
         filters.category_id = +url_params.get('category_id');
     }
 
+    // size_id
     if (!url_params.has('size_id')) {
         filters.size_id = 1;
-        updateUrl();
+        needUpdateUrl = true;
     } else {
         filters.size_id = +url_params.get('size_id');
     }
 
-    filters.size_id = url_params.has('size_id') ? +url_params.get('size_id') : null;
-    filters.location_id = url_params.has('location_id') ? +url_params.get('location_id') : 0;
+    // location_id
+    filters.location_id = url_params.has('location_id') 
+        ? +url_params.get('location_id') 
+        : 0;
+
+    // Обновляем URL один раз, если были дефолтные значения
+    if (needUpdateUrl) {
+        updateUrl();
+    }
 };
-
-
 onMounted(() => {
 
-    updateFiltersAndFetchData();
 });
 
 </script>
@@ -221,6 +230,7 @@ onMounted(() => {
                 <div class="relative">
                     <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                     <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
+                                  
                         <li v-for="category in equipment_categories" @click="setCategoryId(category.id)"
                             :class="{ '!border-[#001D6C] text-[#001D6C]': category.id === chosenCategory }"
                             class="flex items-center border-b-2 border-transparent py-3 cursor-pointer">
@@ -239,6 +249,28 @@ onMounted(() => {
                 <div class="relative mt-4">
                     <span class="absolute left-0 bottom-0 w-full h-[1px] bg-[#e5e7eb]"></span>
                     <ul class="relative flex items-center w-full font-medium space-x-6 overflow-x-auto">
+                          <li
+                    v-if="!$props.requiredSize"
+                    :class="{ '!border-[#001D6C] text-[#001D6C]': chosenSize === 0 }"
+                    class="flex items-center border-b-2 border-transparent py-3 cursor-pointer"
+                    @click="setSizeId(0)"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_3234_25341)">
+                            <path d="M3.5 5.5L5 7L7.5 4.5" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.5 11.5L5 13L7.5 10.5" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3.5 17.5L5 19L7.5 16.5" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11 6H20" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11 12H20" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11 18H20" stroke="#21272A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_3234_25341">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </li>
                         <li @click="setSizeId(size.id)" v-for="size in equipment_sizes"
                             :class="{ '!border-[#001D6C] text-[#001D6C]': size.id === chosenSize }"
                             class="flex items-center border-b-2 border-transparent py-3 cursor-pointer">
@@ -250,6 +282,7 @@ onMounted(() => {
                                     equipment_sizes_counts[size.id] ?? 0}}</span>
                             </div>
                         </li>
+                        
                     </ul>
                 </div>
             </nav>
