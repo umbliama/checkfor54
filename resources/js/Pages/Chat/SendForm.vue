@@ -43,6 +43,7 @@ const sendMessage = async () => {
                 message.value = ''; // Очищаем поле ввода
                 if (props.onMessageSent) {
                     props.onMessageSent(); // Вызываем коллбэк после успешной отправки
+                    console.log('sentsendMessage')
                 }
             },
             onError: (errors) => {

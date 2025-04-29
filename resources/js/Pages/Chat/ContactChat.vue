@@ -37,7 +37,6 @@ const fetchMessages = () => {
 const fetchMessagesGroup = () => {
     if (!props.contactId) return;
     loading.value = true;
-
     axios.get(`/chat/group/messages/${props.contactId}`)
         .then(response => {
             messages.value = response.data;
@@ -66,11 +65,11 @@ function formatDateToMDYHMS(dateString) {
     const date = new Date(dateString);
 
     // Извлекаем компоненты даты и времени
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяц (0-11, поэтому +1)
-    const day = String(date.getDate()).padStart(2, '0');        // День
-    const year = date.getFullYear();                            // Год
-    const hours = String(date.getHours()).padStart(2, '0');     // Часы
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Минуты
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const day = String(date.getDate()).padStart(2, '0');        
+    const year = date.getFullYear();                           
+    const hours = String(date.getHours()).padStart(2, '0');     
+    const minutes = String(date.getMinutes()).padStart(2, '0');
 
     // Формируем строку в формате MM/DD/YYYY:HH:mm
     return `${month}/${day}/${year} ${hours}:${minutes}`;
@@ -116,6 +115,17 @@ onMounted(() => {
             }
         });
 
+            window.Echo.private(`chat.${currentUserId.value}`)
+        .listen("GroupMessageSent", (event) => {
+            console.log("New message for user:", props.contactId);
+            console.log("Received message:", event.message);
+            if (props.contactType === 'contact') {
+                fetchMessages();
+            } else {
+                fetchMessagesGroup();
+            }
+        });
+
     // Подключение к WebSocket для групповых сообщений
     if (props.contactType === 'group') {
         window.Echo.private(`chat.group.${props.contactId}`)
@@ -146,6 +156,8 @@ if (props.contactType === 'group') {
 
 }
 watch(() => props.contactId, (newContactId) => {
+
+    console.log(props.contactType)
     if (props.contactType === 'contact') {
         getUserInfo(newContactId);
 
@@ -161,7 +173,6 @@ watch(() => props.contactId, (newContactId) => {
         <h2 v-if="contactId">{{ contactUser.name }}</h2>
         <h2 v-else-if="contactId || loading">{{ 'Загрузка' }}</h2>
         <div v-else>No contact selected</div>
-
         <!-- Загрузочный индикатор -->
         <div v-if="loading" class="flex justify-center items-center h-full">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>

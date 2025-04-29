@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSent;
+use App\Events\GroupMessageSent;
 use Inertia\Inertia;
 
 
@@ -128,6 +129,7 @@ class ChatController extends Controller
 
     public function getUserMessages($id)
     {
+
         try {
             $currentUserId = auth()->id();
 
@@ -141,6 +143,7 @@ class ChatController extends Controller
                     $query->where('user_id', $id)
                         ->where('recipient_id', $currentUserId);
                 })->orderBy('created_at', 'asc')->get();
+                
 
 
             return response()->json(['messages' => $messages]);
