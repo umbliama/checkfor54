@@ -511,11 +511,12 @@ class ServiceController extends Controller
                         ->first();
 
                     if (!$equipmentPrice) {
-                        return back()->with('error', 'Цена не установлена');
+                        $store_price = 0;
+                        $operation_price = 0;
+                    }else {
+                        $store_price = $equipmentPrice->store_price;
+                        $operation_price = $equipmentPrice->operation_price;    
                     }
-
-                    $store_price = $equipmentPrice->store_price;
-                    $operation_price = $equipmentPrice->operation_price;
 
                     $operating = $equipmentData['operating'] ?? 0;
                     $store = $equipmentData['store'] ?? 0;
@@ -597,13 +598,17 @@ class ServiceController extends Controller
                                     ->first();
                                 
                                 if (!$subEquipmentPrice) {
-                                    return back()->with('error', 'Цена для subEquipment не установлена');
+                                    $subStorePrice = 0;
+                                    $subOperationPrice = 0;
+    
+                                }else {
+                                    $subStorePrice = $subEquipmentPrice->store_price;
+                                    $subOperationPrice = $subEquipmentPrice->operation_price;
+    
                                 }
 
                                 
                         
-                                $subStorePrice = $subEquipmentPrice->store_price;
-                                $subOperationPrice = $subEquipmentPrice->operation_price;
                         
 
                                 if ($existingServiceSub) {
