@@ -15,5 +15,5 @@ php artisan route:clear
 php artisan storage:link
 
 # Start Supervisor to manage Reverb & Queue
-# echo "Starting Supervisor..."
-# exec supervisord -c /etc/supervisord.conf
+echo "Starting Supervisor..."
+exec supervisord -c /etc/supervisord.conf
