@@ -14,4 +14,7 @@ Broadcast::channel('chat.{id}', function ($user, $id) {
 Broadcast::channel('notifications.global', function () {
     return true;
 });
-
+Broadcast::channel('chat.group.{groupId}', function ($user, $groupId) {
+    // Проверьте, имеет ли пользователь доступ к этой группе
+    return $user->groups()->where('id', $groupId)->exists();
+});

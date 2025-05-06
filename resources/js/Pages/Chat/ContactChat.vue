@@ -109,31 +109,20 @@ onMounted(() => {
             console.log("New message for user:", props.contactId);
             console.log("Received message:", event.message);
             if (props.contactType === 'contact') {
+                console.log(props.contactType)
                 fetchMessages();
             } else {
                 fetchMessagesGroup();
             }
         });
 
-            window.Echo.private(`chat.${currentUserId.value}`)
-        .listen("GroupMessageSent", (event) => {
-            console.log("New message for user:", props.contactId);
-            console.log("Received message:", event.message);
-            if (props.contactType === 'contact') {
-                fetchMessages();
-            } else {
-                fetchMessagesGroup();
-            }
-        });
 
-    // Подключение к WebSocket для групповых сообщений
-    if (props.contactType === 'group') {
+
         window.Echo.private(`chat.group.${props.contactId}`)
-            .listen("GroupMessageSent", (event) => {
+            .listen(".GroupMessageSent", (event) => {
                 console.log("New group message:", event.message);
                 fetchMessagesGroup();
             });
-    }
 
     // Обработка ошибок подключения
     window.Echo.connector.pusher.connection.bind('error', function (err) {
@@ -157,7 +146,6 @@ if (props.contactType === 'group') {
 }
 watch(() => props.contactId, (newContactId) => {
 
-    console.log(props.contactType)
     if (props.contactType === 'contact') {
         getUserInfo(newContactId);
 
